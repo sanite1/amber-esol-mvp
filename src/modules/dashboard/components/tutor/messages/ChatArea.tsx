@@ -11,8 +11,6 @@ import {
   Calendar,
   Download,
   Loader2,
-  X,
-  Image as ImageIcon,
 } from "lucide-react";
 import type {
   Conversation,
@@ -418,7 +416,7 @@ export default function ChatArea({
               onKeyDown={handleKeyDown}
               placeholder="Type a message…"
               rows={1}
-              className="w-full px-3 py-2 sm:py-2.5 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-xs sm:text-[13px] text-[#0B2343] outline-none focus:border-[#ff7c22]/30 focus:bg-white transition-colors resize-none overflow-y-auto scrollbar-hide max-h-[120px]"
+              className="w-full px-4 py-2.5 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/30 focus:bg-white resize-none transition-colors disabled:opacity-50 scrollbar-none"
             />
           </div>
 

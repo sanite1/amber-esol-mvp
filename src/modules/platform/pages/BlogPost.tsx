@@ -1,13 +1,6 @@
 import React, { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import {
-  ArrowLeft,
-  Clock,
-  Calendar,
-  BookOpen,
-  ChevronRight,
-  ArrowRight,
-} from "lucide-react";
+import { ArrowLeft, Clock, BookOpen, ChevronRight } from "lucide-react";
 import {
   blogData,
   categoryConfig,

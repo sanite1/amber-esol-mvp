@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Shield, KeyRound, Smartphone } from "lucide-react";
+import { KeyRound } from "lucide-react";
 import type { TutorSettingsData } from "../../../data/tutor/tutorSettingsData";
 
 interface Props {

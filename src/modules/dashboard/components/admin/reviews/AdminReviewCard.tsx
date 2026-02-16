@@ -1,11 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Star,
   AlertTriangle,
   MessageSquare,
   ThumbsUp,
-  Eye,
-  EyeOff,
   Zap,
 } from "lucide-react";
 import type { AdminReview } from "../../../data/admin/adminReviewsData";

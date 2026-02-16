@@ -57,7 +57,7 @@ export default function Login() {
   const onSubmit = async (data: LoginFormData) => {
     setErrorMessage(null);
     try {
-      const response = await login(data);
+      await login(data);
       await refreshAuthState();
 
       // Navigate based on user role/verification

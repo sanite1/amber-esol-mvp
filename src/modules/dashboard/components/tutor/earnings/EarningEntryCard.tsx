@@ -1,5 +1,4 @@
-import { Clock, CheckCircle2, Loader2, BookOpen } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Clock, CheckCircle2, Loader2 } from "lucide-react";
 import type { EarningEntry } from "../../../data/tutor/tutorEarningsData";
 
 interface Props {

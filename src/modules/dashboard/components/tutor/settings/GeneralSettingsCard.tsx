@@ -1,13 +1,5 @@
 import { useState } from "react";
-import {
-  Globe,
-  Languages,
-  Pencil,
-  X,
-  Check,
-  Loader2,
-  AlertCircle,
-} from "lucide-react";
+import { Globe, Languages, Pencil, X, Check, Loader2 } from "lucide-react";
 import type { TutorSettingsData } from "../../../data/tutor/tutorSettingsData";
 import {
   timezoneOptions,

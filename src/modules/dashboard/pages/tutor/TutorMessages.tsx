@@ -3,7 +3,6 @@ import { MessageSquare } from "lucide-react";
 import {
   tutorMessagesData,
   type TutorMessagesData,
-  type Conversation,
   type ChatMessage,
 } from "../../data/tutor/tutorMessagesData";
 import {
@@ -36,7 +35,7 @@ export default function TutorMessages() {
         setActiveConvId(first.id);
       }
     }
-  }, [data]);
+  }, [data, activeConvId]);
 
   const activeConv = data?.conversations.find((c) => c.id === activeConvId);
 
@@ -59,7 +58,7 @@ export default function TutorMessages() {
         };
       });
     }
-  }, [activeConvId]);
+  }, [activeConvId, activeConv]);
 
   /* ── Handlers ── */
   const handleSendMessage = (convId: string, text: string) => {

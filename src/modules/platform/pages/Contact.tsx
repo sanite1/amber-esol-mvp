@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import AOS from "aos";
-import { Mail, Phone, MapPin, Send, Clock, CheckCircle, X } from "lucide-react";
+import { Mail, Phone, MapPin, Send, Clock, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const contactMethods = [

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowRight, CheckCircle2, Mail, RefreshCw, Star } from "lucide-react";
+import { ArrowRight, CheckCircle2, Mail, Star } from "lucide-react";
 import logo from "../../assets/logo.png";
 
 const FRONTEND_URL = process.env.REACT_APP_FRONTEND_URL;
@@ -20,10 +20,10 @@ export default function ConfirmEmail() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const handleResend = () => {
-    // TODO: Replace with actual resend API call
-    console.log("Resend confirmation email");
-  };
+  // const handleResend = () => {
+  //   // TODO: Replace with actual resend API call
+  //   console.log("Resend confirmation email");
+  // };
 
   return (
     <div className="min-h-screen">

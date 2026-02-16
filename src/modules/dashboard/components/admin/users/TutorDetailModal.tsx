@@ -4,7 +4,6 @@ import {
   Mail,
   Phone,
   MapPin,
-  Calendar,
   BookOpen,
   PoundSterling,
   Star,

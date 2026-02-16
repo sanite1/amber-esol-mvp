@@ -5,7 +5,6 @@ import {
   X,
   Check,
   Loader2,
-  ArrowRight,
   Target,
   Clock,
 } from "lucide-react";

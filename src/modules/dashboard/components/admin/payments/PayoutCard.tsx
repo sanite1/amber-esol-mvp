@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Banknote,
   Clock,
   CheckCircle,
   XCircle,

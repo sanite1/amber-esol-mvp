@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  CreditCard,
-  RotateCcw,
-  Zap,
-  AlertTriangle,
-  ExternalLink,
-} from "lucide-react";
+import { CreditCard, RotateCcw, Zap, AlertTriangle } from "lucide-react";
 import type { AdminTransaction } from "../../../data/admin/adminPaymentsData";
 
 interface Props {

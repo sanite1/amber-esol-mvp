@@ -1,5 +1,3 @@
-import { Calendar, Zap } from "lucide-react";
-
 interface Props {
   firstName: string;
   todayLessons: number;

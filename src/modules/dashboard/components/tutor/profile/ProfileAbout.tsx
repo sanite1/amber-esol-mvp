@@ -7,7 +7,6 @@ import {
   Loader2,
   AlertCircle,
   Plus,
-  Trash2,
 } from "lucide-react";
 import type { TutorProfileData } from "../../../data/tutor/tutorProfileData";
 

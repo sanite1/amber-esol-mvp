@@ -1,9 +1,4 @@
-import {
-  PoundSterling,
-  Clock,
-  CheckCircle2,
-  CalendarClock,
-} from "lucide-react";
+import { PoundSterling, Clock, CalendarClock } from "lucide-react";
 import type { PaymentsSummary } from "../../../data/student/paymentsData";
 
 interface Props {

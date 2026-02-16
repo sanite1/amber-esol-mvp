@@ -13,10 +13,7 @@ import {
   Check,
   AlertCircle,
 } from "lucide-react";
-import type {
-  TutorReview,
-  ReviewReply,
-} from "../../../data/tutor/tutorReviewsData";
+import type { TutorReview } from "../../../data/tutor/tutorReviewsData";
 
 interface Props {
   review: TutorReview;

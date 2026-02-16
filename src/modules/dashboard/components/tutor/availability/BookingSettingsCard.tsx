@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Settings, Loader2, Check, Globe } from "lucide-react";
+import { Settings, Loader2, Check } from "lucide-react";
 import {
   bufferOptions,
   noticeOptions,
   advanceOptions,
-  timeSlotOptions as tzOptions,
+  //   timeSlotOptions as tzOptions,
 } from "../../../data/tutor/tutorAvailabilityData";
 
 // Re-export timezone options if not already in the data file

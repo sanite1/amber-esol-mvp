@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Calendar, Phone, MoreVertical } from "lucide-react";
+import { ArrowLeft, Calendar } from "lucide-react";
 import { Conversation } from "../../../data/student/messagesData";
 
 interface Props {

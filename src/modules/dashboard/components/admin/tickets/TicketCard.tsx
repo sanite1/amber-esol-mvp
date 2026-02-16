@@ -35,12 +35,12 @@ function Initials({ name }: { name: string }) {
   );
 }
 
-const priorityOrder: Record<string, number> = {
-  urgent: 0,
-  high: 1,
-  medium: 2,
-  low: 3,
-};
+// const priorityOrder: Record<string, number> = {
+//   urgent: 0,
+//   high: 1,
+//   medium: 2,
+//   low: 3,
+// };
 
 export default function TicketCard({ ticket, onClick }: Props) {
   const status = statusConfig[ticket.status] || statusConfig.open;

@@ -13,16 +13,12 @@ import {
   Trash2,
   RotateCcw,
   Loader2,
-  Flag,
   Zap,
   CheckCircle,
   XCircle,
   ExternalLink,
 } from "lucide-react";
-import type {
-  AdminReview,
-  ReviewReport,
-} from "../../../data/admin/adminReviewsData";
+import type { AdminReview } from "../../../data/admin/adminReviewsData";
 
 interface Props {
   review: AdminReview;

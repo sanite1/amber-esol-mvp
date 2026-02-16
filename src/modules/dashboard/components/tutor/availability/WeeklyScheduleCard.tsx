@@ -3,7 +3,6 @@ import { Plus, Trash2, Loader2, Check, Globe } from "lucide-react";
 import type {
   DaySchedule,
   DayOfWeek,
-  TimeBlock,
 } from "../../../data/tutor/tutorAvailabilityData";
 import {
   dayLabels,

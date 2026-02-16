@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Clock,
-  Star,
-  AlertTriangle,
-  Flag,
-  Calendar,
-  User,
-  GraduationCap,
-} from "lucide-react";
+import { Star, AlertTriangle } from "lucide-react";
 import type { AdminLesson } from "../../../data/admin/adminLessonsData";
 
 interface Props {
@@ -70,14 +62,14 @@ const paymentConfig: Record<string, { label: string; className: string }> = {
   free: { label: "Free", className: "text-[#0B2343]/40" },
 };
 
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("en-GB", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-  });
-}
+// function formatDate(dateStr: string): string {
+//   const d = new Date(dateStr);
+//   return d.toLocaleDateString("en-GB", {
+//     weekday: "short",
+//     day: "numeric",
+//     month: "short",
+//   });
+// }
 
 function Initials({ name }: { name: string }) {
   const initials = name

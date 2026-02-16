@@ -1,13 +1,4 @@
-import {
-  X,
-  Clock,
-  CheckCircle2,
-  Loader2,
-  BookOpen,
-  User,
-  Calendar,
-  PoundSterling,
-} from "lucide-react";
+import { X, Clock, BookOpen, Calendar, PoundSterling } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { EarningEntry } from "../../../data/tutor/tutorEarningsData";
 

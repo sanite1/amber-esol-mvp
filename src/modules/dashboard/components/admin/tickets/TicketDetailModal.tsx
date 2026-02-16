@@ -6,13 +6,8 @@ import {
   User,
   GraduationCap,
   Shield,
-  Clock,
   Loader2,
   CheckCircle,
-  XCircle,
-  AlertTriangle,
-  ExternalLink,
-  ChevronDown,
 } from "lucide-react";
 import type {
   AdminTicket,

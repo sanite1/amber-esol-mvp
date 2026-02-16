@@ -4,11 +4,7 @@ import {
   Heart,
   MessageSquare,
   Calendar,
-  Clock,
-  BookOpen,
   ExternalLink,
-  Video,
-  Globe,
 } from "lucide-react";
 import { MyTutor } from "../../../data/student/myTutorsData";
 

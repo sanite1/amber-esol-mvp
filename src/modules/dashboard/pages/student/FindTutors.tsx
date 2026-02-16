@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import {
   dashboardTutors,
   tutorFilterOptions,
-  DashboardTutor,
 } from "../../data/student/dashboardTutorsData";
 
 import TutorSearchBar from "../../components/student/find-tutors/TutorSearchBar";

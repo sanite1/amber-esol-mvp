@@ -10,9 +10,7 @@ import {
   User,
   GraduationCap,
   XCircle,
-  CheckCircle,
   Loader2,
-  MessageSquare,
   ExternalLink,
 } from "lucide-react";
 import type { AdminLesson } from "../../../data/admin/adminLessonsData";
@@ -113,7 +111,7 @@ export default function LessonDetailModal({
   const [showRefundConfirm, setShowRefundConfirm] = useState(false);
 
   const status = statusConfig[lesson.status] || statusConfig.upcoming;
-  const isCancelled = lesson.status.startsWith("cancelled");
+  //   const isCancelled = lesson.status.startsWith("cancelled");
   const canCancel =
     lesson.status === "upcoming" || lesson.status === "in_progress";
   const canRefund =

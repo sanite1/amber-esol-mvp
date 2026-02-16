@@ -1,14 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import {
-  Loader2,
-  CheckCircle2,
-  XCircle,
-  ArrowRight,
-  Star,
-  RefreshCw,
-  ShieldCheck,
-} from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, ArrowRight, Star } from "lucide-react";
 import { useVerifyAccount } from "../../lib/api/authOnboarding";
 import logo from "../../assets/logo.png";
 
@@ -76,11 +68,11 @@ export default function VerifyEmailSuccess() {
   }, [isVerified, navigate]);
 
   // ── Left-panel dynamic content ──
-  const panelHeadline = isLoading
-    ? "Verifying your account…"
-    : isVerified
-      ? "You're all set!"
-      : "Something went wrong";
+  // const panelHeadline = isLoading
+  //   ? "Verifying your account…"
+  //   : isVerified
+  //     ? "You're all set!"
+  //     : "Something went wrong";
 
   const panelDescription = isLoading
     ? "Hang tight — we're confirming your email address."

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Calendar, Clock, Video, ArrowRight, ExternalLink } from "lucide-react";
+import { Calendar, Clock, Video, ArrowRight } from "lucide-react";
 import { UpcomingLesson } from "../../../data/student/studentDashboardData";
 
 interface Props {

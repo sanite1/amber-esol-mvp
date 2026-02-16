@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  X,
-  Settings,
-  CreditCard,
-  AlertCircle,
-  Loader2,
-  Check,
-} from "lucide-react";
+import { X, Settings, AlertCircle, Loader2, Check } from "lucide-react";
 import type { PayoutSettings } from "../../../data/tutor/tutorEarningsData";
 
 interface Props {

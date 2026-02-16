@@ -3,7 +3,6 @@ import { Star } from "lucide-react";
 import {
   tutorReviewsData,
   type TutorReviewsData,
-  type TutorReview,
 } from "../../data/tutor/tutorReviewsData";
 import { ReviewsPageSkeleton } from "../../components/tutor/reviews/ReviewsSkeleton";
 import ReviewsOverview from "../../components/tutor/reviews/ReviewsOverview";

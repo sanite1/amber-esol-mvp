@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { BookOpen, ChevronRight } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import type { RecentLesson } from "../../../data/admin/adminDashboardData";
 
 interface Props {

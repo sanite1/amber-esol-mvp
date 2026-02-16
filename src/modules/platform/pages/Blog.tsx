@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  BookOpen,
-  Clock,
-  ArrowRight,
-  Search,
-  X,
-  ChevronRight,
-  User,
-} from "lucide-react";
+import { BookOpen, Clock, ArrowRight, Search, X } from "lucide-react";
 import { blogData, categoryConfig, type BlogPost } from "../data/blogData";
 
 function Initials({ name }: { name: string }) {
