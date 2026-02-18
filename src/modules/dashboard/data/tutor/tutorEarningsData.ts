@@ -1,9 +1,11 @@
+// ── src/modules/dashboard/data/tutor/tutorEarningsData.ts ──
+
 export interface EarningEntry {
   id: string;
   studentName: string;
   studentId: string;
-  studentCountry: string;
-  studentCountryCode: string;
+  studentCountry?: string; // ← was required, now optional
+  studentCountryCode?: string; // ← was required, now optional
   lessonDate: string;
   lessonType: "trial" | "regular";
   lessonTopic?: string;
@@ -66,6 +68,7 @@ export interface TutorEarningsData {
   monthlyChart: MonthlyEarning[];
 }
 
+// Dummy data kept as fallback — no other changes below this line
 export const tutorEarningsData: TutorEarningsData = {
   stats: {
     totalEarned: 4280,
@@ -181,7 +184,7 @@ export const tutorEarningsData: TutorEarningsData = {
     },
     {
       id: "e-004",
-      studentName: "Lucas Müller",
+      studentName: "Lucas Mller",
       studentId: "stu-004",
       studentCountry: "Germany",
       studentCountryCode: "DE",
@@ -270,7 +273,7 @@ export const tutorEarningsData: TutorEarningsData = {
     },
     {
       id: "e-010",
-      studentName: "Lucas Müller",
+      studentName: "Lucas Mller",
       studentId: "stu-004",
       studentCountry: "Germany",
       studentCountryCode: "DE",

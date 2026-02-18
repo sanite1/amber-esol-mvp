@@ -1,3 +1,5 @@
+// ── src/modules/dashboard/components/admin/payments/PayoutCard.tsx ──
+
 import React from "react";
 import {
   Clock,
@@ -133,13 +135,18 @@ export default function PayoutCard({ payout, onClick }: Props) {
               <span className="text-[10px] sm:text-[11px] text-[#0B2343]/40">
                 {methodLabels[payout.method]}
               </span>
-              <span className="text-[10px] sm:text-[11px] text-[#0B2343]/40">
-                {payout.lessonsCount} lessons
-              </span>
-              <span className="text-[10px] sm:text-[11px] text-[#0B2343]/40">
-                {formatDate(payout.periodStart)} –{" "}
-                {formatDate(payout.periodEnd)}
-              </span>
+              {/* ─── CHANGED: guard optional fields ─── */}
+              {payout.lessonsCount != null && (
+                <span className="text-[10px] sm:text-[11px] text-[#0B2343]/40">
+                  {payout.lessonsCount} lessons
+                </span>
+              )}
+              {payout.periodStart && payout.periodEnd && (
+                <span className="text-[10px] sm:text-[11px] text-[#0B2343]/40">
+                  {formatDate(payout.periodStart)} –{" "}
+                  {formatDate(payout.periodEnd)}
+                </span>
+              )}
             </div>
           </div>
         </div>

@@ -1,8 +1,12 @@
 // ─── Types ───────────────────────────────────────────────────────────────────
-
 export type TransactionType = "lesson_booking" | "refund";
 export type TransactionStatus = "completed" | "pending" | "refunded" | "failed";
-export type PaymentMethodType = "visa" | "mastercard" | "paypal";
+export type PaymentMethodType =
+  | "visa"
+  | "mastercard"
+  | "paypal"
+  | "card"
+  | "bank";
 
 export interface BookedSession {
   date: string;
@@ -30,10 +34,13 @@ export interface PaymentMethod {
   id: string;
   type: PaymentMethodType;
   last4: string;
-  expiryMonth: number;
-  expiryYear: number;
+  expiryMonth?: number; // ← was required, now optional (API doesn't return this)
+  expiryYear?: number; // ← was required, now optional
   isDefault: boolean;
-  holderName: string;
+  holderName?: string; // ← was required, now optional
+  brand?: string; // ← NEW: from API
+  bankName?: string; // ← NEW: for bank type
+  paypalEmail?: string; // ← NEW: for paypal type
 }
 
 export interface PaymentsSummary {
@@ -49,7 +56,6 @@ export interface PaymentsPageData {
   transactions: Transaction[];
   paymentMethods: PaymentMethod[];
 }
-
 // ─── Dummy data ──────────────────────────────────────────────────────────────
 
 export const transactions: Transaction[] = [

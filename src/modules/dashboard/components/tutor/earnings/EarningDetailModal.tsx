@@ -70,8 +70,11 @@ export default function EarningDetailModal({ entry, onClose }: Props) {
               <p className="text-[13px] font-semibold text-[#0B2343] truncate">
                 {entry.studentName}
               </p>
+              {/* ─── CHANGED: optional chaining for country fields ─── */}
               <p className="text-[11px] text-[#0B2343]/30">
-                {entry.studentCountry} · {entry.studentCountryCode}
+                {[entry.studentCountry, entry.studentCountryCode]
+                  .filter(Boolean)
+                  .join(" · ") || "—"}
               </p>
             </div>
             <Link
@@ -83,7 +86,7 @@ export default function EarningDetailModal({ entry, onClose }: Props) {
             </Link>
           </div>
 
-          {/* Lesson details */}
+          {/* Lesson details — unchanged from here down */}
           <div className="space-y-2.5">
             <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-[#0B2343]/[0.015]">
               <span className="flex items-center gap-1.5 text-[11px] sm:text-xs text-[#0B2343]/40">

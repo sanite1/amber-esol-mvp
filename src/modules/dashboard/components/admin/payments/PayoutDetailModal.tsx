@@ -197,18 +197,24 @@ export default function PayoutDetailModal({
           {/* Info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <InfoRow icon={User} label="Tutor" value={payout.tutorName} />
-            <InfoRow
-              icon={Banknote}
-              label="Lessons Covered"
-              value={`${payout.lessonsCount} lessons`}
-            />
-            <InfoRow
-              icon={Calendar}
-              label="Period"
-              value={`${formatDate(payout.periodStart)} – ${formatDate(
-                payout.periodEnd
-              )}`}
-            />
+            {/* ─── CHANGED: guard optional lessonsCount ─── */}
+            {payout.lessonsCount != null && (
+              <InfoRow
+                icon={Banknote}
+                label="Lessons Covered"
+                value={`${payout.lessonsCount} lessons`}
+              />
+            )}
+            {/* ─── CHANGED: guard optional period dates ─── */}
+            {payout.periodStart && payout.periodEnd && (
+              <InfoRow
+                icon={Calendar}
+                label="Period"
+                value={`${formatDate(payout.periodStart)}  ${formatDate(
+                  payout.periodEnd
+                )}`}
+              />
+            )}
             <InfoRow
               icon={Clock}
               label="Requested"

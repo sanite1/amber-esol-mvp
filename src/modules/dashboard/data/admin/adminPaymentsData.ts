@@ -1,3 +1,5 @@
+// ── src/modules/dashboard/data/admin/adminPaymentsData.ts ──
+
 // ─── Interfaces ─────────────────────────────────────────────────────
 
 export interface AdminTransaction {
@@ -8,7 +10,7 @@ export interface AdminTransaction {
   tutorId: string;
   tutorName: string;
   lessonId: string;
-  lessonTopic: string;
+  lessonTopic?: string; // ← was required, now optional
   lessonDate: string;
   amount: number;
   commission: number;
@@ -31,9 +33,9 @@ export interface AdminPayout {
   status: "pending" | "processing" | "completed" | "failed" | "flagged";
   requestedAt: string;
   processedAt?: string;
-  lessonsCount: number;
-  periodStart: string;
-  periodEnd: string;
+  lessonsCount?: number; // ← was required, now optional
+  periodStart?: string; // ← was required, now optional
+  periodEnd?: string; // ← was required, now optional
   notes?: string;
   flagReason?: string;
 }
@@ -59,7 +61,7 @@ export interface AdminPaymentsData {
   payouts: AdminPayout[];
 }
 
-// ─── Sample Data ────────────────────────────────────────────────────
+// ─── Sample Data (unchanged) ────────────────────────────────────────
 
 export const adminPaymentsData: AdminPaymentsData = {
   stats: {

@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { Plus, MoreHorizontal, Check, Trash2, Shield } from "lucide-react";
-import type {
-  PaymentMethod,
-  PaymentMethodType,
-} from "../../../data/student/paymentsData";
+import type { PaymentMethod } from "../../../data/student/paymentsData";
 
 interface Props {
   methods: PaymentMethod[];
@@ -13,12 +10,14 @@ interface Props {
 }
 
 const brandStyles: Record<
-  PaymentMethodType,
+  string,
   { label: string; color: string; bg: string }
 > = {
   visa: { label: "VISA", color: "text-blue-700", bg: "bg-blue-50" },
   mastercard: { label: "MC", color: "text-red-600", bg: "bg-red-50" },
   paypal: { label: "PP", color: "text-blue-500", bg: "bg-blue-50" },
+  card: { label: "CARD", color: "text-gray-600", bg: "bg-gray-50" },
+  bank: { label: "BANK", color: "text-green-700", bg: "bg-green-50" },
 };
 
 export default function PaymentMethodsCard({
@@ -64,7 +63,8 @@ export default function PaymentMethodsCard({
       ) : (
         <div className="space-y-2.5">
           {methods.map((method) => {
-            const brand = brandStyles[method.type];
+            const brand = brandStyles[method.type] || brandStyles.card;
+
             return (
               <div
                 key={method.id}
@@ -96,9 +96,14 @@ export default function PaymentMethodsCard({
                     )}
                   </div>
                   <p className="text-[11px] text-[#0B2343]/30 mt-0.5">
-                    {method.holderName} · Exp{" "}
-                    {String(method.expiryMonth).padStart(2, "0")}/
-                    {method.expiryYear}
+                    {method.holderName || method.paypalEmail || "Card holder"}
+                    {method.expiryMonth && method.expiryYear
+                      ? ` · Exp ${String(method.expiryMonth).padStart(2, "0")}/${method.expiryYear}`
+                      : method.brand
+                        ? ` · ${method.brand}`
+                        : method.bankName
+                          ? ` · ${method.bankName}`
+                          : ""}
                   </p>
                 </div>
 

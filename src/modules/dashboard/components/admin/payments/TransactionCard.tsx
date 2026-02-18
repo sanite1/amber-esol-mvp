@@ -1,3 +1,5 @@
+// ── src/modules/dashboard/components/admin/payments/TransactionCard.tsx ──
+
 import React from "react";
 import { CreditCard, RotateCcw, Zap, AlertTriangle } from "lucide-react";
 import type { AdminTransaction } from "../../../data/admin/adminPaymentsData";
@@ -91,8 +93,9 @@ export default function TransactionCard({ transaction: txn, onClick }: Props) {
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2 mb-1">
               <div className="min-w-0">
+                {/* ─── CHANGED: optional chaining fallback ─── */}
                 <p className="text-xs sm:text-sm font-semibold text-[#0B2343] truncate">
-                  {txn.lessonTopic}
+                  {txn.lessonTopic ?? "Lesson"}
                 </p>
                 <p className="text-[10px] sm:text-[11px] text-[#0B2343]/40">
                   {txn.id} · {timeAgo(txn.createdAt)}
