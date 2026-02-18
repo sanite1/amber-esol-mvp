@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import { Calendar, Clock, Video, ArrowRight } from "lucide-react";
-import { UpcomingLesson } from "../../../data/student/studentDashboardData";
+// ── CHANGED: import from booking types instead of dummy data ──
+import type { DashboardUpcomingLesson } from "../../../lib/types/booking";
 
 interface Props {
-  lessons: UpcomingLesson[];
+  lessons: DashboardUpcomingLesson[];
 }
 
 function formatDate(dateStr: string): string {
@@ -63,11 +64,20 @@ export default function UpcomingLessons({ lessons }: Props) {
               className="p-4 flex items-center gap-3.5 hover:bg-[#0B2343]/[0.01] transition-colors"
             >
               {/* Avatar */}
-              <img
-                src={lesson.tutorAvatar}
-                alt={lesson.tutorName}
-                className="w-10 h-10 rounded-full object-cover shrink-0"
-              />
+              {lesson.tutorAvatar ? (
+                <img
+                  src={lesson.tutorAvatar}
+                  alt={lesson.tutorName}
+                  className="w-10 h-10 rounded-full object-cover shrink-0"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-[#ff7c22]/10 flex items-center justify-center text-xs font-bold text-[#ff7c22] shrink-0">
+                  {lesson.tutorName
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </div>
+              )}
 
               {/* Info */}
               <div className="flex-1 min-w-0">

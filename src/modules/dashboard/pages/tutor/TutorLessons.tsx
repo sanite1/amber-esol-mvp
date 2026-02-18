@@ -1,10 +1,23 @@
 import { useState, useEffect, useMemo } from "react";
 import { BookOpen } from "lucide-react";
-import {
-  tutorLessons as initialLessons,
-  tutorLessonStats as initialStats,
-  type TutorLessonStatus,
+
+// ── Keep the LOCAL types your child components expect ──
+import type {
+  TutorLesson,
+  TutorLessonStatus,
+  TutorLessonStats,
 } from "../../data/tutor/tutorLessonsData";
+
+// ── NEW: API hooks & booking types ──
+import { useFetchBookings, useFetchBookingStats } from "../../lib/api/booking";
+import type {
+  Booking,
+  BookingStudent,
+  BookingFilters,
+  BookingStatsResponse,
+} from "../../lib/types/booking";
+
+// ── Same child components — zero changes ──
 import {
   StatsBarSkeleton,
   FilterBarSkeleton,
@@ -20,10 +33,136 @@ type SortType = "newest" | "oldest" | "student" | "earnings";
 
 const ITEMS_PER_PAGE = 8;
 
+/* ──────────────────────────────────────────────
+   Helper: resolve populated student object
+   ────────────────────────────────────────────── */
+function getStudent(val: string | BookingStudent): BookingStudent {
+  if (typeof val === "string") {
+    return { _id: val, firstname: "Unknown", lastname: "Student" };
+  }
+  return val;
+}
+
+/* ──────────────────────────────────────────────
+   Map API BookingStatus → dummy TutorLessonStatus
+   The child components (cards, filter bar) compare
+   against "upcoming" | "completed" | "cancelled" | "no_show"
+   ────────────────────────────────────────────── */
+function mapStatus(apiStatus: Booking["status"]): TutorLessonStatus {
+  switch (apiStatus) {
+    case "pending":
+    case "confirmed":
+      return "upcoming";
+    case "completed":
+      return "completed";
+    case "no_show":
+      return "no_show";
+    case "cancelled_student":
+    case "cancelled_tutor":
+    case "cancelled_admin":
+      return "cancelled";
+    default:
+      return "upcoming";
+  }
+}
+
+/* ──────────────────────────────────────────────
+   Mapper: Booking → TutorLesson (dummy shape)
+   ────────────────────────────────────────────── */
+function bookingToTutorLesson(b: Booking): TutorLesson {
+  const student = getStudent(b.studentId);
+
+  return {
+    id: b._id,
+    studentName: `${student.firstname} ${student.lastname}`,
+    studentAvatar: student.profilePicture ?? "",
+    level: student.learningPreferences?.currentLevel ?? "Unknown",
+    country: student.address?.country ?? "",
+    lessonType: b.type,
+    status: mapStatus(b.status),
+    specialty: b.specialty ?? "General English",
+    date: b.date,
+    startTime: b.startTime,
+    endTime: b.endTime,
+    originalStatus: b.status,
+    meetingUrl: b.meetingUrl,
+    notes: b.notes,
+    earnings: b.price,
+    feedback: undefined,
+    // cancellation: b.cancelReason
+    //   ? { reason: b.cancelReason, cancelledBy: b.cancelledBy ?? "student" }
+    //   : undefined,
+    materials: [],
+
+    timezone: b.timezone,
+    currency: b.currency,
+    paymentStatus: b.paymentStatus,
+    price: b.price,
+    stripeCheckoutSessionId: b.stripeCheckoutSessionId,
+    cancelledAt: b.cancelledAt,
+    createdAt: b.createdAt,
+    updatedAt: b.updatedAt,
+    bookingGroupId: b.bookingGroupId,
+    message: b.message,
+    learningPreferences: (b.studentId as BookingStudent).learningPreferences,
+  };
+}
+
+/* ──────────────────────────────────────────────
+   Mapper: BookingStatsResponse → TutorLessonStats
+   ────────────────────────────────────────────── */
+function statsResponseToTutorStats(s: BookingStatsResponse): TutorLessonStats {
+  return {
+    total: s.total,
+    upcoming: s.upcoming,
+    completed: s.completed,
+    cancelled: s.cancelled,
+    noShows: s.noShows,
+    hoursThisMonth: s.hoursThisMonth,
+    earningsThisMonth: s.earningsThisMonth,
+  };
+}
+
+/* ──────────────────────────────────────────────
+   Map UI filter → API status param
+   ────────────────────────────────────────────── */
+function mapFilterToApiStatus(
+  filter: FilterType
+): BookingFilters["status"] | undefined {
+  switch (filter) {
+    case "upcoming":
+      return "pending";
+    case "completed":
+      return "completed";
+    case "cancelled":
+      return "cancelled_tutor"; // backend handles prefix-match
+    case "no_show":
+      return "no_show";
+    default:
+      return undefined; // "all"
+  }
+}
+
+/* ──────────────────────────────────────────────
+   Map UI sort → API sort param
+   ────────────────────────────────────────────── */
+function mapSortToApi(sort: SortType): BookingFilters["sort"] {
+  switch (sort) {
+    case "newest":
+      return "newest";
+    case "oldest":
+      return "oldest";
+    case "earnings":
+      return "price_high";
+    default:
+      return "newest";
+  }
+}
+
+/* ══════════════════════════════════════════════
+   Component
+   ══════════════════════════════════════════════ */
 export default function TutorLessons() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [lessons] = useState(initialLessons);
-  const [stats] = useState(initialStats);
   const [filter, setFilter] = useState<FilterType>("all");
   const [sort, setSort] = useState<SortType>("newest");
   const [search, setSearch] = useState("");
@@ -32,71 +171,91 @@ export default function TutorLessons() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    const t = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(t);
   }, []);
-
-  // Student options for dropdown
-  const studentOptions = useMemo(() => {
-    const names = Array.from(new Set(lessons.map((l) => l.studentName)));
-    return names.sort();
-  }, [lessons]);
-
-  // Filtered + sorted
-  const processed = useMemo(() => {
-    let result = [...lessons];
-
-    if (filter !== "all") {
-      result = result.filter((l) => l.status === filter);
-    }
-
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (l) =>
-          l.studentName.toLowerCase().includes(q) ||
-          l.specialty.toLowerCase().includes(q)
-      );
-    }
-
-    if (selectedStudent) {
-      result = result.filter((l) => l.studentName === selectedStudent);
-    }
-
-    switch (sort) {
-      case "newest":
-        result.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
-        break;
-      case "oldest":
-        result.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        );
-        break;
-      case "student":
-        result.sort((a, b) => a.studentName.localeCompare(b.studentName));
-        break;
-      case "earnings":
-        result.sort((a, b) => b.earnings - a.earnings);
-        break;
-    }
-
-    return result;
-  }, [lessons, filter, sort, search, selectedStudent]);
-
-  // Pagination
-  const totalPages = Math.ceil(processed.length / ITEMS_PER_PAGE);
-  const paginated = processed.slice(
-    (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE
-  );
 
   // Reset page on filter/search change
   useEffect(() => {
     setPage(1);
   }, [filter, sort, search, selectedStudent]);
 
+  /* ────────────────────────────────────────────
+     Build the API query object reactively
+     ──────────────────────────────────────────── */
+  const bookingFilters = useMemo<BookingFilters>(() => {
+    const filters: BookingFilters = {
+      page,
+      limit: ITEMS_PER_PAGE,
+      sort: mapSortToApi(sort),
+    };
+
+    const apiStatus = mapFilterToApiStatus(filter);
+    if (apiStatus) filters.status = apiStatus;
+
+    if (search.trim()) filters.search = search.trim();
+
+    return filters;
+  }, [page, sort, filter, search]);
+
+  /* ────────────────────────────────────────────
+     API hooks
+     ──────────────────────────────────────────── */
+  const { data: bookingsResponse, isLoading: bookingsLoading } =
+    useFetchBookings(bookingFilters);
+
+  const { data: statsResponse, isLoading: statsLoading } =
+    useFetchBookingStats();
+
+  const isLoading = bookingsLoading || statsLoading;
+
+  /* ────────────────────────────────────────────
+     Transform API data → existing component shapes
+     ──────────────────────────────────────────── */
+  const lessons: TutorLesson[] = useMemo(
+    () => (bookingsResponse?.data?.bookings ?? []).map(bookingToTutorLesson),
+    [bookingsResponse]
+  );
+
+  const stats: TutorLessonStats = useMemo(
+    () =>
+      statsResponse?.data
+        ? statsResponseToTutorStats(statsResponse.data)
+        : {
+            total: 0,
+            upcoming: 0,
+            completed: 0,
+            cancelled: 0,
+            noShows: 0,
+            hoursThisMonth: 0,
+            earningsThisMonth: 0,
+          },
+    [statsResponse]
+  );
+
+  const totalPages = bookingsResponse?.data?.pagination?.totalPages ?? 1;
+
+  /* ────────────────────────────────────────────
+     Student names for the dropdown filter
+     (client-side from current page of results)
+     ──────────────────────────────────────────── */
+  const studentOptions = useMemo(() => {
+    const names = Array.from(new Set(lessons.map((l) => l.studentName)));
+    return names.sort();
+  }, [lessons]);
+
+  /* ────────────────────────────────────────────
+     Client-side student name filter
+     (search & status already handled server-side,
+      student name filter is local since the
+      backend doesn't have that specific param yet)
+     ──────────────────────────────────────────── */
+  const filteredLessons = useMemo(() => {
+    if (!selectedStudent) return lessons;
+    return lessons.filter((l) => l.studentName === selectedStudent);
+  }, [lessons, selectedStudent]);
+
+  /* ────────────────────────────────────────────
+     Render
+     ──────────────────────────────────────────── */
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -139,15 +298,15 @@ export default function TutorLessons() {
         search={search}
         studentOptions={studentOptions}
         selectedStudent={selectedStudent}
-        resultCount={processed.length}
-        onFilterChange={(f) => setFilter(f)}
-        onSortChange={(s) => setSort(s)}
+        resultCount={filteredLessons.length}
+        onFilterChange={(f) => setFilter(f as FilterType)}
+        onSortChange={(s) => setSort(s as SortType)}
         onSearchChange={(q) => setSearch(q)}
         onStudentChange={(s) => setSelectedStudent(s)}
       />
 
       {/* Lessons */}
-      <TutorLessonList lessons={paginated} />
+      <TutorLessonList lessons={filteredLessons} />
 
       {/* Pagination */}
       <TutorLessonPagination

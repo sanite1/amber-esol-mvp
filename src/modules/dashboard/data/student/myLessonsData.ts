@@ -4,18 +4,19 @@ export type LessonStatus =
   | "confirmed"
   | "pending"
   | "completed"
-  | "cancelled"
+  | "cancelled_student"
+  | "cancelled_tutor"
   | "no_show";
 
 export type LessonType = "trial" | "regular";
 
 export interface Lesson {
   id: string;
-  tutorId: string;
+  tutorId?: string;
   tutorName: string;
   tutorAvatar: string;
   tutorSpecialty: string;
-  tutorSlug: string;
+  tutorSlug?: string;
   date: string;
   startTime: string;
   endTime: string;
@@ -24,7 +25,7 @@ export interface Lesson {
   price: number;
   meetingUrl: string | null;
   notes: string | null;
-  cancelledBy: "student" | "tutor" | null;
+  cancelledBy: "student" | "tutor" | "admin" | null;
   cancelReason: string | null;
   hasReview: boolean;
   review: {
@@ -238,7 +239,7 @@ export const myLessons: Lesson[] = [
     startTime: "19:00",
     endTime: "20:00",
     type: "regular",
-    status: "cancelled",
+    status: "cancelled_student",
     price: 24,
     meetingUrl: null,
     notes: null,
@@ -260,7 +261,7 @@ export const myLessons: Lesson[] = [
     startTime: "14:00",
     endTime: "15:00",
     type: "regular",
-    status: "cancelled",
+    status: "cancelled_tutor",
     price: 32,
     meetingUrl: null,
     notes: null,

@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import { Calendar, Clock, Video, ArrowRight, Sparkles } from "lucide-react";
-import type { TutorUpcomingLesson } from "../../../data/tutor/tutorDashboardData";
+// ── CHANGED: import from booking types instead of dummy data ──
+import type { TutorDashboardLesson } from "../../../lib/types/booking";
 
 interface Props {
-  lessons: TutorUpcomingLesson[];
+  lessons: TutorDashboardLesson[];
 }
 
 export default function TutorUpcomingLessons({ lessons }: Props) {
@@ -22,7 +23,7 @@ export default function TutorUpcomingLessons({ lessons }: Props) {
     });
   };
 
-  const isJoinable = (lesson: TutorUpcomingLesson) => {
+  const isJoinable = (lesson: TutorDashboardLesson) => {
     if (!lesson.meetingUrl) return false;
     const lessonDate = new Date(lesson.date);
     const [h, m] = lesson.startTime.split(":").map(Number);
@@ -66,7 +67,6 @@ export default function TutorUpcomingLessons({ lessons }: Props) {
               >
                 {/* ── Desktop row ── */}
                 <div className="hidden sm:flex items-center gap-3 p-2.5">
-                  {/* Avatar */}
                   <div className="w-9 h-9 rounded-full bg-[#0B2343]/[0.06] flex items-center justify-center shrink-0 text-[10px] font-semibold text-[#0B2343]/30">
                     {lesson.studentAvatar ? (
                       <img
@@ -82,7 +82,6 @@ export default function TutorUpcomingLessons({ lessons }: Props) {
                     )}
                   </div>
 
-                  {/* Details */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <p className="text-sm font-medium text-[#0B2343]/70 truncate">
@@ -114,7 +113,6 @@ export default function TutorUpcomingLessons({ lessons }: Props) {
                     )}
                   </div>
 
-                  {/* Action */}
                   {joinable ? (
                     <a
                       href={lesson.meetingUrl}
@@ -135,7 +133,6 @@ export default function TutorUpcomingLessons({ lessons }: Props) {
 
                 {/* ── Mobile stacked ── */}
                 <div className="flex sm:hidden flex-col gap-2 p-2.5">
-                  {/* Top: avatar + name + badges */}
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-full bg-[#0B2343]/[0.06] flex items-center justify-center shrink-0 text-[9px] font-semibold text-[#0B2343]/30">
                       {lesson.studentAvatar ? (
@@ -172,7 +169,6 @@ export default function TutorUpcomingLessons({ lessons }: Props) {
                     </div>
                   </div>
 
-                  {/* Middle: date/time + action */}
                   <div className="flex items-center justify-between ml-[42px]">
                     <div className="flex items-center gap-1.5 text-[10px] text-[#0B2343]/30">
                       <Calendar size={10} className="text-[#0B2343]/15" />
@@ -201,7 +197,6 @@ export default function TutorUpcomingLessons({ lessons }: Props) {
                     )}
                   </div>
 
-                  {/* Notes if present */}
                   {lesson.notes && (
                     <p className="text-[9px] text-[#0B2343]/20 ml-[42px] truncate">
                       📝 {lesson.notes}

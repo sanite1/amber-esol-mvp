@@ -30,7 +30,8 @@ const statusConfig: Record<string, { label: string; class: string }> = {
     label: "Completed",
     class: "bg-[#0B2343]/[0.05] text-[#0B2343]/50",
   },
-  cancelled: { label: "Cancelled", class: "bg-red-50 text-red-400" },
+  cancelled_student: { label: "Cancelled", class: "bg-red-50 text-red-400" },
+  cancelled_tutor: { label: "Cancelled", class: "bg-red-50 text-red-400" },
   no_show: { label: "No Show", class: "bg-red-50 text-red-400" },
 };
 
@@ -198,7 +199,7 @@ export default function LessonCard({ lesson, onCancel, onReview }: Props) {
 
             {/* Message */}
             <Link
-              to={`/messages?tutor=${lesson.tutorSlug}`}
+              to={`/messages?tutor=${lesson.id}`}
               className="p-1.5 rounded-lg border border-[#0B2343]/[0.06] text-[#0B2343]/25 hover:border-[#0B2343]/10 hover:text-[#0B2343]/45 transition-colors"
             >
               <MessageSquare size={13} />
@@ -278,27 +279,28 @@ export default function LessonCard({ lesson, onCancel, onReview }: Props) {
           )}
 
           {/* Cancellation info */}
-          {lesson.status === "cancelled" && (
-            <div className="p-3.5 rounded-lg bg-red-50/50 border border-red-100">
-              <div className="flex items-start gap-2">
-                <AlertCircle
-                  size={14}
-                  className="text-red-400 shrink-0 mt-0.5"
-                />
-                <div>
-                  <p className="text-xs font-semibold text-red-500">
-                    Cancelled by{" "}
-                    {lesson.cancelledBy === "student" ? "you" : "tutor"}
-                  </p>
-                  {lesson.cancelReason && (
-                    <p className="text-xs text-red-400 mt-0.5">
-                      Reason: {lesson.cancelReason}
+          {lesson.status === "cancelled_student" ||
+            (lesson.status === "cancelled_tutor" && (
+              <div className="p-3.5 rounded-lg bg-red-50/50 border border-red-100">
+                <div className="flex items-start gap-2">
+                  <AlertCircle
+                    size={14}
+                    className="text-red-400 shrink-0 mt-0.5"
+                  />
+                  <div>
+                    <p className="text-xs font-semibold text-red-500">
+                      Cancelled by{" "}
+                      {lesson.cancelledBy === "student" ? "you" : "tutor"}
                     </p>
-                  )}
+                    {lesson.cancelReason && (
+                      <p className="text-xs text-red-400 mt-0.5">
+                        Reason: {lesson.cancelReason}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            ))}
         </div>
       )}
     </div>

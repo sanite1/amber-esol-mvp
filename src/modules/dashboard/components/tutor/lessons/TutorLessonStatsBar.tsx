@@ -71,17 +71,17 @@ export default function TutorLessonStatsBar({ stats }: Props) {
             key={item.label}
             className="bg-white rounded-xl border border-[#0B2343]/[0.06] p-3"
           >
-            <div className="flex items-center gap-1.5 mb-1">
+            <div className="flex items-center gap-1.5 mb-1.5">
               <div
-                className={`w-5 h-5 rounded ${item.bg} flex items-center justify-center`}
+                className={`w-6 h-6 rounded-lg ${item.bg} flex items-center justify-center`}
               >
-                <Icon size={10} className={item.color} />
+                <Icon size={13} className={item.color} />
               </div>
-              <span className="text-[9px] text-[#0B2343]/30 font-medium truncate">
+              <span className="text-xs text-[#0B2343]/50 font-medium truncate">
                 {item.label}
               </span>
             </div>
-            <p className="text-base font-bold text-[#0B2343]">{item.value}</p>
+            <p className="text-lg font-bold text-[#0B2343]">{item.value}</p>
           </div>
         );
       })}

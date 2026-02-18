@@ -1,20 +1,33 @@
 import { useEffect, useState, useMemo } from "react";
-import {
-  myLessons as initialLessons,
-  lessonStats as initialStats,
+
+// ── Keep your existing LOCAL types for the child components ──
+import type {
   Lesson,
   LessonFilter,
   LessonSort,
   LessonStats,
 } from "../../data/student/myLessonsData";
 
+// ── NEW: API hooks & booking types ──
+import {
+  useFetchBookings,
+  useFetchBookingStats,
+  useCancelBooking,
+} from "../../lib/api/booking";
+import type {
+  Booking,
+  BookingTutor,
+  BookingFilters,
+  BookingStatsResponse,
+} from "../../lib/types/booking";
+
+// ── Same child components — zero changes needed ──
 import LessonStatsBar from "../../components/student/my-lessons/LessonStatsBar";
 import LessonFilterBar from "../../components/student/my-lessons/LessonFilterBar";
 import LessonList from "../../components/student/my-lessons/LessonList";
 import LessonPagination from "../../components/student/my-lessons/LessonPagination";
 import CancelLessonModal from "../../components/student/my-lessons/CancelLessonModal";
 import ReviewLessonModal from "../../components/student/my-lessons/ReviewLessonModal";
-
 import {
   LessonStatsSkeleton,
   LessonFilterBarSkeleton,
@@ -23,18 +36,121 @@ import {
 
 const ITEMS_PER_PAGE = 6;
 
-export default function MyLessons() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [lessons, setLessons] = useState<Lesson[]>(initialLessons);
-  const [stats, setStats] = useState<LessonStats>(initialStats);
+/* ──────────────────────────────────────────────
+   Helper: resolve the populated tutor object.
+   Backend .populate() returns a BookingTutor object,
+   but the TS union says it could be a plain string ID.
+   ────────────────────────────────────────────── */
+function getTutor(val: string | BookingTutor): BookingTutor {
+  if (typeof val === "string") {
+    return {
+      _id: val,
+      firstname: "Unknown",
+      lastname: "Tutor",
+    };
+  }
+  return val;
+}
 
+/* ──────────────────────────────────────────────
+   Mapper: Booking → Lesson
+   Produces the exact shape your child components
+   already understand so nothing downstream breaks.
+   ────────────────────────────────────────────── */
+function bookingToLesson(b: Booking): Lesson {
+  const tutor = getTutor(b.tutorId);
+
+  // Map backend status → the status union your Lesson type uses
+  let status: Booking["status"];
+  switch (b.status) {
+    case "pending":
+      status = "pending";
+      break;
+    case "confirmed":
+      status = "confirmed";
+      break;
+    case "completed":
+      status = "completed";
+      break;
+    case "no_show":
+      status = "no_show";
+      break;
+    case "cancelled_student":
+      status = "cancelled_student";
+      break;
+    case "cancelled_tutor":
+      status = "cancelled_tutor";
+      break;
+    case "cancelled_admin":
+    default:
+      status = "pending";
+  }
+
+  return {
+    id: b._id,
+    tutorName: `${tutor.firstname} ${tutor.lastname}`,
+    tutorAvatar: tutor.profilePicture ?? "",
+    tutorSpecialty:
+      b.specialty ?? tutor.specializations?.[0] ?? "General English",
+    date: b.date,
+    startTime: b.startTime,
+    endTime: b.endTime,
+    type: b.type,
+    status,
+    price: b.price,
+    meetingUrl: b.meetingUrl ?? null,
+    notes: b.notes ?? null,
+    cancelledBy: b.cancelledBy ?? null,
+    cancelReason: b.cancelReason ?? null,
+    hasReview: false, // TODO: wire up when review endpoint exists
+    review: null,
+    materials: [],
+    createdAt: b.createdAt,
+  };
+}
+
+/* ──────────────────────────────────────────────
+   Mapper: BookingStatsResponse → LessonStats
+   ────────────────────────────────────────────── */
+function statsResponseToLessonStats(s: BookingStatsResponse): LessonStats {
+  return {
+    totalLessons: s.total,
+    upcomingLessons: s.upcoming,
+    completedLessons: s.completed,
+    cancelledLessons: s.cancelled,
+    totalHours: s.hoursThisMonth,
+    totalSpent: s.totalSpent,
+  };
+}
+
+/* ──────────────────────────────────────────────
+   Map the LessonSort dropdown value → the API sort
+   ────────────────────────────────────────────── */
+function mapSort(sortBy: LessonSort): BookingFilters["sort"] {
+  switch (sortBy) {
+    case "date_desc":
+      return "newest";
+    case "date_asc":
+      return "oldest";
+    case "price":
+      return "price_high";
+    default:
+      return "newest";
+  }
+}
+
+/* ══════════════════════════════════════════════
+   Component
+   ══════════════════════════════════════════════ */
+export default function MyLessons() {
+  // ── UI filter state (unchanged) ──
   const [activeFilter, setActiveFilter] = useState<LessonFilter>("all");
   const [sortBy, setSortBy] = useState<LessonSort>("date_desc");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTutor, setSelectedTutor] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Modal state
+  // ── Modal state (unchanged) ──
   const [cancelModalLesson, setCancelModalLesson] = useState<Lesson | null>(
     null
   );
@@ -42,148 +158,143 @@ export default function MyLessons() {
     null
   );
 
+  // ── Scroll to top on mount ──
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    const timer = setTimeout(() => {
-      setLessons(initialLessons);
-      setStats(initialStats);
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
   }, []);
 
-  // Reset page on filter change
+  // ── Reset page when filters change ──
   useEffect(() => {
     setCurrentPage(1);
   }, [activeFilter, sortBy, searchQuery, selectedTutor]);
 
-  // ── Unique tutor names ──
+  /* ────────────────────────────────────────────
+     Build the API query object reactively
+     ──────────────────────────────────────────── */
+  const bookingFilters = useMemo<BookingFilters>(() => {
+    const filters: BookingFilters = {
+      page: currentPage,
+      limit: ITEMS_PER_PAGE,
+      sort: mapSort(sortBy),
+    };
+
+    // Status filter
+    switch (activeFilter) {
+      case "upcoming":
+        filters.status = "pending";
+        break;
+      case "completed":
+        filters.status = "completed";
+        break;
+      case "cancelled":
+        filters.status = "cancelled_student"; // backend can handle prefix match
+        break;
+      // "all" → no status filter
+    }
+
+    if (searchQuery.trim()) {
+      filters.search = searchQuery.trim();
+    }
+
+    return filters;
+  }, [currentPage, sortBy, activeFilter, searchQuery]);
+
+  /* ────────────────────────────────────────────
+     API hooks
+     ──────────────────────────────────────────── */
+  const { data: bookingsResponse, isLoading: bookingsLoading } =
+    useFetchBookings(bookingFilters);
+
+  const { data: statsResponse, isLoading: statsLoading } =
+    useFetchBookingStats();
+
+  const { mutate: cancelBookingMutation } = useCancelBooking();
+
+  const isLoading = bookingsLoading || statsLoading;
+
+  /* ────────────────────────────────────────────
+     Transform API data → existing component shapes
+     ──────────────────────────────────────────── */
+  const lessons = useMemo(
+    () => (bookingsResponse?.data?.bookings ?? []).map(bookingToLesson),
+    [bookingsResponse]
+  );
+
+  const stats: LessonStats = useMemo(
+    () =>
+      statsResponse?.data
+        ? statsResponseToLessonStats(statsResponse.data)
+        : {
+            totalLessons: 0,
+            upcomingLessons: 0,
+            completedLessons: 0,
+            cancelledLessons: 0,
+            totalHours: 0,
+            totalSpent: 0,
+          },
+    [statsResponse]
+  );
+
+  const totalPages = bookingsResponse?.data?.pagination?.totalPages ?? 1;
+
+  /* ────────────────────────────────────────────
+     Tutor options — client‑side from current page
+     (If you want a full list you could add a
+      dedicated endpoint later.)
+     ──────────────────────────────────────────── */
   const tutorOptions = useMemo(() => {
     const names = Array.from(new Set(lessons.map((l) => l.tutorName)));
     return names.sort();
   }, [lessons]);
 
-  // ── Filter + Sort + Search ──
+  /* ────────────────────────────────────────────
+     Client‑side tutor name filter
+     (search & status already handled server‑side,
+      but tutor name filtering is local since the
+      backend doesn't have that specific filter yet)
+     ──────────────────────────────────────────── */
   const filteredLessons = useMemo(() => {
-    let result = [...lessons];
+    if (!selectedTutor) return lessons;
+    return lessons.filter((l) => l.tutorName === selectedTutor);
+  }, [lessons, selectedTutor]);
 
-    // Search
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (l) =>
-          l.tutorName.toLowerCase().includes(q) ||
-          l.tutorSpecialty.toLowerCase().includes(q) ||
-          (l.notes && l.notes.toLowerCase().includes(q))
-      );
-    }
-
-    // Tutor filter
-    if (selectedTutor) {
-      result = result.filter((l) => l.tutorName === selectedTutor);
-    }
-
-    // Status filter
-    const now = new Date();
-    switch (activeFilter) {
-      case "upcoming":
-        result = result.filter(
-          (l) =>
-            (l.status === "confirmed" || l.status === "pending") &&
-            new Date(l.date) >= new Date(now.toDateString())
-        );
-        break;
-      case "completed":
-        result = result.filter((l) => l.status === "completed");
-        break;
-      case "cancelled":
-        result = result.filter(
-          (l) => l.status === "cancelled" || l.status === "no_show"
-        );
-        break;
-    }
-
-    // Sort
-    switch (sortBy) {
-      case "date_desc":
-        result.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
-        break;
-      case "date_asc":
-        result.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        );
-        break;
-      case "tutor":
-        result.sort((a, b) => a.tutorName.localeCompare(b.tutorName));
-        break;
-      case "price":
-        result.sort((a, b) => b.price - a.price);
-        break;
-    }
-
-    return result;
-  }, [lessons, activeFilter, sortBy, searchQuery, selectedTutor]);
-
-  // ── Pagination ──
-  const totalPages = Math.ceil(filteredLessons.length / ITEMS_PER_PAGE);
-  const paginatedLessons = filteredLessons.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
-  // ── Handlers ──
+  /* ────────────────────────────────────────────
+     Handlers — same signatures as before
+     ──────────────────────────────────────────── */
   const handleCancelLesson = (id: string) => {
-    const lesson = lessons.find((l) => l.id === id);
+    const lesson = filteredLessons.find((l) => l.id === id);
     if (lesson) setCancelModalLesson(lesson);
   };
 
   const handleConfirmCancel = (id: string, reason: string) => {
-    setLessons((prev) =>
-      prev.map((l) =>
-        l.id === id
-          ? {
-              ...l,
-              status: "cancelled" as const,
-              cancelledBy: "student" as const,
-              cancelReason: reason || "Cancelled by student",
-            }
-          : l
-      )
+    cancelBookingMutation(
+      { id, payload: { reason: reason || "Cancelled by student" } },
+      {
+        onSuccess: () => {
+          setCancelModalLesson(null);
+          // React Query will auto‑refetch bookings & stats
+        },
+      }
     );
-    setStats((prev) => ({
-      ...prev,
-      upcomingLessons: prev.upcomingLessons - 1,
-      cancelledLessons: prev.cancelledLessons + 1,
-    }));
-    setCancelModalLesson(null);
   };
 
   const handleOpenReview = (id: string) => {
-    const lesson = lessons.find((l) => l.id === id);
+    const lesson = filteredLessons.find((l) => l.id === id);
     if (lesson) setReviewModalLesson(lesson);
   };
 
-  const handleSubmitReview = (id: string, rating: number, comment: string) => {
-    setLessons((prev) =>
-      prev.map((l) =>
-        l.id === id
-          ? {
-              ...l,
-              hasReview: true,
-              review: {
-                rating,
-                comment,
-                date: new Date().toISOString(),
-              },
-            }
-          : l
-      )
-    );
+  const handleSubmitReview = (
+    _id: string,
+    _rating: number,
+    _comment: string
+  ) => {
+    // TODO: wire up when review API endpoint is built
     setReviewModalLesson(null);
   };
 
+  /* ────────────────────────────────────────────
+     Render — identical JSX structure
+     ──────────────────────────────────────────── */
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -223,7 +334,7 @@ export default function MyLessons() {
       ) : (
         <>
           <LessonList
-            lessons={paginatedLessons}
+            lessons={filteredLessons}
             onCancel={handleCancelLesson}
             onReview={handleOpenReview}
           />

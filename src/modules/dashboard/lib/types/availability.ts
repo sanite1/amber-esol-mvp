@@ -116,3 +116,10 @@ export interface AvailableSlotsQuery {
   date: string; // "YYYY-MM-DD"
   duration?: number; // minutes, defaults to 60
 }
+
+/** Shape the AvailabilityCard dashboard component expects */
+export interface DashboardAvailabilityStatus {
+  totalSlotsThisWeek: number;
+  bookedSlotsThisWeek: number;
+  nextAvailableSlot: string; // ISO string or empty
+}

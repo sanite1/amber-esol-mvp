@@ -1,19 +1,18 @@
 import { useState, useMemo } from "react";
 import {
   X,
+  Clock,
+  Calendar,
   ChevronLeft,
   ChevronRight,
-  Clock,
-  CheckCircle2,
-  CalendarDays,
   Loader2,
-  Info,
+  CheckCircle2,
+  Globe,
 } from "lucide-react";
-import {
-  type AvailabilityDay,
-  tutorDetail,
-} from "../../../data/student/tutorDetailData";
-import { UserData } from "../../../lib/types/authOnboarding";
+import type { UserData } from "../../../lib/types/authOnboarding";
+import { useFetchAvailableSlots } from "../../../lib/api/availability";
+import { useCreateBooking } from "../../../lib/api/booking";
+import type { SlotSelection } from "../../../lib/types/booking";
 
 interface Props {
   tutor: UserData;
@@ -22,278 +21,286 @@ interface Props {
 }
 
 export default function BookTrialModal({ tutor, onClose, onSuccess }: Props) {
+  /* ── state ── */
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
-  const [isBooking, setIsBooking] = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<{
+    startTime: string;
+    endTime: string;
+  } | null>(null);
   const [weekOffset, setWeekOffset] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
 
-  const tutorDetails = tutorDetail;
-
-  // Group availability into weeks
-  const weeks = useMemo(() => {
-    const result: AvailabilityDay[][] = [];
-    const days = tutorDetails.availability;
-    for (let i = 0; i < days.length; i += 7) {
-      result.push(days.slice(i, i + 7));
+  /* ── derived dates (7‑day windows) ── */
+  const dates = useMemo(() => {
+    const result: Date[] = [];
+    const today = new Date();
+    const start = new Date(today);
+    start.setDate(today.getDate() + weekOffset * 7);
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      if (d >= today) result.push(d);
     }
     return result;
-  }, [tutorDetails.availability]);
+  }, [weekOffset]);
 
-  const currentWeek = weeks[weekOffset] || [];
+  /* ── format a Date → "YYYY-MM-DD" ── */
+  const toDateStr = (d: Date) => d.toISOString().split("T")[0];
 
-  const selectedDayData = currentWeek.find((d) => d.date === selectedDate);
-  const availableSlots =
-    selectedDayData?.slots.filter((s) => s.available) || [];
+  /* ── fetch slots for the selected date ── */
+  const slotsQuery = useMemo(
+    () => ({ date: selectedDate ?? "", duration: 20 }),
+    [selectedDate]
+  );
 
-  const handleBook = async () => {
-    setIsBooking(true);
-    // TODO: replace with real API call
-    await new Promise((r) => setTimeout(r, 1500));
-    setIsBooking(false);
-    setIsComplete(true);
-    setTimeout(() => onSuccess(), 2000);
+  const { data: slotsResponse, isLoading: slotsLoading } =
+    useFetchAvailableSlots(tutor._id, slotsQuery);
+
+  const availableSlots: { startTime: string; endTime: string }[] =
+    slotsResponse?.data?.slots ?? [];
+
+  /* ── create booking mutation ── */
+  const { mutate: createBooking, isPending: isBooking } = useCreateBooking();
+
+  /* ── handlers ── */
+  const handleDateSelect = (d: Date) => {
+    const str = toDateStr(d);
+    setSelectedDate(str);
+    setSelectedSlot(null);
   };
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return {
-      day: date.toLocaleDateString("en-GB", { weekday: "short" }),
-      num: date.getDate(),
-      month: date.toLocaleDateString("en-GB", { month: "short" }),
-      full: date.toLocaleDateString("en-GB", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-      }),
+  const handleBook = () => {
+    if (!selectedDate || !selectedSlot) return;
+
+    const slot: SlotSelection = {
+      date: selectedDate,
+      startTime: selectedSlot.startTime,
+      endTime: selectedSlot.endTime,
     };
+
+    createBooking(
+      {
+        tutorId: tutor._id,
+        type: "trial",
+        slots: [slot],
+        specialty: tutor.specializations?.[0] ?? "General English",
+        // subject: "Trial Lesson",
+      },
+      {
+        onSuccess: () => {
+          setIsComplete(true);
+          onSuccess();
+        },
+      }
+    );
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div
-        className="absolute inset-0 bg-[#0B2343]/40 backdrop-blur-sm"
-        onClick={!isBooking ? onClose : undefined}
-      />
+  /* ── date formatting helpers ── */
+  const formatDayShort = (d: Date) =>
+    d.toLocaleDateString("en-GB", { weekday: "short" });
+  const formatDayNum = (d: Date) => d.getDate();
+  const formatMonth = (d: Date) =>
+    d.toLocaleDateString("en-GB", { month: "short" });
 
-      <div className="relative bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl shadow-xl max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="sticky top-0 bg-white z-10 flex items-center justify-between px-5 pt-5 pb-3 border-b border-[#0B2343]/[0.04]">
+  const isToday = (d: Date) => {
+    const now = new Date();
+    return d.toDateString() === now.toDateString();
+  };
+
+  /* ── render ── */
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-xl max-h-[90vh] overflow-y-auto">
+        {/* header */}
+        <div className="flex items-center justify-between border-b p-5">
           <div>
-            <h2 className="text-base font-semibold text-[#0B2343]">
-              Book Free Trial
+            <h2 className="text-lg font-semibold text-gray-900">
+              Book a Free Trial
             </h2>
-            <p className="text-xs text-[#0B2343]/35 mt-0.5">
-              {tutorDetails.trialDuration} min introductory session with{" "}
-              {tutorDetails.name}
+            <p className="text-sm text-gray-500">
+              30 minutes with {tutor.firstname} {tutor.lastname}
             </p>
           </div>
-          {!isBooking && (
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors"
-            >
-              <X size={16} className="text-[#0B2343]/30" />
-            </button>
-          )}
+          <button
+            onClick={onClose}
+            className="rounded-full p-1 hover:bg-gray-100"
+          >
+            <X className="h-5 w-5 text-gray-400" />
+          </button>
         </div>
 
-        {isComplete ? (
-          /* ── Success ── */
-          <div className="p-6 text-center py-10">
-            <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 size={28} className="text-green-500" />
-            </div>
-            <h3 className="text-lg font-semibold text-[#0B2343] mb-1">
-              Trial Booked!
-            </h3>
-            <p className="text-sm text-[#0B2343]/50 max-w-xs mx-auto">
-              Your free trial with {tutorDetails.name} is confirmed. Check your
-              email for the meeting details.
-            </p>
-          </div>
-        ) : (
-          <div className="p-5">
-            {/* What to expect */}
-            <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#ff7c22]/[0.04] mb-5">
-              <Info size={14} className="text-[#ff7c22] shrink-0 mt-0.5" />
-              <div className="text-xs text-[#0B2343]/50 leading-relaxed">
-                <span className="font-medium text-[#0B2343]/70">
-                  What to expect:
-                </span>{" "}
-                A {tutorDetails.trialDuration}-minute introductory session where{" "}
-                {tutorDetails.name.split(" ")[0]} will learn about your goals,
-                assess your current level, and discuss a personalised lesson
-                plan. No payment required.
+        <div className="p-5">
+          {/* ── success view ── */}
+          {isComplete ? (
+            <div className="flex flex-col items-center gap-4 py-8 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                <CheckCircle2 className="h-8 w-8 text-green-600" />
               </div>
-            </div>
-
-            {/* Week navigation */}
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-[#0B2343]">
-                Select a Date
+              <h3 className="text-xl font-semibold text-gray-900">
+                Trial Booked!
               </h3>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setWeekOffset(Math.max(0, weekOffset - 1))}
-                  disabled={weekOffset === 0}
-                  className="p-1 rounded-lg hover:bg-[#0B2343]/[0.04] disabled:opacity-20 transition-colors"
-                >
-                  <ChevronLeft size={16} className="text-[#0B2343]/40" />
-                </button>
-                <button
-                  onClick={() =>
-                    setWeekOffset(Math.min(weeks.length - 1, weekOffset + 1))
-                  }
-                  disabled={weekOffset >= weeks.length - 1}
-                  className="p-1 rounded-lg hover:bg-[#0B2343]/[0.04] disabled:opacity-20 transition-colors"
-                >
-                  <ChevronRight size={16} className="text-[#0B2343]/40" />
-                </button>
+              <p className="text-gray-600">
+                Your free trial with {tutor.firstname} on{" "}
+                {selectedDate &&
+                  new Date(selectedDate + "T00:00:00").toLocaleDateString(
+                    "en-GB",
+                    {
+                      weekday: "long",
+                      day: "numeric",
+                      month: "long",
+                    }
+                  )}{" "}
+                at {selectedSlot?.startTime} has been confirmed. You'll receive
+                a confirmation email shortly.
+              </p>
+              <button
+                onClick={onClose}
+                className="mt-2 rounded-lg bg-amber-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-amber-700"
+              >
+                Done
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* timezone */}
+              <div className="mb-4 flex items-center gap-2 text-sm text-gray-500">
+                <Globe className="h-4 w-4" />
+                <span>{tutor.timezone ?? "Europe/London"}</span>
               </div>
-            </div>
 
-            {/* Date pills */}
-            <div
-              className="flex gap-2 overflow-x-auto pb-2 scrollbar-none mb-5"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-            >
-              <style>{`.scrollbar-none::-webkit-scrollbar { display: none; }`}</style>
-              {currentWeek.map((day) => {
-                const d = formatDate(day.date);
-                const hasSlots = day.slots.some((s) => s.available);
-                const isSelected = selectedDate === day.date;
-                return (
-                  <button
-                    key={day.date}
-                    onClick={() => {
-                      setSelectedDate(day.date);
-                      setSelectedSlot(null);
-                    }}
-                    disabled={!hasSlots}
-                    className={`flex flex-col items-center px-3 py-2.5 rounded-xl border min-w-[64px] transition-colors ${
-                      isSelected
-                        ? "border-[#ff7c22] bg-[#ff7c22]/[0.06]"
-                        : hasSlots
-                          ? "border-[#0B2343]/[0.06] hover:border-[#0B2343]/[0.12]"
-                          : "border-[#0B2343]/[0.03] opacity-30 cursor-not-allowed"
-                    }`}
-                  >
-                    <span
-                      className={`text-[10px] font-medium ${
-                        isSelected ? "text-[#ff7c22]" : "text-[#0B2343]/30"
-                      }`}
-                    >
-                      {d.day}
-                    </span>
-                    <span
-                      className={`text-lg font-bold ${
-                        isSelected ? "text-[#ff7c22]" : "text-[#0B2343]/70"
-                      }`}
-                    >
-                      {d.num}
-                    </span>
-                    <span
-                      className={`text-[10px] ${
-                        isSelected ? "text-[#ff7c22]/60" : "text-[#0B2343]/25"
-                      }`}
-                    >
-                      {d.month}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Time slots */}
-            {selectedDate ? (
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Clock size={13} className="text-[#0B2343]/30" />
-                  <h3 className="text-sm font-semibold text-[#0B2343]">
-                    Available Times
+              {/* ── date picker ── */}
+              <div className="mb-5">
+                <div className="mb-3 flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-gray-700">
+                    Select a Date
                   </h3>
-                  <span className="text-[10px] text-[#0B2343]/25">
-                    ({tutorDetails.timezone})
-                  </span>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => setWeekOffset((w) => Math.max(0, w - 1))}
+                      disabled={weekOffset === 0}
+                      className="rounded-md p-1 hover:bg-gray-100 disabled:opacity-30"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => setWeekOffset((w) => w + 1)}
+                      className="rounded-md p-1 hover:bg-gray-100"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
 
-                {availableSlots.length === 0 ? (
-                  <p className="text-xs text-[#0B2343]/30 py-4 text-center">
-                    No available slots on this date
-                  </p>
-                ) : (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-5">
-                    {availableSlots.map((slot) => (
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {dates.map((d) => {
+                    const str = toDateStr(d);
+                    const active = selectedDate === str;
+                    return (
                       <button
-                        key={slot.id}
-                        onClick={() => setSelectedSlot(slot.id)}
-                        className={`py-2.5 rounded-xl text-xs font-medium border transition-colors ${
-                          selectedSlot === slot.id
-                            ? "border-[#ff7c22] bg-[#ff7c22] text-white"
-                            : "border-[#0B2343]/[0.06] text-[#0B2343]/50 hover:border-[#ff7c22]/30 hover:bg-[#ff7c22]/[0.03]"
+                        key={str}
+                        onClick={() => handleDateSelect(d)}
+                        className={`flex min-w-[4rem] flex-col items-center rounded-xl border px-3 py-2 text-sm transition ${
+                          active
+                            ? "border-amber-500 bg-amber-50 text-amber-700"
+                            : "border-gray-200 hover:border-amber-300"
                         }`}
                       >
-                        {slot.startTime}
+                        <span className="text-xs font-medium uppercase text-gray-500">
+                          {formatDayShort(d)}
+                        </span>
+                        <span className="text-lg font-semibold">
+                          {formatDayNum(d)}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {isToday(d) ? "Today" : formatMonth(d)}
+                        </span>
                       </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="py-6 text-center">
-                <CalendarDays
-                  size={24}
-                  className="text-[#0B2343]/10 mx-auto mb-2"
-                />
-                <p className="text-xs text-[#0B2343]/25">
-                  Select a date to see available times
-                </p>
-              </div>
-            )}
-
-            {/* Summary + book button */}
-            {selectedSlot && selectedDayData && (
-              <div className="border-t border-[#0B2343]/[0.04] pt-4 mt-2">
-                <div className="flex items-center justify-between mb-4 p-3 rounded-xl bg-[#0B2343]/[0.02]">
-                  <div>
-                    <p className="text-sm font-medium text-[#0B2343]/70">
-                      {formatDate(selectedDayData.date).full}
-                    </p>
-                    <p className="text-xs text-[#0B2343]/35 mt-0.5">
-                      {
-                        availableSlots.find((s) => s.id === selectedSlot)
-                          ?.startTime
-                      }{" "}
-                      –{" "}
-                      {
-                        availableSlots.find((s) => s.id === selectedSlot)
-                          ?.endTime
-                      }{" "}
-                      · {tutorDetails.trialDuration} min
-                    </p>
-                  </div>
-                  <span className="text-sm font-bold text-green-600">Free</span>
+                    );
+                  })}
                 </div>
-
-                <button
-                  onClick={handleBook}
-                  disabled={isBooking}
-                  className="w-full py-3 rounded-xl bg-[#ff7c22] text-white text-sm font-semibold hover:bg-[#e56a10] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
-                >
-                  {isBooking ? (
-                    <>
-                      <Loader2 size={15} className="animate-spin" />
-                      Booking…
-                    </>
-                  ) : (
-                    "Confirm Free Trial"
-                  )}
-                </button>
               </div>
-            )}
-          </div>
-        )}
+
+              {/* ── time slots ── */}
+              {selectedDate && (
+                <div className="mb-5">
+                  <h3 className="mb-3 text-sm font-medium text-gray-700">
+                    Available Times
+                  </h3>
+                  {slotsLoading ? (
+                    <div className="flex items-center justify-center py-6">
+                      <Loader2 className="h-5 w-5 animate-spin text-amber-500" />
+                      <span className="ml-2 text-sm text-gray-500">
+                        Loading slots…
+                      </span>
+                    </div>
+                  ) : availableSlots.length === 0 ? (
+                    <p className="py-4 text-center text-sm text-gray-400">
+                      No available slots on this date
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                      {availableSlots.map((slot) => {
+                        const active =
+                          selectedSlot?.startTime === slot.startTime;
+                        return (
+                          <button
+                            key={slot.startTime}
+                            onClick={() => setSelectedSlot(slot)}
+                            className={`flex items-center justify-center gap-1 rounded-lg border px-3 py-2 text-sm transition ${
+                              active
+                                ? "border-amber-500 bg-amber-50 font-medium text-amber-700"
+                                : "border-gray-200 hover:border-amber-300"
+                            }`}
+                          >
+                            <Clock className="h-3.5 w-3.5" />
+                            {slot.startTime}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── summary & confirm ── */}
+              {selectedSlot && selectedDate && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                  <div className="mb-3 flex items-center gap-3">
+                    <Calendar className="h-5 w-5 text-amber-600" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        {new Date(
+                          selectedDate + "T00:00:00"
+                        ).toLocaleDateString("en-GB", {
+                          weekday: "long",
+                          day: "numeric",
+                          month: "long",
+                        })}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {selectedSlot.startTime} – {selectedSlot.endTime}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleBook}
+                    disabled={isBooking}
+                    className="w-full rounded-lg bg-amber-600 py-2.5 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-60"
+                  >
+                    {isBooking ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Booking…
+                      </span>
+                    ) : (
+                      "Confirm Free Trial"
+                    )}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

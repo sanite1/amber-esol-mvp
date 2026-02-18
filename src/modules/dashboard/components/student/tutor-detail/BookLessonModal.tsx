@@ -1,22 +1,20 @@
 import { useState, useMemo } from "react";
 import {
   X,
+  Clock,
   ChevronLeft,
   ChevronRight,
-  CheckCircle2,
   Loader2,
+  CheckCircle2,
+  Globe,
   Minus,
   Plus,
   CreditCard,
-  Shield,
-  Check,
 } from "lucide-react";
-import {
-  type AvailabilityDay,
-  type TimeSlot,
-  tutorDetail,
-} from "../../../data/student/tutorDetailData";
-import { UserData } from "../../../lib/types/authOnboarding";
+import type { UserData } from "../../../lib/types/authOnboarding";
+import { useFetchAvailableSlots } from "../../../lib/api/availability";
+import { useCreateBooking } from "../../../lib/api/booking";
+import type { SlotSelection } from "../../../lib/types/booking";
 
 interface Props {
   tutor: UserData;
@@ -24,523 +22,513 @@ interface Props {
   onSuccess: () => void;
 }
 
-type Step = "hours" | "schedule" | "payment" | "success";
+interface SelectedSlot {
+  date: string;
+  startTime: string;
+  endTime: string;
+}
 
 export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
-  const [step, setStep] = useState<Step>("hours");
+  /* ── step machine ── */
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1); // hours → schedule → payment → success
   const [hours, setHours] = useState(2);
-  const [selectedSlots, setSelectedSlots] = useState<
-    { date: string; slot: TimeSlot }[]
-  >([]);
+  const [selectedSlots, setSelectedSlots] = useState<SelectedSlot[]>([]);
   const [weekOffset, setWeekOffset] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const tutorDetails = tutorDetail;
-  const totalCost = hours * tutorDetails.hourlyRate;
+  const totalCost = hours * (tutor.hourlyRate ?? 0);
 
-  // Group availability into weeks
-  const weeks = useMemo(() => {
-    const result: AvailabilityDay[][] = [];
-    const days = tutorDetails.availability;
-    for (let i = 0; i < days.length; i += 7) {
-      result.push(days.slice(i, i + 7));
+  /* ── dates for current week view ── */
+  const dates = useMemo(() => {
+    const result: Date[] = [];
+    const today = new Date();
+    const start = new Date(today);
+    start.setDate(today.getDate() + weekOffset * 7);
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      if (d >= new Date(today.toDateString())) result.push(d);
     }
     return result;
-  }, [tutorDetails.availability]);
+  }, [weekOffset]);
 
-  const currentWeek = weeks[weekOffset] || [];
+  /* ── currently viewed date for slot fetching ── */
+  const [viewDate, setViewDate] = useState<string | null>(null);
 
-  const toggleSlot = (date: string, slot: TimeSlot) => {
-    const exists = selectedSlots.find(
-      (s) => s.date === date && s.slot.id === slot.id
-    );
-    if (exists) {
+  const toDateStr = (d: Date) => d.toISOString().split("T")[0];
+
+  /* ── fetch slots for the selected date ── */
+  const slotsQuery = useMemo(
+    () => ({ date: viewDate ?? "", duration: 50 }),
+    [viewDate]
+  );
+
+  const { data: slotsResponse, isLoading: slotsLoading } =
+    useFetchAvailableSlots(tutor._id, slotsQuery);
+
+  // const { data: slotsResponse, isLoading: slotsLoading } =
+  //   useFetchAvailableSlots(tutor._id, viewDate ?? "", 60, {
+  //     enabled: !!viewDate && step === 2,
+  //   });
+
+  const availableSlots: { startTime: string; endTime: string }[] =
+    slotsResponse?.data?.slots ?? [];
+
+  /* ── booking mutation ── */
+  const { mutate: createBooking } = useCreateBooking();
+
+  /* ── slot toggle ── */
+  const isSlotSelected = (date: string, startTime: string) =>
+    selectedSlots.some((s) => s.date === date && s.startTime === startTime);
+
+  const toggleSlot = (date: string, startTime: string, endTime: string) => {
+    if (isSlotSelected(date, startTime)) {
       setSelectedSlots((prev) =>
-        prev.filter((s) => !(s.date === date && s.slot.id === slot.id))
+        prev.filter((s) => !(s.date === date && s.startTime === startTime))
       );
     } else if (selectedSlots.length < hours) {
-      setSelectedSlots((prev) => [...prev, { date, slot }]);
+      setSelectedSlots((prev) => [...prev, { date, startTime, endTime }]);
     }
   };
 
-  const isSlotSelected = (date: string, slotId: string) =>
-    selectedSlots.some((s) => s.date === date && s.slot.id === slotId);
-
-  const sortedSelectedSlots = useMemo(
-    () =>
-      [...selectedSlots].sort((a, b) => {
-        const dateCompare = a.date.localeCompare(b.date);
-        if (dateCompare !== 0) return dateCompare;
-        return a.slot.startTime.localeCompare(b.slot.startTime);
-      }),
-    [selectedSlots]
+  const sortedSelectedSlots = [...selectedSlots].sort((a, b) =>
+    a.date === b.date
+      ? a.startTime.localeCompare(b.startTime)
+      : a.date.localeCompare(b.date)
   );
 
-  const handlePayment = async () => {
+  /* ── handle payment / checkout ── */
+  const handlePayment = () => {
     setIsProcessing(true);
-    // TODO: replace with real Stripe payment
-    await new Promise((r) => setTimeout(r, 2000));
-    setIsProcessing(false);
-    setStep("success");
-    setTimeout(() => onSuccess(), 2500);
+
+    const slots: SlotSelection[] = selectedSlots.map((s) => ({
+      date: s.date,
+      startTime: s.startTime,
+      endTime: s.endTime,
+    }));
+
+    createBooking(
+      {
+        tutorId: tutor._id,
+        type: "regular",
+        slots,
+        specialty: tutor.specializations?.[0] ?? "General English",
+        // subject: "English Lesson",
+        notes: "",
+      },
+      {
+        onSuccess: (response) => {
+          setIsProcessing(false);
+          // If Stripe checkout URL returned, redirect
+          if (response?.data?.checkoutUrl) {
+            window.location.href = response.data.checkoutUrl;
+          } else {
+            // Free or auto‑confirmed – show success
+            setStep(4);
+            onSuccess();
+          }
+        },
+        onError: () => {
+          setIsProcessing(false);
+        },
+      }
+    );
   };
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return {
-      day: date.toLocaleDateString("en-GB", { weekday: "short" }),
-      num: date.getDate(),
-      month: date.toLocaleDateString("en-GB", { month: "short" }),
-      full: date.toLocaleDateString("en-GB", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-      }),
-      short: date.toLocaleDateString("en-GB", {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-      }),
-    };
-  };
+  /* ── helpers ── */
+  const formatDayShort = (d: Date) =>
+    d.toLocaleDateString("en-GB", { weekday: "short" });
+  const formatDayNum = (d: Date) => d.getDate();
+  const formatMonth = (d: Date) =>
+    d.toLocaleDateString("en-GB", { month: "short" });
+  const formatFullDate = (dateStr: string) =>
+    new Date(dateStr + "T00:00:00").toLocaleDateString("en-GB", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+    });
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div
-        className="absolute inset-0 bg-[#0B2343]/40 backdrop-blur-sm"
-        onClick={!isProcessing ? onClose : undefined}
-      />
+  /* ── STEP 1 – Select Hours ── */
+  const renderStep1 = () => (
+    <div className="p-5">
+      <h3 className="mb-4 text-sm font-medium text-gray-700">
+        How many hours would you like to book?
+      </h3>
 
-      <div className="relative bg-white w-full sm:max-w-xl sm:rounded-2xl rounded-t-2xl shadow-xl max-h-[92vh] overflow-y-auto">
-        {/* Header */}
-        <div className="sticky top-0 bg-white z-10 px-5 pt-5 pb-3 border-b border-[#0B2343]/[0.04]">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-[#0B2343]">
-                Book Lessons with {tutorDetails.name.split(" ")[0]}
-              </h2>
-              <p className="text-xs text-[#0B2343]/35 mt-0.5">
-                £{tutorDetails.hourlyRate}/hour · Pay as you go
-              </p>
+      <div className="mb-4 flex items-center justify-center gap-4">
+        <button
+          onClick={() => setHours((h) => Math.max(1, h - 1))}
+          className="rounded-lg border p-2 hover:bg-gray-50 disabled:opacity-30"
+          disabled={hours <= 1}
+        >
+          <Minus className="h-4 w-4" />
+        </button>
+        <span className="text-3xl font-bold text-gray-900">{hours}</span>
+        <button
+          onClick={() => setHours((h) => Math.min(20, h + 1))}
+          className="rounded-lg border p-2 hover:bg-gray-50"
+          disabled={hours >= 20}
+        >
+          <Plus className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div className="mb-4 flex justify-center gap-2">
+        {[2, 4, 8, 10].map((n) => (
+          <button
+            key={n}
+            onClick={() => setHours(n)}
+            className={`rounded-full px-3 py-1 text-sm font-medium transition ${
+              hours === n
+                ? "bg-amber-100 text-amber-700"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            {n}h
+          </button>
+        ))}
+      </div>
+
+      <div className="mb-5 rounded-xl bg-gray-50 p-4 text-center">
+        <p className="text-sm text-gray-500">Total Cost</p>
+        <p className="text-2xl font-bold text-gray-900">
+          £{totalCost.toFixed(2)}
+        </p>
+        <p className="text-xs text-gray-400">
+          {hours} hour{hours > 1 ? "s" : ""} × £
+          {(tutor.hourlyRate ?? 0).toFixed(2)}/hr
+        </p>
+      </div>
+
+      <button
+        onClick={() => {
+          setSelectedSlots([]);
+          setStep(2);
+        }}
+        className="w-full rounded-lg bg-amber-600 py-2.5 text-sm font-medium text-white hover:bg-amber-700"
+      >
+        Choose Schedule
+      </button>
+    </div>
+  );
+
+  /* ── STEP 2 – Pick Slots ── */
+  const renderStep2 = () => (
+    <div className="p-5">
+      <div className="mb-3 flex items-center gap-2 text-sm text-gray-500">
+        <Globe className="h-4 w-4" />
+        <span>{tutor.timezone ?? "Europe/London"}</span>
+      </div>
+
+      {/* week nav */}
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-sm font-medium text-gray-700">
+          Select {hours} slot{hours > 1 ? "s" : ""} ({selectedSlots.length}/
+          {hours})
+        </h3>
+        <div className="flex gap-1">
+          <button
+            onClick={() => setWeekOffset((w) => Math.max(0, w - 1))}
+            disabled={weekOffset === 0}
+            className="rounded-md p-1 hover:bg-gray-100 disabled:opacity-30"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setWeekOffset((w) => w + 1)}
+            className="rounded-md p-1 hover:bg-gray-100"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* date row */}
+      <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
+        {dates.map((d) => {
+          const str = toDateStr(d);
+          const active = viewDate === str;
+          const hasSelection = selectedSlots.some((s) => s.date === str);
+          return (
+            <button
+              key={str}
+              onClick={() => setViewDate(str)}
+              className={`relative flex min-w-[4rem] flex-col items-center rounded-xl border px-3 py-2 text-sm transition ${
+                active
+                  ? "border-amber-500 bg-amber-50 text-amber-700"
+                  : "border-gray-200 hover:border-amber-300"
+              }`}
+            >
+              <span className="text-xs font-medium uppercase text-gray-500">
+                {formatDayShort(d)}
+              </span>
+              <span className="text-lg font-semibold">{formatDayNum(d)}</span>
+              <span className="text-xs text-gray-500">{formatMonth(d)}</span>
+              {hasSelection && (
+                <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-amber-500" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* slots for selected date */}
+      {viewDate && (
+        <div className="mb-4">
+          {slotsLoading ? (
+            <div className="flex items-center justify-center py-6">
+              <Loader2 className="h-5 w-5 animate-spin text-amber-500" />
+              <span className="ml-2 text-sm text-gray-500">Loading slots…</span>
             </div>
-            {!isProcessing && (
-              <button
-                onClick={onClose}
-                className="p-1.5 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors"
-              >
-                <X size={16} className="text-[#0B2343]/30" />
-              </button>
-            )}
-          </div>
-
-          {/* Steps indicator */}
-          {step !== "success" && (
-            <div className="flex items-center gap-2 mt-3">
-              {(["hours", "schedule", "payment"] as Step[]).map((s, i) => (
-                <div key={s} className="flex items-center gap-2 flex-1">
-                  <div
-                    className={`flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold transition-colors ${
-                      step === s
-                        ? "bg-[#ff7c22] text-white"
-                        : ["hours", "schedule", "payment"].indexOf(step) > i
-                          ? "bg-green-100 text-green-600"
-                          : "bg-[#0B2343]/[0.05] text-[#0B2343]/25"
+          ) : availableSlots.length === 0 ? (
+            <p className="py-4 text-center text-sm text-gray-400">
+              No available slots on this date
+            </p>
+          ) : (
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {availableSlots.map((slot) => {
+                const selected = isSlotSelected(viewDate, slot.startTime);
+                const disabled = !selected && selectedSlots.length >= hours;
+                return (
+                  <button
+                    key={slot.startTime}
+                    onClick={() =>
+                      toggleSlot(viewDate, slot.startTime, slot.endTime)
+                    }
+                    disabled={disabled}
+                    className={`flex items-center justify-center gap-1 rounded-lg border px-3 py-2 text-sm transition ${
+                      selected
+                        ? "border-amber-500 bg-amber-100 font-medium text-amber-700"
+                        : disabled
+                          ? "cursor-not-allowed border-gray-100 bg-gray-50 text-gray-300"
+                          : "border-gray-200 hover:border-amber-300"
                     }`}
                   >
-                    {["hours", "schedule", "payment"].indexOf(step) > i ? (
-                      <Check size={11} />
-                    ) : (
-                      i + 1
-                    )}
-                  </div>
-                  <span
-                    className={`text-[11px] font-medium hidden sm:block ${
-                      step === s ? "text-[#0B2343]/70" : "text-[#0B2343]/25"
-                    }`}
-                  >
-                    {s === "hours"
-                      ? "Hours"
-                      : s === "schedule"
-                        ? "Schedule"
-                        : "Payment"}
-                  </span>
-                  {i < 2 && (
-                    <div className="flex-1 h-px bg-[#0B2343]/[0.06] mx-1" />
-                  )}
-                </div>
-              ))}
+                    <Clock className="h-3.5 w-3.5" />
+                    {slot.startTime}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
+      )}
 
-        {/* ═══ Step 1: Select hours ═══ */}
-        {step === "hours" && (
-          <div className="p-5">
-            <p className="text-sm text-[#0B2343]/50 mb-5 leading-relaxed">
-              How many hours would you like to book? You discussed this with{" "}
-              {tutorDetails.name.split(" ")[0]} during your trial, pick the
-              number of 1-hour sessions you'd like to schedule.
-            </p>
-
-            {/* Hours selector */}
-            <div className="flex items-center justify-center gap-5 py-6">
-              <button
-                onClick={() => setHours(Math.max(1, hours - 1))}
-                disabled={hours <= 1}
-                className="w-10 h-10 rounded-xl border border-[#0B2343]/[0.08] flex items-center justify-center hover:bg-[#0B2343]/[0.03] disabled:opacity-20 transition-colors"
+      {/* selected slot summary */}
+      {selectedSlots.length > 0 && (
+        <div className="mb-4 rounded-lg border bg-gray-50 p-3">
+          <p className="mb-2 text-xs font-medium text-gray-500">
+            Selected Sessions
+          </p>
+          <div className="space-y-1">
+            {sortedSelectedSlots.map((s, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between text-sm"
               >
-                <Minus size={16} className="text-[#0B2343]/50" />
-              </button>
-              <div className="text-center min-w-[80px]">
-                <span className="text-4xl font-bold text-[#0B2343]">
-                  {hours}
+                <span className="text-gray-700">
+                  {formatFullDate(s.date)} • {s.startTime}–{s.endTime}
                 </span>
-                <p className="text-xs text-[#0B2343]/30 mt-1">
-                  hour{hours !== 1 ? "s" : ""}
-                </p>
-              </div>
-              <button
-                onClick={() => setHours(Math.min(20, hours + 1))}
-                disabled={hours >= 20}
-                className="w-10 h-10 rounded-xl border border-[#0B2343]/[0.08] flex items-center justify-center hover:bg-[#0B2343]/[0.03] disabled:opacity-20 transition-colors"
-              >
-                <Plus size={16} className="text-[#0B2343]/50" />
-              </button>
-            </div>
-
-            {/* Quick select */}
-            <div className="flex items-center justify-center gap-2 mb-6">
-              {[2, 4, 8, 10].map((h) => (
                 <button
-                  key={h}
-                  onClick={() => setHours(h)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    hours === h
-                      ? "bg-[#ff7c22]/10 text-[#ff7c22] border border-[#ff7c22]/20"
-                      : "bg-[#0B2343]/[0.03] text-[#0B2343]/35 hover:bg-[#0B2343]/[0.06]"
-                  }`}
+                  onClick={() =>
+                    setSelectedSlots((prev) =>
+                      prev.filter(
+                        (x) =>
+                          !(x.date === s.date && x.startTime === s.startTime)
+                      )
+                    )
+                  }
+                  className="text-xs text-red-500 hover:underline"
                 >
-                  {h} hrs
+                  Remove
                 </button>
-              ))}
-            </div>
-
-            {/* Cost preview */}
-            <div className="p-4 rounded-xl bg-[#0B2343]/[0.02] border border-[#0B2343]/[0.05] mb-5">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-sm text-[#0B2343]/50">
-                  {hours} hour{hours !== 1 ? "s" : ""} × £
-                  {tutorDetails.hourlyRate}
-                  /hr
-                </span>
-                <span className="text-lg font-bold text-[#0B2343]">
-                  £{totalCost}
-                </span>
               </div>
-              <p className="text-[10px] text-[#0B2343]/25">
-                You'll pick your preferred time slots next
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* navigation */}
+      <div className="flex gap-3">
+        <button
+          onClick={() => setStep(1)}
+          className="flex-1 rounded-lg border py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Back
+        </button>
+        <button
+          onClick={() => setStep(3)}
+          disabled={selectedSlots.length !== hours}
+          className="flex-1 rounded-lg bg-amber-600 py-2.5 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-40"
+        >
+          Continue to Payment
+        </button>
+      </div>
+    </div>
+  );
+
+  /* ── STEP 3 – Payment ── */
+  const renderStep3 = () => (
+    <div className="p-5">
+      {/* tutor summary */}
+      <div className="mb-4 flex items-center gap-3">
+        {tutor.profilePicture ? (
+          <img
+            src={tutor.profilePicture}
+            alt={tutor.firstname}
+            className="h-10 w-10 rounded-full object-cover"
+          />
+        ) : (
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-sm font-bold text-amber-700">
+            {tutor.firstname?.[0]}
+            {tutor.lastname?.[0]}
+          </div>
+        )}
+        <div>
+          <p className="font-medium text-gray-900">
+            {tutor.firstname} {tutor.lastname}
+          </p>
+          <p className="text-sm text-gray-500">
+            {hours} lesson{hours > 1 ? "s" : ""} • £{totalCost.toFixed(2)}
+          </p>
+        </div>
+      </div>
+
+      {/* sessions list */}
+      <div className="mb-4 rounded-lg border bg-gray-50 p-3">
+        <p className="mb-2 text-xs font-medium text-gray-500">Sessions</p>
+        <div className="space-y-1">
+          {sortedSelectedSlots.map((s, i) => (
+            <div key={i} className="flex justify-between text-sm text-gray-700">
+              <span>
+                {formatFullDate(s.date)} • {s.startTime}–{s.endTime}
+              </span>
+              <span>£{(tutor.hourlyRate ?? 0).toFixed(2)}</span>
+            </div>
+          ))}
+        </div>
+        <div className="mt-2 flex justify-between border-t pt-2 text-sm font-semibold text-gray-900">
+          <span>Total</span>
+          <span>£{totalCost.toFixed(2)}</span>
+        </div>
+      </div>
+
+      {/* payment info */}
+      <div className="mb-4 rounded-lg border p-3">
+        <div className="flex items-center gap-2 text-sm text-gray-700">
+          <CreditCard className="h-4 w-4 text-gray-400" />
+          <span>You'll be redirected to secure Stripe checkout</span>
+        </div>
+      </div>
+
+      {/* cancellation policy */}
+      <p className="mb-5 text-xs text-gray-400">
+        Free cancellation up to 24 hours before the lesson. Late cancellations
+        will not be refunded.
+      </p>
+
+      {/* navigation */}
+      <div className="flex gap-3">
+        <button
+          onClick={() => setStep(2)}
+          disabled={isProcessing}
+          className="flex-1 rounded-lg border py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+        >
+          Back
+        </button>
+        <button
+          onClick={handlePayment}
+          disabled={isProcessing}
+          className="flex-1 rounded-lg bg-amber-600 py-2.5 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-60"
+        >
+          {isProcessing ? (
+            <span className="flex items-center justify-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Processing…
+            </span>
+          ) : (
+            `Pay £${totalCost.toFixed(2)}`
+          )}
+        </button>
+      </div>
+    </div>
+  );
+
+  /* ── STEP 4 – Success ── */
+  const renderStep4 = () => (
+    <div className="flex flex-col items-center gap-4 p-8 text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+        <CheckCircle2 className="h-8 w-8 text-green-600" />
+      </div>
+      <h3 className="text-xl font-semibold text-gray-900">
+        Booking Confirmed!
+      </h3>
+      <p className="text-gray-600">
+        You've booked {hours} lesson{hours > 1 ? "s" : ""} with{" "}
+        {tutor.firstname}. You'll receive a confirmation email with details and
+        meeting links shortly.
+      </p>
+      <p className="text-sm font-medium text-gray-900">
+        Total: £{totalCost.toFixed(2)}
+      </p>
+      <button
+        onClick={onClose}
+        className="mt-2 rounded-lg bg-amber-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-amber-700"
+      >
+        Done
+      </button>
+    </div>
+  );
+
+  /* ── step titles ── */
+  const stepTitles: Record<number, string> = {
+    1: "Select Hours",
+    2: "Choose Schedule",
+    3: "Payment",
+    4: "Success",
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-xl max-h-[90vh] overflow-y-auto">
+        {/* header */}
+        {step !== 4 && (
+          <div className="flex items-center justify-between border-b p-5">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Book a Lesson
+              </h2>
+              <p className="text-sm text-gray-500">
+                Step {step} of 3 – {stepTitles[step]}
               </p>
             </div>
-
             <button
-              onClick={() => setStep("schedule")}
-              className="w-full py-3 rounded-xl bg-[#ff7c22] text-white text-sm font-semibold hover:bg-[#e56a10] transition-colors"
+              onClick={onClose}
+              className="rounded-full p-1 hover:bg-gray-100"
             >
-              Choose Time Slots
+              <X className="h-5 w-5 text-gray-400" />
             </button>
           </div>
         )}
 
-        {/* ═══ Step 2: Select time slots ═══ */}
-        {step === "schedule" && (
-          <div className="p-5">
-            {/* Selection counter */}
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-[#0B2343]/50">
-                Select{" "}
-                <span className="font-semibold text-[#0B2343]/70">{hours}</span>{" "}
-                time slot{hours !== 1 ? "s" : ""} from{" "}
-                {tutorDetails.name.split(" ")[0]}'s availability
-              </p>
-              <span
-                className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
-                  selectedSlots.length === hours
-                    ? "bg-green-50 text-green-600"
-                    : "bg-[#ff7c22]/10 text-[#ff7c22]"
+        {/* step progress */}
+        {step !== 4 && (
+          <div className="flex gap-1 px-5 pt-3">
+            {[1, 2, 3].map((s) => (
+              <div
+                key={s}
+                className={`h-1 flex-1 rounded-full ${
+                  s <= step ? "bg-amber-500" : "bg-gray-200"
                 }`}
-              >
-                {selectedSlots.length}/{hours}
-              </span>
-            </div>
-
-            {/* Week navigation */}
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs text-[#0B2343]/35 font-medium">
-                {currentWeek.length > 0 &&
-                  `${formatDate(currentWeek[0].date).short}, ${
-                    formatDate(currentWeek[currentWeek.length - 1].date).short
-                  }`}
-              </span>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setWeekOffset(Math.max(0, weekOffset - 1))}
-                  disabled={weekOffset === 0}
-                  className="p-1 rounded-lg hover:bg-[#0B2343]/[0.04] disabled:opacity-20 transition-colors"
-                >
-                  <ChevronLeft size={16} className="text-[#0B2343]/40" />
-                </button>
-                <button
-                  onClick={() =>
-                    setWeekOffset(Math.min(weeks.length - 1, weekOffset + 1))
-                  }
-                  disabled={weekOffset >= weeks.length - 1}
-                  className="p-1 rounded-lg hover:bg-[#0B2343]/[0.04] disabled:opacity-20 transition-colors"
-                >
-                  <ChevronRight size={16} className="text-[#0B2343]/40" />
-                </button>
-              </div>
-            </div>
-
-            {/* Calendar grid */}
-            <div
-              className="space-y-3 mb-5 max-h-[40vh] overflow-y-auto pr-1"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-            >
-              <style>{`
-                .slots-scroll::-webkit-scrollbar { display: none; }
-              `}</style>
-              {currentWeek.map((day) => {
-                const avail = day.slots.filter((s) => s.available);
-                if (avail.length === 0) return null;
-                const d = formatDate(day.date);
-                return (
-                  <div key={day.date}>
-                    <p className="text-xs font-medium text-[#0B2343]/40 mb-2">
-                      {d.full}
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {avail.map((slot) => {
-                        const selected = isSlotSelected(day.date, slot.id);
-                        const disabled =
-                          !selected && selectedSlots.length >= hours;
-                        return (
-                          <button
-                            key={slot.id}
-                            onClick={() => toggleSlot(day.date, slot)}
-                            disabled={disabled}
-                            className={`px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
-                              selected
-                                ? "border-[#ff7c22] bg-[#ff7c22] text-white"
-                                : disabled
-                                  ? "border-[#0B2343]/[0.04] text-[#0B2343]/15 cursor-not-allowed"
-                                  : "border-[#0B2343]/[0.06] text-[#0B2343]/50 hover:border-[#ff7c22]/30 hover:bg-[#ff7c22]/[0.03]"
-                            }`}
-                          >
-                            {slot.startTime}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Selected summary */}
-            {selectedSlots.length > 0 && (
-              <div className="p-3 rounded-xl bg-[#0B2343]/[0.02] border border-[#0B2343]/[0.05] mb-4">
-                <p className="text-xs font-medium text-[#0B2343]/50 mb-2">
-                  Selected ({selectedSlots.length}/{hours}):
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {sortedSelectedSlots.map((s) => (
-                    <button
-                      key={`${s.date}-${s.slot.id}`}
-                      onClick={() => toggleSlot(s.date, s.slot)}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#ff7c22]/10 text-[11px] text-[#ff7c22] font-medium hover:bg-[#ff7c22]/20 transition-colors"
-                    >
-                      {formatDate(s.date).short} {s.slot.startTime}
-                      <X size={10} />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Nav buttons */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => setStep("hours")}
-                className="flex-1 py-3 rounded-xl border border-[#0B2343]/[0.08] text-sm text-[#0B2343]/50 font-medium hover:bg-[#0B2343]/[0.03] transition-colors"
-              >
-                Back
-              </button>
-              <button
-                onClick={() => setStep("payment")}
-                disabled={selectedSlots.length !== hours}
-                className="flex-[2] py-3 rounded-xl bg-[#ff7c22] text-white text-sm font-semibold hover:bg-[#e56a10] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                Review & Pay, £{totalCost}
-              </button>
-            </div>
+              />
+            ))}
           </div>
         )}
 
-        {/* ═══ Step 3: Payment ═══ */}
-        {step === "payment" && (
-          <div className="p-5">
-            {/* Booking summary */}
-            <div className="mb-5">
-              <h3 className="text-sm font-semibold text-[#0B2343] mb-3">
-                Booking Summary
-              </h3>
-              <div className="p-4 rounded-xl border border-[#0B2343]/[0.06] space-y-3">
-                {/* Tutor */}
-                <div className="flex items-center gap-3 pb-3 border-b border-[#0B2343]/[0.04]">
-                  <div className="w-9 h-9 rounded-full bg-[#0B2343]/[0.06] flex items-center justify-center text-xs font-semibold text-[#0B2343]/30">
-                    {tutorDetails.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-[#0B2343]/70">
-                      {tutorDetails.name}
-                    </p>
-                    <p className="text-[11px] text-[#0B2343]/30">
-                      {tutorDetails.headline.slice(0, 50)}…
-                    </p>
-                  </div>
-                </div>
-
-                {/* Sessions */}
-                <div className="space-y-1.5">
-                  {sortedSelectedSlots.map((s) => (
-                    <div
-                      key={`${s.date}-${s.slot.id}`}
-                      className="flex items-center justify-between text-xs"
-                    >
-                      <span className="text-[#0B2343]/50">
-                        {formatDate(s.date).full}
-                      </span>
-                      <span className="text-[#0B2343]/40 font-medium">
-                        {s.slot.startTime} – {s.slot.endTime}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Total */}
-                <div className="flex items-center justify-between pt-3 border-t border-[#0B2343]/[0.04]">
-                  <div>
-                    <span className="text-sm text-[#0B2343]/50">Total</span>
-                    <p className="text-[10px] text-[#0B2343]/25">
-                      {hours} hr{hours !== 1 ? "s" : ""} × £
-                      {tutorDetails.hourlyRate}
-                      /hr
-                    </p>
-                  </div>
-                  <span className="text-xl font-bold text-[#0B2343]">
-                    £{totalCost}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Payment method placeholder */}
-            <div className="mb-5">
-              <h3 className="text-sm font-semibold text-[#0B2343] mb-3">
-                Payment Method
-              </h3>
-              <div className="flex items-center gap-3 p-3.5 rounded-xl border border-[#ff7c22]/15 bg-[#ff7c22]/[0.02]">
-                <div className="w-11 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                  <span className="text-[10px] font-bold text-blue-700">
-                    VISA
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-[#0B2343]/70 font-medium">
-                    •••• 4242
-                  </p>
-                  <p className="text-[10px] text-[#0B2343]/30">
-                    Alex Thompson · Exp 08/2027
-                  </p>
-                </div>
-                <span className="text-[9px] font-semibold text-[#ff7c22] bg-[#ff7c22]/10 px-1.5 py-0.5 rounded-md">
-                  Default
-                </span>
-              </div>
-              <button className="text-xs text-[#ff7c22] mt-2 hover:underline">
-                Use a different card
-              </button>
-            </div>
-
-            {/* Cancellation policy */}
-            <div className="p-3 rounded-xl bg-[#0B2343]/[0.02] mb-5">
-              <p className="text-xs text-[#0B2343]/40 leading-relaxed">
-                <span className="font-medium text-[#0B2343]/60">
-                  Cancellation policy:
-                </span>{" "}
-                Cancel 24+ hours before a lesson for a full refund. Late
-                cancellations are non-refundable. Individual sessions can be
-                rescheduled with 12 hours notice.
-              </p>
-            </div>
-
-            {/* Nav buttons */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => setStep("schedule")}
-                className="flex-1 py-3 rounded-xl border border-[#0B2343]/[0.08] text-sm text-[#0B2343]/50 font-medium hover:bg-[#0B2343]/[0.03] transition-colors"
-              >
-                Back
-              </button>
-              <button
-                onClick={handlePayment}
-                disabled={isProcessing}
-                className="flex-[2] py-3 rounded-xl bg-[#ff7c22] text-white text-sm font-semibold hover:bg-[#e56a10] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
-              >
-                {isProcessing ? (
-                  <>
-                    <Loader2 size={15} className="animate-spin" />
-                    Processing…
-                  </>
-                ) : (
-                  <>
-                    <CreditCard size={15} />
-                    Pay £{totalCost}
-                  </>
-                )}
-              </button>
-            </div>
-
-            <div className="flex items-center justify-center gap-1.5 mt-3">
-              <Shield size={11} className="text-[#0B2343]/15" />
-              <p className="text-[10px] text-[#0B2343]/20">
-                Secured by Stripe · 256-bit SSL encryption
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* ═══ Step 4: Success ═══ */}
-        {step === "success" && (
-          <div className="p-6 text-center py-10">
-            <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 size={28} className="text-green-500" />
-            </div>
-            <h3 className="text-lg font-semibold text-[#0B2343] mb-1">
-              Lessons Booked!
-            </h3>
-            <p className="text-sm text-[#0B2343]/50 max-w-xs mx-auto mb-2">
-              {hours} lesson{hours !== 1 ? "s" : ""} with {tutorDetails.name}{" "}
-              have been confirmed. £{totalCost} has been charged.
-            </p>
-            <p className="text-xs text-[#0B2343]/30">
-              Check your email for booking confirmations and meeting links.
-            </p>
-          </div>
-        )}
+        {step === 1 && renderStep1()}
+        {step === 2 && renderStep2()}
+        {step === 3 && renderStep3()}
+        {step === 4 && renderStep4()}
       </div>
     </div>
   );
