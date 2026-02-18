@@ -1,9 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Trash2, Loader2, Check, Globe } from "lucide-react";
-import type {
-  DaySchedule,
-  DayOfWeek,
-} from "../../../data/tutor/tutorAvailabilityData";
+import type { DaySchedule, DayOfWeek } from "../../../lib/types/availability";
 import {
   dayLabels,
   timeSlotOptions,
@@ -12,21 +9,29 @@ import {
 interface Props {
   schedule: DaySchedule[];
   timezone: string;
-  onUpdate: (schedule: DaySchedule[]) => void;
-  onSave: () => Promise<void>;
+  onSave: (schedule: DaySchedule[]) => Promise<void>;
+  isSaving: boolean;
 }
 
 export default function WeeklyScheduleCard({
-  schedule,
+  schedule: serverSchedule,
   timezone,
-  onUpdate,
   onSave,
+  isSaving,
 }: Props) {
-  const [saving, setSaving] = useState(false);
+  /* ── Local editing copy ── */
+  const [localSchedule, setLocalSchedule] =
+    useState<DaySchedule[]>(serverSchedule);
   const [dirty, setDirty] = useState(false);
 
+  /* Sync local state when server data changes (e.g. after save) */
+  useEffect(() => {
+    setLocalSchedule(serverSchedule);
+    setDirty(false);
+  }, [serverSchedule]);
+
   const toggleDay = (day: DayOfWeek) => {
-    const updated = schedule.map((d) => {
+    const updated = localSchedule.map((d) => {
       if (d.day !== day) return d;
       if (d.enabled) {
         return { ...d, enabled: false, blocks: [] };
@@ -34,17 +39,15 @@ export default function WeeklyScheduleCard({
       return {
         ...d,
         enabled: true,
-        blocks: [
-          { id: `${day}-${Date.now()}`, startTime: "09:00", endTime: "17:00" },
-        ],
+        blocks: [{ startTime: "09:00", endTime: "17:00" }],
       };
     });
-    onUpdate(updated);
+    setLocalSchedule(updated);
     setDirty(true);
   };
 
   const addBlock = (day: DayOfWeek) => {
-    const updated = schedule.map((d) => {
+    const updated = localSchedule.map((d) => {
       if (d.day !== day) return d;
       const lastBlock = d.blocks[d.blocks.length - 1];
       const newStart = lastBlock ? lastBlock.endTime : "09:00";
@@ -52,54 +55,52 @@ export default function WeeklyScheduleCard({
       const newEnd = `${String(Math.min(startH + 2, 22)).padStart(2, "0")}:00`;
       return {
         ...d,
-        blocks: [
-          ...d.blocks,
-          { id: `${day}-${Date.now()}`, startTime: newStart, endTime: newEnd },
-        ],
+        blocks: [...d.blocks, { startTime: newStart, endTime: newEnd }],
       };
     });
-    onUpdate(updated);
+    setLocalSchedule(updated);
     setDirty(true);
   };
 
-  const removeBlock = (day: DayOfWeek, blockId: string) => {
-    const updated = schedule.map((d) => {
+  const removeBlock = (day: DayOfWeek, blockIndex: number) => {
+    const updated = localSchedule.map((d) => {
       if (d.day !== day) return d;
-      const newBlocks = d.blocks.filter((b) => b.id !== blockId);
+      const newBlocks = d.blocks.filter((_, i) => i !== blockIndex);
       return { ...d, blocks: newBlocks, enabled: newBlocks.length > 0 };
     });
-    onUpdate(updated);
+    setLocalSchedule(updated);
     setDirty(true);
   };
 
   const updateBlock = (
     day: DayOfWeek,
-    blockId: string,
+    blockIndex: number,
     field: "startTime" | "endTime",
     value: string
   ) => {
-    const updated = schedule.map((d) => {
+    const updated = localSchedule.map((d) => {
       if (d.day !== day) return d;
       return {
         ...d,
-        blocks: d.blocks.map((b) =>
-          b.id === blockId ? { ...b, [field]: value } : b
+        blocks: d.blocks.map((b, i) =>
+          i === blockIndex ? { ...b, [field]: value } : b
         ),
       };
     });
-    onUpdate(updated);
+    setLocalSchedule(updated);
     setDirty(true);
   };
 
   const handleSave = async () => {
-    setSaving(true);
-    await onSave();
-    setSaving(false);
-    setDirty(false);
+    try {
+      await onSave(localSchedule);
+    } catch {
+      // error is handled by the hook toast
+    }
   };
 
   // Calculate total hours
-  const totalHours = schedule.reduce((sum, d) => {
+  const totalHours = localSchedule.reduce((sum, d) => {
     if (!d.enabled) return sum;
     return (
       sum +
@@ -136,22 +137,22 @@ export default function WeeklyScheduleCard({
         {dirty && (
           <button
             onClick={handleSave}
-            disabled={saving}
+            disabled={isSaving}
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#ff7c22] text-white text-xs font-semibold hover:bg-[#e56a10] disabled:opacity-50 transition-colors self-start sm:self-auto"
           >
-            {saving ? (
+            {isSaving ? (
               <Loader2 size={13} className="animate-spin" />
             ) : (
               <Check size={13} />
             )}
-            Save Schedule
+            {isSaving ? "Saving…" : "Save Schedule"}
           </button>
         )}
       </div>
 
       {/* Days */}
       <div className="space-y-2">
-        {schedule.map((daySchedule) => {
+        {localSchedule.map((daySchedule) => {
           const labels = dayLabels[daySchedule.day];
 
           return (
@@ -168,6 +169,7 @@ export default function WeeklyScheduleCard({
                 {/* Toggle */}
                 <button
                   onClick={() => toggleDay(daySchedule.day)}
+                  disabled={isSaving}
                   className={`mt-0.5 relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0 ${
                     daySchedule.enabled ? "bg-[#ff7c22]" : "bg-[#0B2343]/[0.1]"
                   }`}
@@ -196,9 +198,9 @@ export default function WeeklyScheduleCard({
                 {daySchedule.enabled ? (
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      {daySchedule.blocks.map((block) => (
+                      {daySchedule.blocks.map((block, blockIndex) => (
                         <div
-                          key={block.id}
+                          key={blockIndex}
                           className="flex items-center gap-1.5 p-1 rounded-lg bg-[#0B2343]/[0.02] border border-[#0B2343]/[0.05]"
                         >
                           <select
@@ -206,11 +208,12 @@ export default function WeeklyScheduleCard({
                             onChange={(e) =>
                               updateBlock(
                                 daySchedule.day,
-                                block.id,
+                                blockIndex,
                                 "startTime",
                                 e.target.value
                               )
                             }
+                            disabled={isSaving}
                             className={selectClass}
                           >
                             {timeSlotOptions.map((t) => (
@@ -227,11 +230,12 @@ export default function WeeklyScheduleCard({
                             onChange={(e) =>
                               updateBlock(
                                 daySchedule.day,
-                                block.id,
+                                blockIndex,
                                 "endTime",
                                 e.target.value
                               )
                             }
+                            disabled={isSaving}
                             className={selectClass}
                           >
                             {timeSlotOptions.map((t) => (
@@ -242,9 +246,10 @@ export default function WeeklyScheduleCard({
                           </select>
                           <button
                             onClick={() =>
-                              removeBlock(daySchedule.day, block.id)
+                              removeBlock(daySchedule.day, blockIndex)
                             }
-                            className="p-1 rounded hover:bg-red-50 transition-colors"
+                            disabled={isSaving}
+                            className="p-1 rounded hover:bg-red-50 transition-colors disabled:opacity-30"
                           >
                             <Trash2
                               size={11}
@@ -255,7 +260,8 @@ export default function WeeklyScheduleCard({
                       ))}
                       <button
                         onClick={() => addBlock(daySchedule.day)}
-                        className="flex items-center gap-1 px-2 py-1.5 rounded-lg border border-dashed border-[#0B2343]/[0.08] text-[10px] text-[#0B2343]/25 hover:border-[#ff7c22]/30 hover:text-[#ff7c22]/50 transition-colors"
+                        disabled={isSaving}
+                        className="flex items-center gap-1 px-2 py-1.5 rounded-lg border border-dashed border-[#0B2343]/[0.08] text-[10px] text-[#0B2343]/25 hover:border-[#ff7c22]/30 hover:text-[#ff7c22]/50 disabled:opacity-30 transition-colors"
                       >
                         <Plus size={10} />
                         Add
@@ -271,11 +277,11 @@ export default function WeeklyScheduleCard({
 
               {/* ── Mobile layout ── */}
               <div className="flex sm:hidden flex-col gap-2">
-                {/* Day + toggle row */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <button
                       onClick={() => toggleDay(daySchedule.day)}
+                      disabled={isSaving}
                       className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0 ${
                         daySchedule.enabled
                           ? "bg-[#ff7c22]"
@@ -303,7 +309,8 @@ export default function WeeklyScheduleCard({
                   {daySchedule.enabled && (
                     <button
                       onClick={() => addBlock(daySchedule.day)}
-                      className="flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] text-[#ff7c22] font-medium hover:bg-[#ff7c22]/[0.05] transition-colors"
+                      disabled={isSaving}
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] text-[#ff7c22] font-medium hover:bg-[#ff7c22]/[0.05] disabled:opacity-30 transition-colors"
                     >
                       <Plus size={9} />
                       Add Block
@@ -311,21 +318,24 @@ export default function WeeklyScheduleCard({
                   )}
                 </div>
 
-                {/* Time blocks */}
                 {daySchedule.enabled && daySchedule.blocks.length > 0 && (
                   <div className="space-y-1.5 ml-[46px]">
-                    {daySchedule.blocks.map((block) => (
-                      <div key={block.id} className="flex items-center gap-1.5">
+                    {daySchedule.blocks.map((block, blockIndex) => (
+                      <div
+                        key={blockIndex}
+                        className="flex items-center gap-1.5"
+                      >
                         <select
                           value={block.startTime}
                           onChange={(e) =>
                             updateBlock(
                               daySchedule.day,
-                              block.id,
+                              blockIndex,
                               "startTime",
                               e.target.value
                             )
                           }
+                          disabled={isSaving}
                           className={`flex-1 ${selectClass}`}
                         >
                           {timeSlotOptions.map((t) => (
@@ -340,11 +350,12 @@ export default function WeeklyScheduleCard({
                           onChange={(e) =>
                             updateBlock(
                               daySchedule.day,
-                              block.id,
+                              blockIndex,
                               "endTime",
                               e.target.value
                             )
                           }
+                          disabled={isSaving}
                           className={`flex-1 ${selectClass}`}
                         >
                           {timeSlotOptions.map((t) => (
@@ -354,8 +365,11 @@ export default function WeeklyScheduleCard({
                           ))}
                         </select>
                         <button
-                          onClick={() => removeBlock(daySchedule.day, block.id)}
-                          className="p-1 rounded hover:bg-red-50 transition-colors shrink-0"
+                          onClick={() =>
+                            removeBlock(daySchedule.day, blockIndex)
+                          }
+                          disabled={isSaving}
+                          className="p-1 rounded hover:bg-red-50 transition-colors shrink-0 disabled:opacity-30"
                         >
                           <Trash2 size={11} className="text-red-300" />
                         </button>

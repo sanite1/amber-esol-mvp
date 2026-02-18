@@ -1,13 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Settings, Loader2, Check } from "lucide-react";
 import {
   bufferOptions,
   noticeOptions,
   advanceOptions,
-  //   timeSlotOptions as tzOptions,
 } from "../../../data/tutor/tutorAvailabilityData";
 
-// Re-export timezone options if not already in the data file
 const timezoneOptions = [
   "GMT+0 (London)",
   "GMT+1 (Paris, Berlin)",
@@ -34,6 +32,7 @@ interface Props {
     minBookingNotice: number;
     maxBookingAdvance: number;
   }) => Promise<void>;
+  isSaving: boolean;
 }
 
 export default function BookingSettingsCard({
@@ -42,13 +41,22 @@ export default function BookingSettingsCard({
   minBookingNotice: initialNotice,
   maxBookingAdvance: initialAdvance,
   onSave,
+  isSaving,
 }: Props) {
   const [timezone, setTimezone] = useState(initialTz);
   const [buffer, setBuffer] = useState(initialBuffer);
   const [notice, setNotice] = useState(initialNotice);
   const [advance, setAdvance] = useState(initialAdvance);
-  const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
+
+  /* Sync local state when server data changes (e.g. after save) */
+  useEffect(() => {
+    setTimezone(initialTz);
+    setBuffer(initialBuffer);
+    setNotice(initialNotice);
+    setAdvance(initialAdvance);
+    setDirty(false);
+  }, [initialTz, initialBuffer, initialNotice, initialAdvance]);
 
   const handleChange = (setter: (v: any) => void, value: any) => {
     setter(value);
@@ -56,15 +64,16 @@ export default function BookingSettingsCard({
   };
 
   const handleSave = async () => {
-    setSaving(true);
-    await onSave({
-      timezone,
-      bufferMinutes: buffer,
-      minBookingNotice: notice,
-      maxBookingAdvance: advance,
-    });
-    setSaving(false);
-    setDirty(false);
+    try {
+      await onSave({
+        timezone,
+        bufferMinutes: buffer,
+        minBookingNotice: notice,
+        maxBookingAdvance: advance,
+      });
+    } catch {
+      // error is handled by the hook toast
+    }
   };
 
   const selectClass =
@@ -84,15 +93,15 @@ export default function BookingSettingsCard({
         {dirty && (
           <button
             onClick={handleSave}
-            disabled={saving}
+            disabled={isSaving}
             className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#ff7c22] text-white text-[11px] font-semibold hover:bg-[#e56a10] disabled:opacity-50 transition-colors"
           >
-            {saving ? (
+            {isSaving ? (
               <Loader2 size={11} className="animate-spin" />
             ) : (
               <Check size={11} />
             )}
-            Save
+            {isSaving ? "Saving…" : "Save"}
           </button>
         )}
       </div>
@@ -109,6 +118,7 @@ export default function BookingSettingsCard({
           <select
             value={timezone}
             onChange={(e) => handleChange(setTimezone, e.target.value)}
+            disabled={isSaving}
             className={selectClass}
           >
             {timezoneOptions.map((tz) => (
@@ -130,6 +140,7 @@ export default function BookingSettingsCard({
           <select
             value={buffer}
             onChange={(e) => handleChange(setBuffer, Number(e.target.value))}
+            disabled={isSaving}
             className={selectClass}
           >
             {bufferOptions.map((o) => (
@@ -151,6 +162,7 @@ export default function BookingSettingsCard({
           <select
             value={notice}
             onChange={(e) => handleChange(setNotice, Number(e.target.value))}
+            disabled={isSaving}
             className={selectClass}
           >
             {noticeOptions.map((o) => (
@@ -172,6 +184,7 @@ export default function BookingSettingsCard({
           <select
             value={advance}
             onChange={(e) => handleChange(setAdvance, Number(e.target.value))}
+            disabled={isSaving}
             className={selectClass}
           >
             {advanceOptions.map((o) => (

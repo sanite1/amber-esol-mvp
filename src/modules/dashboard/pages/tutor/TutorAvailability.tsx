@@ -1,10 +1,17 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { CalendarClock } from "lucide-react";
+import { getDecodedJwt } from "../../lib/auth";
 import {
-  tutorAvailabilityData as initialData,
-  type DaySchedule,
-  type DateOverride,
-} from "../../data/tutor/tutorAvailabilityData";
+  useFetchAvailability,
+  useSetSchedule,
+  useUpdateAvailabilitySettings,
+  useCreateOverride,
+  useDeleteOverride,
+} from "../../lib/api/availability";
+import type {
+  DaySchedule,
+  CreateOverridePayload,
+} from "../../lib/types/availability";
 import {
   SummarySkeleton,
   WeeklyScheduleSkeleton,
@@ -17,36 +24,95 @@ import DateOverridesCard from "../../components/tutor/availability/DateOverrides
 import BookingSettingsCard from "../../components/tutor/availability/BookingSettingsCard";
 
 export default function TutorAvailability() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [data, setData] = useState(initialData);
+  const decoded = getDecodedJwt();
+  const tutorId = decoded?.id ?? "";
+
+  /* ── Fetch availability + overrides ── */
+  const { data: response, isLoading, isError } = useFetchAvailability(tutorId);
+
+  const availability = response?.data?.availability;
+  const overrides = useMemo(() => {
+    return response?.data?.overrides ?? [];
+  }, [response?.data?.overrides]);
+
+  /* ── Mutations ── */
+  const { mutateAsync: setSchedule, isPending: isSavingSchedule } =
+    useSetSchedule();
+  const { mutateAsync: updateSettings, isPending: isSavingSettings } =
+    useUpdateAvailabilitySettings();
+  const { mutateAsync: createOverride, isPending: isCreatingOverride } =
+    useCreateOverride();
+  const { mutateAsync: removeOverride, isPending: isRemovingOverride } =
+    useDeleteOverride();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    const t = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(t);
   }, []);
 
-  const handleScheduleUpdate = (schedule: DaySchedule[]) => {
-    setData((prev) => ({ ...prev, weeklySchedule: schedule }));
+  /* ── Compute summary from live data ── */
+  const summary = useMemo(() => {
+    if (!availability) {
+      return {
+        totalWeeklyHours: 0,
+        bookedThisWeek: 0,
+        openThisWeek: 0,
+        overridesThisMonth: 0,
+      };
+    }
+
+    const totalWeeklyHours = availability.weeklySchedule.reduce((sum, d) => {
+      if (!d.enabled) return sum;
+      return (
+        sum +
+        d.blocks.reduce((bSum, b) => {
+          const [sh, sm] = b.startTime.split(":").map(Number);
+          const [eh, em] = b.endTime.split(":").map(Number);
+          return bSum + (eh + em / 60 - (sh + sm / 60));
+        }, 0)
+      );
+    }, 0);
+
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const overridesThisMonth = overrides.filter((o) =>
+      o.date.startsWith(currentMonth)
+    ).length;
+
+    return {
+      totalWeeklyHours: Math.round(totalWeeklyHours * 10) / 10,
+      bookedThisWeek: 0, // TODO: calculate from bookings in Phase 3
+      openThisWeek: Math.round(totalWeeklyHours * 10) / 10,
+      overridesThisMonth,
+    };
+  }, [availability, overrides]);
+
+  /* ── Handlers ── */
+
+  const handleScheduleSave = async (schedule: DaySchedule[]) => {
+    try {
+      await setSchedule({
+        weeklySchedule: schedule,
+        timezone: availability?.timezone,
+      });
+    } catch (error) {
+      console.error("Failed to save schedule:", error);
+    }
   };
 
-  const handleScheduleSave = async () => {
-    // TODO: API call to save weekly schedule
-    await new Promise((r) => setTimeout(r, 800));
+  const handleAddOverride = async (payload: CreateOverridePayload) => {
+    try {
+      await createOverride(payload);
+    } catch (error) {
+      console.error("Failed to create override:", error);
+    }
   };
 
-  const handleAddOverride = (override: DateOverride) => {
-    setData((prev) => ({
-      ...prev,
-      overrides: [...prev.overrides, override],
-    }));
-  };
-
-  const handleRemoveOverride = (id: string) => {
-    setData((prev) => ({
-      ...prev,
-      overrides: prev.overrides.filter((o) => o.id !== id),
-    }));
+  const handleRemoveOverride = async (id: string) => {
+    try {
+      await removeOverride(id);
+    } catch (error) {
+      console.error("Failed to remove override:", error);
+    }
   };
 
   const handleSettingsSave = async (settings: {
@@ -55,11 +121,14 @@ export default function TutorAvailability() {
     minBookingNotice: number;
     maxBookingAdvance: number;
   }) => {
-    // TODO: API call
-    await new Promise((r) => setTimeout(r, 800));
-    setData((prev) => ({ ...prev, ...settings }));
+    try {
+      await updateSettings(settings);
+    } catch (error) {
+      console.error("Failed to update settings:", error);
+    }
   };
 
+  /* ── Loading state ── */
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -78,6 +147,18 @@ export default function TutorAvailability() {
     );
   }
 
+  /* ── Error state ── */
+  if (isError || !availability) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[40vh] text-[#0B2343]/40">
+        <CalendarClock size={40} className="mb-3 opacity-30" />
+        <p className="text-sm font-medium">Could not load availability</p>
+        <p className="text-xs mt-1 opacity-60">Please try again later</p>
+      </div>
+    );
+  }
+
+  /* ── Render ── */
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -96,33 +177,36 @@ export default function TutorAvailability() {
       </div>
 
       {/* Summary */}
-      <AvailabilitySummary summary={data.summary} />
+      <AvailabilitySummary summary={summary} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div className="col-span-1 lg:col-span-2">
           {/* Weekly schedule */}
           <WeeklyScheduleCard
-            schedule={data.weeklySchedule}
-            timezone={data.timezone}
-            onUpdate={handleScheduleUpdate}
+            schedule={availability.weeklySchedule}
+            timezone={availability.timezone}
             onSave={handleScheduleSave}
+            isSaving={isSavingSchedule}
           />
         </div>
         <div className="col-span-1 lg:col-span-1 space-y-5">
           {/* Date overrides */}
           <DateOverridesCard
-            overrides={data.overrides}
+            overrides={overrides}
             onAdd={handleAddOverride}
             onRemove={handleRemoveOverride}
+            isAdding={isCreatingOverride}
+            isRemoving={isRemovingOverride}
           />
 
           {/* Booking settings */}
           <BookingSettingsCard
-            timezone={data.timezone}
-            bufferMinutes={data.bufferMinutes}
-            minBookingNotice={data.minBookingNotice}
-            maxBookingAdvance={data.maxBookingAdvance}
+            timezone={availability.timezone}
+            bufferMinutes={availability.bufferMinutes}
+            minBookingNotice={availability.minBookingNotice}
+            maxBookingAdvance={availability.maxBookingAdvance}
             onSave={handleSettingsSave}
+            isSaving={isSavingSettings}
           />
         </div>
       </div>

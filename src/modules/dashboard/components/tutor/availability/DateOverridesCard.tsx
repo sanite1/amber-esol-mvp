@@ -12,19 +12,24 @@ import {
 import type {
   DateOverride,
   TimeBlock,
-} from "../../../data/tutor/tutorAvailabilityData";
+  CreateOverridePayload,
+} from "../../../lib/types/availability";
 import { timeSlotOptions } from "../../../data/tutor/tutorAvailabilityData";
 
 interface Props {
   overrides: DateOverride[];
-  onAdd: (override: DateOverride) => void;
-  onRemove: (id: string) => void;
+  onAdd: (payload: CreateOverridePayload) => Promise<void>;
+  onRemove: (id: string) => Promise<void>;
+  isAdding: boolean;
+  isRemoving: boolean;
 }
 
 export default function DateOverridesCard({
   overrides,
   onAdd,
   onRemove,
+  isAdding,
+  isRemoving,
 }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [formType, setFormType] = useState<"unavailable" | "extra">(
@@ -33,28 +38,40 @@ export default function DateOverridesCard({
   const [formDate, setFormDate] = useState("");
   const [formReason, setFormReason] = useState("");
   const [formBlocks, setFormBlocks] = useState<TimeBlock[]>([
-    { id: "new-1", startTime: "09:00", endTime: "12:00" },
+    { startTime: "09:00", endTime: "12:00" },
   ]);
-  const [adding, setAdding] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   const now = new Date();
 
   const handleAdd = async () => {
     if (!formDate) return;
-    setAdding(true);
-    await new Promise((r) => setTimeout(r, 500));
-    onAdd({
-      id: `ovr-${Date.now()}`,
-      date: formDate,
-      type: formType,
-      reason: formReason || undefined,
-      blocks: formType === "extra" ? formBlocks : undefined,
-    });
-    setAdding(false);
-    setShowForm(false);
-    setFormDate("");
-    setFormReason("");
-    setFormBlocks([{ id: "new-1", startTime: "09:00", endTime: "12:00" }]);
+    try {
+      await onAdd({
+        date: formDate,
+        type: formType,
+        reason: formReason || undefined,
+        blocks: formType === "extra" ? formBlocks : undefined,
+      });
+      setShowForm(false);
+      setFormDate("");
+      setFormReason("");
+      setFormType("unavailable");
+      setFormBlocks([{ startTime: "09:00", endTime: "12:00" }]);
+    } catch {
+      // error is handled by the hook toast
+    }
+  };
+
+  const handleRemove = async (id: string) => {
+    setRemovingId(id);
+    try {
+      await onRemove(id);
+    } catch {
+      // error is handled by the hook toast
+    } finally {
+      setRemovingId(null);
+    }
   };
 
   const formatDate = (dateStr: string) => {
@@ -172,7 +189,7 @@ export default function DateOverridesCard({
                 <div className="space-y-1.5">
                   {formBlocks.map((block, i) => (
                     <div
-                      key={block.id}
+                      key={i}
                       className="flex items-center gap-1 sm:gap-1.5 flex-wrap"
                     >
                       <select
@@ -224,11 +241,7 @@ export default function DateOverridesCard({
                     onClick={() =>
                       setFormBlocks([
                         ...formBlocks,
-                        {
-                          id: `new-${Date.now()}`,
-                          startTime: "14:00",
-                          endTime: "17:00",
-                        },
+                        { startTime: "14:00", endTime: "17:00" },
                       ])
                     }
                     className="text-[10px] text-[#ff7c22] font-medium hover:underline"
@@ -241,15 +254,15 @@ export default function DateOverridesCard({
 
             <button
               onClick={handleAdd}
-              disabled={!formDate || adding}
+              disabled={!formDate || isAdding}
               className="w-full py-2 sm:py-2.5 rounded-xl bg-[#ff7c22] text-white text-[11px] sm:text-xs font-semibold hover:bg-[#e56a10] disabled:opacity-30 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1.5"
             >
-              {adding ? (
+              {isAdding ? (
                 <Loader2 size={13} className="animate-spin" />
               ) : (
                 <Plus size={13} />
               )}
-              Add Override
+              {isAdding ? "Adding…" : "Add Override"}
             </button>
           </div>
         </div>
@@ -263,7 +276,7 @@ export default function DateOverridesCard({
           </p>
           {futureOverrides.map((override) => (
             <div
-              key={override.id}
+              key={override._id}
               className={`flex items-start gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl border ${
                 override.type === "unavailable"
                   ? "border-red-100 bg-red-50/30"
@@ -309,9 +322,9 @@ export default function DateOverridesCard({
                 )}
                 {override.blocks && override.blocks.length > 0 && (
                   <div className="flex items-center gap-1.5 sm:gap-2 mt-1 flex-wrap">
-                    {override.blocks.map((b) => (
+                    {override.blocks.map((b, i) => (
                       <span
-                        key={b.id}
+                        key={i}
                         className="flex items-center gap-1 text-[9px] sm:text-[10px] text-green-600 bg-green-50 px-1.5 sm:px-2 py-0.5 rounded"
                       >
                         <Clock size={8} className="sm:scale-110" />
@@ -324,13 +337,21 @@ export default function DateOverridesCard({
 
               {/* Remove */}
               <button
-                onClick={() => onRemove(override.id)}
-                className="shrink-0 p-1 sm:p-1.5 rounded-lg hover:bg-red-100/50 transition-colors"
+                onClick={() => handleRemove(override._id)}
+                disabled={isRemoving && removingId === override._id}
+                className="shrink-0 p-1 sm:p-1.5 rounded-lg hover:bg-red-100/50 transition-colors disabled:opacity-30"
               >
-                <Trash2
-                  size={12}
-                  className="text-red-300 hover:text-red-500 sm:scale-110"
-                />
+                {isRemoving && removingId === override._id ? (
+                  <Loader2
+                    size={12}
+                    className="animate-spin text-red-400 sm:scale-110"
+                  />
+                ) : (
+                  <Trash2
+                    size={12}
+                    className="text-red-300 hover:text-red-500 sm:scale-110"
+                  />
+                )}
               </button>
             </div>
           ))}
@@ -345,7 +366,7 @@ export default function DateOverridesCard({
           </p>
           {pastOverrides.slice(0, 3).map((override) => (
             <div
-              key={override.id}
+              key={override._id}
               className="flex items-center gap-2 sm:gap-3 p-2 sm:p-2.5 rounded-xl border border-[#0B2343]/[0.03] opacity-50"
             >
               <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-[#0B2343]/[0.03] flex items-center justify-center shrink-0">

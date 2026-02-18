@@ -1,8 +1,14 @@
-import { Clock, CalendarCheck, CalendarX2, CalendarClock } from "lucide-react";
-import type { AvailabilitySummary as SummaryType } from "../../../data/tutor/tutorAvailabilityData";
+import { Clock, CalendarCheck, CalendarClock, CalendarX2 } from "lucide-react";
+
+interface AvailabilitySummaryData {
+  totalWeeklyHours: number;
+  bookedThisWeek: number;
+  openThisWeek: number;
+  overridesThisMonth: number;
+}
 
 interface Props {
-  summary: SummaryType;
+  summary: AvailabilitySummaryData;
 }
 
 export default function AvailabilitySummary({ summary }: Props) {
