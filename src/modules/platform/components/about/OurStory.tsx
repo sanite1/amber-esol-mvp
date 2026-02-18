@@ -47,7 +47,7 @@ export default function OurStory() {
             <div className="mt-6 space-y-4 text-[15px] text-[#0B2343]/50 leading-relaxed">
               <p>
                 Amber Training started in 2024 as a professional development
-                company delivering in-person courses across the UK — from first
+                company delivering in-person courses across the UK, from first
                 aid to safeguarding and health & safety. Over the years, we
                 trained thousands of professionals and built a reputation for
                 quality, reliability, and results.
@@ -55,12 +55,12 @@ export default function OurStory() {
               <p>
                 In 2025, we noticed a gap. Millions of people in the UK and
                 around the world needed quality English language education but
-                couldn't access it — whether due to cost, location, or
-                inflexible schedules. Existing platforms were either too
-                expensive, too impersonal, or lacked proper tutor vetting.
+                couldn't access it, whether due to cost, location, or inflexible
+                schedules. Existing platforms were either too expensive, too
+                impersonal, or lacked proper tutor vetting.
               </p>
               <p>
-                That's why we built Amber ESOL — a marketplace that connects
+                That's why we built Amber ESOL, a marketplace that connects
                 learners with verified, certified ESOL tutors through 1-on-1 HD
                 video lessons. We took everything we learned from a decade in
                 education and applied it to building something better.

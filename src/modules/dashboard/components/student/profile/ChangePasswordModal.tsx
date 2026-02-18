@@ -1,11 +1,22 @@
+// src/components/student/profile/ChangePasswordModal.tsx
 import { useState } from "react";
 import { X, Eye, EyeOff, Loader2, CheckCircle2, Lock } from "lucide-react";
 
 interface Props {
   onClose: () => void;
+  onSubmit?: (
+    currentPassword: string,
+    newPassword: string,
+    confirmPassword: string
+  ) => Promise<void>;
+  isPending?: boolean;
 }
 
-export default function ChangePasswordModal({ onClose }: Props) {
+export default function ChangePasswordModal({
+  onClose,
+  onSubmit,
+  isPending = false,
+}: Props) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -28,15 +39,30 @@ export default function ChangePasswordModal({ onClose }: Props) {
     passwordsMatch &&
     currentPassword.length > 0;
 
+  const isBusy = saving || isPending;
+
   const handleSubmit = async () => {
     if (!isValid) return;
     setError("");
     setSaving(true);
-    // TODO: replace with real API call
-    await new Promise((r) => setTimeout(r, 1200));
-    setSaving(false);
-    setSuccess(true);
-    setTimeout(() => onClose(), 1500);
+
+    try {
+      if (onSubmit) {
+        // Real API call from parent
+        await onSubmit(currentPassword, newPassword, confirmPassword);
+      } else {
+        // Fallback mock
+        await new Promise((r) => setTimeout(r, 1200));
+      }
+      setSaving(false);
+      setSuccess(true);
+      setTimeout(() => onClose(), 1500);
+    } catch (err: unknown) {
+      setSaving(false);
+      const message =
+        err instanceof Error ? err.message : "Failed to update password.";
+      setError(message);
+    }
   };
 
   const inputClass =
@@ -46,7 +72,7 @@ export default function ChangePasswordModal({ onClose }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-[#0B2343]/40 backdrop-blur-sm"
-        onClick={!saving ? onClose : undefined}
+        onClick={!isBusy ? onClose : undefined}
       />
       <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
         {/* Header */}
@@ -59,7 +85,7 @@ export default function ChangePasswordModal({ onClose }: Props) {
               Change Password
             </h2>
           </div>
-          {!saving && (
+          {!isBusy && (
             <button
               onClick={onClose}
               className="p-1.5 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors"
@@ -90,7 +116,6 @@ export default function ChangePasswordModal({ onClose }: Props) {
             )}
 
             <div className="space-y-3">
-              {/* Current password */}
               <div>
                 <label className="text-[11px] font-medium text-[#0B2343]/40 mb-1 block">
                   Current Password
@@ -117,7 +142,6 @@ export default function ChangePasswordModal({ onClose }: Props) {
                 </div>
               </div>
 
-              {/* New password */}
               <div>
                 <label className="text-[11px] font-medium text-[#0B2343]/40 mb-1 block">
                   New Password
@@ -144,7 +168,6 @@ export default function ChangePasswordModal({ onClose }: Props) {
                 </div>
               </div>
 
-              {/* Confirm */}
               <div>
                 <label className="text-[11px] font-medium text-[#0B2343]/40 mb-1 block">
                   Confirm New Password
@@ -171,7 +194,6 @@ export default function ChangePasswordModal({ onClose }: Props) {
                 </div>
               </div>
 
-              {/* Requirements */}
               {newPassword.length > 0 && (
                 <div className="p-2.5 rounded-xl bg-[#0B2343]/[0.02] space-y-1">
                   {[
@@ -199,10 +221,10 @@ export default function ChangePasswordModal({ onClose }: Props) {
 
             <button
               onClick={handleSubmit}
-              disabled={!isValid || saving}
+              disabled={!isValid || isBusy}
               className="w-full mt-4 py-2.5 rounded-xl bg-[#ff7c22] text-white text-sm font-semibold hover:bg-[#e56a10] disabled:opacity-30 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
-              {saving ? (
+              {isBusy ? (
                 <>
                   <Loader2 size={14} className="animate-spin" />
                   Updating…

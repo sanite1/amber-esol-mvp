@@ -1,16 +1,18 @@
-/* eslint-disable camelcase */
 import { jwtDecode } from "jwt-decode";
 
-// Define shape of decoded JWT if you know it
 export interface DecodedJwt {
-  exp: number; // Expiration timestamp
-  role?: string; // User role (admin, etc.)
-  [key: string]: any; // Allow extra claims
+  id: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  role: "admin" | "tutor" | "student";
+  profilePicture: string;
+  exp: number;
+  iat: number;
 }
 
 export const setAuthToken = (token: string): void => {
   localStorage.setItem("token", token);
-  // localStorage.setItem("refreshToken", refreshToken);
 };
 
 export const getToken = (): string | null => {
@@ -21,13 +23,9 @@ export const getDecodedJwt = (tokn: string = ""): DecodedJwt | null => {
   try {
     const token = getToken() || tokn;
     if (!token) return null;
-
-    // ⚠️ FIX: The original `now.getSeconds() > 259200` made no sense
-    // (getSeconds() is just 0–59). I assume you meant expiry check.
     const decoded = jwtDecode<DecodedJwt>(token);
-
     return decoded;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
@@ -40,25 +38,17 @@ export const getRefreshToken = (): string | null => {
   return localStorage.getItem("refreshToken");
 };
 
-export const removeDomainObj = (): void => {
-  localStorage.removeItem("domain");
-};
-
 export const removeAuthToken = (): void => {
   localStorage.removeItem("token");
-};
-
-export const logOut = (): void => {
-  removeAuthToken();
+  localStorage.removeItem("refreshToken");
+  localStorage.removeItem("user");
 };
 
 export const isAuthenticated = (): boolean => {
   try {
     const decodedToken = getDecodedJwt();
     if (decodedToken) {
-      const { exp } = decodedToken;
-      const currentTime = Date.now() / 1000;
-      return exp > currentTime;
+      return decodedToken.exp > Date.now() / 1000;
     }
     return false;
   } catch {
@@ -69,10 +59,25 @@ export const isAuthenticated = (): boolean => {
 export const isAdmin = (): boolean => {
   try {
     const decodedToken = getDecodedJwt();
-    if (decodedToken) {
-      return decodedToken.role === "admin";
-    }
+    return decodedToken?.role === "admin" || false;
+  } catch {
     return false;
+  }
+};
+
+export const isTutor = (): boolean => {
+  try {
+    const decodedToken = getDecodedJwt();
+    return decodedToken?.role === "tutor" || false;
+  } catch {
+    return false;
+  }
+};
+
+export const isStudent = (): boolean => {
+  try {
+    const decodedToken = getDecodedJwt();
+    return decodedToken?.role === "student" || false;
   } catch {
     return false;
   }

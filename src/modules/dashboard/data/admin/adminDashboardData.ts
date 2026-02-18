@@ -347,7 +347,7 @@ export const adminDashboardData: AdminDashboardData = {
       id: "fl-003",
       type: "failed_payout",
       title: "Payout failed for Emily Clarke",
-      description: "Bank transfer returned — invalid account details.",
+      description: "Bank transfer returned, invalid account details.",
       date: `${yesterday}T16:00:00Z`,
       severity: "high",
     },

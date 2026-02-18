@@ -1,82 +1,190 @@
-import { useState, useEffect } from "react";
-import { UserCircle } from "lucide-react";
+// src/pages/student/StudentProfile.tsx
+import { useState } from "react";
 import {
-  studentProfile as initialProfile,
-  type StudentProfile as ProfileType,
+  useFetchUserById,
+  useUpdateUser,
+  useUpdatePassword,
+} from "../../lib/api/authOnboarding";
+import { getDecodedJwt } from "../../lib/auth";
+import type {
+  ScheduleSlot,
+  StudentProfile as StudentProfileType,
 } from "../../data/student/studentProfileData";
-import { ProfilePageSkeleton } from "../../components/student/profile/ProfileSkeleton";
+import type { LanguageLevel } from "../../data/student/studentProfileData";
 import ProfileHeaderCard from "../../components/student/profile/ProfileHeaderCard";
 import PersonalInfoSection from "../../components/student/profile/PersonalInfoSection";
 import LanguageGoalsSection from "../../components/student/profile/LanguageGoalsSection";
 import SecuritySection from "../../components/student/profile/SecuritySection";
 import ChangePasswordModal from "../../components/student/profile/ChangePasswordModal";
+import { ProfilePageSkeleton } from "../../components/student/profile/ProfileSkeleton";
 
 export default function StudentProfile() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [profile, setProfile] = useState<ProfileType>(initialProfile);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const decoded = getDecodedJwt();
+  const userId = decoded?.id ?? "";
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    const t = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(t);
-  }, []);
+  const { data: user, isLoading, isError } = useFetchUserById(userId);
+  const { mutateAsync: updateUser, isPending: isUpdating } = useUpdateUser();
+  const { mutateAsync: updatePassword, isPending: isPasswordPending } =
+    useUpdatePassword();
 
-  const handleSave = async (data: Partial<ProfileType>) => {
-    // TODO: replace with real API call
-    await new Promise((r) => setTimeout(r, 800));
-    setProfile((prev) => ({ ...prev, ...data }));
-  };
+  const [showPwModal, setShowPwModal] = useState(false);
 
-  const handleAvatarChange = async (file: File) => {
-    // TODO: upload to storage, get URL
-    const fakeUrl = URL.createObjectURL(file);
-    setProfile((prev) => ({ ...prev, avatar: fakeUrl }));
-  };
-
-  if (isLoading) {
-    return <ProfilePageSkeleton />;
+  /* ── Loading / error states ── */
+  if (isLoading) return <ProfilePageSkeleton />;
+  if (isError || !user) {
+    return (
+      <div className="flex items-center justify-center h-64 text-sm text-[#0B2343]/40">
+        Failed to load profile.
+      </div>
+    );
   }
 
-  return (
-    <div className="space-y-4 max-w-3xl m-auto">
-      {/* Page header */}
-      <div className="flex items-center gap-3 mb-1">
-        <div className="w-9 h-9 rounded-xl bg-[#ff7c22]/10 flex items-center justify-center">
-          <UserCircle size={18} className="text-[#ff7c22]" />
-        </div>
-        <div>
-          <h1 className="text-base font-semibold text-[#0B2343]">My Profile</h1>
-          <p className="text-[11px] text-[#0B2343]/35">
-            Info visible to your tutors and Amber ESOL
-          </p>
-        </div>
-      </div>
+  /* ──────────────────────────────────────────────
+   * Bridge: map UserData → StudentProfile shape
+   * ──────────────────────────────────────────── */
+  const profile: StudentProfileType = {
+    firstName: user.firstname ?? "",
+    lastName: user.lastname ?? "",
+    email: user.email ?? "",
+    phone: user.phoneNumber ?? "",
+    avatar: user.profilePicture ?? "",
+    country: user.address?.country ?? "",
+    timezone: user.timezone ?? "",
+    bio: user.bio ?? "",
+    nativeLanguage: user.nativeLanguage ?? "",
+    currentLevel:
+      (user.learningPreferences?.currentLevel as LanguageLevel) ?? "A1",
+    targetLevel:
+      (user.learningPreferences?.targetLevel as LanguageLevel) ?? "B2",
+    learningGoals: user.learningPreferences?.goals ?? [],
+    preferredSchedule:
+      (user.learningPreferences?.preferredSchedule as ScheduleSlot[]) ?? "",
+    verified: user.verified ?? false,
+    isActive: user.isActive ?? false,
+  };
 
-      {/* Avatar + name */}
+  /* ── Handlers ── */
+
+  const handleAvatarChange = async (file: File | null) => {
+    if (file) {
+      // Upload new picture
+      const formData = new FormData();
+      formData.append("profilePicture", file);
+      try {
+        await updateUser({ id: userId, payload: formData });
+      } catch (error: unknown) {
+        console.warn("Avatar upload failed:", error);
+      }
+    } else {
+      // Remove picture — send empty string to clear it
+      try {
+        await updateUser({ id: userId, payload: { profilePicture: "" } });
+      } catch (error: unknown) {
+        console.warn("Avatar removal failed:", error);
+      }
+    }
+  };
+
+  const handlePersonalSave = async (data: Partial<StudentProfileType>) => {
+    try {
+      // Map component field names → API field names
+      await updateUser({
+        id: userId,
+        payload: {
+          ...(data.firstName !== undefined && { firstname: data.firstName }),
+          ...(data.lastName !== undefined && { lastname: data.lastName }),
+          ...(data.phone !== undefined && { phoneNumber: data.phone }),
+          ...(data.country !== undefined && {
+            address: { ...user.address, country: data.country },
+          }),
+          ...(data.timezone !== undefined && { timezone: data.timezone }),
+          ...(data.bio !== undefined && { bio: data.bio }),
+        },
+      });
+    } catch (error: any) {
+      console.warn(error);
+    }
+  };
+
+  const handleLanguageSave = async (data: Partial<StudentProfileType>) => {
+    try {
+      await updateUser({
+        id: userId,
+        payload: {
+          ...(data.nativeLanguage !== undefined && {
+            nativeLanguage: data.nativeLanguage,
+          }),
+          learningPreferences: {
+            ...user.learningPreferences,
+            ...(data.currentLevel !== undefined && {
+              currentLevel: data.currentLevel,
+            }),
+            ...(data.targetLevel !== undefined && {
+              targetLevel: data.targetLevel,
+            }),
+            ...(data.learningGoals !== undefined && {
+              goals: data.learningGoals,
+            }),
+            ...(data.preferredSchedule !== undefined && {
+              preferredSchedule: data.preferredSchedule,
+            }),
+          },
+        },
+      });
+      return true;
+    } catch (error: any) {
+      console.warn(error);
+      return false;
+    }
+  };
+
+  const handleChangePassword = async (
+    currentPassword: string,
+    newPassword: string,
+    confirmNewPassword: string
+  ) => {
+    try {
+      await updatePassword({
+        id: userId,
+        oldPassword: currentPassword,
+        newPassword,
+        confirmNewPassword,
+      });
+    } catch (error: any) {
+      console.warn(error);
+    }
+  };
+
+  const handleVerifyPhone = () => {
+    // TODO: implement phone verification flow
+    console.log("Phone verification requested");
+  };
+
+  /* ── Render ── */
+  return (
+    <div className="max-w-4xl mx-auto space-y-4 sm:space-y-5 pb-8">
       <ProfileHeaderCard
         profile={profile}
         onAvatarChange={handleAvatarChange}
+        isAvatarUploading={isUpdating}
       />
 
-      {/* Personal details */}
-      <PersonalInfoSection profile={profile} onSave={handleSave} />
+      <PersonalInfoSection profile={profile} onSave={handlePersonalSave} />
 
-      {/* Language, level, goals — combined */}
-      <LanguageGoalsSection profile={profile} onSave={handleSave} />
+      <LanguageGoalsSection profile={profile} onSave={handleLanguageSave} />
 
-      {/* Security */}
       <SecuritySection
         profile={profile}
-        onChangePassword={() => setShowPasswordModal(true)}
-        onVerifyPhone={() => {
-          /* TODO: trigger phone verification */
-        }}
+        onChangePassword={() => setShowPwModal(true)}
+        onVerifyPhone={handleVerifyPhone}
       />
 
-      {/* Change password modal */}
-      {showPasswordModal && (
-        <ChangePasswordModal onClose={() => setShowPasswordModal(false)} />
+      {showPwModal && (
+        <ChangePasswordModal
+          onClose={() => setShowPwModal(false)}
+          onSubmit={handleChangePassword}
+          isPending={isPasswordPending}
+        />
       )}
     </div>
   );

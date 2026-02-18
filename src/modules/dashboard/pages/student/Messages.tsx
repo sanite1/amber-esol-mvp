@@ -159,7 +159,7 @@ export default function Messages() {
           </div>
         ) : (
           <div className="flex h-full">
-            {/* Conversation list — always visible on desktop, conditional on mobile */}
+            {/* Conversation list, always visible on desktop, conditional on mobile */}
             <div
               className={`w-full lg:w-80 border-r border-[#0B2343]/[0.06] shrink-0 ${
                 activeConversationId

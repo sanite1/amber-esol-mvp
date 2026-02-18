@@ -285,7 +285,7 @@ export default function Contact() {
             )}
           </div>
 
-          {/* Right column — office info */}
+          {/* Right column, office info */}
           <div data-aos="fade-left" className="space-y-6">
             {/* Map embed */}
             <div className="rounded-2xl overflow-hidden border border-[#0B2343]/[0.06] h-64">

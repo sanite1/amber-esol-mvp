@@ -1,3 +1,4 @@
+// src/components/student/profile/ProfileHeaderCard.tsx
 import { useRef, useState } from "react";
 import {
   Camera,
@@ -6,18 +7,49 @@ import {
   Mail,
   CheckCircle2,
   AlertCircle,
+  Loader2,
+  Trash2,
 } from "lucide-react";
 import type { StudentProfile } from "../../../data/student/studentProfileData";
 
 interface Props {
   profile: StudentProfile;
-  onAvatarChange: (file: File) => void;
+  onAvatarChange: (file: File | null) => void;
+  isAvatarUploading?: boolean;
 }
 
-export default function ProfileHeaderCard({ profile, onAvatarChange }: Props) {
+export default function ProfileHeaderCard({
+  profile,
+  onAvatarChange,
+  isAvatarUploading = false,
+}: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [hovering, setHovering] = useState(false);
-  const initials = `${profile.firstName[0]}${profile.lastName[0]}`;
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const initials =
+    `${profile.firstName?.[0] ?? ""}${profile.lastName?.[0] ?? ""}`.toUpperCase();
+  const displayAvatar = previewUrl ?? profile.avatar;
+  const hasAvatar = Boolean(displayAvatar);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Instant local preview
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+
+    onAvatarChange(file);
+
+    // Reset input so selecting the same file again still triggers onChange
+    e.target.value = "";
+  };
+
+  const handleRemove = () => {
+    setPreviewUrl(null);
+    onAvatarChange(null);
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-[#0B2343]/[0.06] p-4 sm:p-5">
@@ -29,9 +61,9 @@ export default function ProfileHeaderCard({ profile, onAvatarChange }: Props) {
           onMouseLeave={() => setHovering(false)}
         >
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-[#0B2343]/[0.08] to-[#0B2343]/[0.04] flex items-center justify-center overflow-hidden">
-            {profile.avatar ? (
+            {displayAvatar ? (
               <img
-                src={profile.avatar}
+                src={displayAvatar}
                 alt={`${profile.firstName} ${profile.lastName}`}
                 className="w-full h-full object-cover"
               />
@@ -41,23 +73,42 @@ export default function ProfileHeaderCard({ profile, onAvatarChange }: Props) {
               </span>
             )}
           </div>
-          <button
-            onClick={() => fileRef.current?.click()}
-            className={`absolute inset-0 rounded-full flex items-center justify-center bg-[#0B2343]/40 transition-opacity ${
-              hovering ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <Camera size={15} className="text-white" />
-          </button>
+
+          {/* Loading overlay */}
+          {isAvatarUploading && (
+            <div className="absolute inset-0 rounded-full flex items-center justify-center bg-[#0B2343]/50">
+              <Loader2 size={18} className="text-white animate-spin" />
+            </div>
+          )}
+
+          {/* Hover overlay — only when NOT uploading */}
+          {!isAvatarUploading && hovering && (
+            <div className="absolute inset-0 rounded-full flex items-center justify-center bg-[#0B2343]/40 gap-1">
+              <button
+                onClick={() => fileRef.current?.click()}
+                className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                title="Upload photo"
+              >
+                <Camera size={13} className="text-white" />
+              </button>
+              {hasAvatar && (
+                <button
+                  onClick={handleRemove}
+                  className="w-7 h-7 rounded-full bg-white/20 hover:bg-red-500/60 flex items-center justify-center transition-colors"
+                  title="Remove photo"
+                >
+                  <Trash2 size={13} className="text-white" />
+                </button>
+              )}
+            </div>
+          )}
+
           <input
             ref={fileRef}
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) onAvatarChange(file);
-            }}
+            onChange={handleFileSelect}
           />
         </div>
 
@@ -71,7 +122,7 @@ export default function ProfileHeaderCard({ profile, onAvatarChange }: Props) {
             <span className="text-xs text-[#0B2343]/40 truncate">
               {profile.email}
             </span>
-            {profile.isEmailVerified ? (
+            {profile.isActive ? (
               <CheckCircle2
                 size={11}
                 className="text-green-500 shrink-0"

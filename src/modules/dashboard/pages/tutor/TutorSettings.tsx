@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
 import { Settings } from "lucide-react";
+import { getDecodedJwt } from "../../lib/auth";
 import {
-  tutorSettingsData,
-  type TutorSettingsData,
-  type NotificationPreferences,
-} from "../../data/tutor/tutorSettingsData";
+  useFetchUserById,
+  useUpdateUser,
+  useUpdatePassword,
+  useDeleteAccount,
+} from "../../lib/api/authOnboarding";
+import { useAuth } from "../../context/AuthContext";
+import Cookies from "js-cookie";
+import type { NotificationPreferences } from "../../lib/types/authOnboarding";
 import { SettingsPageSkeleton } from "../../components/tutor/settings/SettingsSkeleton";
-import GeneralSettingsCard from "../../components/tutor/settings/GeneralSettingsCard";
 import SecuritySettingsCard from "../../components/tutor/settings/SecuritySettingsCard";
 import NotificationSettingsCard from "../../components/tutor/settings/NotificationSettingsCard";
 import DangerZoneCard from "../../components/tutor/settings/DangerZoneCard";
@@ -14,48 +18,102 @@ import ChangePasswordModal from "../../components/tutor/settings/ChangePasswordM
 import DeleteAccountModal from "../../components/tutor/settings/DeleteAccountModal";
 
 export default function TutorSettings() {
-  const [settings, setSettings] = useState<TutorSettingsData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const decoded = getDecodedJwt();
+  const userId = decoded?.id ?? "";
+  const { logout } = useAuth();
+
+  const { data: user, isLoading, isError } = useFetchUserById(userId);
+  const { mutateAsync: updateUser } = useUpdateUser();
+  const { mutateAsync: updatePassword, isPending: isPasswordPending } =
+    useUpdatePassword();
+  const { mutateAsync: deleteAccountMut, isPending: isDeleting } =
+    useDeleteAccount();
 
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setSettings(tutorSettingsData);
-      setLoading(false);
-    }, 600);
-    return () => clearTimeout(t);
-  }, []);
+  /* ── Notification state (synced from server) ── */
+  const [notifications, setNotifications] =
+    useState<NotificationPreferences | null>(null);
+  const [notifDirty, setNotifDirty] = useState(false);
+  const [notifSaving, setNotifSaving] = useState(false);
+  const [notifSaved, setNotifSaved] = useState(false);
 
-  if (loading || !settings) {
-    return <SettingsPageSkeleton />;
+  useEffect(() => {
+    if (user?.notificationPreferences) {
+      setNotifications(user.notificationPreferences);
+    }
+  }, [user]);
+
+  /* ── Loading / error ── */
+  if (isLoading || !user) return <SettingsPageSkeleton />;
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center h-64 text-sm text-[#0B2343]/40">
+        Failed to load settings.
+      </div>
+    );
   }
 
-  const handleUpdateSettings = (updates: Partial<TutorSettingsData>) => {
-    setSettings((prev) => (prev ? { ...prev, ...updates } : prev));
+  /* ── Handlers ── */
+
+  const handleNotificationChange = (
+    key: keyof NotificationPreferences,
+    value: boolean
+  ) => {
+    setNotifications((prev) => (prev ? { ...prev, [key]: value } : prev));
+    setNotifDirty(true);
+    setNotifSaved(false);
   };
 
-  const handleUpdateNotifications = (prefs: NotificationPreferences) => {
-    setSettings((prev) => (prev ? { ...prev, notifications: prefs } : prev));
+  const handleSaveNotifications = async () => {
+    if (!notifications) return;
+    setNotifSaving(true);
+    try {
+      await updateUser({
+        id: userId,
+        payload: { notificationPreferences: notifications },
+      });
+      setNotifDirty(false);
+      setNotifSaved(true);
+      setTimeout(() => setNotifSaved(false), 2000);
+    } finally {
+      setNotifSaving(false);
+    }
   };
 
-  const handleToggle2FA = () => {
-    setSettings((prev) =>
-      prev ? { ...prev, twoFactorEnabled: !prev.twoFactorEnabled } : prev
-    );
+  const handleChangePassword = async (
+    currentPassword: string,
+    newPassword: string,
+    confirmNewPassword: string
+  ) => {
+    await updatePassword({
+      id: userId,
+      oldPassword: currentPassword,
+      newPassword,
+      confirmNewPassword,
+    });
+    setShowPasswordModal(false);
   };
 
-  const handlePasswordChanged = () => {
-    // In production: API call already done in modal
-  };
-
-  const handleDeleteAccount = () => {
-    // In production: redirect to login / landing
-    setShowDeleteModal(false);
-    alert(
-      "Account deleted. In production this would redirect to the landing page."
-    );
+  const handleDeleteAccount = async (
+    reason: string,
+    feedback: string
+  ): Promise<boolean> => {
+    try {
+      await deleteAccountMut({
+        id: userId,
+        payload: { reason, feedback },
+      });
+      logout();
+      Cookies.remove("authToken");
+      localStorage.removeItem("user");
+      window.location.href = "/";
+      return true;
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      return false;
+    }
   };
 
   return (
@@ -76,28 +134,28 @@ export default function TutorSettings() {
           </div>
         </div>
 
-        {/* General */}
-        <GeneralSettingsCard
-          settings={settings}
-          onUpdate={handleUpdateSettings}
-        />
-
         {/* Security */}
         <SecuritySettingsCard
-          settings={settings}
-          onToggle2FA={handleToggle2FA}
+          email={user.email}
+          verified={user.verified}
           onChangePassword={() => setShowPasswordModal(true)}
         />
 
         {/* Notifications */}
-        <NotificationSettingsCard
-          notifications={settings.notifications}
-          onUpdate={handleUpdateNotifications}
-        />
+        {notifications && (
+          <NotificationSettingsCard
+            notifications={notifications}
+            onChange={handleNotificationChange}
+            onSave={handleSaveNotifications}
+            isSaving={notifSaving}
+            hasChanges={notifDirty}
+            saved={notifSaved}
+          />
+        )}
 
         {/* Danger zone */}
         <DangerZoneCard
-          accountCreated={settings.accountCreated}
+          accountCreated={user.createdAt}
           onDeleteAccount={() => setShowDeleteModal(true)}
         />
       </div>
@@ -106,14 +164,16 @@ export default function TutorSettings() {
       {showPasswordModal && (
         <ChangePasswordModal
           onClose={() => setShowPasswordModal(false)}
-          onConfirm={handlePasswordChanged}
+          onSubmit={handleChangePassword}
+          isPending={isPasswordPending}
         />
       )}
 
       {showDeleteModal && (
         <DeleteAccountModal
           onClose={() => setShowDeleteModal(false)}
-          onConfirm={handleDeleteAccount}
+          onDelete={handleDeleteAccount}
+          isPending={isDeleting}
         />
       )}
     </>

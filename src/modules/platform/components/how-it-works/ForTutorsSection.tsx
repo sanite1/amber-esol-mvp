@@ -49,7 +49,7 @@ export default function ForTutorsSection() {
             </h2>
             <p className="text-sm text-[#0B2343]/45 mt-4 leading-relaxed max-w-sm">
               Join a growing community of ESOL professionals. We handle
-              payments, scheduling, and the classroom — you focus on teaching.
+              payments, scheduling, and the classroom, you focus on teaching.
             </p>
             <Link
               to={`${APP_URL}/signup`}
@@ -59,7 +59,7 @@ export default function ForTutorsSection() {
             </Link>
           </div>
 
-          {/* Right — steps */}
+          {/* Right, steps */}
           <div className="space-y-4">
             {tutorSteps.map((s, i) => (
               <div

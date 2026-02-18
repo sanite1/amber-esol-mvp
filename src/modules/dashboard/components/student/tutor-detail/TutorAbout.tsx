@@ -4,29 +4,72 @@ import {
   Languages,
   Target,
   BarChart3,
-  Lightbulb,
   ChevronDown,
+  Award,
+  Play,
 } from "lucide-react";
-import type { TutorDetail } from "../../../data/student/tutorDetailData";
+import type {
+  UserData,
+  LanguageFluency,
+} from "../../../lib/types/authOnboarding";
+import { levelLabels } from "../../../data/student/dashboardTutorsData";
 
 interface Props {
-  tutor: TutorDetail;
+  tutor: UserData;
 }
+
+const fluencyColors: Record<LanguageFluency, string> = {
+  native: "bg-emerald-50 text-emerald-600",
+  fluent: "bg-blue-50 text-blue-600",
+  advanced: "bg-[#ff7c22]/10 text-[#ff7c22]",
+  intermediate: "bg-purple-50 text-purple-600",
+  basic: "bg-[#0B2343]/[0.05] text-[#0B2343]/40",
+};
+
+const fluencyLabel: Record<LanguageFluency, string> = {
+  native: "Native",
+  fluent: "Fluent",
+  advanced: "Advanced",
+  intermediate: "Intermediate",
+  basic: "Basic",
+};
 
 export default function TutorAbout({ tutor }: Props) {
   const [bioExpanded, setBioExpanded] = useState(false);
+  const bio = tutor.bio ?? "";
   const bioPreviewLength = 400;
-  const needsTruncation = tutor.bio.length > bioPreviewLength;
+  const needsTruncation = bio.length > bioPreviewLength;
+
+  const preferredLevels = tutor.teachingPreferences?.preferredLevels ?? [];
+  const lessonTypes = tutor.teachingPreferences?.lessonTypes ?? [];
 
   return (
     <div className="bg-white rounded-2xl border border-[#0B2343]/[0.06] p-5 sm:p-6 space-y-6">
+      {/* Intro Video */}
+      {tutor.introVideoUrl && (
+        <div>
+          <h2 className="text-sm font-semibold text-[#0B2343] mb-3 flex items-center gap-2">
+            <Play size={14} className="text-[#ff7c22]" />
+            Introduction Video
+          </h2>
+          <div className="aspect-video rounded-xl overflow-hidden bg-[#0B2343]/[0.03]">
+            <video
+              src={tutor.introVideoUrl}
+              controls
+              className="w-full h-full object-cover"
+              poster={tutor.profilePicture}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Bio */}
       <div>
         <h2 className="text-sm font-semibold text-[#0B2343] mb-3">About Me</h2>
         <div className="text-sm text-[#0B2343]/60 leading-relaxed whitespace-pre-line">
           {bioExpanded || !needsTruncation
-            ? tutor.bio
-            : `${tutor.bio.slice(0, bioPreviewLength).trim()}…`}
+            ? bio
+            : `${bio.slice(0, bioPreviewLength).trim()}…`}
         </div>
         {needsTruncation && (
           <button
@@ -42,104 +85,150 @@ export default function TutorAbout({ tutor }: Props) {
         )}
       </div>
 
-      {/* Teaching style */}
-      <div>
-        <div className="flex items-center gap-2 mb-2.5">
-          <Lightbulb size={14} className="text-[#ff7c22]" />
-          <h3 className="text-sm font-semibold text-[#0B2343]">
-            Teaching Style
-          </h3>
+      {/* Specializations */}
+      {(tutor.specializations?.length ?? 0) > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-2.5">
+            <Target size={14} className="text-[#ff7c22]" />
+            <h3 className="text-sm font-semibold text-[#0B2343]">
+              Specializations
+            </h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {tutor.specializations!.map((s) => (
+              <span
+                key={s}
+                className="text-xs text-[#0B2343]/50 bg-[#ff7c22]/[0.06] px-3 py-1.5 rounded-lg font-medium"
+              >
+                {s}
+              </span>
+            ))}
+          </div>
         </div>
-        <p className="text-sm text-[#0B2343]/50 leading-relaxed">
-          {tutor.teachingStyle}
-        </p>
-      </div>
+      )}
 
-      {/* Specialties */}
-      <div>
-        <div className="flex items-center gap-2 mb-2.5">
-          <Target size={14} className="text-[#ff7c22]" />
-          <h3 className="text-sm font-semibold text-[#0B2343]">Specialties</h3>
+      {/* Teaching Levels */}
+      {preferredLevels.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-2.5">
+            <BarChart3 size={14} className="text-[#ff7c22]" />
+            <h3 className="text-sm font-semibold text-[#0B2343]">
+              Levels I Teach
+            </h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {preferredLevels.map((l) => (
+              <span
+                key={l}
+                className="text-xs text-[#0B2343]/50 bg-[#0B2343]/[0.04] px-3 py-1.5 rounded-lg"
+              >
+                {levelLabels[l] ?? l}
+              </span>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {tutor.specialties.map((s) => (
-            <span
-              key={s}
-              className="text-xs text-[#0B2343]/50 bg-[#ff7c22]/[0.06] px-3 py-1.5 rounded-lg font-medium"
-            >
-              {s}
-            </span>
-          ))}
-        </div>
-      </div>
+      )}
 
-      {/* Levels */}
-      <div>
-        <div className="flex items-center gap-2 mb-2.5">
-          <BarChart3 size={14} className="text-[#ff7c22]" />
-          <h3 className="text-sm font-semibold text-[#0B2343]">
-            Levels I Teach
-          </h3>
+      {/* Lesson Types */}
+      {lessonTypes.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-2.5">
+            <Target size={14} className="text-[#ff7c22]" />
+            <h3 className="text-sm font-semibold text-[#0B2343]">
+              Lesson Types
+            </h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {lessonTypes.map((t) => (
+              <span
+                key={t}
+                className="text-xs text-[#0B2343]/50 bg-[#0B2343]/[0.04] px-3 py-1.5 rounded-lg capitalize"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {tutor.levels.map((l) => (
-            <span
-              key={l}
-              className="text-xs text-[#0B2343]/50 bg-[#0B2343]/[0.04] px-3 py-1.5 rounded-lg"
-            >
-              {l}
-            </span>
-          ))}
-        </div>
-      </div>
+      )}
 
       {/* Languages */}
-      <div>
-        <div className="flex items-center gap-2 mb-2.5">
-          <Languages size={14} className="text-[#ff7c22]" />
-          <h3 className="text-sm font-semibold text-[#0B2343]">
-            Languages I Speak
-          </h3>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          {tutor.languages.map((lang) => (
-            <div
-              key={lang.language}
-              className="flex items-center gap-2 text-xs text-[#0B2343]/50"
-            >
-              <span className="font-medium text-[#0B2343]/70">
-                {lang.language}
-              </span>
-              <span className="text-[10px] bg-[#0B2343]/[0.04] px-1.5 py-0.5 rounded">
-                {lang.level}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Qualifications */}
-      <div>
-        <div className="flex items-center gap-2 mb-2.5">
-          <GraduationCap size={14} className="text-[#ff7c22]" />
-          <h3 className="text-sm font-semibold text-[#0B2343]">
-            Qualifications
-          </h3>
-        </div>
-        <div className="space-y-2">
-          {tutor.qualifications.map((q, i) => (
-            <div key={i} className="flex items-start gap-3 text-sm">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#ff7c22]/40 mt-1.5 shrink-0" />
-              <div>
-                <p className="text-[#0B2343]/70 font-medium">{q.title}</p>
-                <p className="text-xs text-[#0B2343]/35">
-                  {q.institution} · {q.year}
-                </p>
+      {(tutor.languages?.length ?? 0) > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-2.5">
+            <Languages size={14} className="text-[#ff7c22]" />
+            <h3 className="text-sm font-semibold text-[#0B2343]">
+              Languages I Speak
+            </h3>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {tutor.languages!.map((lang) => (
+              <div
+                key={lang.name}
+                className="flex items-center gap-2 text-xs text-[#0B2343]/50"
+              >
+                <span className="font-medium text-[#0B2343]/70">
+                  {lang.name}
+                </span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                    fluencyColors[lang.fluency] ?? fluencyColors.intermediate
+                  }`}
+                >
+                  {fluencyLabel[lang.fluency] ?? lang.fluency}
+                </span>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Certifications */}
+      {(tutor.certifications?.length ?? 0) > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-2.5">
+            <Award size={14} className="text-[#ff7c22]" />
+            <h3 className="text-sm font-semibold text-[#0B2343]">
+              Certifications
+            </h3>
+          </div>
+          <div className="space-y-2">
+            {tutor.certifications!.map((cert, i) => (
+              <div key={i} className="flex items-start gap-3 text-sm">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#ff7c22]/40 mt-1.5 shrink-0" />
+                <div>
+                  <p className="text-[#0B2343]/70 font-medium">{cert.name}</p>
+                  <p className="text-xs text-[#0B2343]/35">
+                    {cert.issuedBy} · {cert.year}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Education */}
+      {(tutor.education?.length ?? 0) > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-2.5">
+            <GraduationCap size={14} className="text-[#ff7c22]" />
+            <h3 className="text-sm font-semibold text-[#0B2343]">Education</h3>
+          </div>
+          <div className="space-y-2">
+            {tutor.education!.map((edu, i) => (
+              <div key={i} className="flex items-start gap-3 text-sm">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#ff7c22]/40 mt-1.5 shrink-0" />
+                <div>
+                  <p className="text-[#0B2343]/70 font-medium">{edu.degree}</p>
+                  <p className="text-xs text-[#0B2343]/35">
+                    {edu.institution} · {edu.year}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,5 +1,7 @@
+// src/pages/tutor/TutorDashboard.tsx
 import { useState, useEffect } from "react";
 import { getDecodedJwt } from "../../lib/auth";
+import { useFetchUserById } from "../../lib/api/authOnboarding";
 import { tutorDashboardData } from "../../data/tutor/tutorDashboardData";
 import TutorWelcomeBanner from "../../components/tutor/dashboard/TutorWelcomeBanner";
 import TutorStatsRow from "../../components/tutor/dashboard/TutorStatsRow";
@@ -20,19 +22,28 @@ import {
 } from "../../components/tutor/dashboard/DashboardSkeleton";
 
 export default function TutorDashboard() {
-  const [isLoading, setIsLoading] = useState(true);
+  const decoded = getDecodedJwt();
+  const userId = decoded?.id ?? "";
+
+  /* ── Live user data from API ── */
+  const { data: user, isLoading: isUserLoading } = useFetchUserById(userId);
+
+  /* ── Static module data (until those backends are built) ── */
+  const [isModulesLoading, setIsModulesLoading] = useState(true);
   const [data, setData] = useState(tutorDashboardData);
-  const user = getDecodedJwt();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     const timer = setTimeout(() => {
       setData(tutorDashboardData);
-      setIsLoading(false);
-    }, 1200);
+      setIsModulesLoading(false);
+    }, 1000);
     return () => clearTimeout(timer);
   }, []);
 
+  const isLoading = isUserLoading || isModulesLoading;
+
+  /* ── Handlers ── */
   const handleAcceptBooking = (id: string) => {
     setData((prev) => ({
       ...prev,
@@ -47,21 +58,28 @@ export default function TutorDashboard() {
     }));
   };
 
-  // Next lesson time for banner
+  /* ── Derived values ── */
   const todayLessons = data.upcomingLessons.filter(
     (l) => new Date(l.date).toDateString() === new Date().toDateString()
   );
   const nextLesson = todayLessons[0];
   const nextLessonTime = nextLesson?.startTime;
 
+  // Use live user data for the welcome banner name + online status
+  const displayName = user?.firstname || decoded?.firstname || "there";
+  const isOnline = user?.onlineStatus === "online";
+
   return (
     <div className="space-y-5">
       {/* Welcome */}
       <TutorWelcomeBanner
-        firstName={user?.firstname || "there"}
+        firstName={displayName}
         todayLessons={todayLessons.length}
         nextLessonTime={nextLessonTime}
-        isOnline={data.availability.isOnline}
+        isOnline={isOnline}
+        avatarUrl={user?.profilePicture}
+        averageRating={user?.averageRating}
+        totalStudents={user?.totalStudents}
       />
 
       {/* Stats */}
@@ -73,10 +91,14 @@ export default function TutorDashboard() {
           weekLessons={data.stats.weekLessons}
           newStudents={data.stats.newStudents}
           unreadMessages={data.stats.unreadMessages}
+          totalLessons={user?.totalLessons}
+          averageRating={user?.averageRating}
+          completionRate={user?.completionRate}
+          totalStudents={user?.totalStudents}
         />
       )}
 
-      {/* Pending bookings — above the fold if any exist */}
+      {/* Pending bookings */}
       {isLoading ? (
         <PendingBookingsSkeleton />
       ) : (
@@ -89,7 +111,7 @@ export default function TutorDashboard() {
 
       {/* Main grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Left — 2/3 */}
+        {/* Left, 2/3 */}
         <div className="lg:col-span-2 space-y-5">
           {isLoading ? (
             <UpcomingLessonsSkeleton />
@@ -103,7 +125,7 @@ export default function TutorDashboard() {
           )}
         </div>
 
-        {/* Right — 1/3 */}
+        {/* Right, 1/3 */}
         <div className="space-y-5">
           {isLoading ? (
             <EarningsSkeleton />
@@ -118,7 +140,13 @@ export default function TutorDashboard() {
           {isLoading ? (
             <PerformanceSkeleton />
           ) : (
-            <PerformanceCard performance={data.performance} />
+            <PerformanceCard
+              performance={data.performance}
+              averageRating={user?.averageRating}
+              completionRate={user?.completionRate}
+              totalLessons={user?.totalLessons}
+              numberOfReviews={user?.numberOfReviews}
+            />
           )}
         </div>
       </div>

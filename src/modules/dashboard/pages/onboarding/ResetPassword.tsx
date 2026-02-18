@@ -102,6 +102,7 @@ export default function ResetPassword() {
         id: id as string,
         token: token as string,
         password: data.newPassword,
+        confirmPassword: data.confirmPassword,
       });
       setSuccess(true);
     } catch (error: any) {
@@ -115,9 +116,8 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen">
-      {/* ─── Left panel — fixed, never scrolls ─── */}
+      {/* ─── Left panel, fixed, never scrolls ─── */}
       <div className="hidden lg:flex fixed top-0 left-0 w-[48%] h-screen bg-[#0B2343] z-10">
-        {/* Radial glow */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -125,8 +125,6 @@ export default function ResetPassword() {
               "radial-gradient(ellipse at 20% 80%, rgba(255,124,34,0.1) 0%, transparent 50%)",
           }}
         />
-
-        {/* Dot grid pattern */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.03]"
           xmlns="http://www.w3.org/2000/svg"
@@ -146,9 +144,7 @@ export default function ResetPassword() {
           <rect width="100%" height="100%" fill="url(#reset-grid)" />
         </svg>
 
-        {/* Content */}
         <div className="relative flex flex-col justify-between p-12 xl:p-16 w-full">
-          {/* Logo */}
           <Link to={FRONTEND_URL || "/"}>
             <img
               src={logo}
@@ -157,7 +153,6 @@ export default function ResetPassword() {
             />
           </Link>
 
-          {/* Dynamic headline */}
           <div>
             <h2 className="text-4xl xl:text-[42px] font-extrabold text-white leading-tight tracking-tight">
               {success ? (
@@ -183,7 +178,6 @@ export default function ResetPassword() {
             </p>
           </div>
 
-          {/* Testimonial */}
           <div className="max-w-sm">
             <div className="flex items-center gap-0.5 mb-3">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -216,9 +210,8 @@ export default function ResetPassword() {
         </div>
       </div>
 
-      {/* ─── Right panel — scrollable ─── */}
+      {/* ─── Right panel, scrollable ─── */}
       <div className="min-h-screen bg-white lg:ml-[48%]">
-        {/* Mobile header — fixed */}
         <div className="lg:hidden fixed top-0 inset-x-0 z-20 flex items-center justify-between p-5 bg-white border-b border-[#0B2343]/[0.05]">
           <Link to={FRONTEND_URL || "/"}>
             <img src={logo} alt="Amber ESOL" className="h-8 w-auto" />
@@ -231,16 +224,13 @@ export default function ResetPassword() {
           </Link>
         </div>
 
-        {/* Spacer for fixed mobile header */}
         <div className="lg:hidden h-16" />
 
-        {/* Content area */}
         <div className="flex items-center justify-center min-h-screen px-6 sm:px-12 xl:px-20 py-10 lg:py-0">
           <div className="w-full max-w-[380px]">
             {success ? (
               /* ── Success View ── */
               <div className="text-center">
-                {/* Success icon */}
                 <div className="mx-auto w-20 h-20 rounded-2xl bg-emerald-50 flex items-center justify-center mb-8 relative">
                   <CheckCircle2 size={36} className="text-emerald-500" />
                   <div className="absolute -inset-2 rounded-3xl border border-emerald-100" />
@@ -254,7 +244,6 @@ export default function ResetPassword() {
                   new credentials.
                 </p>
 
-                {/* Security hint card */}
                 <div className="mb-6 p-4 bg-[#0B2343]/[0.02] rounded-xl border border-[#0B2343]/[0.06] text-left">
                   <div className="flex items-start gap-3">
                     <ShieldCheck
@@ -268,7 +257,6 @@ export default function ResetPassword() {
                   </div>
                 </div>
 
-                {/* Go to login */}
                 <button
                   onClick={() => navigate("/login")}
                   className="w-full py-3.5 bg-[#ff7c22] text-white text-sm font-bold rounded-xl hover:bg-[#e56a10] transition-colors flex items-center justify-center gap-2 group"
@@ -280,7 +268,6 @@ export default function ResetPassword() {
                   />
                 </button>
 
-                {/* Trust line */}
                 <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-[#0B2343]/[0.04]">
                   {["256-bit SSL", "UK GDPR compliant", "Stripe secured"].map(
                     (t) => (
@@ -297,12 +284,10 @@ export default function ResetPassword() {
             ) : (
               /* ── Form View ── */
               <div>
-                {/* Icon */}
                 <div className="mx-auto w-16 h-16 rounded-2xl bg-[#ff7c22]/10 flex items-center justify-center mb-8">
                   <KeyRound size={28} className="text-[#ff7c22] -rotate-12" />
                 </div>
 
-                {/* Heading */}
                 <div className="text-center mb-8">
                   <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B2343] tracking-tight mb-2">
                     Set new password
@@ -312,7 +297,6 @@ export default function ResetPassword() {
                   </p>
                 </div>
 
-                {/* Error */}
                 {errorMessage && (
                   <div className="mb-5 flex items-start gap-3 p-4 bg-red-50 border border-red-100 rounded-xl">
                     <AlertCircle
@@ -324,7 +308,6 @@ export default function ResetPassword() {
                 )}
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                  {/* New password */}
                   <div>
                     <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
                       New Password
@@ -364,7 +347,6 @@ export default function ResetPassword() {
                     )}
                   </div>
 
-                  {/* Confirm password */}
                   <div>
                     <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
                       Confirm Password
@@ -404,7 +386,6 @@ export default function ResetPassword() {
                     )}
                   </div>
 
-                  {/* Live password requirements */}
                   <div className="p-4 bg-[#0B2343]/[0.02] rounded-xl border border-[#0B2343]/[0.06]">
                     <p className="text-xs font-semibold text-[#0B2343]/50 mb-3">
                       Password requirements
@@ -434,7 +415,6 @@ export default function ResetPassword() {
                         </div>
                       ))}
 
-                      {/* Match indicator */}
                       {watchConfirm && watchConfirm.length > 0 && (
                         <div className="flex items-center gap-2.5 pt-1 border-t border-[#0B2343]/[0.04]">
                           {passwordsMatch ? (
@@ -460,7 +440,6 @@ export default function ResetPassword() {
                     </div>
                   </div>
 
-                  {/* Submit */}
                   <button
                     type="submit"
                     disabled={isPending}
@@ -480,7 +459,6 @@ export default function ResetPassword() {
                   </button>
                 </form>
 
-                {/* Back to login */}
                 <div className="mt-8 text-center">
                   <Link
                     to="/login"
@@ -491,7 +469,6 @@ export default function ResetPassword() {
                   </Link>
                 </div>
 
-                {/* Trust footer */}
                 <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-[#0B2343]/[0.04]">
                   {["256-bit SSL", "UK GDPR compliant", "Stripe secured"].map(
                     (t) => (

@@ -45,7 +45,7 @@ export const DashboardRoutes: React.FC = () => {
           <Route path="/lessons" element={<MyLessons />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/payments" element={<Payments />} />
-          <Route path="/tutors/:slug" element={<TutorDetail />} />
+          <Route path="/tutors/:id" element={<TutorDetail />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
 

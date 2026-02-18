@@ -9,13 +9,14 @@ import {
   Loader2,
   Info,
 } from "lucide-react";
-import type {
-  TutorDetail,
-  AvailabilityDay,
+import {
+  type AvailabilityDay,
+  tutorDetail,
 } from "../../../data/student/tutorDetailData";
+import { UserData } from "../../../lib/types/authOnboarding";
 
 interface Props {
-  tutor: TutorDetail;
+  tutor: UserData;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -27,15 +28,17 @@ export default function BookTrialModal({ tutor, onClose, onSuccess }: Props) {
   const [isComplete, setIsComplete] = useState(false);
   const [weekOffset, setWeekOffset] = useState(0);
 
+  const tutorDetails = tutorDetail;
+
   // Group availability into weeks
   const weeks = useMemo(() => {
     const result: AvailabilityDay[][] = [];
-    const days = tutor.availability;
+    const days = tutorDetails.availability;
     for (let i = 0; i < days.length; i += 7) {
       result.push(days.slice(i, i + 7));
     }
     return result;
-  }, [tutor.availability]);
+  }, [tutorDetails.availability]);
 
   const currentWeek = weeks[weekOffset] || [];
 
@@ -81,7 +84,8 @@ export default function BookTrialModal({ tutor, onClose, onSuccess }: Props) {
               Book Free Trial
             </h2>
             <p className="text-xs text-[#0B2343]/35 mt-0.5">
-              {tutor.trialDuration} min introductory session with {tutor.name}
+              {tutorDetails.trialDuration} min introductory session with{" "}
+              {tutorDetails.name}
             </p>
           </div>
           {!isBooking && (
@@ -104,8 +108,8 @@ export default function BookTrialModal({ tutor, onClose, onSuccess }: Props) {
               Trial Booked!
             </h3>
             <p className="text-sm text-[#0B2343]/50 max-w-xs mx-auto">
-              Your free trial with {tutor.name} is confirmed. Check your email
-              for the meeting details.
+              Your free trial with {tutorDetails.name} is confirmed. Check your
+              email for the meeting details.
             </p>
           </div>
         ) : (
@@ -117,10 +121,10 @@ export default function BookTrialModal({ tutor, onClose, onSuccess }: Props) {
                 <span className="font-medium text-[#0B2343]/70">
                   What to expect:
                 </span>{" "}
-                A {tutor.trialDuration}-minute introductory session where{" "}
-                {tutor.name.split(" ")[0]} will learn about your goals, assess
-                your current level, and discuss a personalised lesson plan. No
-                payment required.
+                A {tutorDetails.trialDuration}-minute introductory session where{" "}
+                {tutorDetails.name.split(" ")[0]} will learn about your goals,
+                assess your current level, and discuss a personalised lesson
+                plan. No payment required.
               </div>
             </div>
 
@@ -210,7 +214,7 @@ export default function BookTrialModal({ tutor, onClose, onSuccess }: Props) {
                     Available Times
                   </h3>
                   <span className="text-[10px] text-[#0B2343]/25">
-                    ({tutor.timezone})
+                    ({tutorDetails.timezone})
                   </span>
                 </div>
 
@@ -266,7 +270,7 @@ export default function BookTrialModal({ tutor, onClose, onSuccess }: Props) {
                         availableSlots.find((s) => s.id === selectedSlot)
                           ?.endTime
                       }{" "}
-                      · {tutor.trialDuration} min
+                      · {tutorDetails.trialDuration} min
                     </p>
                   </div>
                   <span className="text-sm font-bold text-green-600">Free</span>

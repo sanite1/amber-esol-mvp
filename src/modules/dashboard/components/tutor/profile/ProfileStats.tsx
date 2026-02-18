@@ -1,8 +1,9 @@
 import { BookOpen, Users, Star, Clock } from "lucide-react";
-import type { TutorProfileStats } from "../../../data/tutor/tutorProfileData";
+// import type { TutorProfileStats } from "../../data/tutor/tutorProfileData";
+import { UserData } from "../../../lib/types/authOnboarding";
 
 interface Props {
-  stats: TutorProfileStats;
+  user: UserData;
 }
 
 const items = [
@@ -28,15 +29,21 @@ const items = [
     bg: "bg-amber-50",
   },
   {
-    key: "totalHours" as const,
-    label: "Hours Taught",
+    key: "completionRate" as const,
+    label: "Completion Rate",
     icon: Clock,
     color: "text-emerald-500",
     bg: "bg-emerald-50",
   },
 ];
 
-export default function ProfileStats({ stats }: Props) {
+export default function ProfileStats({ user }: Props) {
+  const stats: any = {
+    totalLessons: user.totalLessons,
+    totalStudents: user.totalStudents,
+    averageRating: user.averageRating,
+    completionRate: user.completionRate,
+  };
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
       {items.map((item) => {
@@ -45,8 +52,8 @@ export default function ProfileStats({ stats }: Props) {
         const display =
           item.key === "averageRating"
             ? `${raw} ★`
-            : item.key === "totalHours"
-              ? `${raw.toLocaleString()}h`
+            : item.key === "completionRate"
+              ? `${raw.toLocaleString()}%`
               : raw.toLocaleString();
 
         return (

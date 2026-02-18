@@ -129,8 +129,7 @@ export default function Footer() {
             </Link>
             <p className="mt-5 text-sm text-white/40 leading-relaxed max-w-xs">
               Connecting English learners with expert tutors across the UK. Part
-              of Amber Training — trusted in professional development since
-              2015.
+              of Amber Training, trusted in professional development since 2015.
             </p>
 
             <div className="mt-6 space-y-3">

@@ -1,29 +1,70 @@
-import api from "../../../../lib/network/api";
 import { ApiError, ApiResponse } from "../../../../lib/network/axios";
+import api from "../../../../lib/network/api";
+
 import Cookies from "js-cookie";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { jwtDecode } from "jwt-decode";
 import {
   DecodedUser,
   LoginPayload,
   LoginResponse,
-  SSNVerificationPayload,
-  SignupPayload,
+  RegisterStudentPayload,
+  RegisterTutorPayload,
+  RegisterAdminPayload,
+  RegisterResponse,
+  ForgotPasswordPayload,
+  ResetPasswordPayload,
   UpdatePasswordPayload,
   UpdateUserPayload,
+  UpdateUserResponse,
+  RefreshResponse,
+  DeleteAccountPayload,
   UserData,
-  UserFilters,
-  UserResponseData,
-  forgotPasswordPayload,
-  refreshResponse,
+  TutorFilters,
+  TutorListResponse,
 } from "../types/authOnboarding";
-import { jwtDecode } from "jwt-decode";
 import {
   getRefreshToken,
   removeAuthToken,
   setAuthToken,
   setRefreshToken,
 } from "../auth";
+
+/* ──────────────────────────────────────────────
+   Helper: persist tokens & decoded user
+   ────────────────────────────────────────────── */
+
+const persistAuth = (accessToken: string, refreshToken?: string) => {
+  setAuthToken(accessToken);
+  Cookies.set("authToken", accessToken, { expires: 7, path: "/" });
+
+  if (refreshToken) {
+    setRefreshToken(refreshToken);
+  }
+
+  const decoded: DecodedUser = jwtDecode(accessToken);
+  localStorage.setItem("user", JSON.stringify(decoded));
+};
+
+/* ──────────────────────────────────────────────
+   Helper: extract error message
+   ────────────────────────────────────────────── */
+
+const getErrorMessage = (
+  error: ApiError,
+  fallback = "Something went wrong. Please try again."
+): string => {
+  return (
+    error.response?.data?.fields?.[0]?.message ||
+    error.response?.data?.message ||
+    fallback
+  );
+};
+
+/* ═══════════════════════════════════════════════
+   LOGIN
+   ═══════════════════════════════════════════════ */
 
 export const login = async (
   payload: LoginPayload
@@ -32,103 +73,230 @@ export const login = async (
     "/users/login",
     payload
   );
-  setAuthToken(res.data.accessToken);
-  setRefreshToken(res.data.refreshToken);
-  Cookies.set("authToken", res.data.accessToken, { expires: 7, path: "/" });
-
-  // Decode new token and update localStorage
-  const decodedUser: DecodedUser = jwtDecode(res.data.accessToken);
-  localStorage.setItem("user", JSON.stringify(decodedUser));
+  persistAuth(res.data.accessToken, res.data.refreshToken);
   return res;
 };
 
-// Hooks
 export const useLogin = () => {
   return useMutation<ApiResponse<LoginResponse>, ApiError, LoginPayload>({
     mutationFn: login,
-    onSuccess: (response) => {
+    onSuccess: () => {
       toast.success("Login Successful", {
-        description: " Redirecting you to dashboard...",
+        description: "Redirecting you to dashboard...",
       });
     },
     onError: (error: ApiError) => {
-      const errorMessage =
-        error.response?.data?.fields?.[0].message ||
-        error.response?.data?.message ||
-        "Something went wrong. Please try again.";
-
       toast.error("Login Failed", {
-        description: errorMessage,
+        description: getErrorMessage(error),
       });
     },
   });
 };
 
-export const refresh = async (): Promise<ApiResponse<refreshResponse>> => {
-  const res = await api.post<ApiResponse<refreshResponse>>("/users/refresh", {
-    token: getRefreshToken(),
-  });
-  setAuthToken(res.data.accessToken);
-  Cookies.set("authToken", res.data.accessToken, { expires: 7, path: "/" });
+/* ═══════════════════════════════════════════════
+   REGISTER STUDENT
+   ═══════════════════════════════════════════════ */
 
-  // Decode new token and update localStorage
-  const decodedUser: DecodedUser = jwtDecode(res.data.accessToken);
-  localStorage.setItem("user", JSON.stringify(decodedUser));
+export const registerStudent = async (
+  payload: RegisterStudentPayload | FormData
+): Promise<ApiResponse<RegisterResponse>> => {
+  const isFormData = payload instanceof FormData;
+  const res = await api.post<ApiResponse<RegisterResponse>>(
+    "/users/register/student",
+    payload,
+    isFormData
+      ? { headers: { "Content-Type": "multipart/form-data" } }
+      : undefined
+  );
   return res;
 };
 
-// Hooks
-export const useRefresh = () => {
-  return useMutation<ApiResponse<refreshResponse>, ApiError>({
-    mutationFn: refresh,
-    // onSuccess: (response) => {
-    //   toast.success("Refresh Successful");
-    // },
+export const useRegisterStudent = () => {
+  return useMutation<
+    ApiResponse<RegisterResponse>,
+    ApiError,
+    RegisterStudentPayload | FormData
+  >({
+    mutationFn: registerStudent,
+    onSuccess: (response) => {
+      toast.success("Registration Successful", {
+        description: response.message,
+      });
+    },
     onError: (error: ApiError) => {
-      const errorMessage =
-        error.response?.data?.fields?.[0].message ||
-        error.response?.data?.message ||
-        "Something went wrong. Please try again.";
-
-      toast.error("Login Failed", {
-        description: errorMessage,
+      toast.error("Registration Failed", {
+        description: getErrorMessage(error),
       });
     },
   });
 };
 
+/* ═══════════════════════════════════════════════
+   REGISTER TUTOR
+   ═══════════════════════════════════════════════ */
+
+export const registerTutor = async (
+  payload: RegisterTutorPayload | FormData
+): Promise<ApiResponse<RegisterResponse>> => {
+  const isFormData = payload instanceof FormData;
+  const res = await api.post<ApiResponse<RegisterResponse>>(
+    "/users/register/tutor",
+    payload,
+    isFormData
+      ? { headers: { "Content-Type": "multipart/form-data" } }
+      : undefined
+  );
+  return res;
+};
+
+export const useRegisterTutor = () => {
+  return useMutation<
+    ApiResponse<RegisterResponse>,
+    ApiError,
+    RegisterTutorPayload | FormData
+  >({
+    mutationFn: registerTutor,
+    onSuccess: (response) => {
+      toast.success("Registration Successful", {
+        description: response.message,
+      });
+    },
+    onError: (error: ApiError) => {
+      toast.error("Registration Failed", {
+        description: getErrorMessage(error),
+      });
+    },
+  });
+};
+
+/* ═══════════════════════════════════════════════
+   REGISTER ADMIN
+   ═══════════════════════════════════════════════ */
+
+export const registerAdmin = async (
+  payload: RegisterAdminPayload | FormData
+): Promise<ApiResponse<RegisterResponse>> => {
+  const isFormData = payload instanceof FormData;
+  const res = await api.post<ApiResponse<RegisterResponse>>(
+    "/users/register/admin",
+    payload,
+    isFormData
+      ? { headers: { "Content-Type": "multipart/form-data" } }
+      : undefined
+  );
+  return res;
+};
+
+export const useRegisterAdmin = () => {
+  return useMutation<
+    ApiResponse<RegisterResponse>,
+    ApiError,
+    RegisterAdminPayload | FormData
+  >({
+    mutationFn: registerAdmin,
+    onSuccess: (response) => {
+      toast.success("Admin Registration Successful", {
+        description: response.message,
+      });
+    },
+    onError: (error: ApiError) => {
+      toast.error("Registration Failed", {
+        description: getErrorMessage(error),
+      });
+    },
+  });
+};
+
+/* ═══════════════════════════════════════════════
+   REFRESH TOKEN
+   ═══════════════════════════════════════════════ */
+
+export const refresh = async (): Promise<ApiResponse<RefreshResponse>> => {
+  const res = await api.post<ApiResponse<RefreshResponse>>("/users/refresh", {
+    token: getRefreshToken(),
+  });
+  persistAuth(res.data.accessToken);
+  return res;
+};
+
+export const useRefresh = () => {
+  return useMutation<ApiResponse<RefreshResponse>, ApiError>({
+    mutationFn: refresh,
+    onError: (error: ApiError) => {
+      toast.error("Session Expired", {
+        description: getErrorMessage(error, "Please log in again."),
+      });
+    },
+  });
+};
+
+/* ═══════════════════════════════════════════════
+   VERIFY EMAIL
+   ═══════════════════════════════════════════════ */
+
+export const verifyEmail = async (
+  id: string,
+  token: string
+): Promise<ApiResponse> => {
+  const res = await api.get<ApiResponse>(`/users/verify/${id}/${token}`);
+  return res;
+};
+
+export const useVerifyEmail = () => {
+  return useMutation<ApiResponse, ApiError, { id: string; token: string }>({
+    mutationFn: ({ id, token }) => verifyEmail(id, token),
+    onSuccess: (response) => {
+      toast.success("Email Verified", {
+        description: response.message,
+      });
+    },
+    onError: (error: ApiError) => {
+      toast.error("Verification Failed", {
+        description: getErrorMessage(
+          error,
+          "Verification failed. Please try again."
+        ),
+      });
+    },
+  });
+};
+
+/* ═══════════════════════════════════════════════
+   FORGOT PASSWORD
+   ═══════════════════════════════════════════════ */
+
 export const forgotPassword = async (
-  payload: forgotPasswordPayload
+  payload: ForgotPasswordPayload
 ): Promise<ApiResponse> => {
   const res = await api.post<ApiResponse>("/users/forgot-password", payload);
   return res;
 };
 
-// Hooks
 export const useForgotPassword = () => {
-  return useMutation<ApiResponse, ApiError, forgotPasswordPayload>({
+  return useMutation<ApiResponse, ApiError, ForgotPasswordPayload>({
     mutationFn: forgotPassword,
-    onSuccess: (response) => {
-      toast.success("A reset link has been sent to your email.");
+    onSuccess: () => {
+      toast.success("Reset Link Sent", {
+        description:
+          "If an account with that email exists, a reset link has been sent.",
+      });
     },
     onError: (error: ApiError) => {
-      const errorMessage =
-        error.response?.data?.fields?.[0].message ||
-        error.response?.data?.message ||
-        "Something went wrong. Please try again.";
-
-      toast.error("Request Faild", {
-        description: errorMessage,
+      toast.error("Request Failed", {
+        description: getErrorMessage(error),
       });
     },
   });
 };
 
-// API Function
+/* ═══════════════════════════════════════════════
+   RESET PASSWORD
+   ═══════════════════════════════════════════════ */
+
 export const resetPassword = async (
   id: string,
   token: string,
-  payload: { password: string }
+  payload: ResetPasswordPayload
 ): Promise<ApiResponse> => {
   const res = await api.patch<ApiResponse>(
     `/users/reset-password/${id}/${token}`,
@@ -137,180 +305,30 @@ export const resetPassword = async (
   return res;
 };
 
-// Hooks
 export const useResetPassword = () => {
   return useMutation<
     ApiResponse,
     ApiError,
-    { id: string; token: string; password: string }
+    { id: string; token: string; password: string; confirmPassword: string }
   >({
-    mutationFn: ({ id, token, password }) =>
-      resetPassword(id, token, { password }),
+    mutationFn: ({ id, token, password, confirmPassword }) =>
+      resetPassword(id, token, { password, confirmPassword }),
     onSuccess: (response) => {
       toast.success("Password Reset Successful", {
         description: response.message,
       });
     },
     onError: (error: ApiError) => {
-      const errorMessage =
-        error.response?.data?.fields?.[0].message ||
-        error.response?.data?.message ||
-        "Something went wrong. Please try again.";
-
-      toast.error("Request Failed", {
-        description: errorMessage,
+      toast.error("Reset Failed", {
+        description: getErrorMessage(error),
       });
     },
   });
 };
 
-export const signup = async (payload: SignupPayload): Promise<ApiResponse> => {
-  const res = await api.post<ApiResponse>("/users", payload, {
-    // headers: { "Content-Type": "multipart/form-data" },
-  });
-
-  return res;
-};
-
-export const useSignup = () => {
-  return useMutation<ApiResponse, ApiError, SignupPayload>({
-    mutationFn: signup,
-    onSuccess: (response) => {
-      toast.success("Signup Successful", {
-        description: response.message,
-      });
-    },
-    onError: (error: ApiError) => {
-      const errorMessage =
-        error.response?.data?.fields?.[0].message ||
-        error.response?.data?.message ||
-        "Something went wrong. Please try again.";
-
-      toast.error("Signup Failed", {
-        description: errorMessage,
-      });
-    },
-  });
-};
-
-// API Function
-export const verifyAccount = async (
-  id: string,
-  token: string
-): Promise<ApiResponse> => {
-  const res = await api.get<ApiResponse>(`/users/verify/${id}/${token}`);
-  return res;
-};
-
-// Hook for Verification
-export const useVerifyAccount = () => {
-  return useMutation<ApiResponse, ApiError, { id: string; token: string }>({
-    mutationFn: ({ id, token }) => verifyAccount(id, token),
-    onSuccess: (response) => {
-      toast.success("Verification Successful", {
-        description: response.message,
-      });
-    },
-    onError: (error) => {
-      const errorMessage =
-        error.response?.data?.fields?.[0].message ||
-        error.response?.data?.message ||
-        "Verification failed. Please try again.";
-      toast.error("Verification Failed", {
-        description: errorMessage,
-      });
-    },
-  });
-};
-
-// Function to fetch user details by ID
-export const fetchUserDetails = async (id: string): Promise<UserData> => {
-  const res = await api.get<ApiResponse<UserData>>(`/users/${id}`);
-  return res.data;
-};
-
-export const useFetchUserDetails = (id: string) => {
-  return useQuery({
-    queryKey: ["userDetails", id],
-    queryFn: () => fetchUserDetails(id),
-    enabled: !!id, // Ensures query runs only when id is available
-  });
-};
-
-// API call
-export const fetchUsers = async (
-  filters?: UserFilters
-): Promise<UserResponseData> => {
-  const params = new URLSearchParams();
-
-  if (filters?.search) params.append("search", filters.search);
-  if (filters?.page) params.append("page", String(filters.page));
-  if (filters?.limit) params.append("limit", String(filters.limit));
-  if (filters?.status) params.append("status", String(filters.status));
-
-  const res = await api.get<ApiResponse<UserResponseData>>(
-    `/users/all/?${params.toString()}`
-  );
-
-  return res.data;
-};
-
-export const useFetchUsers = (filters?: UserFilters) => {
-  return useQuery<UserResponseData, ApiError>({
-    queryKey: ["storeUsers", filters],
-    queryFn: () => fetchUsers(filters),
-    // enabled: !!userId,
-    retry: 1,
-  });
-};
-
-export const updateUser = async (
-  id: string,
-  payload: UpdateUserPayload
-): Promise<ApiResponse<LoginResponse>> => {
-  const res = await api.patch<ApiResponse<LoginResponse>>(
-    `/users/${id}`,
-    payload
-  );
-
-  // Save new auth token
-  const newToken = res.data.accessToken;
-  setAuthToken(newToken);
-  Cookies.set("authToken", newToken, { expires: 7, path: "/" });
-
-  // Decode new token and update localStorage
-  const decodedUser: DecodedUser = jwtDecode(newToken);
-  localStorage.setItem("user", JSON.stringify(decodedUser));
-
-  // Dispatch event after everything is set
-  window.dispatchEvent(new Event("userUpdated"));
-
-  return res;
-};
-
-export const useUpdateUser = () => {
-  return useMutation<
-    ApiResponse<LoginResponse>,
-    ApiError,
-    { id: string; payload: UpdateUserPayload }
-  >({
-    mutationFn: ({ id, payload }) => updateUser(id, payload),
-    onSuccess: (response) => {
-      toast.success("Profile Updated", {
-        description: response.message,
-      });
-    },
-    onError: (error) => {
-      const errorMessage =
-        error.response?.data?.fields?.[0].message ||
-        error.response?.data?.message ||
-        "Failed to update profile. Try again.";
-      toast.error("Update Failed", {
-        description: errorMessage,
-      });
-    },
-  });
-};
+/* ═══════════════════════════════════════════════
+   UPDATE PASSWORD (authenticated)
+   ═══════════════════════════════════════════════ */
 
 export const updatePassword = async (
   id: string,
@@ -336,70 +354,139 @@ export const useUpdatePassword = () => {
   >({
     mutationFn: ({ id, ...payload }) => updatePassword(id, payload),
     onSuccess: () => {
-      toast.success("Password Updated Successfully", {
-        description: "Your password has been changed.",
+      toast.success("Password Updated", {
+        description: "Your password has been changed successfully.",
       });
     },
     onError: (error: ApiError) => {
       toast.error("Password Update Failed", {
-        description:
-          error.response?.data?.fields?.[0].message ||
-          error.response?.data?.message ||
-          "Something went wrong!",
+        description: getErrorMessage(error),
       });
     },
   });
 };
 
-export const logout = () => {
-  removeAuthToken();
+/* ═══════════════════════════════════════════════
+   GET USER BY ID
+   ═══════════════════════════════════════════════ */
+
+export const fetchUserById = async (id: string): Promise<UserData> => {
+  const res = await api.get<ApiResponse<UserData>>(`/users/${id}`);
+  return res.data;
 };
 
-export const unsubscribeUser = async (payload: {
-  name: string;
-  email: string;
-}): Promise<ApiResponse> => {
-  const res = await api.post<ApiResponse>("/users/unsubscribe", payload);
+export const useFetchUserById = (id: string) => {
+  return useQuery<UserData, ApiError>({
+    queryKey: ["user", id],
+    queryFn: () => fetchUserById(id),
+    enabled: !!id,
+  });
+};
+
+/* ═══════════════════════════════════════════════
+   UPDATE USER PROFILE
+   ═══════════════════════════════════════════════ */
+
+export const updateUser = async (
+  id: string,
+  payload: UpdateUserPayload | FormData
+): Promise<ApiResponse<UpdateUserResponse>> => {
+  const isFormData = payload instanceof FormData;
+  const res = await api.patch<ApiResponse<UpdateUserResponse>>(
+    `/users/${id}`,
+    payload,
+    isFormData
+      ? { headers: { "Content-Type": "multipart/form-data" } }
+      : undefined
+  );
+
+  // Persist new tokens from the response
+  persistAuth(res.data.accessToken, res.data.refreshToken);
+
+  // Notify other components that user data changed
+  window.dispatchEvent(new Event("userUpdated"));
+
   return res;
 };
 
-export const useUnsubscribe = () => {
-  return useMutation<ApiResponse, ApiError, { name: string; email: string }>({
-    mutationFn: (payload) => unsubscribeUser(payload),
-    onSuccess: (response) => {
-      toast.success("Unsubscribed Successfully", {
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    ApiResponse<UpdateUserResponse>,
+    ApiError,
+    { id: string; payload: UpdateUserPayload | FormData }
+  >({
+    mutationFn: ({ id, payload }) => updateUser(id, payload),
+    onSuccess: (response, variables) => {
+      // Invalidate user query so components refetch fresh data
+      queryClient.invalidateQueries({ queryKey: ["user", variables.id] });
+
+      toast.success("Profile Updated", {
         description: response.message,
       });
     },
-    onError: (error) => {
-      const message =
-        error.response?.data?.fields?.[0].message ||
-        error.response?.data?.message ||
-        "Failed to unsubscribe. Please try again.";
-
-      toast.error("Unsubscribe Failed", {
-        description: message,
+    onError: (error: ApiError) => {
+      toast.error("Update Failed", {
+        description: getErrorMessage(
+          error,
+          "Failed to update profile. Try again."
+        ),
       });
     },
   });
 };
 
-export interface DeleteAccountPayload {
-  reason: string;
-  feedback?: string;
-}
+/* ═══════════════════════════════════════════════
+   GET TUTORS (public listing)
+   ═══════════════════════════════════════════════ */
 
-export async function deleteAccount(
+export const fetchTutors = async (
+  filters: TutorFilters
+): Promise<ApiResponse<TutorListResponse>> => {
+  const params = new URLSearchParams();
+
+  if (filters.page) params.append("page", String(filters.page));
+  if (filters.limit) params.append("limit", String(filters.limit));
+  if (filters.search) params.append("search", filters.search);
+  if (filters.sort) params.append("sort", filters.sort);
+  if (filters.language) params.append("language", filters.language);
+  if (filters.specialization)
+    params.append("specialization", filters.specialization);
+  if (filters.minPrice !== undefined)
+    params.append("minPrice", String(filters.minPrice));
+  if (filters.maxPrice !== undefined)
+    params.append("maxPrice", String(filters.maxPrice));
+  if (filters.level) params.append("level", filters.level);
+  if (filters.trialOnly) params.append("trialOnly", "true");
+
+  const response = await api.get(`/users/tutors?${params.toString()}`);
+  return response as ApiResponse<TutorListResponse>;
+};
+
+export const useFetchTutors = (filters: TutorFilters) => {
+  return useQuery({
+    queryKey: ["tutors", filters],
+    queryFn: () => fetchTutors(filters),
+    placeholderData: (prev) => prev, // keep previous data while loading
+  });
+};
+
+/* ═══════════════════════════════════════════════
+   DELETE ACCOUNT
+   ═══════════════════════════════════════════════ */
+
+export const deleteAccount = async (
   id: string,
   payload: DeleteAccountPayload
-): Promise<ApiResponse> {
-  const response = await api.delete<ApiResponse>(`/users/${id}`, {
+): Promise<ApiResponse> => {
+  const res = await api.delete<ApiResponse>(`/users/${id}`, {
     data: payload,
   });
-  return response;
-}
+  return res;
+};
 
-export function useDeleteAccount() {
+export const useDeleteAccount = () => {
   return useMutation<
     ApiResponse,
     ApiError,
@@ -408,87 +495,29 @@ export function useDeleteAccount() {
     mutationKey: ["delete-account"],
     mutationFn: ({ id, payload }) => deleteAccount(id, payload),
     onSuccess: (response) => {
+      // Clear all auth data
+      removeAuthToken();
+      Cookies.remove("authToken");
+      localStorage.removeItem("user");
+
       toast.success("Account Deleted", {
         description: response.message || "Your account has been deleted.",
       });
     },
     onError: (error: ApiError) => {
-      const errorMessage =
-        error.response?.data?.fields?.[0]?.message ||
-        error.response?.data?.message ||
-        "Something went wrong. Please try again.";
-
       toast.error("Deletion Failed", {
-        description: errorMessage,
-      });
-    },
-  });
-}
-
-// SSN Verification API function
-export const verifySSN = async (
-  id: string,
-  payload: SSNVerificationPayload
-): Promise<ApiResponse> => {
-  const res = await api.post<ApiResponse>(`/users/${id}/verify-ssn`, payload);
-  return res;
-};
-
-// SSN Verification Hook
-export const useVerifySSN = () => {
-  return useMutation<
-    ApiResponse,
-    ApiError,
-    { id: string; payload: SSNVerificationPayload }
-  >({
-    mutationFn: ({ id, payload }) => verifySSN(id, payload),
-    onSuccess: (response) => {
-      toast.success("SSN Submitted", {
-        description:
-          response.message || "Your SSN has been submitted for verification.",
-      });
-    },
-    onError: (error: ApiError) => {
-      const errorMessage =
-        error.response?.data?.fields?.[0]?.message ||
-        error.response?.data?.message ||
-        "Failed to submit SSN. Please try again.";
-
-      toast.error("SSN Verification Failed", {
-        description: errorMessage,
+        description: getErrorMessage(error),
       });
     },
   });
 };
 
-// Document Verification API function
-export const submitDocumentVerification = async (
-  id: string
-): Promise<ApiResponse> => {
-  const res = await api.post<ApiResponse>(`/users/${id}/verify-document`, {});
-  return res;
-};
+/* ═══════════════════════════════════════════════
+   LOGOUT (client-side only)
+   ═══════════════════════════════════════════════ */
 
-// Document Verification Hook
-export const useSubmitDocumentVerification = () => {
-  return useMutation<ApiResponse, ApiError, { id: string }>({
-    mutationFn: ({ id }) => submitDocumentVerification(id),
-    onSuccess: (response) => {
-      toast.success("Document Submitted", {
-        description:
-          response.message ||
-          "Your document has been submitted for verification.",
-      });
-    },
-    onError: (error: ApiError) => {
-      const errorMessage =
-        error.response?.data?.fields?.[0]?.message ||
-        error.response?.data?.message ||
-        "Failed to submit document. Please try again.";
-
-      toast.error("Document Submission Failed", {
-        description: errorMessage,
-      });
-    },
-  });
+export const logout = () => {
+  removeAuthToken();
+  Cookies.remove("authToken");
+  localStorage.removeItem("user");
 };

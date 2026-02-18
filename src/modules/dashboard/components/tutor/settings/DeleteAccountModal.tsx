@@ -3,21 +3,38 @@ import { X, AlertTriangle, Loader2, Trash2 } from "lucide-react";
 
 interface Props {
   onClose: () => void;
-  onConfirm: () => void;
+  onDelete: (reason: string, feedback: string) => Promise<boolean>;
+  isPending: boolean;
 }
 
-export default function DeleteAccountModal({ onClose, onConfirm }: Props) {
-  const [confirmText, setConfirmText] = useState("");
-  const [deleting, setDeleting] = useState(false);
+const reasonOptions = [
+  { value: "", label: "Select a reason…" },
+  { value: "not-useful", label: "The platform isn't useful for me" },
+  { value: "not-enough-students", label: "Not getting enough students" },
+  { value: "too-expensive", label: "Fees are too high" },
+  { value: "found-alternative", label: "Found a better platform" },
+  { value: "privacy", label: "Privacy concerns" },
+  { value: "temporary", label: "Taking a break from teaching" },
+  { value: "other", label: "Other" },
+];
 
-  const canDelete = confirmText === "DELETE";
+export default function DeleteAccountModal({
+  onClose,
+  onDelete,
+  isPending,
+}: Props) {
+  const [confirmText, setConfirmText] = useState("");
+  const [reason, setReason] = useState("");
+  const [feedback, setFeedback] = useState("");
+
+  const canDelete = confirmText === "DELETE" && reason !== "";
 
   const handleDelete = async () => {
     if (!canDelete) return;
-    setDeleting(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setDeleting(false);
-    onConfirm();
+    const success = await onDelete(reason, feedback);
+    if (!success) {
+      console.warn("Account deletion failed — modal stays open for retry.");
+    }
   };
 
   return (
@@ -51,6 +68,43 @@ export default function DeleteAccountModal({ onClose, onConfirm }: Props) {
             </p>
           </div>
 
+          {/* Reason */}
+          <div>
+            <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 mb-1.5 block">
+              Why are you leaving? <span className="text-red-400">*</span>
+            </label>
+            <select
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] outline-none focus:border-[#ff7c22]/40 focus:bg-white transition-colors appearance-none cursor-pointer"
+            >
+              {reasonOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Feedback */}
+          <div>
+            <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 mb-1.5 block">
+              Anything else you'd like to share?{" "}
+              <span className="text-[#0B2343]/20 font-normal">(optional)</span>
+            </label>
+            <textarea
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+              rows={3}
+              maxLength={500}
+              placeholder="Your feedback helps us improve…"
+              className="w-full px-3 py-2.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/40 focus:bg-white transition-colors resize-none"
+            />
+            <p className="text-[9px] text-[#0B2343]/20 mt-0.5 text-right">
+              {feedback.length}/500
+            </p>
+          </div>
+
           {/* Confirmation input */}
           <div>
             <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 mb-1.5 block">
@@ -71,22 +125,22 @@ export default function DeleteAccountModal({ onClose, onConfirm }: Props) {
         <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] flex items-center gap-2">
           <button
             onClick={onClose}
-            disabled={deleting}
+            disabled={isPending}
             className="flex-1 py-2.5 rounded-xl bg-[#0B2343]/[0.04] text-xs sm:text-[13px] font-medium text-[#0B2343]/50 hover:bg-[#0B2343]/[0.08] transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleDelete}
-            disabled={!canDelete || deleting}
+            disabled={!canDelete || isPending}
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-red-600 text-white text-xs sm:text-[13px] font-medium hover:bg-red-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
-            {deleting ? (
+            {isPending ? (
               <Loader2 size={14} className="animate-spin" />
             ) : (
               <Trash2 size={14} />
             )}
-            {deleting ? "Deleting…" : "Delete Account"}
+            {isPending ? "Deleting…" : "Delete Forever"}
           </button>
         </div>
       </div>

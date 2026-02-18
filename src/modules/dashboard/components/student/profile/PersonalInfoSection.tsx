@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { User, Edit3, X, Check, Loader2 } from "lucide-react";
-import type { StudentProfile } from "../../../data/student/studentProfileData";
 import {
+  StudentProfile,
   countryOptions,
   timezoneOptions,
 } from "../../../data/student/studentProfileData";

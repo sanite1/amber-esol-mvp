@@ -43,7 +43,7 @@ export default function AboutCTA() {
               </h2>
               <p className="mt-4 text-base text-white/40 leading-relaxed max-w-md">
                 Whether you're a learner looking to improve your English or a
-                tutor ready to share your expertise — there's a place for you
+                tutor ready to share your expertise, there's a place for you
                 here.
               </p>
             </div>

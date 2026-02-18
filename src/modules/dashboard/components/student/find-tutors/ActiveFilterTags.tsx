@@ -1,12 +1,12 @@
 import { X } from "lucide-react";
 
-interface Filters {
+export interface Filters {
   specialties: string[];
   levels: string[];
   languages: string[];
   priceRange: { min: number; max: number | null } | null;
-  onlineOnly: boolean;
-  freeTrialOnly: boolean;
+  // onlineOnly: boolean;
+  // trialOnly: boolean;
 }
 
 interface Props {
@@ -22,12 +22,12 @@ export default function ActiveFilterTags({
 }: Props) {
   const tags: { label: string; key: string; value?: string }[] = [];
 
-  if (filters.onlineOnly) {
-    tags.push({ label: "Online now", key: "onlineOnly" });
-  }
-  if (filters.freeTrialOnly) {
-    tags.push({ label: "Free trial", key: "freeTrialOnly" });
-  }
+  // if (filters.onlineOnly) {
+  //   tags.push({ label: "Online now", key: "onlineOnly" });
+  // }
+  // if (filters.trialOnly) {
+  //   tags.push({ label: "Free trial", key: "trialOnly" });
+  // }
   filters.specialties.forEach((s) =>
     tags.push({ label: s, key: "specialties", value: s })
   );

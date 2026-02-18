@@ -54,7 +54,7 @@ export default function HowItWorksHero() {
           className="mt-5 text-lg text-white/45 max-w-xl mx-auto"
         >
           No complicated onboarding. Find a tutor, pick a time, and start
-          learning — all inside your browser.
+          learning, all inside your browser.
         </p>
         <div
           data-aos="fade-up"

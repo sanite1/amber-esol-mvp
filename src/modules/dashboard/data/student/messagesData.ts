@@ -129,7 +129,7 @@ export const messagesByConversation: Record<string, Message[]> = {
       senderName: "Sarah Mitchell",
       senderAvatar: "https://randomuser.me/api/portraits/women/65.jpg",
       content:
-        "Good morning! Of course — which part are you finding tricky? The phrasal verbs or the email templates?",
+        "Good morning! Of course, which part are you finding tricky? The phrasal verbs or the email templates?",
       createdAt: "2026-02-14T08:15:00Z",
       isRead: true,
     },

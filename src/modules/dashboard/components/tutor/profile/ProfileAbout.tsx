@@ -8,53 +8,74 @@ import {
   AlertCircle,
   Plus,
 } from "lucide-react";
-import type { TutorProfileData } from "../../../data/tutor/tutorProfileData";
+import type {
+  TeachingPreferences,
+  UserData,
+} from "../../../lib/types/authOnboarding";
 
 interface Props {
-  profile: TutorProfileData;
-  onUpdate: (updates: Partial<TutorProfileData>) => void;
+  user: UserData;
+  onUpdate: (updates: Partial<UserData>) => Promise<void>;
+  isUpdating: boolean;
 }
 
 interface FormErrors {
   bio?: string;
-  teachingStyle?: string;
-  specialties?: string;
+  specializations?: string;
 }
 
-export default function ProfileAbout({ profile, onUpdate }: Props) {
+const allLessonTypes = ["one-on-one", "group"] as const;
+
+const allLevels = [
+  "beginner",
+  "elementary",
+  "intermediate",
+  "upper-intermediate",
+  "advanced",
+] as const;
+
+const levelLabels: Record<string, string> = {
+  beginner: "Beginner",
+  elementary: "Elementary",
+  intermediate: "Intermediate",
+  "upper-intermediate": "Upper-Int.",
+  advanced: "Advanced",
+};
+
+const lessonTypeLabels: Record<string, string> = {
+  "one-on-one": "One-on-One",
+  group: "Group",
+};
+
+export default function ProfileAbout({ user, onUpdate, isUpdating }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const [formBio, setFormBio] = useState(profile.bio);
-  const [formTeachingStyle, setFormTeachingStyle] = useState(
-    profile.teachingStyle
-  );
-  const [formSpecialties, setFormSpecialties] = useState([
-    ...profile.specialties,
+  const [formBio, setFormBio] = useState(user.bio ?? "");
+  const [formSpecializations, setFormSpecializations] = useState<string[]>([
+    ...(user.specializations ?? []),
   ]);
-  const [formLessonTypes, setFormLessonTypes] = useState([
-    ...profile.lessonTypes,
+  const [formLessonTypes, setFormLessonTypes] = useState<string[]>([
+    ...(user.teachingPreferences?.lessonTypes ?? []),
   ]);
-  const [formCefrLevels, setFormCefrLevels] = useState([...profile.cefrLevels]);
-  const [formAgeGroups, setFormAgeGroups] = useState([...profile.ageGroups]);
+  const [formPreferredLevels, setFormPreferredLevels] = useState<string[]>([
+    ...(user.teachingPreferences?.preferredLevels ?? []),
+  ]);
   const [newSpecialty, setNewSpecialty] = useState("");
-  const [newLessonType, setNewLessonType] = useState("");
-  const [newAgeGroup, setNewAgeGroup] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
 
   const bioPreviewLength = 220;
-  const needsTruncate = profile.bio.length > bioPreviewLength;
-
-  const allCefr = ["A1", "A2", "B1", "B2", "C1", "C2"];
+  const bioText = user.bio ?? "";
+  const needsTruncate = bioText.length > bioPreviewLength;
 
   const startEdit = () => {
-    setFormBio(profile.bio);
-    setFormTeachingStyle(profile.teachingStyle);
-    setFormSpecialties([...profile.specialties]);
-    setFormLessonTypes([...profile.lessonTypes]);
-    setFormCefrLevels([...profile.cefrLevels]);
-    setFormAgeGroups([...profile.ageGroups]);
+    setFormBio(user.bio ?? "");
+    setFormSpecializations([...(user.specializations ?? [])]);
+    setFormLessonTypes([...(user.teachingPreferences?.lessonTypes ?? [])]);
+    setFormPreferredLevels([
+      ...(user.teachingPreferences?.preferredLevels ?? []),
+    ]);
     setErrors({});
     setEditing(true);
   };
@@ -69,10 +90,8 @@ export default function ProfileAbout({ profile, onUpdate }: Props) {
     if (!formBio.trim()) e.bio = "Bio is required";
     else if (formBio.trim().length < 50)
       e.bio = "Bio should be at least 50 characters";
-    if (!formTeachingStyle.trim())
-      e.teachingStyle = "Teaching style is required";
-    if (formSpecialties.length === 0)
-      e.specialties = "Add at least one specialty";
+    if (formSpecializations.length === 0)
+      e.specializations = "Add at least one specialty";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -80,17 +99,36 @@ export default function ProfileAbout({ profile, onUpdate }: Props) {
   const handleSave = async () => {
     if (!validate()) return;
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 600));
-    onUpdate({
-      bio: formBio.trim(),
-      teachingStyle: formTeachingStyle.trim(),
-      specialties: formSpecialties,
-      lessonTypes: formLessonTypes,
-      cefrLevels: formCefrLevels,
-      ageGroups: formAgeGroups,
-    });
-    setSaving(false);
-    setEditing(false);
+    try {
+      await onUpdate({
+        bio: formBio.trim(),
+        specializations: formSpecializations,
+        teachingPreferences: {
+          ...(user.teachingPreferences as TeachingPreferences),
+          lessonTypes: formLessonTypes as ("one-on-one" | "group")[],
+          preferredLevels: formPreferredLevels as (
+            | "beginner"
+            | "elementary"
+            | "intermediate"
+            | "upper-intermediate"
+            | "advanced"
+          )[],
+        },
+      });
+    } finally {
+      setSaving(false);
+      setEditing(false);
+    }
+  };
+
+  const toggleItem = (
+    value: string,
+    list: string[],
+    setList: (v: string[]) => void
+  ) => {
+    setList(
+      list.includes(value) ? list.filter((x) => x !== value) : [...list, value]
+    );
   };
 
   const addChip = (
@@ -167,9 +205,14 @@ export default function ProfileAbout({ profile, onUpdate }: Props) {
         <div className="mb-4">
           <p className="text-xs sm:text-[13px] text-[#0B2343]/50 leading-relaxed">
             {expanded || !needsTruncate
-              ? profile.bio
-              : `${profile.bio.slice(0, bioPreviewLength)}…`}
+              ? bioText
+              : `${bioText.slice(0, bioPreviewLength)}…`}
           </p>
+          {!bioText && (
+            <p className="text-xs sm:text-[13px] text-[#0B2343]/50 leading-relaxed italic">
+              Not Set
+            </p>
+          )}
           {needsTruncate && (
             <button
               onClick={() => setExpanded(!expanded)}
@@ -211,54 +254,32 @@ export default function ProfileAbout({ profile, onUpdate }: Props) {
         </div>
       )}
 
-      {/* Teaching style */}
+      {/* Specializations */}
       <div className="pt-3 border-t border-[#0B2343]/[0.04]">
-        <h4 className="text-[11px] sm:text-xs font-semibold text-[#0B2343]/60 mb-1.5">
-          Teaching Style
-        </h4>
-        {!editing ? (
-          <p className="text-[11px] sm:text-xs text-[#0B2343]/40 leading-relaxed">
-            {profile.teachingStyle}
-          </p>
-        ) : (
-          <div>
-            <textarea
-              value={formTeachingStyle}
-              onChange={(e) => setFormTeachingStyle(e.target.value)}
-              rows={3}
-              placeholder="Describe your teaching approach…"
-              className={inputClass(!!errors.teachingStyle)}
-            />
-            {errors.teachingStyle && (
-              <p className="flex items-center gap-1 mt-1 text-[10px] text-red-500">
-                <AlertCircle size={10} />
-                {errors.teachingStyle}
-              </p>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Specialties */}
-      <div className="pt-3 mt-3 border-t border-[#0B2343]/[0.04]">
         <h4 className="text-[11px] sm:text-xs font-semibold text-[#0B2343]/60 mb-2">
           Specialties
         </h4>
         {!editing ? (
           <div className="flex flex-wrap gap-1.5">
-            {profile.specialties.map((s) => (
-              <span
-                key={s}
-                className="text-[10px] sm:text-[11px] font-medium text-[#ff7c22] bg-[#ff7c22]/[0.08] px-2 py-0.5 rounded-full"
-              >
-                {s}
-              </span>
-            ))}
+            {user.specializations ? (
+              (user.specializations ?? []).map((s) => (
+                <span
+                  key={s}
+                  className="text-[10px] sm:text-[11px] font-medium text-[#ff7c22] bg-[#ff7c22]/[0.08] px-2 py-0.5 rounded-full"
+                >
+                  {s}
+                </span>
+              ))
+            ) : (
+              <p className="text-xs sm:text-[13px] text-[#0B2343]/50 leading-relaxed italic">
+                Not Set
+              </p>
+            )}
           </div>
         ) : (
           <div>
             <div className="flex flex-wrap gap-1.5 mb-2">
-              {formSpecialties.map((s) => (
+              {formSpecializations.map((s) => (
                 <span
                   key={s}
                   className="flex items-center gap-1 text-[10px] sm:text-[11px] font-medium text-[#ff7c22] bg-[#ff7c22]/[0.08] pl-2 pr-1 py-0.5 rounded-full"
@@ -266,7 +287,7 @@ export default function ProfileAbout({ profile, onUpdate }: Props) {
                   {s}
                   <button
                     onClick={() =>
-                      removeChip(s, formSpecialties, setFormSpecialties)
+                      removeChip(s, formSpecializations, setFormSpecializations)
                     }
                     className="p-0.5 rounded-full hover:bg-[#ff7c22]/20"
                   >
@@ -284,8 +305,8 @@ export default function ProfileAbout({ profile, onUpdate }: Props) {
                     e.preventDefault();
                     addChip(
                       newSpecialty,
-                      formSpecialties,
-                      setFormSpecialties,
+                      formSpecializations,
+                      setFormSpecializations,
                       setNewSpecialty
                     );
                   }
@@ -297,8 +318,8 @@ export default function ProfileAbout({ profile, onUpdate }: Props) {
                 onClick={() =>
                   addChip(
                     newSpecialty,
-                    formSpecialties,
-                    setFormSpecialties,
+                    formSpecializations,
+                    setFormSpecializations,
                     setNewSpecialty
                   )
                 }
@@ -307,197 +328,98 @@ export default function ProfileAbout({ profile, onUpdate }: Props) {
                 <Plus size={12} className="text-[#0B2343]/40" />
               </button>
             </div>
-            {errors.specialties && (
+            {errors.specializations && (
               <p className="flex items-center gap-1 mt-1 text-[10px] text-red-500">
                 <AlertCircle size={10} />
-                {errors.specialties}
+                {errors.specializations}
               </p>
             )}
           </div>
         )}
       </div>
 
-      {/* Lesson types */}
+      {/* Lesson Types */}
       <div className="pt-3 mt-3 border-t border-[#0B2343]/[0.04]">
         <h4 className="text-[11px] sm:text-xs font-semibold text-[#0B2343]/60 mb-2">
           Lesson Types
         </h4>
         {!editing ? (
           <div className="flex flex-wrap gap-1.5">
-            {profile.lessonTypes.map((t) => (
-              <span
-                key={t}
-                className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 bg-[#0B2343]/[0.04] px-2 py-0.5 rounded-full"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-        ) : (
-          <div>
-            <div className="flex flex-wrap gap-1.5 mb-2">
-              {formLessonTypes.map((t) => (
+            {user.teachingPreferences?.lessonTypes ? (
+              (user.teachingPreferences?.lessonTypes ?? []).map((t) => (
                 <span
                   key={t}
-                  className="flex items-center gap-1 text-[10px] sm:text-[11px] font-medium text-[#0B2343]/50 bg-[#0B2343]/[0.04] pl-2 pr-1 py-0.5 rounded-full"
+                  className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 bg-[#0B2343]/[0.04] px-2 py-0.5 rounded-full"
                 >
-                  {t}
-                  <button
-                    onClick={() =>
-                      removeChip(t, formLessonTypes, setFormLessonTypes)
-                    }
-                    className="p-0.5 rounded-full hover:bg-[#0B2343]/10"
-                  >
-                    <X size={9} />
-                  </button>
+                  {lessonTypeLabels[t] ?? t}
                 </span>
-              ))}
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                value={newLessonType}
-                onChange={(e) => setNewLessonType(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addChip(
-                      newLessonType,
-                      formLessonTypes,
-                      setFormLessonTypes,
-                      setNewLessonType
-                    );
-                  }
-                }}
-                placeholder="Add lesson type…"
-                className="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-[11px] sm:text-xs text-[#0B2343] outline-none focus:border-[#ff7c22]/30"
-              />
-              <button
-                onClick={() =>
-                  addChip(
-                    newLessonType,
-                    formLessonTypes,
-                    setFormLessonTypes,
-                    setNewLessonType
-                  )
-                }
-                className="shrink-0 p-1.5 rounded-lg bg-[#0B2343]/[0.04] hover:bg-[#0B2343]/[0.08] transition-colors"
-              >
-                <Plus size={12} className="text-[#0B2343]/40" />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* CEFR levels */}
-      <div className="pt-3 mt-3 border-t border-[#0B2343]/[0.04]">
-        <h4 className="text-[11px] sm:text-xs font-semibold text-[#0B2343]/60 mb-2">
-          Student Levels
-        </h4>
-        {!editing ? (
-          <div className="flex flex-wrap gap-1.5">
-            {profile.cefrLevels.map((l) => (
-              <span
-                key={l}
-                className="text-[10px] sm:text-[11px] font-bold text-[#0B2343]/30 bg-[#0B2343]/[0.04] w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center"
-              >
-                {l}
-              </span>
-            ))}
+              ))
+            ) : (
+              <p className="text-xs sm:text-[13px] text-[#0B2343]/50 leading-relaxed italic">
+                Not Set
+              </p>
+            )}
           </div>
         ) : (
           <div className="flex flex-wrap gap-1.5">
-            {allCefr.map((l) => (
+            {allLessonTypes.map((t) => (
               <button
-                key={l}
+                key={t}
                 onClick={() =>
-                  setFormCefrLevels((prev) =>
-                    prev.includes(l)
-                      ? prev.filter((x) => x !== l)
-                      : [...prev, l]
-                  )
+                  toggleItem(t, formLessonTypes, setFormLessonTypes)
                 }
-                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg text-[11px] sm:text-xs font-bold transition-colors ${
-                  formCefrLevels.includes(l)
+                className={`px-2.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-colors ${
+                  formLessonTypes.includes(t)
                     ? "bg-[#0B2343] text-white"
                     : "bg-[#0B2343]/[0.04] text-[#0B2343]/25 hover:bg-[#0B2343]/[0.08]"
                 }`}
               >
-                {l}
+                {lessonTypeLabels[t] ?? t}
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* Age groups */}
+      {/* Preferred Levels */}
       <div className="pt-3 mt-3 border-t border-[#0B2343]/[0.04]">
         <h4 className="text-[11px] sm:text-xs font-semibold text-[#0B2343]/60 mb-2">
-          Age Groups
+          Preferred Levels
         </h4>
         {!editing ? (
           <div className="flex flex-wrap gap-1.5">
-            {profile.ageGroups.map((a) => (
-              <span
-                key={a}
-                className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 bg-[#0B2343]/[0.04] px-2 py-0.5 rounded-full"
-              >
-                {a}
-              </span>
-            ))}
+            {user.teachingPreferences?.preferredLevels ? (
+              (user.teachingPreferences?.preferredLevels ?? []).map((l) => (
+                <span
+                  key={l}
+                  className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 bg-[#0B2343]/[0.04] px-2 py-0.5 rounded-full"
+                >
+                  {levelLabels[l] ?? l}
+                </span>
+              ))
+            ) : (
+              <p className="text-xs sm:text-[13px] text-[#0B2343]/50 leading-relaxed italic">
+                Not Set
+              </p>
+            )}
           </div>
         ) : (
-          <div>
-            <div className="flex flex-wrap gap-1.5 mb-2">
-              {formAgeGroups.map((a) => (
-                <span
-                  key={a}
-                  className="flex items-center gap-1 text-[10px] sm:text-[11px] font-medium text-[#0B2343]/50 bg-[#0B2343]/[0.04] pl-2 pr-1 py-0.5 rounded-full"
-                >
-                  {a}
-                  <button
-                    onClick={() =>
-                      removeChip(a, formAgeGroups, setFormAgeGroups)
-                    }
-                    className="p-0.5 rounded-full hover:bg-[#0B2343]/10"
-                  >
-                    <X size={9} />
-                  </button>
-                </span>
-              ))}
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                value={newAgeGroup}
-                onChange={(e) => setNewAgeGroup(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addChip(
-                      newAgeGroup,
-                      formAgeGroups,
-                      setFormAgeGroups,
-                      setNewAgeGroup
-                    );
-                  }
-                }}
-                placeholder="Add age group…"
-                className="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-[11px] sm:text-xs text-[#0B2343] outline-none focus:border-[#ff7c22]/30"
-              />
+          <div className="flex flex-wrap gap-1.5">
+            {allLevels.map((l) => (
               <button
+                key={l}
                 onClick={() =>
-                  addChip(
-                    newAgeGroup,
-                    formAgeGroups,
-                    setFormAgeGroups,
-                    setNewAgeGroup
-                  )
+                  toggleItem(l, formPreferredLevels, setFormPreferredLevels)
                 }
-                className="shrink-0 p-1.5 rounded-lg bg-[#0B2343]/[0.04] hover:bg-[#0B2343]/[0.08] transition-colors"
+                className={`px-2.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-colors ${
+                  formPreferredLevels.includes(l)
+                    ? "bg-[#0B2343] text-white"
+                    : "bg-[#0B2343]/[0.04] text-[#0B2343]/25 hover:bg-[#0B2343]/[0.08]"
+                }`}
               >
-                <Plus size={12} className="text-[#0B2343]/40" />
+                {levelLabels[l] ?? l}
               </button>
-            </div>
+            ))}
           </div>
         )}
       </div>

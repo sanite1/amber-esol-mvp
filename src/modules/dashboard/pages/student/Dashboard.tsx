@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getDecodedJwt } from "../../lib/auth";
+import { useFetchUserById } from "../../lib/api/authOnboarding";
 import { studentDashboardData } from "../../data/student/studentDashboardData";
 import WelcomeBanner from "../../components/student/dashboard/WelcomeBanner";
 import {
@@ -18,15 +19,23 @@ import LearningProgressCard from "../../components/student/dashboard/LearningPro
 import RecommendedTutors from "../../components/student/dashboard/RecommendedTutors";
 
 export default function StudentDashboard() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isModulesLoading, setIsModulesLoading] = useState(true);
   const [data, setData] = useState(studentDashboardData);
-  const user = getDecodedJwt();
+
+  const decoded = getDecodedJwt();
+  const { data: user, isLoading: isUserLoading } = useFetchUserById(
+    decoded?.id || ""
+  );
+
+  const isLoading = isUserLoading || isModulesLoading;
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+    // Simulate loading for modules that don't have backend endpoints yet
+    // Remove this once lessons, messages, spending endpoints are built
     const timer = setTimeout(() => {
       setData(studentDashboardData);
-      setIsLoading(false);
+      setIsModulesLoading(false);
     }, 1200);
     return () => clearTimeout(timer);
   }, []);
@@ -49,7 +58,7 @@ export default function StudentDashboard() {
     <div className="space-y-6">
       {/* Welcome */}
       <WelcomeBanner
-        firstName={user?.firstname || "there"}
+        firstName={user?.firstname || decoded?.firstname || "there"}
         hasUpcomingLesson={data.upcomingLessons.length > 0}
         nextLessonTime={nextLessonTime}
       />
@@ -59,7 +68,7 @@ export default function StudentDashboard() {
         <StatsGridSkeleton />
       ) : (
         <StatsGrid
-          totalLessons={data.stats.totalLessons}
+          totalLessons={user?.totalLessonsTaken ?? data.stats.totalLessons}
           completedLessons={data.stats.completedLessons}
           cancelledLessons={data.stats.cancelledLessons}
           activeTutors={data.stats.activeTutors}
@@ -68,7 +77,7 @@ export default function StudentDashboard() {
 
       {/* Main grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Left — 2/3 */}
+        {/* Left, 2/3 */}
         <div className="lg:col-span-2 space-y-5">
           {isLoading ? (
             <UpcomingLessonsSkeleton />
@@ -82,7 +91,7 @@ export default function StudentDashboard() {
           )}
         </div>
 
-        {/* Right — 1/3 */}
+        {/* Right, 1/3 */}
         <div className="space-y-5">
           {isLoading ? (
             <SpendingSkeleton />

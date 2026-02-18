@@ -92,7 +92,7 @@ export const ticketCategories: TicketCategory[] = [
 export const helpFaqs = [
   {
     q: "How do I book my first lesson?",
-    a: "Sign up for a free account, browse our tutor marketplace, select a tutor, pick an available time slot, and confirm. Your first trial lesson is free — no credit card needed.",
+    a: "Sign up for a free account, browse our tutor marketplace, select a tutor, pick an available time slot, and confirm. Your first trial lesson is free, no credit card needed.",
   },
   {
     q: "How do I cancel or reschedule a lesson?",
@@ -108,7 +108,7 @@ export const helpFaqs = [
   },
   {
     q: "Can I change my tutor after booking?",
-    a: "Yes — cancel the existing lesson (free if 12+ hours out) and book a new one with a different tutor. You can also message tutors before booking to see if they're the right fit.",
+    a: "Yes, cancel the existing lesson (free if 12+ hours out) and book a new one with a different tutor. You can also message tutors before booking to see if they're the right fit.",
   },
   {
     q: "How do I become a tutor on Amber ESOL?",

@@ -1,9 +1,9 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, {
   createContext,
   useContext,
   useEffect,
   useState,
+  useCallback,
   ReactNode,
 } from "react";
 import Cookies from "js-cookie";
@@ -12,14 +12,15 @@ import {
   getRefreshToken,
   getToken,
   removeAuthToken,
+  DecodedJwt,
 } from "../lib/auth";
 import { useRefresh } from "../lib/api/authOnboarding";
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  logout: () => void;
-  user: any | null;
+  user: DecodedJwt | null;
   loading: boolean;
+  logout: () => void;
   refreshAccessToken: () => Promise<void>;
   refreshAuthState: () => void;
 }
@@ -31,8 +32,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [loading, setLoading] = useState(true);
 
-  // ✅ initialize state from localStorage
-  const [user, setUser] = useState<any | null>(() => {
+  const [user, setUser] = useState<DecodedJwt | null>(() => {
     const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored) : null;
   });
@@ -43,40 +43,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     return !!token && !!decoded && decoded.exp > Date.now() / 1000;
   });
 
-  const { mutateAsync: refresh } = useRefresh();
+  const { mutateAsync: refreshMutation } = useRefresh();
 
-  // --- helper: refresh access token automatically ---
-  const refreshAccessToken = async () => {
-    try {
-      const refreshToken = getRefreshToken();
-      if (!refreshToken) {
-        console.warn("No refresh token found. Logging out...");
-        logout();
-        return;
-      }
-
-      await refresh(); // uses your existing refresh API
-      const updatedUser = localStorage.getItem("user");
-      setUser(updatedUser ? JSON.parse(updatedUser) : null);
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error("Token refresh failed ❌", error);
-      logout();
-    }
-  };
-
-  // --- logout clears tokens & updates state ---
-  const logout = () => {
+  const logout = useCallback(() => {
     removeAuthToken();
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
     Cookies.remove("authToken");
-
     setUser(null);
     setIsAuthenticated(false);
-  };
+  }, []);
 
-  const refreshAuthState = () => {
+  const refreshAccessToken = useCallback(async () => {
+    try {
+      const refreshToken = getRefreshToken();
+      if (!refreshToken) {
+        logout();
+        return;
+      }
+
+      await refreshMutation();
+      const updatedUser = localStorage.getItem("user");
+      setUser(updatedUser ? JSON.parse(updatedUser) : null);
+      setIsAuthenticated(true);
+    } catch {
+      logout();
+    }
+  }, [refreshMutation, logout]);
+
+  const refreshAuthState = useCallback(() => {
     const token = getToken();
     const decoded = getDecodedJwt(token || "");
 
@@ -87,23 +82,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
 
     setIsAuthenticated(true);
-    setUser(
-      localStorage.getItem("user")
-        ? JSON.parse(localStorage.getItem("user")!)
-        : null
-    );
-  };
+    const stored = localStorage.getItem("user");
+    setUser(stored ? JSON.parse(stored) : null);
+  }, []);
 
-  // const navigate = useNavigate();
+  // Listen for userUpdated events (dispatched after profile updates)
+  useEffect(() => {
+    const handleUserUpdated = () => {
+      refreshAuthState();
+    };
+    window.addEventListener("userUpdated", handleUserUpdated);
+    return () => window.removeEventListener("userUpdated", handleUserUpdated);
+  }, [refreshAuthState]);
 
-  // Redirect if already authenticated
-  // useEffect(() => {
-  //   if (!loading && isAuthenticated) {
-  //     navigate("/", { replace: true });
-  //   }
-  // }, [isAuthenticated, loading, navigate]);
-
-  // --- check token validity on load ---
+  // Check token validity on mount
   useEffect(() => {
     const initializeAuth = async () => {
       const token = getToken();
@@ -121,20 +113,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         await refreshAccessToken();
       } else {
         setIsAuthenticated(true);
-        setUser(
-          localStorage.getItem("user")
-            ? JSON.parse(localStorage.getItem("user")!)
-            : null
-        );
+        const stored = localStorage.getItem("user");
+        setUser(stored ? JSON.parse(stored) : null);
       }
 
       setLoading(false);
     };
 
     initializeAuth();
-  }, [localStorage.getItem("token")]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // --- auto-refresh 1 min before expiry ---
+  // Auto-refresh 1 minute before expiry
   useEffect(() => {
     const token = getToken();
     const decoded = getDecodedJwt(token || "");
@@ -150,15 +140,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       );
       return () => clearTimeout(timeout);
     }
-  }, [user]);
+  }, [user, refreshAccessToken]);
 
   return (
     <AuthContext.Provider
       value={{
         isAuthenticated,
         user,
-        logout,
         loading,
+        logout,
         refreshAccessToken,
         refreshAuthState,
       }}
@@ -168,7 +158,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   );
 };
 
-// --- hook for components ---
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within an AuthProvider");

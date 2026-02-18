@@ -64,7 +64,7 @@ export const tutorProfileData: TutorProfileData = {
   countryCode: "GB",
   city: "Manchester",
   timezone: "Europe/London (GMT+0)",
-  bio: "I'm a CELTA-qualified English teacher with over 8 years of experience teaching students from all over the world. I specialise in Business English, IELTS preparation, and conversational fluency. My lessons are structured yet flexible — I adapt to each student's needs and learning pace. I believe in creating a relaxed, supportive environment where students feel confident to make mistakes and learn from them. Outside of teaching, I enjoy hiking, reading, and exploring new coffee shops around Manchester.",
+  bio: "I'm a CELTA-qualified English teacher with over 8 years of experience teaching students from all over the world. I specialise in Business English, IELTS preparation, and conversational fluency. My lessons are structured yet flexible, I adapt to each student's needs and learning pace. I believe in creating a relaxed, supportive environment where students feel confident to make mistakes and learn from them. Outside of teaching, I enjoy hiking, reading, and exploring new coffee shops around Manchester.",
   shortBio:
     "CELTA-qualified tutor with 8+ years experience. Specialising in Business English & IELTS.",
   teachingStyle:

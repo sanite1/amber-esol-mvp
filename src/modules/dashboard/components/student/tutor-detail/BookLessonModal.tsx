@@ -11,14 +11,15 @@ import {
   Shield,
   Check,
 } from "lucide-react";
-import type {
-  TutorDetail,
-  AvailabilityDay,
-  TimeSlot,
+import {
+  type AvailabilityDay,
+  type TimeSlot,
+  tutorDetail,
 } from "../../../data/student/tutorDetailData";
+import { UserData } from "../../../lib/types/authOnboarding";
 
 interface Props {
-  tutor: TutorDetail;
+  tutor: UserData;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -34,17 +35,18 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
   const [weekOffset, setWeekOffset] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const totalCost = hours * tutor.hourlyRate;
+  const tutorDetails = tutorDetail;
+  const totalCost = hours * tutorDetails.hourlyRate;
 
   // Group availability into weeks
   const weeks = useMemo(() => {
     const result: AvailabilityDay[][] = [];
-    const days = tutor.availability;
+    const days = tutorDetails.availability;
     for (let i = 0; i < days.length; i += 7) {
       result.push(days.slice(i, i + 7));
     }
     return result;
-  }, [tutor.availability]);
+  }, [tutorDetails.availability]);
 
   const currentWeek = weeks[weekOffset] || [];
 
@@ -115,10 +117,10 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-base font-semibold text-[#0B2343]">
-                Book Lessons with {tutor.name.split(" ")[0]}
+                Book Lessons with {tutorDetails.name.split(" ")[0]}
               </h2>
               <p className="text-xs text-[#0B2343]/35 mt-0.5">
-                £{tutor.hourlyRate}/hour · Pay as you go
+                £{tutorDetails.hourlyRate}/hour · Pay as you go
               </p>
             </div>
             {!isProcessing && (
@@ -176,8 +178,8 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
           <div className="p-5">
             <p className="text-sm text-[#0B2343]/50 mb-5 leading-relaxed">
               How many hours would you like to book? You discussed this with{" "}
-              {tutor.name.split(" ")[0]} during your trial — pick the number of
-              1-hour sessions you'd like to schedule.
+              {tutorDetails.name.split(" ")[0]} during your trial, pick the
+              number of 1-hour sessions you'd like to schedule.
             </p>
 
             {/* Hours selector */}
@@ -227,7 +229,8 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
             <div className="p-4 rounded-xl bg-[#0B2343]/[0.02] border border-[#0B2343]/[0.05] mb-5">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm text-[#0B2343]/50">
-                  {hours} hour{hours !== 1 ? "s" : ""} × £{tutor.hourlyRate}
+                  {hours} hour{hours !== 1 ? "s" : ""} × £
+                  {tutorDetails.hourlyRate}
                   /hr
                 </span>
                 <span className="text-lg font-bold text-[#0B2343]">
@@ -257,7 +260,7 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
                 Select{" "}
                 <span className="font-semibold text-[#0B2343]/70">{hours}</span>{" "}
                 time slot{hours !== 1 ? "s" : ""} from{" "}
-                {tutor.name.split(" ")[0]}'s availability
+                {tutorDetails.name.split(" ")[0]}'s availability
               </p>
               <span
                 className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
@@ -274,7 +277,7 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs text-[#0B2343]/35 font-medium">
                 {currentWeek.length > 0 &&
-                  `${formatDate(currentWeek[0].date).short} — ${
+                  `${formatDate(currentWeek[0].date).short}, ${
                     formatDate(currentWeek[currentWeek.length - 1].date).short
                   }`}
               </span>
@@ -377,7 +380,7 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
                 disabled={selectedSlots.length !== hours}
                 className="flex-[2] py-3 rounded-xl bg-[#ff7c22] text-white text-sm font-semibold hover:bg-[#e56a10] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
-                Review & Pay — £{totalCost}
+                Review & Pay, £{totalCost}
               </button>
             </div>
           </div>
@@ -395,17 +398,17 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
                 {/* Tutor */}
                 <div className="flex items-center gap-3 pb-3 border-b border-[#0B2343]/[0.04]">
                   <div className="w-9 h-9 rounded-full bg-[#0B2343]/[0.06] flex items-center justify-center text-xs font-semibold text-[#0B2343]/30">
-                    {tutor.name
+                    {tutorDetails.name
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
                   </div>
                   <div>
                     <p className="text-sm font-medium text-[#0B2343]/70">
-                      {tutor.name}
+                      {tutorDetails.name}
                     </p>
                     <p className="text-[11px] text-[#0B2343]/30">
-                      {tutor.headline.slice(0, 50)}…
+                      {tutorDetails.headline.slice(0, 50)}…
                     </p>
                   </div>
                 </div>
@@ -432,7 +435,8 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
                   <div>
                     <span className="text-sm text-[#0B2343]/50">Total</span>
                     <p className="text-[10px] text-[#0B2343]/25">
-                      {hours} hr{hours !== 1 ? "s" : ""} × £{tutor.hourlyRate}
+                      {hours} hr{hours !== 1 ? "s" : ""} × £
+                      {tutorDetails.hourlyRate}
                       /hr
                     </p>
                   </div>
@@ -529,8 +533,8 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
               Lessons Booked!
             </h3>
             <p className="text-sm text-[#0B2343]/50 max-w-xs mx-auto mb-2">
-              {hours} lesson{hours !== 1 ? "s" : ""} with {tutor.name} have been
-              confirmed. £{totalCost} has been charged.
+              {hours} lesson{hours !== 1 ? "s" : ""} with {tutorDetails.name}{" "}
+              have been confirmed. £{totalCost} has been charged.
             </p>
             <p className="text-xs text-[#0B2343]/30">
               Check your email for booking confirmations and meeting links.

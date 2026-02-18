@@ -141,7 +141,7 @@ const stats = [
 const highlights = [
   { icon: <ShieldCheck size={16} />, text: "All tutors CELTA/TEFL certified" },
   { icon: <Clock size={16} />, text: "Book your first lesson in under 2 min" },
-  { icon: <CheckCircle2 size={16} />, text: "Free trial — no card required" },
+  { icon: <CheckCircle2 size={16} />, text: "Free trial, no card required" },
 ];
 
 export default function FeaturedTutorsSection() {

@@ -112,7 +112,7 @@ export const tutorDetail: TutorDetail = {
   
   I specialise in IELTS preparation (I've helped over 200 students achieve their target band scores), Business English for professionals, and General English from intermediate to advanced levels. My students often tell me they appreciate my patience, clear explanations, and the structured approach I bring to each lesson.
   
-  Outside of teaching, I love travelling and learning languages myself — I speak conversational Spanish and am currently learning Japanese. This gives me real empathy for what my students go through!`,
+  Outside of teaching, I love travelling and learning languages myself, I speak conversational Spanish and am currently learning Japanese. This gives me real empathy for what my students go through!`,
   country: "United Kingdom",
   timezone: "GMT+0 (London)",
   languages: [

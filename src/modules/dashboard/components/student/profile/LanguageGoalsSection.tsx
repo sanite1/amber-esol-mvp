@@ -1,3 +1,4 @@
+// src/components/student/profile/LanguageGoalsSection.tsx
 import { useState } from "react";
 import {
   Languages,
@@ -11,6 +12,7 @@ import {
 import type {
   StudentProfile,
   LanguageLevel,
+  ScheduleSlot,
 } from "../../../data/student/studentProfileData";
 import {
   languageLevels,
@@ -21,7 +23,7 @@ import {
 
 interface Props {
   profile: StudentProfile;
-  onSave: (data: Partial<StudentProfile>) => Promise<void>;
+  onSave: (data: Partial<StudentProfile>) => Promise<boolean>;
 }
 
 export default function LanguageGoalsSection({ profile, onSave }: Props) {
@@ -44,11 +46,22 @@ export default function LanguageGoalsSection({ profile, onSave }: Props) {
     }));
   };
 
+  const toggleSchedule = (slot: ScheduleSlot) => {
+    setForm((prev) => ({
+      ...prev,
+      preferredSchedule: prev.preferredSchedule.includes(slot)
+        ? prev.preferredSchedule.filter((s) => s !== slot)
+        : [...prev.preferredSchedule, slot],
+    }));
+  };
+
   const handleSave = async () => {
     setSaving(true);
-    await onSave(form);
+    const saved = await onSave(form);
     setSaving(false);
-    setEditing(false);
+    if (saved) {
+      setEditing(false);
+    }
   };
 
   const handleCancel = () => {
@@ -182,24 +195,32 @@ export default function LanguageGoalsSection({ profile, onSave }: Props) {
             </div>
           </div>
 
+          {/* Preferred Schedule – multi-toggle */}
           <div>
             <label className={labelClass}>Preferred Schedule</label>
-            <select
-              value={form.preferredSchedule}
-              onChange={(e) =>
-                setForm({ ...form, preferredSchedule: e.target.value })
-              }
-              className={inputClass}
-            >
-              <option value="">Select</option>
-              {scheduleOptions.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
+            <div className="flex flex-wrap gap-1.5">
+              {scheduleOptions.map((slot) => {
+                const active = form.preferredSchedule.includes(slot.value);
+                return (
+                  <button
+                    key={slot.value}
+                    type="button"
+                    onClick={() => toggleSchedule(slot.value)}
+                    className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-colors ${
+                      active
+                        ? "border-purple-300 bg-purple-50 text-purple-600"
+                        : "border-[#0B2343]/[0.06] text-[#0B2343]/30 hover:border-[#0B2343]/[0.12]"
+                    }`}
+                  >
+                    <Clock size={10} className="inline mr-1 -mt-px" />
+                    {slot.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
+          {/* Learning Goals – multi-toggle */}
           <div>
             <label className={labelClass}>Learning Goals</label>
             <div className="flex flex-wrap gap-1.5">
@@ -208,6 +229,7 @@ export default function LanguageGoalsSection({ profile, onSave }: Props) {
                 return (
                   <button
                     key={goal}
+                    type="button"
                     onClick={() => toggleGoal(goal)}
                     className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-colors ${
                       active
@@ -227,7 +249,7 @@ export default function LanguageGoalsSection({ profile, onSave }: Props) {
           {/* Level journey */}
           <div className="flex items-center gap-3 p-3 rounded-xl bg-[#0B2343]/[0.015] border border-[#0B2343]/[0.04]">
             <div className="text-center shrink-0">
-              <span className="text-base font-bold text-[#ff7c22]">
+              <span className="text-base font-bold text-[#ff7c22] capitalize">
                 {profile.currentLevel}
               </span>
               <p className="text-[9px] text-[#0B2343]/25">Current</p>
@@ -241,7 +263,7 @@ export default function LanguageGoalsSection({ profile, onSave }: Props) {
               </div>
             </div>
             <div className="text-center shrink-0">
-              <span className="text-base font-bold text-green-500">
+              <span className="text-base font-bold text-green-500 capitalize">
                 {profile.targetLevel}
               </span>
               <p className="text-[9px] text-[#0B2343]/25">Target</p>
@@ -262,12 +284,24 @@ export default function LanguageGoalsSection({ profile, onSave }: Props) {
               <p className="text-[10px] text-[#0B2343]/25">
                 Preferred Schedule
               </p>
-              <p className="text-sm text-[#0B2343]/60 flex items-center gap-1">
-                <Clock size={11} className="text-[#0B2343]/20" />
-                {profile.preferredSchedule || (
+              {profile.preferredSchedule.length > 0 ? (
+                <div className="flex flex-wrap gap-1 mt-0.5">
+                  {profile.preferredSchedule.map((slot) => (
+                    <span
+                      key={slot}
+                      className="text-[11px] font-medium text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md capitalize flex items-center gap-1"
+                    >
+                      <Clock size={9} className="text-purple-400" />
+                      {slot}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-[#0B2343]/60 flex items-center gap-1">
+                  <Clock size={11} className="text-[#0B2343]/20" />
                   <span className="text-[#0B2343]/15 italic">Not set</span>
-                )}
-              </p>
+                </p>
+              )}
             </div>
           </div>
 

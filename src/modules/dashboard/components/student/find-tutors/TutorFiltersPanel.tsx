@@ -6,8 +6,8 @@ interface Filters {
   levels: string[];
   languages: string[];
   priceRange: { min: number; max: number | null } | null;
-  onlineOnly: boolean;
-  freeTrialOnly: boolean;
+  // onlineOnly: boolean;
+  // trialOnly: boolean;
 }
 
 interface Props {
@@ -95,7 +95,7 @@ export default function TutorFiltersPanel({
 
         <div className="p-5 space-y-6">
           {/* Online toggle */}
-          <div>
+          {/* <div>
             <label className="flex items-center justify-between cursor-pointer">
               <span className="text-xs font-semibold text-[#0B2343]/60">
                 Online now
@@ -118,10 +118,10 @@ export default function TutorFiltersPanel({
                 />
               </button>
             </label>
-          </div>
+          </div> */}
 
           {/* Free trial toggle */}
-          <div>
+          {/* <div>
             <label className="flex items-center justify-between cursor-pointer">
               <span className="text-xs font-semibold text-[#0B2343]/60">
                 Free trial available
@@ -130,21 +130,21 @@ export default function TutorFiltersPanel({
                 onClick={() =>
                   onFilterChange({
                     ...filters,
-                    freeTrialOnly: !filters.freeTrialOnly,
+                    trialOnly: !filters.trialOnly,
                   })
                 }
                 className={`relative w-9 h-5 rounded-full transition-colors ${
-                  filters.freeTrialOnly ? "bg-[#ff7c22]" : "bg-[#0B2343]/10"
+                  filters.trialOnly ? "bg-[#ff7c22]" : "bg-[#0B2343]/10"
                 }`}
               >
                 <div
                   className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
-                    filters.freeTrialOnly ? "left-[18px]" : "left-0.5"
+                    filters.trialOnly ? "left-[18px]" : "left-0.5"
                   }`}
                 />
               </button>
             </label>
-          </div>
+          </div> */}
 
           {/* Specialty */}
           <div>
@@ -195,12 +195,12 @@ export default function TutorFiltersPanel({
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/30 mb-2">
               Tutor speaks
             </p>
-            <div className="space-y-1">
+            <div className="flex flex-wrap gap-1.5">
               {options.languages.slice(0, 6).map((lang) => (
                 <button
                   key={lang}
                   onClick={() => toggleArrayFilter("languages", lang)}
-                  className={`w-full text-left px-3 py-1.5 rounded-md text-xs transition-colors ${
+                  className={`border border-gray-100 px-3 py-1.5 rounded-md text-xs transition-colors ${
                     filters.languages.includes(lang)
                       ? "bg-[#ff7c22]/10 text-[#ff7c22] font-semibold"
                       : "text-[#0B2343]/50 hover:bg-[#0B2343]/[0.03]"

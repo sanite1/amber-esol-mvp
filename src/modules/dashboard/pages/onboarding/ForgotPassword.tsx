@@ -71,7 +71,7 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-screen">
-      {/* ─── Left panel — fixed, never scrolls ─── */}
+      {/* ─── Left panel, fixed, never scrolls ─── */}
       <div className="hidden lg:flex fixed top-0 left-0 w-[48%] h-screen bg-[#0B2343] z-10">
         <div
           className="absolute inset-0 pointer-events-none"
@@ -156,9 +156,9 @@ export default function ForgotPassword() {
         </div>
       </div>
 
-      {/* ─── Right panel — scrollable ─── */}
+      {/* ─── Right panel, scrollable ─── */}
       <div className="min-h-screen bg-white lg:ml-[48%]">
-        {/* Mobile header — fixed */}
+        {/* Mobile header, fixed */}
         <div className="lg:hidden fixed top-0 inset-x-0 z-20 flex items-center justify-between p-5 bg-white border-b border-[#0B2343]/[0.05]">
           <Link to={FRONTEND_URL || "/"}>
             <img src={logo} alt="Amber ESOL" className="h-8 w-auto" />
@@ -261,7 +261,7 @@ export default function ForgotPassword() {
                     Forgot password?
                   </h1>
                   <p className="text-sm text-[#0B2343]/40 mt-2 max-w-[300px] mx-auto">
-                    No worries — enter your email and we'll send you a link to
+                    No worries, enter your email and we'll send you a link to
                     reset it.
                   </p>
                 </div>

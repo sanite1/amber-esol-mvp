@@ -21,7 +21,7 @@ const steps = [
     number: "02",
     title: "Book a lesson",
     description:
-      "Pick a time that works for you from your tutor's live calendar. Book a free 30-minute trial or a full lesson — pay securely via Stripe.",
+      "Pick a time that works for you from your tutor's live calendar. Book a free 30-minute trial or a full lesson, pay securely via Stripe.",
     icon: CalendarCheck,
     color: "#22C55E",
   },
@@ -63,7 +63,7 @@ export default function StepsSection() {
   return (
     <section className="py-16 lg:py-24 bg-white">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        {/* Step 1 — full width */}
+        {/* Step 1, full width */}
         <div
           data-aos="fade-up"
           className="grid lg:grid-cols-2 gap-6 bg-[#fafbfc] rounded-3xl border border-[#0B2343]/[0.05] overflow-hidden mb-6"

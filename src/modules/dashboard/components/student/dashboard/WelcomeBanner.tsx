@@ -25,7 +25,7 @@ export default function WelcomeBanner({
         <p className="text-sm text-[#0B2343]/40 mt-1">
           {hasUpcomingLesson && nextLessonTime
             ? `Your next lesson is ${nextLessonTime}`
-            : "You have no upcoming lessons — find a tutor to get started."}
+            : "You have no upcoming lessons, find a tutor to get started."}
         </p>
       </div>
       <Link

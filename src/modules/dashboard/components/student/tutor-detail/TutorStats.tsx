@@ -1,36 +1,37 @@
+// src/components/student/tutor-detail/TutorStats.tsx
 import { BookOpen, Users, Award, CheckCircle2 } from "lucide-react";
-import type { TutorDetail } from "../../../data/student/tutorDetailData";
+import type { UserData } from "../../../lib/types/authOnboarding";
 
 interface Props {
-  tutor: TutorDetail;
+  tutor: UserData;
 }
 
 export default function TutorStats({ tutor }: Props) {
   const stats = [
     {
       label: "Lessons",
-      value: tutor.totalLessons.toLocaleString(),
+      value: (tutor.totalLessons ?? 0).toLocaleString(),
       icon: BookOpen,
       color: "text-[#ff7c22]",
       bg: "bg-[#ff7c22]/10",
     },
     {
       label: "Students",
-      value: tutor.totalStudents.toString(),
+      value: (tutor.totalStudents ?? 0).toString(),
       icon: Users,
       color: "text-blue-500",
       bg: "bg-blue-50",
     },
     {
       label: "Experience",
-      value: `${tutor.yearsExperience} yrs`,
+      value: `${tutor.yearsOfExperience ?? 0} yrs`,
       icon: Award,
       color: "text-purple-500",
       bg: "bg-purple-50",
     },
     {
       label: "Completion",
-      value: `${tutor.completionRate}%`,
+      value: `${tutor.completionRate ?? 0}%`,
       icon: CheckCircle2,
       color: "text-green-500",
       bg: "bg-green-50",

@@ -1,14 +1,16 @@
+// src/data/student/studentProfileData.ts
+
 export type LanguageLevel =
-  | "A1"
-  | "A2"
-  | "B1"
-  | "B2"
-  | "C1"
-  | "C2"
-  | "Not sure";
+  | "beginner"
+  | "elementary"
+  | "intermediate"
+  | "upper-intermediate"
+  | "advanced"
+  | "proficiency";
+
+export type ScheduleSlot = "morning" | "afternoon" | "evening" | "weekend";
 
 export interface StudentProfile {
-  id: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -21,117 +23,99 @@ export interface StudentProfile {
   currentLevel: LanguageLevel;
   targetLevel: LanguageLevel;
   learningGoals: string[];
-  preferredSchedule: string;
-  joinedDate: string;
-  isEmailVerified: boolean;
-  isPhoneVerified: boolean;
+  preferredSchedule: ScheduleSlot[];
+  verified: boolean;
+  isActive: boolean;
 }
 
 export const languageLevels: { value: LanguageLevel; label: string }[] = [
-  { value: "A1", label: "A1 — Beginner" },
-  { value: "A2", label: "A2 — Elementary" },
-  { value: "B1", label: "B1 — Intermediate" },
-  { value: "B2", label: "B2 — Upper Intermediate" },
-  { value: "C1", label: "C1 — Advanced" },
-  { value: "C2", label: "C2 — Proficiency" },
-  { value: "Not sure", label: "Not sure yet" },
+  { value: "beginner", label: "A1 – Beginner" },
+  { value: "elementary", label: "A2 – Elementary" },
+  { value: "intermediate", label: "B1 – Intermediate" },
+  { value: "upper-intermediate", label: "B2 – Upper Intermediate" },
+  { value: "advanced", label: "C1 – Advanced" },
+  { value: "proficiency", label: "C2 – Proficiency" },
 ];
 
-export const goalOptions: string[] = [
-  "Pass IELTS exam",
-  "Pass Cambridge exam",
-  "Improve for work",
-  "Academic study",
-  "Travel & daily life",
-  "Immigration requirements",
-  "Job interviews",
-  "General fluency",
-  "Conversation confidence",
-];
-
-export const scheduleOptions: string[] = [
-  "Mornings (before 12pm)",
-  "Afternoons (12pm – 5pm)",
-  "Evenings (after 5pm)",
-  "Weekends only",
-  "Flexible — any time",
-];
-
-export const timezoneOptions: string[] = [
-  "GMT+0 (London)",
-  "GMT+1 (Paris, Berlin)",
-  "GMT+2 (Cairo, Athens)",
-  "GMT+3 (Moscow, Istanbul)",
-  "GMT+4 (Dubai)",
-  "GMT+5 (Karachi)",
-  "GMT+5:30 (Mumbai)",
-  "GMT+8 (Singapore, Beijing)",
-  "GMT+9 (Tokyo, Seoul)",
-  "GMT-5 (New York)",
-  "GMT-6 (Chicago)",
-  "GMT-8 (Los Angeles)",
-];
-
-export const countryOptions: string[] = [
+export const countryOptions = [
   "United Kingdom",
   "United States",
   "Nigeria",
-  "India",
-  "Pakistan",
-  "Turkey",
-  "Brazil",
-  "China",
-  "Japan",
-  "South Korea",
-  "Saudi Arabia",
-  "UAE",
   "Germany",
   "France",
   "Spain",
   "Italy",
-  "Poland",
-  "Egypt",
-  "Colombia",
-  "Mexico",
+  "Brazil",
+  "Japan",
+  "South Korea",
+  "China",
+  "India",
+  "Canada",
+  "Australia",
   "Other",
 ];
 
-export const nativeLanguageOptions: string[] = [
-  "Arabic",
-  "Bengali",
-  "Chinese (Mandarin)",
+export const timezoneOptions = [
+  "UTC-12:00",
+  "UTC-11:00",
+  "UTC-10:00",
+  "UTC-09:00",
+  "UTC-08:00",
+  "UTC-07:00",
+  "UTC-06:00",
+  "UTC-05:00",
+  "UTC-04:00",
+  "UTC-03:00",
+  "UTC-02:00",
+  "UTC-01:00",
+  "UTC+00:00",
+  "UTC+01:00",
+  "UTC+02:00",
+  "UTC+03:00",
+  "UTC+04:00",
+  "UTC+05:00",
+  "UTC+05:30",
+  "UTC+06:00",
+  "UTC+07:00",
+  "UTC+08:00",
+  "UTC+09:00",
+  "UTC+10:00",
+  "UTC+11:00",
+  "UTC+12:00",
+];
+
+export const nativeLanguageOptions = [
+  "English",
+  "Spanish",
   "French",
   "German",
-  "Hindi",
+  "Portuguese",
   "Italian",
+  "Chinese",
   "Japanese",
   "Korean",
-  "Polish",
-  "Portuguese",
+  "Arabic",
+  "Hindi",
   "Russian",
-  "Spanish",
   "Turkish",
-  "Urdu",
-  "Vietnamese",
+  "Dutch",
   "Other",
 ];
 
-export const studentProfile: StudentProfile = {
-  id: "student-001",
-  firstName: "Alex",
-  lastName: "Thompson",
-  email: "alex.thompson@email.com",
-  phone: "+44 7700 123456",
-  avatar: "",
-  country: "United Kingdom",
-  timezone: "GMT+0 (London)",
-  bio: "Software developer looking to improve English for international meetings and presentations.",
-  nativeLanguage: "Polish",
-  currentLevel: "B2",
-  targetLevel: "C1",
-  learningGoals: ["Improve for work", "Conversation confidence"],
-  preferredSchedule: "Evenings (after 5pm)",
-  joinedDate: "2025-09-12",
-  isEmailVerified: true,
-  isPhoneVerified: false,
-};
+export const goalOptions = [
+  "Conversational fluency",
+  "Business English",
+  "Exam preparation (IELTS/TOEFL)",
+  "Academic writing",
+  "Travel communication",
+  "Accent reduction",
+  "Grammar improvement",
+  "Vocabulary expansion",
+];
+
+export const scheduleOptions: { value: ScheduleSlot; label: string }[] = [
+  { value: "morning", label: "Morning" },
+  { value: "afternoon", label: "Afternoon" },
+  { value: "evening", label: "Evening" },
+  { value: "weekend", label: "Weekend" },
+];

@@ -59,7 +59,7 @@ export const tutors: Tutor[] = [
     country: "UK",
     introVideo: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     fullBio:
-      "I'm Sarah, a CELTA-certified English teacher based in London with over 8 years of experience teaching adults from all over the world. I specialise in helping learners at the A2–B2 level build real confidence in everyday conversation, workplace English, and social situations.\n\nMy lessons are structured but relaxed — I use real-life scenarios, role-plays, and current topics to keep things interesting. I believe the best way to learn is by speaking, so expect lots of practice!\n\nBefore teaching, I worked in hospitality management, which gives me a practical understanding of the English learners actually need. Whether you're preparing for a job interview, settling into life in the UK, or just want to feel more comfortable chatting with neighbours, I'd love to help.",
+      "I'm Sarah, a CELTA-certified English teacher based in London with over 8 years of experience teaching adults from all over the world. I specialise in helping learners at the A2–B2 level build real confidence in everyday conversation, workplace English, and social situations.\n\nMy lessons are structured but relaxed, I use real-life scenarios, role-plays, and current topics to keep things interesting. I believe the best way to learn is by speaking, so expect lots of practice!\n\nBefore teaching, I worked in hospitality management, which gives me a practical understanding of the English learners actually need. Whether you're preparing for a job interview, settling into life in the UK, or just want to feel more comfortable chatting with neighbours, I'd love to help.",
     education: [
       {
         institution: "University of Leeds",
@@ -220,7 +220,7 @@ export const tutors: Tutor[] = [
     reviews: 58,
     price: 20,
     currency: "£",
-    bio: "Patient and encouraging — perfect for beginners looking to build speaking confidence from scratch.",
+    bio: "Patient and encouraging, perfect for beginners looking to build speaking confidence from scratch.",
     badges: ["CELTA", "Beginner Friendly"],
     languages: ["English", "Italian"],
     lessonsCompleted: 340,

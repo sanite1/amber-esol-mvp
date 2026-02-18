@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  Languages,
+  Languages as LanguagesIcon,
   Pencil,
   X,
   Check,
@@ -9,35 +9,59 @@ import {
   Trash2,
   AlertCircle,
 } from "lucide-react";
-import type { TutorLanguage } from "../../../data/tutor/tutorProfileData";
+import type {
+  UserData,
+  Language,
+  LanguageFluency,
+} from "../../../lib/types/authOnboarding";
 
 interface Props {
-  languages: TutorLanguage[];
-  onUpdate: (languages: TutorLanguage[]) => void;
+  user: UserData;
+  onUpdate: (updates: Partial<UserData>) => Promise<void>;
+  isUpdating: boolean;
 }
 
-const levelOptions: TutorLanguage["level"][] = [
-  "Native",
-  "Fluent",
-  "Advanced",
-  "Intermediate",
+const fluencyOptions: { value: LanguageFluency; label: string }[] = [
+  { value: "native", label: "Native" },
+  { value: "fluent", label: "Fluent" },
+  { value: "advanced", label: "Advanced" },
+  { value: "intermediate", label: "Intermediate" },
+  { value: "basic", label: "Basic" },
 ];
 
-const levelColors: Record<string, string> = {
-  Native: "bg-emerald-50 text-emerald-600",
-  Fluent: "bg-blue-50 text-blue-600",
-  Advanced: "bg-[#ff7c22]/10 text-[#ff7c22]",
-  Intermediate: "bg-[#0B2343]/[0.05] text-[#0B2343]/40",
+const fluencyColors: Record<LanguageFluency, string> = {
+  native: "bg-emerald-50 text-emerald-600",
+  fluent: "bg-blue-50 text-blue-600",
+  advanced: "bg-[#ff7c22]/10 text-[#ff7c22]",
+  intermediate: "bg-purple-50 text-purple-600",
+  basic: "bg-[#0B2343]/[0.05] text-[#0B2343]/40",
 };
 
-export default function ProfileLanguages({ languages, onUpdate }: Props) {
+const fluencyLabel = (f: LanguageFluency) =>
+  fluencyOptions.find((o) => o.value === f)?.label ?? f;
+
+export default function ProfileLanguages({
+  user,
+  onUpdate,
+  isUpdating,
+}: Props) {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [formList, setFormList] = useState<TutorLanguage[]>([]);
-  const [errors, setErrors] = useState<Record<number, string>>({});
+  const [formLanguages, setFormLanguages] = useState<Language[]>([]);
+  const [formNative, setFormNative] = useState("");
+  const [newLangName, setNewLangName] = useState("");
+  const [newLangFluency, setNewLangFluency] =
+    useState<LanguageFluency>("intermediate");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const languages = user.languages ?? [];
+  const nativeLanguage = user.nativeLanguage ?? "";
 
   const startEdit = () => {
-    setFormList(languages.map((l) => ({ ...l })));
+    setFormLanguages(languages.map((l) => ({ ...l })));
+    setFormNative(nativeLanguage);
+    setNewLangName("");
+    setNewLangFluency("intermediate");
     setErrors({});
     setEditing(true);
   };
@@ -47,26 +71,38 @@ export default function ProfileLanguages({ languages, onUpdate }: Props) {
     setErrors({});
   };
 
-  const updateLang = (i: number, field: keyof TutorLanguage, value: string) => {
-    setFormList((prev) =>
-      prev.map((l, idx) => (idx === i ? { ...l, [field]: value } : l))
-    );
-  };
-
   const addLang = () => {
-    setFormList((prev) => [...prev, { language: "", level: "Intermediate" }]);
+    const trimmed = newLangName.trim();
+    if (!trimmed) return;
+    if (formLanguages.some((l) => l.name === trimmed)) return;
+    setFormLanguages((prev) => [
+      ...prev,
+      { name: trimmed, fluency: newLangFluency },
+    ]);
+    setNewLangName("");
+    setNewLangFluency("intermediate");
   };
 
   const removeLang = (i: number) => {
-    setFormList((prev) => prev.filter((_, idx) => idx !== i));
+    const removed = formLanguages[i];
+    setFormLanguages((prev) => prev.filter((_, idx) => idx !== i));
+    if (removed.name === formNative) {
+      setFormNative("");
+    }
+  };
+
+  const updateFluency = (i: number, fluency: LanguageFluency) => {
+    setFormLanguages((prev) =>
+      prev.map((l, idx) => (idx === i ? { ...l, fluency } : l))
+    );
   };
 
   const validate = (): boolean => {
-    const e: Record<number, string> = {};
-    formList.forEach((l, i) => {
-      if (!l.language.trim()) e[i] = "Language name is required";
-    });
-    if (formList.length === 0) e[-1] = "Add at least one language";
+    const e: Record<string, string> = {};
+    if (formLanguages.length === 0) e.list = "Add at least one language";
+    if (!formNative.trim()) e.native = "Select a native language";
+    else if (!formLanguages.some((l) => l.name === formNative))
+      e.native = "Native language must be in your language list";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -74,15 +110,21 @@ export default function ProfileLanguages({ languages, onUpdate }: Props) {
   const handleSave = async () => {
     if (!validate()) return;
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 600));
-    onUpdate(
-      formList.map((l) => ({
-        language: l.language.trim(),
-        level: l.level,
-      }))
-    );
-    setSaving(false);
-    setEditing(false);
+    try {
+      // Ensure the native language entry has fluency "native"
+      const finalLanguages = formLanguages.map((l) =>
+        l.name === formNative
+          ? { ...l, fluency: "native" as LanguageFluency }
+          : l
+      );
+      await onUpdate({
+        languages: finalLanguages,
+        nativeLanguage: formNative,
+      });
+    } finally {
+      setSaving(false);
+      setEditing(false);
+    }
   };
 
   return (
@@ -90,7 +132,7 @@ export default function ProfileLanguages({ languages, onUpdate }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-3">
         <h3 className="text-[13px] sm:text-sm font-semibold text-[#0B2343] flex items-center gap-2">
-          <Languages size={14} className="text-[#0B2343]/30" />
+          <LanguagesIcon size={14} className="text-[#0B2343]/30" />
           Languages
         </h3>
         {!editing ? (
@@ -132,18 +174,18 @@ export default function ProfileLanguages({ languages, onUpdate }: Props) {
         <div className="space-y-2">
           {languages.map((lang) => (
             <div
-              key={lang.language}
+              key={lang.name}
               className="flex items-center justify-between gap-3 py-2 px-2.5 sm:px-3 rounded-lg bg-[#0B2343]/[0.015]"
             >
               <span className="text-xs sm:text-[13px] font-medium text-[#0B2343]/60">
-                {lang.language}
+                {lang.name}
               </span>
               <span
                 className={`text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                  levelColors[lang.level] || levelColors.Intermediate
+                  fluencyColors[lang.fluency] ?? fluencyColors.intermediate
                 }`}
               >
-                {lang.level}
+                {fluencyLabel(lang.fluency)}
               </span>
             </div>
           ))}
@@ -155,64 +197,120 @@ export default function ProfileLanguages({ languages, onUpdate }: Props) {
         </div>
       ) : (
         /* Edit mode */
-        <div className="space-y-2">
-          {formList.map((lang, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-2 p-2 sm:p-2.5 rounded-lg border border-[#0B2343]/[0.06] bg-[#0B2343]/[0.01]"
+        <div className="space-y-3">
+          {/* Native language selector */}
+          <div>
+            <label className="text-[10px] font-medium text-[#0B2343]/40 mb-1 block">
+              Native Language
+            </label>
+            <select
+              value={formNative}
+              onChange={(e) => setFormNative(e.target.value)}
+              className={`w-full px-2.5 py-1.5 rounded-lg border text-[11px] sm:text-xs text-[#0B2343] outline-none transition-colors ${
+                errors.native
+                  ? "border-red-300 bg-red-50/30"
+                  : "border-[#0B2343]/[0.1] bg-[#fafbfc] focus:border-[#ff7c22]/40"
+              }`}
             >
-              <div className="flex-1 min-w-0">
-                <input
-                  value={lang.language}
-                  onChange={(e) => updateLang(i, "language", e.target.value)}
-                  placeholder="Language"
-                  className={`w-full px-2.5 py-1.5 rounded-lg border text-[11px] sm:text-xs text-[#0B2343] outline-none transition-colors ${
-                    errors[i]
-                      ? "border-red-300 bg-red-50/30"
-                      : "border-[#0B2343]/[0.1] bg-[#fafbfc] focus:border-[#ff7c22]/40"
-                  }`}
-                />
-                {errors[i] && (
-                  <p className="flex items-center gap-1 mt-0.5 text-[9px] text-red-500">
-                    <AlertCircle size={9} />
-                    {errors[i]}
-                  </p>
-                )}
-              </div>
-              <select
-                value={lang.level}
-                onChange={(e) => updateLang(i, "level", e.target.value)}
-                className="shrink-0 px-2 py-1.5 rounded-lg border border-[#0B2343]/[0.1] bg-[#fafbfc] text-[11px] sm:text-xs text-[#0B2343] outline-none focus:border-[#ff7c22]/40"
-              >
-                {levelOptions.map((lv) => (
-                  <option key={lv} value={lv}>
-                    {lv}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={() => removeLang(i)}
-                className="shrink-0 p-1.5 rounded-lg text-[#0B2343]/20 hover:text-red-500 hover:bg-red-50 transition-colors"
-              >
-                <Trash2 size={12} />
-              </button>
-            </div>
-          ))}
+              <option value="">Select native language</option>
+              {formLanguages.map((l) => (
+                <option key={l.name} value={l.name}>
+                  {l.name}
+                </option>
+              ))}
+            </select>
+            {errors.native && (
+              <p className="flex items-center gap-1 mt-0.5 text-[9px] text-red-500">
+                <AlertCircle size={9} />
+                {errors.native}
+              </p>
+            )}
+          </div>
 
-          {errors[-1] && (
+          {/* Language list */}
+          <div className="space-y-2">
+            {formLanguages.map((lang, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2 p-2 sm:p-2.5 rounded-lg border border-[#0B2343]/[0.06] bg-[#0B2343]/[0.01]"
+              >
+                <span className="flex-1 text-[11px] sm:text-xs font-medium text-[#0B2343]/60 min-w-0 truncate">
+                  {lang.name}
+                </span>
+                {lang.name === formNative ? (
+                  <span className="shrink-0 text-[9px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600">
+                    Native
+                  </span>
+                ) : (
+                  <select
+                    value={lang.fluency}
+                    onChange={(e) =>
+                      updateFluency(i, e.target.value as LanguageFluency)
+                    }
+                    className="shrink-0 px-2 py-1.5 rounded-lg border border-[#0B2343]/[0.1] bg-[#fafbfc] text-[11px] sm:text-xs text-[#0B2343] outline-none focus:border-[#ff7c22]/40"
+                  >
+                    {fluencyOptions
+                      .filter((o) => o.value !== "native")
+                      .map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                  </select>
+                )}
+                <button
+                  onClick={() => removeLang(i)}
+                  className="shrink-0 p-1.5 rounded-lg text-[#0B2343]/20 hover:text-red-500 hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {errors.list && (
             <p className="flex items-center gap-1 text-[10px] text-red-500">
               <AlertCircle size={10} />
-              {errors[-1]}
+              {errors.list}
             </p>
           )}
 
-          <button
-            onClick={addLang}
-            className="flex items-center gap-1.5 text-[11px] sm:text-xs font-medium text-[#ff7c22] hover:underline"
-          >
-            <Plus size={13} />
-            Add language
-          </button>
+          {/* Add new language */}
+          <div className="flex items-center gap-2">
+            <input
+              value={newLangName}
+              onChange={(e) => setNewLangName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addLang();
+                }
+              }}
+              placeholder="Language name…"
+              className="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-[11px] sm:text-xs text-[#0B2343] outline-none focus:border-[#ff7c22]/30"
+            />
+            <select
+              value={newLangFluency}
+              onChange={(e) =>
+                setNewLangFluency(e.target.value as LanguageFluency)
+              }
+              className="shrink-0 px-2 py-1.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-[11px] sm:text-xs text-[#0B2343] outline-none focus:border-[#ff7c22]/30"
+            >
+              {fluencyOptions
+                .filter((o) => o.value !== "native")
+                .map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+            </select>
+            <button
+              onClick={addLang}
+              className="shrink-0 p-1.5 rounded-lg bg-[#0B2343]/[0.04] hover:bg-[#0B2343]/[0.08] transition-colors"
+            >
+              <Plus size={12} className="text-[#0B2343]/40" />
+            </button>
+          </div>
         </div>
       )}
     </div>

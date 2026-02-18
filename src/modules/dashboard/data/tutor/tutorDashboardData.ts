@@ -38,13 +38,9 @@ export interface TutorEarnings {
 
 export interface TutorPerformance {
   rating: number;
-  totalReviews: number;
+  repeatStudentRate: number;
   responseRate: number;
   completionRate: number;
-  totalStudents: number;
-  activeStudents: number;
-  totalLessonsCompleted: number;
-  totalHoursTaught: number;
 }
 
 export interface RecentStudentMessage {
@@ -99,13 +95,9 @@ export const tutorDashboardData: TutorDashboardData = {
 
   performance: {
     rating: 4.9,
-    totalReviews: 142,
     responseRate: 98,
     completionRate: 99,
-    totalStudents: 186,
-    activeStudents: 24,
-    totalLessonsCompleted: 1247,
-    totalHoursTaught: 1180,
+    repeatStudentRate: 24,
   },
 
   availability: {
@@ -128,8 +120,7 @@ export const tutorDashboardData: TutorDashboardData = {
       endTime: "15:00",
       status: "confirmed",
       meetingUrl: "https://meet.amber-esol.com/abc123",
-      notes:
-        "Focus on presentation skills — student has a work pitch next week",
+      notes: "Focus on presentation skills, student has a work pitch next week",
     },
     {
       id: "tl-002",

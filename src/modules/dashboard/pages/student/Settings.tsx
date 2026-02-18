@@ -1,78 +1,124 @@
+// src/pages/student/StudentSettings.tsx
 import { useState, useEffect, useCallback } from "react";
 import { Settings, Loader2, CheckCircle2 } from "lucide-react";
 import {
-  studentSettings as initialSettings,
-  type StudentSettings as SettingsType,
+  useFetchUserById,
+  useUpdateUser,
+  useDeleteAccount,
+} from "../../lib/api/authOnboarding";
+import { getDecodedJwt } from "../../lib/auth";
+import {
+  defaultNotifications,
   type NotificationSettings,
-  type AppearanceSettings,
-  type PrivacySettings,
 } from "../../data/student/studentSettingsData";
 import SettingsSkeleton from "../../components/student/settings/SettingsSkeleton";
 import NotificationsSection from "../../components/student/settings/NotificationsSection";
-import AppearanceSection from "../../components/student/settings/AppearanceSection";
-import PrivacySection from "../../components/student/settings/PrivacySection";
 import DeleteAccountSection from "../../components/student/settings/DeleteAccountSection";
+import { useAuth } from "../../context/AuthContext";
+
+/* ── Component ── */
 
 export default function StudentSettings() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [settings, setSettings] = useState<SettingsType>(initialSettings);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const decoded = getDecodedJwt();
+  const userId = decoded?.id ?? "";
+
+  const { data: user, isLoading } = useFetchUserById(userId);
+  const { logout } = useAuth();
+  const { mutateAsync: updateUser, isPending: isUpdating } = useUpdateUser();
+  const { mutateAsync: deleteAccountMut, isPending: isDeleting } =
+    useDeleteAccount();
+
+  /* ── State ── */
+
+  // Notifications — sourced from backend
+  const [notifications, setNotifications] =
+    useState<NotificationSettings>(defaultNotifications);
+
   const [hasChanges, setHasChanges] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  // Sync notification state when user data arrives
+  useEffect(() => {
+    if (user?.notificationPreferences) {
+      setNotifications({
+        email: user.notificationPreferences.email ?? defaultNotifications.email,
+        push: user.notificationPreferences.push ?? defaultNotifications.push,
+        sms: user.notificationPreferences.sms ?? defaultNotifications.sms,
+        lessonReminders:
+          user.notificationPreferences.lessonReminders ??
+          defaultNotifications.lessonReminders,
+        promotions:
+          user.notificationPreferences.promotions ??
+          defaultNotifications.promotions,
+        newMessages:
+          user.notificationPreferences.newMessages ??
+          defaultNotifications.newMessages,
+        lessonUpdates:
+          user.notificationPreferences.lessonUpdates ??
+          defaultNotifications.lessonUpdates,
+        paymentAlerts:
+          user.notificationPreferences.paymentAlerts ??
+          defaultNotifications.paymentAlerts,
+      });
+    }
+  }, [user]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const t = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(t);
   }, []);
 
-  // Track changes
+  /* ── Change handlers ── */
+
   const updateNotifications = useCallback(
     (data: Partial<NotificationSettings>) => {
-      setSettings((prev) => ({
-        ...prev,
-        notifications: { ...prev.notifications, ...data },
-      }));
+      setNotifications((prev) => ({ ...prev, ...data }));
       setHasChanges(true);
       setSaved(false);
     },
     []
   );
 
-  const updateAppearance = useCallback((data: Partial<AppearanceSettings>) => {
-    setSettings((prev) => ({
-      ...prev,
-      appearance: { ...prev.appearance, ...data },
-    }));
-    setHasChanges(true);
-    setSaved(false);
-  }, []);
-
-  const updatePrivacy = useCallback((data: Partial<PrivacySettings>) => {
-    setSettings((prev) => ({
-      ...prev,
-      privacy: { ...prev.privacy, ...data },
-    }));
-    setHasChanges(true);
-    setSaved(false);
-  }, []);
+  /* ── Save: sends notification prefs to backend ── */
 
   const handleSave = async () => {
-    setSaving(true);
-    // TODO: replace with real API call
-    await new Promise((r) => setTimeout(r, 800));
-    setSaving(false);
-    setSaved(true);
-    setHasChanges(false);
-    setTimeout(() => setSaved(false), 2500);
+    try {
+      await updateUser({
+        id: userId,
+        payload: {
+          notificationPreferences: notifications,
+        },
+      });
+      // Appearance & Privacy already saved to localStorage on change
+      setSaved(true);
+      setHasChanges(false);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (error: unknown) {
+      console.warn("Failed to save settings:", error);
+    }
   };
 
-  const handleDeleteAccount = async () => {
-    // TODO: replace with real API call
-    await new Promise((r) => setTimeout(r, 1500));
-    // redirect to landing page
-    window.location.href = "/";
+  /* ── Delete account ── */
+  const handleDeleteAccount = async (
+    reason: string,
+    feedback: string
+  ): Promise<boolean> => {
+    try {
+      await deleteAccountMut({
+        id: userId,
+        payload: { reason, feedback },
+      });
+
+      logout();
+
+      window.location.href = "/";
+      return true;
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      return false;
+    }
   };
+
+  /* ── Loading ── */
 
   if (isLoading) {
     return <SettingsSkeleton />;
@@ -97,14 +143,11 @@ export default function StudentSettings() {
 
       {/* Sections */}
       <NotificationsSection
-        settings={settings.notifications}
+        settings={notifications}
         onChange={updateNotifications}
       />
-      <AppearanceSection
-        settings={settings.appearance}
-        onChange={updateAppearance}
-      />
-      <PrivacySection settings={settings.privacy} onChange={updatePrivacy} />
+      {/* <AppearanceSection settings={appearance} onChange={updateAppearance} />
+      <PrivacySection settings={privacy} onChange={updatePrivacy} /> */}
 
       {/* Save bar */}
       {(hasChanges || saved) && (
@@ -121,10 +164,10 @@ export default function StudentSettings() {
             ) : (
               <button
                 onClick={handleSave}
-                disabled={saving}
+                disabled={isUpdating}
                 className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#ff7c22] text-white text-xs font-semibold hover:bg-[#e56a10] disabled:opacity-50 transition-colors"
               >
-                {saving ? (
+                {isUpdating ? (
                   <>
                     <Loader2 size={12} className="animate-spin" />
                     Saving…
@@ -139,7 +182,10 @@ export default function StudentSettings() {
       )}
 
       {/* Danger zone */}
-      <DeleteAccountSection onDelete={handleDeleteAccount} />
+      <DeleteAccountSection
+        onDelete={handleDeleteAccount}
+        isPending={isDeleting}
+      />
     </div>
   );
 }

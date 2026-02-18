@@ -201,7 +201,7 @@ export default function Help() {
             data-aos-delay="100"
             className="mt-4 text-lg text-white/40 max-w-lg mx-auto"
           >
-            Search our FAQs or submit a support ticket — we usually reply within
+            Search our FAQs or submit a support ticket, we usually reply within
             2 hours.
           </p>
 
@@ -568,7 +568,7 @@ export default function Help() {
                           description: e.target.value,
                         }))
                       }
-                      placeholder="Describe your issue in detail — what happened, what you expected, and any steps to reproduce..."
+                      placeholder="Describe your issue in detail, what happened, what you expected, and any steps to reproduce..."
                       rows={5}
                       className={`w-full px-4 py-3 text-sm rounded-xl border bg-white text-[#0B2343] placeholder-[#0B2343]/20 outline-none resize-none transition-colors duration-200 ${
                         errors.description

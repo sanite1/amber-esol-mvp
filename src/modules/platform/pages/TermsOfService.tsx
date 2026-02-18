@@ -47,7 +47,7 @@ We reserve the right to suspend or terminate any account that violates these Ter
     title: "Bookings & Scheduling",
     content: `Lessons are booked through the tutor's availability calendar. A booking is confirmed once payment is successfully processed.
 
-Trial lessons are 30 minutes and free of charge — one per student, per tutor. Full lessons are 60 minutes and charged at the tutor's listed rate.
+Trial lessons are 30 minutes and free of charge, one per student, per tutor. Full lessons are 60 minutes and charged at the tutor's listed rate.
 
 Students may reschedule or cancel a booking up to 12 hours before the scheduled start time at no cost. Cancellations made within 12 hours may incur a partial fee to compensate the tutor's reserved time. Specific fee amounts are displayed at the time of cancellation.
 
@@ -67,7 +67,7 @@ Refund requests for completed lessons are assessed on a case-by-case basis. If a
   {
     id: "conduct",
     title: "User Conduct",
-    content: `All users — students and tutors — agree to:
+    content: `All users, students and tutors, agree to:
 
 • Communicate respectfully and professionally at all times
 • Not share offensive, discriminatory, or inappropriate content
@@ -81,7 +81,7 @@ Violations may result in content removal, account suspension, or permanent ban a
   {
     id: "ip",
     title: "Intellectual Property",
-    content: `All platform content — including but not limited to the website design, logos, text, graphics, software, and course materials — is the property of Amber Training Ltd or its licensors and is protected by UK and international copyright law.
+    content: `All platform content, including but not limited to the website design, logos, text, graphics, software, and course materials, is the property of Amber Training Ltd or its licensors and is protected by UK and international copyright law.
 
 Tutors retain ownership of any original teaching materials they upload or create on the platform. By uploading materials, tutors grant Amber ESOL a non-exclusive licence to display those materials within the context of booked lessons.
 

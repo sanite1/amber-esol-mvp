@@ -1,223 +1,124 @@
-import { useState } from "react";
-import {
-  Bell,
-  Mail,
-  Smartphone,
-  Pencil,
-  X,
-  Check,
-  Loader2,
-} from "lucide-react";
-import type { NotificationPreferences } from "../../../data/tutor/tutorSettingsData";
+import { Bell, Loader2, Check } from "lucide-react";
+import type { NotificationPreferences } from "../../../lib/types/authOnboarding";
 
 interface Props {
   notifications: NotificationPreferences;
-  onUpdate: (prefs: NotificationPreferences) => void;
+  onChange: (key: keyof NotificationPreferences, value: boolean) => void;
+  onSave: () => void;
+  isSaving: boolean;
+  hasChanges: boolean;
+  saved: boolean;
 }
 
-interface ToggleRowProps {
+const groups: {
   label: string;
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  disabled?: boolean;
-}
-
-function ToggleRow({ label, checked, onChange, disabled }: ToggleRowProps) {
-  return (
-    <label className="flex items-center justify-between gap-3 cursor-pointer">
-      <span className="text-[11px] sm:text-xs text-[#0B2343]/50">{label}</span>
-      <div className="relative shrink-0">
-        <input
-          type="checkbox"
-          checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
-          disabled={disabled}
-          className="sr-only peer"
-        />
-        <div
-          className={`w-8 h-[18px] rounded-full transition-colors ${disabled ? "bg-[#0B2343]/10" : "bg-[#0B2343]/15 peer-checked:bg-[#ff7c22]"}`}
-        />
-        <div
-          className={`absolute top-[2px] left-[2px] w-[14px] h-[14px] rounded-full bg-white shadow transition-transform peer-checked:translate-x-[14px] ${disabled ? "opacity-50" : ""}`}
-        />
-      </div>
-    </label>
-  );
-}
+  items: { key: keyof NotificationPreferences; label: string }[];
+}[] = [
+  {
+    label: "Channels",
+    items: [
+      { key: "email", label: "Email notifications" },
+      // { key: "push", label: "Push notifications" },
+      // { key: "sms", label: "SMS notifications" },
+    ],
+  },
+  {
+    label: "Lessons & Bookings",
+    items: [
+      { key: "lessonReminders", label: "Lesson reminders" },
+      { key: "lessonUpdates", label: "Lesson updates" },
+    ],
+  },
+  {
+    label: "Messages & Payments",
+    items: [
+      { key: "newMessages", label: "New messages" },
+      { key: "paymentAlerts", label: "Payment alerts" },
+      { key: "promotions", label: "Promotions & offers" },
+    ],
+  },
+];
 
 export default function NotificationSettingsCard({
   notifications,
-  onUpdate,
+  onChange,
+  onSave,
+  isSaving,
+  hasChanges,
+  saved,
 }: Props) {
-  const [editing, setEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState<NotificationPreferences>({
-    ...notifications,
-  });
-
-  const startEdit = () => {
-    setForm({ ...notifications });
-    setEditing(true);
-  };
-
-  const cancelEdit = () => setEditing(false);
-
-  const handleSave = async () => {
-    setSaving(true);
-    await new Promise((r) => setTimeout(r, 500));
-    onUpdate(form);
-    setSaving(false);
-    setEditing(false);
-  };
-
-  const updateForm = (
-    key: keyof NotificationPreferences,
-    value: boolean | number
-  ) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const current = editing ? form : notifications;
-
   return (
-    <div className="bg-white rounded-xl border border-[#0B2343]/[0.06] p-3 sm:p-4 md:p-5">
-      <div className="flex items-center justify-between gap-2 mb-4">
-        <h3 className="text-[13px] sm:text-sm font-semibold text-[#0B2343] flex items-center gap-2">
-          <Bell size={14} className="text-[#0B2343]/30" />
-          Notifications
-        </h3>
-        {!editing ? (
-          <button
-            onClick={startEdit}
-            className="flex items-center gap-1 text-[10px] sm:text-[11px] text-[#0B2343]/30 hover:text-[#ff7c22] transition-colors"
-          >
-            <Pencil size={11} />
-            <span className="hidden sm:inline">Edit</span>
-          </button>
-        ) : (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={cancelEdit}
-              disabled={saving}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 hover:bg-[#0B2343]/[0.04] transition-colors"
-            >
-              <X size={11} />
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0B2343] text-white text-[10px] sm:text-[11px] font-medium hover:bg-[#0B2343]/90 disabled:opacity-40 transition-colors"
-            >
-              {saving ? (
-                <Loader2 size={11} className="animate-spin" />
-              ) : (
-                <Check size={11} />
-              )}
-              {saving ? "Saving…" : "Save"}
-            </button>
+    <div className="bg-white rounded-xl border border-[#0B2343]/[0.06] p-4 sm:p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-[#ff7c22]/10 flex items-center justify-center">
+            <Bell size={13} className="text-[#ff7c22]" />
           </div>
+          <h3 className="text-sm font-semibold text-[#0B2343]">
+            Notifications
+          </h3>
+        </div>
+        {(hasChanges || saved) && (
+          <button
+            onClick={onSave}
+            disabled={isSaving || !hasChanges}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-colors ${
+              saved
+                ? "bg-emerald-50 text-emerald-600"
+                : "bg-[#0B2343] text-white hover:bg-[#0B2343]/90 disabled:opacity-40"
+            }`}
+          >
+            {isSaving ? (
+              <>
+                <Loader2 size={11} className="animate-spin" />
+                Saving…
+              </>
+            ) : saved ? (
+              <>
+                <Check size={11} />
+                Saved
+              </>
+            ) : (
+              "Save Changes"
+            )}
+          </button>
         )}
       </div>
 
-      {/* Email notifications */}
-      <div className="mb-4">
-        <p className="flex items-center gap-1.5 text-[10px] font-semibold text-[#0B2343]/25 uppercase tracking-wider mb-2.5">
-          <Mail size={11} />
-          Email
-        </p>
-        <div className="space-y-2.5 pl-1">
-          <ToggleRow
-            label="New booking received"
-            checked={current.emailNewBooking}
-            onChange={(v) => updateForm("emailNewBooking", v)}
-            disabled={!editing}
-          />
-          <ToggleRow
-            label="Lesson cancellation"
-            checked={current.emailCancellation}
-            onChange={(v) => updateForm("emailCancellation", v)}
-            disabled={!editing}
-          />
-          <ToggleRow
-            label="New student message"
-            checked={current.emailNewMessage}
-            onChange={(v) => updateForm("emailNewMessage", v)}
-            disabled={!editing}
-          />
-          <ToggleRow
-            label="New review"
-            checked={current.emailReview}
-            onChange={(v) => updateForm("emailReview", v)}
-            disabled={!editing}
-          />
-          <ToggleRow
-            label="Payout processed"
-            checked={current.emailPayout}
-            onChange={(v) => updateForm("emailPayout", v)}
-            disabled={!editing}
-          />
-        </div>
-      </div>
-
-      {/* Push notifications */}
-      <div className="pt-3 border-t border-[#0B2343]/[0.04]">
-        <p className="flex items-center gap-1.5 text-[10px] font-semibold text-[#0B2343]/25 uppercase tracking-wider mb-2.5">
-          <Smartphone size={11} />
-          Push
-        </p>
-        <div className="space-y-2.5 pl-1">
-          <ToggleRow
-            label="New booking received"
-            checked={current.pushNewBooking}
-            onChange={(v) => updateForm("pushNewBooking", v)}
-            disabled={!editing}
-          />
-          <ToggleRow
-            label="Lesson cancellation"
-            checked={current.pushCancellation}
-            onChange={(v) => updateForm("pushCancellation", v)}
-            disabled={!editing}
-          />
-          <ToggleRow
-            label="New student message"
-            checked={current.pushNewMessage}
-            onChange={(v) => updateForm("pushNewMessage", v)}
-            disabled={!editing}
-          />
-          <ToggleRow
-            label="Lesson reminder"
-            checked={current.pushLessonReminder}
-            onChange={(v) => updateForm("pushLessonReminder", v)}
-            disabled={!editing}
-          />
-          {current.pushLessonReminder && (
-            <div className="flex items-center justify-between gap-3 pl-5">
-              <span className="text-[10px] sm:text-[11px] text-[#0B2343]/30">
-                Remind me before lesson
-              </span>
-              {!editing ? (
-                <span className="text-[11px] sm:text-xs font-medium text-[#0B2343]/50">
-                  {current.reminderMinutes} min
-                </span>
-              ) : (
-                <select
-                  value={current.reminderMinutes}
-                  onChange={(e) =>
-                    updateForm("reminderMinutes", Number(e.target.value))
-                  }
-                  className="px-2 py-1 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-[11px] sm:text-xs text-[#0B2343] outline-none focus:border-[#ff7c22]/30 cursor-pointer"
+      <div className="space-y-4">
+        {groups.map((group) => (
+          <div key={group.label}>
+            <p className="text-[10px] font-semibold text-[#0B2343]/30 uppercase tracking-wider mb-2">
+              {group.label}
+            </p>
+            <div className="space-y-1">
+              {group.items.map((item) => (
+                <div
+                  key={item.key}
+                  className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-[#0B2343]/[0.015] transition-colors"
                 >
-                  <option value={5}>5 min</option>
-                  <option value={10}>10 min</option>
-                  <option value={15}>15 min</option>
-                  <option value={30}>30 min</option>
-                  <option value={60}>1 hour</option>
-                </select>
-              )}
+                  <span className="text-xs sm:text-[13px] text-[#0B2343]/60">
+                    {item.label}
+                  </span>
+                  <button
+                    onClick={() => onChange(item.key, !notifications[item.key])}
+                    className={`relative w-9 h-5 rounded-full transition-colors ${
+                      notifications[item.key]
+                        ? "bg-[#ff7c22]"
+                        : "bg-[#0B2343]/15"
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+                        notifications[item.key] ? "translate-x-4" : ""
+                      }`}
+                    />
+                  </button>
+                </div>
+              ))}
             </div>
-          )}
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   );

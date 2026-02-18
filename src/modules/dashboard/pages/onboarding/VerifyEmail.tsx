@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { Loader2, CheckCircle2, XCircle, ArrowRight, Star } from "lucide-react";
-import { useVerifyAccount } from "../../lib/api/authOnboarding";
+import { useVerifyEmail } from "../../lib/api/authOnboarding";
 import logo from "../../assets/logo.png";
 
 const FRONTEND_URL = process.env.REACT_APP_FRONTEND_URL;
@@ -16,7 +16,7 @@ const testimonial = {
 
 export default function VerifyEmailSuccess() {
   const navigate = useNavigate();
-  const { mutateAsync: verifyAccount } = useVerifyAccount();
+  const { mutateAsync: verifyEmail } = useVerifyEmail();
   const { id, token } = useParams<{ id: string; token: string }>();
 
   const [isVerified, setIsVerified] = useState(false);
@@ -37,17 +37,17 @@ export default function VerifyEmailSuccess() {
 
     const verify = async () => {
       try {
-        await verifyAccount({ id: id as string, token: token as string });
+        await verifyEmail({ id, token });
         setIsVerified(true);
         setIsLoading(false);
-      } catch (error) {
+      } catch {
         setHasError(true);
         setIsLoading(false);
       }
     };
 
     verify();
-  }, [id, token, verifyAccount]);
+  }, [id, token, verifyEmail]);
 
   // ── Countdown + redirect after success ──
   useEffect(() => {
@@ -67,22 +67,15 @@ export default function VerifyEmailSuccess() {
     return () => clearInterval(timer);
   }, [isVerified, navigate]);
 
-  // ── Left-panel dynamic content ──
-  // const panelHeadline = isLoading
-  //   ? "Verifying your account…"
-  //   : isVerified
-  //     ? "You're all set!"
-  //     : "Something went wrong";
-
   const panelDescription = isLoading
-    ? "Hang tight — we're confirming your email address."
+    ? "Hang tight, we're confirming your email address."
     : isVerified
       ? "Your email is verified. Welcome to the Amber ESOL community."
       : "We couldn't verify your account. The link may have expired.";
 
   return (
     <div className="min-h-screen">
-      {/* ─── Left panel — fixed, never scrolls ─── */}
+      {/* ─── Left panel, fixed, never scrolls ─── */}
       <div className="hidden lg:flex fixed top-0 left-0 w-[48%] h-screen bg-[#0B2343] z-10">
         <div
           className="absolute inset-0 pointer-events-none"
@@ -111,7 +104,6 @@ export default function VerifyEmailSuccess() {
         </svg>
 
         <div className="relative flex flex-col justify-between p-12 xl:p-16 w-full">
-          {/* Logo */}
           <Link to={FRONTEND_URL || "/"}>
             <img
               src={logo}
@@ -120,7 +112,6 @@ export default function VerifyEmailSuccess() {
             />
           </Link>
 
-          {/* Dynamic headline */}
           <div>
             <h2 className="text-4xl xl:text-[42px] font-extrabold text-white leading-tight tracking-tight">
               {isLoading ? (
@@ -151,7 +142,6 @@ export default function VerifyEmailSuccess() {
             </p>
           </div>
 
-          {/* Testimonial */}
           <div className="max-w-sm">
             <div className="flex items-center gap-0.5 mb-3">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -184,9 +174,8 @@ export default function VerifyEmailSuccess() {
         </div>
       </div>
 
-      {/* ─── Right panel — scrollable ─── */}
+      {/* ─── Right panel, scrollable ─── */}
       <div className="min-h-screen bg-white lg:ml-[48%]">
-        {/* Mobile header — fixed */}
         <div className="lg:hidden fixed top-0 inset-x-0 z-20 flex items-center justify-between p-5 bg-white border-b border-[#0B2343]/[0.05]">
           <Link to={FRONTEND_URL || "/"}>
             <img src={logo} alt="Amber ESOL" className="h-8 w-auto" />
@@ -199,10 +188,8 @@ export default function VerifyEmailSuccess() {
           </Link>
         </div>
 
-        {/* Spacer for fixed mobile header */}
         <div className="lg:hidden h-16" />
 
-        {/* Content area */}
         <div className="flex items-center justify-center min-h-screen px-6 sm:px-12 xl:px-20 py-10 lg:py-0">
           <div className="w-full max-w-[380px] text-center">
             {/* ── Loading State ── */}
@@ -304,7 +291,7 @@ export default function VerifyEmailSuccess() {
 
                 <div className="space-y-3">
                   <button
-                    onClick={() => navigate("/register")}
+                    onClick={() => navigate("/signup")}
                     className="w-full py-3.5 bg-[#ff7c22] text-white text-sm font-bold rounded-xl hover:bg-[#e56a10] transition-colors flex items-center justify-center gap-2 group"
                   >
                     <span>Back to Sign Up</span>

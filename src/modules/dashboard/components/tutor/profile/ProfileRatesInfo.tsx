@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   PoundSterling,
   TrendingUp,
-  Zap,
   Shield,
   Star,
   Pencil,
@@ -11,25 +10,41 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import type { TutorProfileData } from "../../../data/tutor/tutorProfileData";
+import type { UserData } from "../../../lib/types/authOnboarding";
 
 interface Props {
-  profile: TutorProfileData;
-  onUpdate: (updates: Partial<TutorProfileData>) => void;
+  user: UserData;
+  onUpdate: (updates: Partial<UserData>) => Promise<void>;
+  isUpdating: boolean;
 }
 
-export default function ProfileRatesInfo({ profile, onUpdate }: Props) {
-  const { stats } = profile;
-
+export default function ProfileRatesInfo({
+  user,
+  onUpdate,
+  isUpdating,
+}: Props) {
   const [editing, setEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [formRate, setFormRate] = useState(String(profile.hourlyRate));
-  const [formTrial, setFormTrial] = useState(String(profile.trialRate));
+  const [formRate, setFormRate] = useState(String(user.hourlyRate ?? 0));
+  const [formTrial, setFormTrial] = useState(
+    String(user.trialLessonPrice ?? 0)
+  );
+  const [formTrialOffered, setFormTrialOffered] = useState(
+    user.trialLessonOffered ?? false
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const formatResponseTime = (min?: number) => {
+    if (!min) return "—";
+    if (min < 60) return `${min}m`;
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
+  };
+
   const startEdit = () => {
-    setFormRate(String(profile.hourlyRate));
-    setFormTrial(String(profile.trialRate));
+    setFormRate(String(user.hourlyRate ?? 0));
+    setFormTrial(String(user.trialLessonPrice ?? 0));
+    setFormTrialOffered(user.trialLessonOffered ?? false);
     setErrors({});
     setEditing(true);
   };
@@ -43,7 +58,7 @@ export default function ProfileRatesInfo({ profile, onUpdate }: Props) {
     const e: Record<string, string> = {};
     if (!formRate.trim() || isNaN(Number(formRate)) || Number(formRate) <= 0)
       e.rate = "Enter a valid rate";
-    if (formTrial.trim() !== "" && isNaN(Number(formTrial)))
+    if (formTrialOffered && formTrial.trim() !== "" && isNaN(Number(formTrial)))
       e.trial = "Enter a valid amount or 0";
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -51,14 +66,15 @@ export default function ProfileRatesInfo({ profile, onUpdate }: Props) {
 
   const handleSave = async () => {
     if (!validate()) return;
-    setSaving(true);
-    await new Promise((r) => setTimeout(r, 600));
-    onUpdate({
-      hourlyRate: Number(formRate),
-      trialRate: Number(formTrial || 0),
-    });
-    setSaving(false);
-    setEditing(false);
+    try {
+      await onUpdate({
+        hourlyRate: Number(formRate),
+        trialLessonOffered: formTrialOffered,
+        trialLessonPrice: formTrialOffered ? Number(formTrial || 0) : 0,
+      });
+    } finally {
+      setEditing(false);
+    }
   };
 
   const inputClass = (hasError: boolean) =>
@@ -88,7 +104,7 @@ export default function ProfileRatesInfo({ profile, onUpdate }: Props) {
           <div className="flex items-center gap-2">
             <button
               onClick={cancelEdit}
-              disabled={saving}
+              disabled={isUpdating}
               className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 hover:bg-[#0B2343]/[0.04] transition-colors"
             >
               <X size={11} />
@@ -96,15 +112,15 @@ export default function ProfileRatesInfo({ profile, onUpdate }: Props) {
             </button>
             <button
               onClick={handleSave}
-              disabled={saving}
+              disabled={isUpdating}
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0B2343] text-white text-[10px] sm:text-[11px] font-medium hover:bg-[#0B2343]/90 disabled:opacity-40 transition-colors"
             >
-              {saving ? (
+              {isUpdating ? (
                 <Loader2 size={11} className="animate-spin" />
               ) : (
                 <Check size={11} />
               )}
-              {saving ? "Saving…" : "Save"}
+              {isUpdating ? "Saving…" : "Save"}
             </button>
           </div>
         )}
@@ -118,7 +134,7 @@ export default function ProfileRatesInfo({ profile, onUpdate }: Props) {
               Hourly Rate
             </p>
             <p className="text-base sm:text-lg font-bold text-[#ff7c22] mt-0.5">
-              £{profile.hourlyRate}
+              £{user.hourlyRate ?? 0}
             </p>
           </div>
           <div className="bg-emerald-50/50 border border-emerald-100/60 rounded-lg p-2.5 sm:p-3 text-center">
@@ -126,46 +142,73 @@ export default function ProfileRatesInfo({ profile, onUpdate }: Props) {
               Trial Lesson
             </p>
             <p className="text-base sm:text-lg font-bold text-emerald-600 mt-0.5">
-              {profile.trialRate === 0 ? "Free" : `£${profile.trialRate}`}
+              {!user.trialLessonOffered
+                ? "N/A"
+                : (user.trialLessonPrice ?? 0) === 0
+                  ? "Free"
+                  : `£${user.trialLessonPrice}`}
             </p>
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-2 mb-3">
-          <div className="bg-[#ff7c22]/[0.04] border border-[#ff7c22]/10 rounded-lg p-2.5 sm:p-3">
-            <p className="text-[10px] sm:text-[11px] text-[#0B2343]/35 text-center mb-1.5">
-              Hourly Rate (£)
-            </p>
-            <input
-              type="number"
-              value={formRate}
-              onChange={(e) => setFormRate(e.target.value)}
-              className={inputClass(!!errors.rate)}
-            />
-            {errors.rate && (
-              <p className="flex items-center justify-center gap-1 mt-1 text-[9px] text-red-500">
-                <AlertCircle size={9} />
-                {errors.rate}
+        <div className="space-y-2 mb-3">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-[#ff7c22]/[0.04] border border-[#ff7c22]/10 rounded-lg p-2.5 sm:p-3">
+              <p className="text-[10px] sm:text-[11px] text-[#0B2343]/35 text-center mb-1.5">
+                Hourly Rate (£)
               </p>
-            )}
+              <input
+                type="number"
+                value={formRate}
+                onChange={(e) => setFormRate(e.target.value)}
+                className={inputClass(!!errors.rate)}
+              />
+              {errors.rate && (
+                <p className="flex items-center justify-center gap-1 mt-1 text-[9px] text-red-500">
+                  <AlertCircle size={9} />
+                  {errors.rate}
+                </p>
+              )}
+            </div>
+            <div className="bg-emerald-50/50 border border-emerald-100/60 rounded-lg p-2.5 sm:p-3">
+              <p className="text-[10px] sm:text-[11px] text-[#0B2343]/35 text-center mb-1.5">
+                Trial Rate (£)
+              </p>
+              <input
+                type="number"
+                value={formTrial}
+                onChange={(e) => setFormTrial(e.target.value)}
+                placeholder="0 = Free"
+                disabled={!formTrialOffered}
+                className={`${inputClass(!!errors.trial)} ${
+                  !formTrialOffered ? "opacity-40" : ""
+                }`}
+              />
+              {errors.trial && (
+                <p className="flex items-center justify-center gap-1 mt-1 text-[9px] text-red-500">
+                  <AlertCircle size={9} />
+                  {errors.trial}
+                </p>
+              )}
+            </div>
           </div>
-          <div className="bg-emerald-50/50 border border-emerald-100/60 rounded-lg p-2.5 sm:p-3">
-            <p className="text-[10px] sm:text-[11px] text-[#0B2343]/35 text-center mb-1.5">
-              Trial Rate (£)
-            </p>
-            <input
-              type="number"
-              value={formTrial}
-              onChange={(e) => setFormTrial(e.target.value)}
-              placeholder="0 = Free"
-              className={inputClass(!!errors.trial)}
-            />
-            {errors.trial && (
-              <p className="flex items-center justify-center gap-1 mt-1 text-[9px] text-red-500">
-                <AlertCircle size={9} />
-                {errors.trial}
-              </p>
-            )}
+          {/* Trial toggle */}
+          <div className="flex items-center justify-between px-2.5 py-2 rounded-lg bg-[#0B2343]/[0.015]">
+            <span className="text-[11px] sm:text-xs text-[#0B2343]/40">
+              Offer trial lesson
+            </span>
+            <button
+              onClick={() => setFormTrialOffered(!formTrialOffered)}
+              className={`relative w-9 h-5 rounded-full transition-colors ${
+                formTrialOffered ? "bg-emerald-400" : "bg-[#0B2343]/15"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+                  formTrialOffered ? "translate-x-4" : ""
+                }`}
+              />
+            </button>
           </div>
         </div>
       )}
@@ -178,16 +221,7 @@ export default function ProfileRatesInfo({ profile, onUpdate }: Props) {
             Completion Rate
           </span>
           <span className="text-xs sm:text-[13px] font-bold text-[#0B2343]">
-            {stats.completionRate}%
-          </span>
-        </div>
-        <div className="flex items-center justify-between py-2 px-2.5 sm:px-3 rounded-lg bg-[#0B2343]/[0.015]">
-          <span className="flex items-center gap-1.5 text-[11px] sm:text-xs text-[#0B2343]/40">
-            <Zap size={12} className="text-amber-400" />
-            Response Rate
-          </span>
-          <span className="text-xs sm:text-[13px] font-bold text-[#0B2343]">
-            {stats.responseRate}%
+            {user.completionRate ?? 0}%
           </span>
         </div>
         <div className="flex items-center justify-between py-2 px-2.5 sm:px-3 rounded-lg bg-[#0B2343]/[0.015]">
@@ -196,7 +230,7 @@ export default function ProfileRatesInfo({ profile, onUpdate }: Props) {
             Avg Response Time
           </span>
           <span className="text-xs sm:text-[13px] font-bold text-[#0B2343]">
-            {stats.responseTime}
+            {formatResponseTime(user.responseTime)}
           </span>
         </div>
         <div className="flex items-center justify-between py-2 px-2.5 sm:px-3 rounded-lg bg-[#0B2343]/[0.015]">
@@ -205,14 +239,14 @@ export default function ProfileRatesInfo({ profile, onUpdate }: Props) {
             Reviews
           </span>
           <span className="text-xs sm:text-[13px] font-bold text-[#0B2343]">
-            {stats.totalReviews}
+            {user.numberOfReviews ?? 0}
           </span>
         </div>
       </div>
 
       <p className="text-[10px] sm:text-[11px] text-[#0B2343]/20 text-center mt-3 pt-3 border-t border-[#0B2343]/[0.04]">
         Member since{" "}
-        {new Date(profile.joined).toLocaleDateString("en-GB", {
+        {new Date(user.createdAt).toLocaleDateString("en-GB", {
           month: "long",
           year: "numeric",
         })}

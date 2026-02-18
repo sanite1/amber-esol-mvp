@@ -110,7 +110,7 @@ export const transactions: Transaction[] = [
     hourlyRate: 18,
     totalAmount: 36,
     date: "2026-02-01T16:30:00Z",
-    refundReason: "Tutor cancelled — full refund issued",
+    refundReason: "Tutor cancelled, full refund issued",
   },
   {
     id: "txn-004",
@@ -185,7 +185,7 @@ export const transactions: Transaction[] = [
     hourlyRate: 15,
     totalAmount: 15,
     date: "2025-12-20T13:00:00Z",
-    refundReason: "Student cancelled 48h+ in advance — full refund",
+    refundReason: "Student cancelled 48h+ in advance, full refund",
   },
 ];
 

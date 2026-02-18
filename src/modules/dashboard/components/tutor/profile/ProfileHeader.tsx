@@ -5,7 +5,6 @@ import {
   Phone,
   Globe,
   Clock,
-  CheckCircle2,
   ExternalLink,
   Copy,
   Check,
@@ -14,41 +13,58 @@ import {
   Loader2,
   Camera,
   AlertCircle,
+  Trash2,
 } from "lucide-react";
-import type { TutorProfileData } from "../../../data/tutor/tutorProfileData";
+import type { UserData } from "../../../lib/types/authOnboarding";
+import {
+  countryOptions,
+  timezoneOptions,
+} from "../../../data/student/studentProfileData";
 
 interface Props {
-  profile: TutorProfileData;
-  onUpdate: (updates: Partial<TutorProfileData>) => void;
+  profile: UserData;
+  onUpdate: (updates: Partial<UserData>) => Promise<void>;
+  onAvatarChange: (file: File | null) => void;
+  isAvatarUploading?: boolean;
 }
 
 interface FormErrors {
-  name?: string;
+  firstname?: string;
+  lastname?: string;
   email?: string;
   phone?: string;
-  city?: string;
+  country?: string;
 }
 
-export default function ProfileHeader({ profile, onUpdate }: Props) {
+export default function ProfileHeader({
+  profile,
+  onAvatarChange,
+  onUpdate,
+  isAvatarUploading = false,
+}: Props) {
   const [copied, setCopied] = useState(false);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const [formName, setFormName] = useState(profile.name);
+  const [formFirstName, setFormFirstName] = useState(profile.firstname);
+  const [formLastName, setFormLastName] = useState(profile.lastname);
   const [formEmail, setFormEmail] = useState(profile.email);
-  const [formPhone, setFormPhone] = useState(profile.phone);
-  const [formCity, setFormCity] = useState(profile.city);
-  const [formShortBio, setFormShortBio] = useState(profile.shortBio);
+  const [formPhone, setFormPhone] = useState(profile.phoneNumber ?? "");
+  const [formCountry, setFormCountry] = useState(
+    profile.address?.country ?? ""
+  );
+  const [formTimezone, setFormTimezone] = useState(profile.timezone ?? "");
+  const [formShortBio, setFormShortBio] = useState(profile.bio ?? "");
   const [errors, setErrors] = useState<FormErrors>({});
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const initials = profile.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("");
+  const initials = `${profile.firstname[0]}${profile.lastname[0]}`;
+  const displayAvatar = previewUrl ?? profile.profilePicture;
+  const hasAvatar = Boolean(displayAvatar);
 
-  const profileUrl = `${window.location.origin}/tutors/${profile.profileSlug}`;
+  const profileUrl = `${window.location.origin}/tutors/${profile._id}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(profileUrl);
@@ -57,11 +73,13 @@ export default function ProfileHeader({ profile, onUpdate }: Props) {
   };
 
   const startEdit = () => {
-    setFormName(profile.name);
+    setFormFirstName(profile.firstname);
+    setFormLastName(profile.lastname);
     setFormEmail(profile.email);
-    setFormPhone(profile.phone);
-    setFormCity(profile.city);
-    setFormShortBio(profile.shortBio);
+    setFormPhone(profile.phoneNumber ?? "");
+    setFormCountry(profile.address?.country ?? "");
+    setFormTimezone(profile.timezone ?? "");
+    setFormShortBio(profile.bio ?? "");
     setErrors({});
     setEditing(true);
   };
@@ -73,12 +91,13 @@ export default function ProfileHeader({ profile, onUpdate }: Props) {
 
   const validate = (): boolean => {
     const e: FormErrors = {};
-    if (!formName.trim()) e.name = "Name is required";
+    if (!formFirstName.trim()) e.firstname = "First name is required";
+    if (!formLastName.trim()) e.lastname = "Last name is required";
     if (!formEmail.trim()) e.email = "Email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formEmail))
       e.email = "Enter a valid email";
     if (!formPhone.trim()) e.phone = "Phone is required";
-    if (!formCity.trim()) e.city = "City is required";
+    if (!formCountry?.trim()) e.country = "Country is required";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -86,28 +105,51 @@ export default function ProfileHeader({ profile, onUpdate }: Props) {
   const handleSave = async () => {
     if (!validate()) return;
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 600));
-    onUpdate({
-      name: formName.trim(),
-      email: formEmail.trim(),
-      phone: formPhone.trim(),
-      city: formCity.trim(),
-      shortBio: formShortBio.trim(),
-    });
-    setSaving(false);
-    setEditing(false);
+    try {
+      await onUpdate({
+        ...(formFirstName.trim() !== profile.firstname && {
+          firstname: formFirstName.trim(),
+        }),
+        ...(formLastName.trim() !== profile.lastname && {
+          lastname: formLastName.trim(),
+        }),
+        ...(formEmail.trim() !== profile.email && {
+          email: formEmail.trim(),
+        }),
+        ...(formPhone.trim() !== (profile.phoneNumber ?? "") && {
+          phoneNumber: formPhone.trim(),
+        }),
+        ...(formCountry.trim() !== (profile.address?.country ?? "") && {
+          address: { ...profile.address, country: formCountry.trim() },
+        }),
+        ...(formTimezone !== (profile.timezone ?? "") && {
+          timezone: formTimezone,
+        }),
+        ...(formShortBio.trim() !== (profile.bio ?? "") && {
+          bio: formShortBio.trim(),
+        }),
+      });
+    } finally {
+      setSaving(false);
+      setEditing(false);
+    }
   };
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      onUpdate({ avatar: url });
-    }
+    if (!file) return;
+    setPreviewUrl(URL.createObjectURL(file));
+    onAvatarChange(file);
+    e.target.value = "";
+  };
+
+  const handleRemoveAvatar = () => {
+    setPreviewUrl(null);
+    onAvatarChange(null);
   };
 
   const inputClass = (hasError: boolean) =>
@@ -128,43 +170,55 @@ export default function ProfileHeader({ profile, onUpdate }: Props) {
           {/* Avatar */}
           <div className="relative shrink-0 group">
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white bg-[#0B2343]/[0.06] flex items-center justify-center text-lg sm:text-xl font-bold text-[#0B2343]/30 shadow-sm overflow-hidden">
-              {profile.avatar ? (
+              {displayAvatar ? (
                 <img
-                  src={profile.avatar}
-                  alt={profile.name}
+                  src={displayAvatar}
+                  alt={profile.firstname}
                   className="w-full h-full object-cover"
                 />
               ) : (
                 initials
               )}
             </div>
-            {/* Avatar upload overlay */}
-            <button
-              onClick={handleAvatarClick}
-              className="absolute inset-0 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-black/0 group-hover:bg-black/30 flex items-center justify-center transition-colors cursor-pointer"
-            >
-              <Camera
-                size={18}
-                className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
-              />
-            </button>
+
+            {/* Loading overlay */}
+            {isAvatarUploading && (
+              <div className="absolute inset-0 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-black/40 flex items-center justify-center">
+                <Loader2 size={18} className="text-white animate-spin" />
+              </div>
+            )}
+
+            {/* Hover overlay — only when NOT uploading */}
+            {!isAvatarUploading && (
+              <div className="absolute inset-0 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-black/0 group-hover:bg-black/30 flex items-center justify-center gap-1 transition-colors">
+                <button
+                  onClick={handleAvatarClick}
+                  className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all"
+                  title="Upload photo"
+                >
+                  <Camera size={13} className="text-white" />
+                </button>
+                {hasAvatar && (
+                  <button
+                    onClick={handleRemoveAvatar}
+                    className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-full bg-white/20 hover:bg-red-500/60 flex items-center justify-center transition-all"
+                    title="Remove photo"
+                  >
+                    <Trash2 size={13} className="text-white" />
+                  </button>
+                )}
+              </div>
+            )}
+
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
-              onChange={handleAvatarChange}
+              onChange={handleFileSelect}
               className="hidden"
             />
-            {profile.isOnline && (
+            {profile.verified && (
               <div className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-400 border-[2.5px] border-white" />
-            )}
-            {profile.isVerified && (
-              <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-sm">
-                <CheckCircle2
-                  size={16}
-                  className="text-blue-500 fill-blue-500"
-                />
-              </div>
             )}
           </div>
 
@@ -174,47 +228,70 @@ export default function ProfileHeader({ profile, onUpdate }: Props) {
               <>
                 <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1.5 sm:gap-2.5">
                   <h2 className="text-lg sm:text-xl font-bold text-[#0B2343] truncate">
-                    {profile.name}
+                    {`${profile.firstname} ${profile.lastname}`}
                   </h2>
                   <div className="flex items-center gap-1.5">
-                    {profile.isVerified && (
+                    {profile.verified && (
                       <span className="text-[9px] sm:text-[10px] font-semibold text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full">
                         Verified
                       </span>
                     )}
                     <span className="text-[9px] sm:text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                      {profile.isOnline ? "Online" : "Offline"}
+                      {profile.onlineStatus ? "Online" : "Offline"}
                     </span>
                   </div>
                 </div>
-                <p className="text-xs sm:text-[13px] text-[#0B2343]/40 mt-0.5">
-                  {profile.shortBio}
-                </p>
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {profile.specializations?.map((s) => (
+                    <span
+                      key={s}
+                      className="text-[10px] sm:text-[11px] font-medium text-[#ff7c22] bg-[#ff7c22]/[0.08] px-2 py-0.5 rounded-full"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
               </>
             ) : (
               <div className="space-y-2 text-left">
-                <div>
-                  <input
-                    value={formName}
-                    onChange={(e) => setFormName(e.target.value)}
-                    placeholder="Full name"
-                    className={inputClass(!!errors.name)}
-                  />
-                  {errors.name && (
-                    <p className="flex items-center gap-1 mt-1 text-[10px] text-red-500">
-                      <AlertCircle size={10} />
-                      {errors.name}
-                    </p>
-                  )}
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <input
+                      value={formFirstName}
+                      onChange={(e) => setFormFirstName(e.target.value)}
+                      placeholder="First name"
+                      className={inputClass(!!errors.firstname)}
+                    />
+                    {errors.firstname && (
+                      <p className="flex items-center gap-1 mt-1 text-[10px] text-red-500">
+                        <AlertCircle size={10} />
+                        {errors.firstname}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <input
+                      value={formLastName}
+                      onChange={(e) => setFormLastName(e.target.value)}
+                      placeholder="Last name"
+                      className={inputClass(!!errors.lastname)}
+                    />
+                    {errors.lastname && (
+                      <p className="flex items-center gap-1 mt-1 text-[10px] text-red-500">
+                        <AlertCircle size={10} />
+                        {errors.lastname}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div>
+                {/* <div>
                   <input
                     value={formShortBio}
                     onChange={(e) => setFormShortBio(e.target.value)}
                     placeholder="Short bio / tagline"
                     className={inputClass(false)}
                   />
-                </div>
+                </div> */}
               </div>
             )}
           </div>
@@ -260,12 +337,18 @@ export default function ProfileHeader({ profile, onUpdate }: Props) {
             <div className="flex items-center gap-2 text-[11px] sm:text-xs text-[#0B2343]/40">
               <MapPin size={13} className="text-[#0B2343]/25 shrink-0" />
               <span className="truncate">
-                {profile.city}, {profile.country}
+                {profile.address?.country || (
+                  <span className="text-[#0B2343]/15 italic">Not set</span>
+                )}
               </span>
             </div>
             <div className="flex items-center gap-2 text-[11px] sm:text-xs text-[#0B2343]/40">
               <Clock size={13} className="text-[#0B2343]/25 shrink-0" />
-              <span className="truncate">{profile.timezone}</span>
+              <span className="truncate">
+                {profile.timezone || (
+                  <span className="text-[#0B2343]/15 italic">Not set</span>
+                )}
+              </span>
             </div>
             <div className="flex items-center gap-2 text-[11px] sm:text-xs text-[#0B2343]/40">
               <Mail size={13} className="text-[#0B2343]/25 shrink-0" />
@@ -273,7 +356,11 @@ export default function ProfileHeader({ profile, onUpdate }: Props) {
             </div>
             <div className="flex items-center gap-2 text-[11px] sm:text-xs text-[#0B2343]/40">
               <Phone size={13} className="text-[#0B2343]/25 shrink-0" />
-              <span className="truncate">{profile.phone}</span>
+              <span className="truncate">
+                {profile.phoneNumber || (
+                  <span className="text-[#0B2343]/15 italic">Not added</span>
+                )}
+              </span>
             </div>
           </div>
         ) : (
@@ -314,31 +401,48 @@ export default function ProfileHeader({ profile, onUpdate }: Props) {
             </div>
             <div>
               <label className="text-[10px] font-medium text-[#0B2343]/40 mb-1 block">
-                City
+                Country
               </label>
-              <input
-                value={formCity}
-                onChange={(e) => setFormCity(e.target.value)}
-                placeholder="City"
-                className={inputClass(!!errors.city)}
-              />
-              {errors.city && (
+              <select
+                value={formCountry}
+                onChange={(e) => setFormCountry(e.target.value)}
+                className={inputClass(!!errors.country)}
+              >
+                <option value="">Select</option>
+                {countryOptions.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+              {errors.country && (
                 <p className="flex items-center gap-1 mt-1 text-[10px] text-red-500">
                   <AlertCircle size={10} />
-                  {errors.city}
+                  {errors.country}
                 </p>
               )}
             </div>
-            <div className="flex items-end">
-              <div className="flex items-center gap-2 text-[11px] sm:text-xs text-[#0B2343]/30 py-2">
-                <Clock size={13} className="shrink-0" />
-                <span>{profile.timezone}</span>
-              </div>
+            <div>
+              <label className="text-[10px] font-medium text-[#0B2343]/40 mb-1 block">
+                Timezone
+              </label>
+              <select
+                value={formTimezone}
+                onChange={(e) => setFormTimezone(e.target.value)}
+                className={inputClass(false)}
+              >
+                <option value="">Select</option>
+                {timezoneOptions.map((tz) => (
+                  <option key={tz} value={tz}>
+                    {tz}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         )}
 
-        {/* Profile link + social */}
+        {/* Profile link */}
         <div className="mt-3 pt-3 border-t border-[#0B2343]/[0.04] flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
           <div className="flex items-center gap-2 flex-1 min-w-0 bg-[#0B2343]/[0.02] rounded-lg px-2.5 py-2 sm:px-3">
             <Globe size={13} className="text-[#0B2343]/25 shrink-0" />
@@ -366,31 +470,6 @@ export default function ProfileHeader({ profile, onUpdate }: Props) {
               <ExternalLink size={13} className="text-[#0B2343]/25" />
             </a>
           </div>
-
-          {profile.socialLinks && (
-            <div className="flex items-center gap-2">
-              {profile.socialLinks.linkedin && (
-                <a
-                  href={profile.socialLinks.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] sm:text-xs text-[#0B2343]/30 hover:text-[#0B2343]/60 transition-colors"
-                >
-                  LinkedIn
-                </a>
-              )}
-              {profile.socialLinks.website && (
-                <a
-                  href={profile.socialLinks.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] sm:text-xs text-[#0B2343]/30 hover:text-[#0B2343]/60 transition-colors"
-                >
-                  Website
-                </a>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </div>

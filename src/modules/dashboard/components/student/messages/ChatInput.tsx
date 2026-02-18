@@ -35,7 +35,7 @@ export default function ChatInput({ onSend, disabled }: Props) {
   return (
     <div className="px-4 py-3 border-t border-[#0B2343]/[0.06] bg-white">
       <div className="flex items-end gap-2">
-        {/* Attachment — pinned to bottom so it stays level with the last line */}
+        {/* Attachment, pinned to bottom so it stays level with the last line */}
         <button
           className="p-2 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors shrink-0 mb-[7px]"
           title="Attach file"
@@ -68,7 +68,7 @@ export default function ChatInput({ onSend, disabled }: Props) {
           `}</style>
         </div>
 
-        {/* Send — also pinned to bottom */}
+        {/* Send, also pinned to bottom */}
         <button
           onClick={handleSend}
           disabled={!message.trim() || disabled}

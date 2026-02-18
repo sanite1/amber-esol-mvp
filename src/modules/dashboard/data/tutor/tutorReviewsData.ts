@@ -123,7 +123,7 @@ export const tutorReviewsData: TutorReviewsData = {
       studentCountry: "Saudi Arabia",
       studentCountryCode: "SA",
       rating: 5,
-      text: "James is the best English tutor I've ever had. He is very respectful and understanding of cultural differences. His teaching style is perfect for beginners — he never makes you feel embarrassed about mistakes.",
+      text: "James is the best English tutor I've ever had. He is very respectful and understanding of cultural differences. His teaching style is perfect for beginners, he never makes you feel embarrassed about mistakes.",
       date: "2026-02-04",
       lessonType: "regular",
       lessonTopic: "General English",

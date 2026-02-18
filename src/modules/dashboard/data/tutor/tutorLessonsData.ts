@@ -67,7 +67,7 @@ export const tutorLessons: TutorLesson[] = [
     startTime: "14:00",
     endTime: "15:00",
     meetingUrl: "https://meet.amber-esol.com/abc123",
-    notes: "Focus on presentation skills — student has a work pitch next week",
+    notes: "Focus on presentation skills, student has a work pitch next week",
     earnings: 15,
     materials: ["Business_Vocab_Unit4.pdf"],
   },
@@ -195,7 +195,7 @@ export const tutorLessons: TutorLesson[] = [
     endTime: "12:00",
     earnings: 0,
     cancelledBy: "student",
-    cancellationReason: "Schedule conflict — student requested reschedule",
+    cancellationReason: "Schedule conflict, student requested reschedule",
   },
   {
     id: "tls-010",

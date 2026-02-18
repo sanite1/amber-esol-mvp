@@ -28,7 +28,7 @@ export default function HowItWorksSection() {
             data-aos-delay="100"
             className="mt-3 text-base text-[#0B2343]/45 leading-relaxed"
           >
-            From finding the right tutor to your first lesson — effortless.
+            From finding the right tutor to your first lesson, effortless.
           </p>
         </div>
 
@@ -154,7 +154,7 @@ export default function HowItWorksSection() {
               </h3>
               <p className="text-[15px] text-[#0B2343]/45 leading-relaxed">
                 Pick your time with smart timezone detection. First trial is
-                free — no card, no commitment.
+                free, no card, no commitment.
               </p>
             </div>
 
@@ -326,7 +326,7 @@ export default function HowItWorksSection() {
             to={`${APP_URL}/signup`}
             className="group inline-flex items-center gap-2.5 px-8 py-4 text-base font-bold text-white bg-[#ff7c22] rounded-full hover:bg-[#e56a10] hover:shadow-[0_0_40px_rgba(255,124,34,0.3)] hover:-translate-y-0.5 transition-all duration-300"
           >
-            Get Started — It's Free
+            Get Started, It's Free
             <ArrowRight
               size={18}
               className="group-hover:translate-x-1 transition-transform"

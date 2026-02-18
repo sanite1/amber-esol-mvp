@@ -82,7 +82,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen">
-      {/* ─── Left panel — fixed, never scrolls ─── */}
+      {/* ─── Left panel, fixed, never scrolls ─── */}
       <div className="hidden lg:flex fixed top-0 left-0 w-[48%] h-screen bg-[#0B2343] z-10">
         <div
           className="absolute inset-0 pointer-events-none"
@@ -167,9 +167,9 @@ export default function Login() {
         </div>
       </div>
 
-      {/* ─── Right panel — scrollable ─── */}
+      {/* ─── Right panel, scrollable ─── */}
       <div className="min-h-screen bg-white lg:ml-[48%]">
-        {/* Mobile header — fixed on mobile */}
+        {/* Mobile header, fixed on mobile */}
         <div className="lg:hidden fixed top-0 inset-x-0 z-20 flex items-center justify-between p-5 bg-white border-b border-[#0B2343]/[0.05]">
           <Link to={FRONTEND_URL || "/"}>
             <img src={logo} alt="Amber ESOL" className="h-8 w-auto" />

@@ -12,7 +12,7 @@ const milestones = [
   {
     year: "2025",
     title: "Amber ESOL Platform Launches",
-    desc: "Built and launched the MVP — a modern marketplace connecting English learners with expert ESOL tutors via HD video.",
+    desc: "Built and launched the MVP, a modern marketplace connecting English learners with expert ESOL tutors via HD video.",
   },
   {
     year: "2026",

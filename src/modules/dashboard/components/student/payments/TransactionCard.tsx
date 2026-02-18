@@ -95,7 +95,7 @@ export default function TransactionCard({ transaction: txn }: Props) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <p className="text-sm font-medium text-[#0B2343]/80 truncate">
-                {isRefund ? "Refund" : "Lesson Booking"} — {txn.tutorName}
+                {isRefund ? "Refund" : "Lesson Booking"}, {txn.tutorName}
               </p>
               <span
                 className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${status.bg} ${status.color}`}
@@ -161,7 +161,7 @@ export default function TransactionCard({ transaction: txn }: Props) {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[13px] font-medium text-[#0B2343]/80 truncate">
-                {isRefund ? "Refund" : "Booking"} — {txn.tutorName}
+                {isRefund ? "Refund" : "Booking"}, {txn.tutorName}
               </p>
             </div>
             <ChevronDown

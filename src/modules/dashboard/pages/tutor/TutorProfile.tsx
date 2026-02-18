@@ -1,89 +1,104 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { User } from "lucide-react";
-import {
-  tutorProfileData,
-  TutorQualification,
-  type TutorProfileData,
-  TutorLanguage,
-} from "../../data/tutor/tutorProfileData";
-import { ProfilePageSkeleton } from "../../components/tutor/profile/ProfileSkeleton";
+import { useFetchUserById, useUpdateUser } from "../../lib/api/authOnboarding";
+import type { UserData } from "../../lib/types/authOnboarding";
+
 import ProfileHeader from "../../components/tutor/profile/ProfileHeader";
 import ProfileStats from "../../components/tutor/profile/ProfileStats";
 import ProfileAbout from "../../components/tutor/profile/ProfileAbout";
 import ProfileQualifications from "../../components/tutor/profile/ProfileQualifications";
-import ProfileLanguages from "../../components/tutor/profile/ProfileLanguages";
-import ProfileRatesInfo from "../../components/tutor/profile/ProfileRatesInfo";
 import ProfileCompletion from "../../components/tutor/profile/ProfileCompletion";
+import ProfileRatesInfo from "../../components/tutor/profile/ProfileRatesInfo";
+import ProfileLanguages from "../../components/tutor/profile/ProfileLanguages";
+import { getDecodedJwt } from "../../lib/auth";
 
 export default function TutorProfile() {
-  const [profile, setProfile] = useState<TutorProfileData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const decoded = getDecodedJwt();
+  const userId = decoded?.id ?? "";
 
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setProfile(tutorProfileData);
-      setLoading(false);
-    }, 800);
-    return () => clearTimeout(t);
-  }, []);
+  const { data: user, isLoading, isError } = useFetchUserById(userId);
+  const { mutateAsync: updateUser, isPending: isUpdating } = useUpdateUser();
 
-  if (loading || !profile) {
-    return <ProfilePageSkeleton />;
+  /* generic field‑update handler */
+  const handleUpdate = async (payload: Partial<UserData>) => {
+    if (!userId) return;
+    await updateUser({ id: userId, payload });
+  };
+
+  /* avatar upload / remove */
+  const [isAvatarUploading, setIsAvatarUploading] = useState(false);
+
+  const handleAvatarChange = async (file: File | null) => {
+    if (!userId) return;
+    setIsAvatarUploading(true);
+    try {
+      if (file) {
+        const fd = new FormData();
+        fd.append("profilePicture", file);
+        await updateUser({ id: userId, payload: fd as any });
+      } else {
+        await updateUser({ id: userId, payload: { profilePicture: "" } });
+      }
+    } finally {
+      setIsAvatarUploading(false);
+    }
+  };
+
+  /* ---------- loading / error ---------- */
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500" />
+      </div>
+    );
   }
 
-  const handleProfileUpdate = (updates: Partial<TutorProfileData>) => {
-    setProfile((prev) => (prev ? { ...prev, ...updates } : prev));
-  };
-
-  const handleQualificationsUpdate = (qualifications: TutorQualification[]) => {
-    setProfile((prev) => (prev ? { ...prev, qualifications } : prev));
-  };
-
-  const handleLanguagesUpdate = (languages: TutorLanguage[]) => {
-    setProfile((prev) => (prev ? { ...prev, languages } : prev));
-  };
-
-  return (
-    <div className="space-y-4 sm:space-y-5">
-      {/* Page header */}
-      <div className="flex items-center gap-2.5">
-        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#0B2343]/5 flex items-center justify-center">
-          <User className="w-4 h-4 sm:w-5 sm:h-5 text-[#0B2343]/40" />
-        </div>
-        <div>
-          <h1 className="text-base sm:text-lg font-bold text-[#0B2343]">
-            My Profile
-          </h1>
-          <p className="text-[11px] sm:text-xs text-[#0B2343]/35">
-            Manage how students see you
-          </p>
-        </div>
+  if (isError || !user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-500">
+        <User className="h-16 w-16 mb-4" />
+        <p className="text-lg font-medium">Could not load profile</p>
       </div>
+    );
+  }
 
-      {/* Profile header card */}
-      <ProfileHeader profile={profile} onUpdate={handleProfileUpdate} />
+  /* ---------- render ---------- */
+  return (
+    <div className="space-y-8">
+      <ProfileHeader
+        profile={user}
+        onUpdate={handleUpdate}
+        onAvatarChange={handleAvatarChange}
+        isAvatarUploading={isAvatarUploading}
+      />
 
-      {/* Stats row */}
-      <ProfileStats stats={profile.stats} />
+      <ProfileStats user={user} />
 
-      {/* Two‑column layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
-        {/* Left column — 2/3 */}
-        <div className="lg:col-span-2 space-y-4 sm:space-y-5">
-          <ProfileAbout profile={profile} onUpdate={handleProfileUpdate} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          <ProfileAbout
+            user={user}
+            onUpdate={handleUpdate}
+            isUpdating={isUpdating}
+          />
           <ProfileQualifications
-            qualifications={profile.qualifications}
-            onUpdate={handleQualificationsUpdate}
+            user={user}
+            onUpdate={handleUpdate}
+            isUpdating={isUpdating}
           />
         </div>
 
-        {/* Right column — 1/3 */}
-        <div className="space-y-4 sm:space-y-5">
-          <ProfileCompletion profile={profile} />
-          <ProfileRatesInfo profile={profile} onUpdate={handleProfileUpdate} />
+        <div className="space-y-8">
+          <ProfileCompletion user={user} />
+          <ProfileRatesInfo
+            user={user}
+            onUpdate={handleUpdate}
+            isUpdating={isUpdating}
+          />
           <ProfileLanguages
-            languages={profile.languages}
-            onUpdate={handleLanguagesUpdate}
+            user={user}
+            onUpdate={handleUpdate}
+            isUpdating={isUpdating}
           />
         </div>
       </div>

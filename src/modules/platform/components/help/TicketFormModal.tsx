@@ -182,7 +182,7 @@ export default function TicketFormModal({
                   description: e.target.value,
                 }))
               }
-              placeholder="Describe your issue in detail — what happened, what you expected, and any steps to reproduce..."
+              placeholder="Describe your issue in detail, what happened, what you expected, and any steps to reproduce..."
               rows={5}
               className={`w-full px-4 py-3 text-sm rounded-xl border bg-white text-[#0B2343] placeholder-[#0B2343]/25 outline-none resize-none transition-colors duration-200 ${
                 errors.description

@@ -78,7 +78,7 @@ export default function HeroSection() {
             >
               <Sparkles size={14} className="text-[#ff7c22]" />
               <span className="text-sm font-medium text-[#ff7c22]">
-                Free trial lesson — No card needed
+                Free trial lesson, No card needed
               </span>
               <ArrowRight size={14} className="text-[#ff7c22]/60" />
             </div>
@@ -117,7 +117,7 @@ export default function HeroSection() {
             >
               1-on-1 video lessons with CELTA-certified ESOL tutors.
               Personalised learning plans, flexible schedules, and real progress
-              — from anywhere.
+              , from anywhere.
             </p>
 
             <div

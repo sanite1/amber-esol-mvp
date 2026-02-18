@@ -48,7 +48,7 @@ export default function TutorLessonFilterBar({
     <div className="bg-white rounded-2xl border border-[#0B2343]/[0.06] p-3">
       {/* Top row: filters + search */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
-        {/* Filter tabs — horizontal scroll on mobile */}
+        {/* Filter tabs, horizontal scroll on mobile */}
         <div
           className="flex items-center gap-1 p-0.5 bg-[#0B2343]/[0.03] rounded-xl overflow-x-auto shrink-0"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
@@ -85,7 +85,7 @@ export default function TutorLessonFilterBar({
             />
           </div>
 
-          {/* Student dropdown — hidden on small mobile */}
+          {/* Student dropdown, hidden on small mobile */}
           <select
             value={selectedStudent}
             onChange={(e) => onStudentChange(e.target.value)}

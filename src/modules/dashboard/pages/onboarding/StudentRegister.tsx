@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Eye,
   EyeOff,
@@ -19,16 +19,17 @@ import {
   GraduationCap,
   BookOpen,
 } from "lucide-react";
+import { useRegisterStudent } from "../../lib/api/authOnboarding";
 import logo from "../../assets/logo.png";
 
 const FRONTEND_URL = process.env.REACT_APP_FRONTEND_URL;
 
-const registerSchema = z
+const studentSchema = z
   .object({
-    firstName: z.string().min(2, "First name must be at least 2 characters"),
-    lastName: z.string().min(2, "Last name must be at least 2 characters"),
+    firstname: z.string().min(2, "First name must be at least 2 characters"),
+    lastname: z.string().min(2, "Last name must be at least 2 characters"),
     email: z.string().email("Please enter a valid email address"),
-    phone: z.string().min(7, "Please enter a valid phone number"),
+    phoneNumber: z.string().min(7, "Please enter a valid phone number"),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
@@ -37,9 +38,8 @@ const registerSchema = z
         "Must contain uppercase, lowercase, and a number"
       ),
     confirmPassword: z.string(),
-    role: z.string(),
     nativeLanguage: z.string().min(1, "Please select your native language"),
-    englishLevel: z.string().optional(),
+    currentLevel: z.string().optional(),
     agreeTerms: z.boolean({
       message: "You must agree to the terms",
     }),
@@ -49,7 +49,7 @@ const registerSchema = z
     path: ["confirmPassword"],
   });
 
-type RegisterFormData = z.infer<typeof registerSchema>;
+type StudentFormData = z.infer<typeof studentSchema>;
 
 const languages = [
   "Arabic",
@@ -76,14 +76,12 @@ const languages = [
   "Other",
 ];
 
-const cefrLevels = [
-  { value: "A1", label: "A1 – Beginner" },
-  { value: "A2", label: "A2 – Elementary" },
-  { value: "B1", label: "B1 – Intermediate" },
-  { value: "B2", label: "B2 – Upper Intermediate" },
-  { value: "C1", label: "C1 – Advanced" },
-  { value: "C2", label: "C2 – Proficient" },
-  { value: "unsure", label: "I'm not sure" },
+const levelOptions = [
+  { value: "beginner", label: "A1 – Beginner" },
+  { value: "elementary", label: "A2 – Elementary" },
+  { value: "intermediate", label: "B1 – Intermediate" },
+  { value: "upper-intermediate", label: "B2 – Upper Intermediate" },
+  { value: "advanced", label: "C1/C2 – Advanced" },
 ];
 
 const testimonial = {
@@ -94,56 +92,60 @@ const testimonial = {
   avatar: "https://randomuser.me/api/portraits/men/18.jpg",
 };
 
-export default function Register() {
-  const [searchParams] = useSearchParams();
+export default function StudentRegister() {
+  const navigate = useNavigate();
+  const { mutateAsync: registerStudent, isPending } = useRegisterStudent();
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isPending, setIsPending] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const defaultRole =
-    searchParams.get("role") === "tutor" ? "tutor" : "student";
 
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
-  } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      role: defaultRole,
-    },
+  } = useForm<StudentFormData>({
+    resolver: zodResolver(studentSchema),
   });
-
-  const selectedRole = watch("role");
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const onSubmit = async (data: RegisterFormData) => {
+  const onSubmit = async (data: StudentFormData) => {
     setErrorMessage(null);
-    setIsPending(true);
     try {
-      // TODO: Replace with actual API call
-      console.log("Register:", data);
-      await new Promise((r) => setTimeout(r, 1500));
-      // navigate to confirm-email or dashboard
+      await registerStudent({
+        firstname: data.firstname,
+        lastname: data.lastname,
+        email: data.email,
+        phoneNumber: data.phoneNumber,
+        password: data.password,
+        learningPreferences: data.currentLevel
+          ? {
+              currentLevel: data.currentLevel as any,
+              goals: [],
+              preferredSchedule: [],
+              lessonTypePreference: "one-on-one",
+            }
+          : undefined,
+      });
+      navigate("/confirm-email", {
+        state: { email: data.email, type: "verification" },
+      });
     } catch (error: any) {
       const message =
+        error?.response?.data?.fields?.[0]?.message ||
         error?.response?.data?.message ||
         error?.message ||
         "Something went wrong. Please try again.";
       setErrorMessage(message);
-    } finally {
-      setIsPending(false);
     }
   };
 
   return (
     <div className="min-h-screen">
-      {/* ─── Left panel, fixed, never scrolls ─── */}
+      {/* ─── Left panel, fixed ─── */}
       <div className="hidden lg:flex fixed top-0 left-0 w-[42%] h-screen bg-[#0B2343] z-10">
         <div
           className="absolute inset-0 pointer-events-none"
@@ -158,7 +160,7 @@ export default function Register() {
         >
           <defs>
             <pattern
-              id="register-grid"
+              id="student-reg-grid"
               x="0"
               y="0"
               width="32"
@@ -168,11 +170,10 @@ export default function Register() {
               <circle cx="2" cy="2" r="1" fill="white" />
             </pattern>
           </defs>
-          <rect width="100%" height="100%" fill="url(#register-grid)" />
+          <rect width="100%" height="100%" fill="url(#student-reg-grid)" />
         </svg>
 
         <div className="relative flex flex-col justify-between p-12 xl:p-16 w-full">
-          {/* Logo */}
           <Link to={FRONTEND_URL || "/"}>
             <img
               src={logo}
@@ -181,7 +182,6 @@ export default function Register() {
             />
           </Link>
 
-          {/* Headline */}
           <div>
             <h2 className="text-3xl xl:text-[38px] font-extrabold text-white leading-tight tracking-tight">
               Start learning
@@ -193,8 +193,6 @@ export default function Register() {
               Create your free account and book your first lesson with a
               verified ESOL tutor in minutes.
             </p>
-
-            {/* Quick benefits */}
             <div className="mt-6 space-y-2.5">
               {[
                 { icon: GraduationCap, text: "Free 30-minute trial lesson" },
@@ -214,7 +212,6 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Testimonial */}
           <div className="max-w-sm">
             <div className="flex items-center gap-0.5 mb-3">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -247,9 +244,8 @@ export default function Register() {
         </div>
       </div>
 
-      {/* ─── Right panel, scrollable ─── */}
+      {/* ─── Right panel ─── */}
       <div className="min-h-screen bg-white lg:ml-[42%]">
-        {/* Mobile header, fixed */}
         <div className="lg:hidden fixed top-0 inset-x-0 z-20 flex items-center justify-between p-5 bg-white border-b border-[#0B2343]/[0.05]">
           <Link to={FRONTEND_URL || "/"}>
             <img src={logo} alt="Amber ESOL" className="h-8 w-auto" />
@@ -261,17 +257,21 @@ export default function Register() {
             Sign in
           </Link>
         </div>
-
-        {/* Spacer for mobile header */}
         <div className="lg:hidden h-16" />
 
-        {/* Form area */}
         <div className="flex justify-center px-6 sm:px-10 xl:px-16 py-12 lg:py-16">
           <div className="w-full max-w-[480px]">
             {/* Heading */}
             <div className="mb-8">
+              <Link
+                to="/signup"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0B2343]/35 hover:text-[#0B2343]/60 transition-colors mb-4"
+              >
+                <ArrowRight size={12} className="rotate-180" />
+                Back to options
+              </Link>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B2343] tracking-tight">
-                Create your account
+                Create your student account
               </h1>
               <p className="text-sm text-[#0B2343]/40 mt-2">
                 Join Amber ESOL and start your English learning journey
@@ -291,73 +291,6 @@ export default function Register() {
 
             {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              {/* Role selector */}
-              <div>
-                <label className="block text-xs font-semibold text-[#0B2343]/60 mb-2">
-                  I want to
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  {(
-                    [
-                      {
-                        value: "student",
-                        label: "Learn English",
-                        icon: BookOpen,
-                        desc: "Find a tutor and start learning",
-                      },
-                      {
-                        value: "tutor",
-                        label: "Teach English",
-                        icon: GraduationCap,
-                        desc: "Share your expertise with learners",
-                      },
-                    ] as const
-                  ).map((option) => (
-                    <label
-                      key={option.value}
-                      className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
-                        selectedRole === option.value
-                          ? "border-[#ff7c22] bg-[#ff7c22]/[0.03]"
-                          : "border-[#0B2343]/[0.06] hover:border-[#0B2343]/[0.12]"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        value={option.value}
-                        {...register("role")}
-                        className="sr-only"
-                      />
-                      <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                          selectedRole === option.value
-                            ? "bg-[#ff7c22] text-white"
-                            : "bg-[#0B2343]/[0.04] text-[#0B2343]/30"
-                        }`}
-                      >
-                        <option.icon size={20} />
-                      </div>
-                      <span
-                        className={`text-sm font-bold ${
-                          selectedRole === option.value
-                            ? "text-[#ff7c22]"
-                            : "text-[#0B2343]"
-                        }`}
-                      >
-                        {option.label}
-                      </span>
-                      <span className="text-[10px] text-[#0B2343]/35 text-center">
-                        {option.desc}
-                      </span>
-                      {selectedRole === option.value && (
-                        <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-[#ff7c22] flex items-center justify-center">
-                          <CheckCircle2 size={12} className="text-white" />
-                        </div>
-                      )}
-                    </label>
-                  ))}
-                </div>
-              </div>
-
               {/* Name fields */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -371,18 +304,18 @@ export default function Register() {
                     />
                     <input
                       type="text"
-                      {...register("firstName")}
+                      {...register("firstname")}
                       placeholder="John"
                       className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
-                        errors.firstName
+                        errors.firstname
                           ? "border-red-300"
                           : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
                       }`}
                     />
                   </div>
-                  {errors.firstName && (
+                  {errors.firstname && (
                     <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
-                      <AlertCircle size={12} /> {errors.firstName.message}
+                      <AlertCircle size={12} /> {errors.firstname.message}
                     </p>
                   )}
                 </div>
@@ -397,18 +330,18 @@ export default function Register() {
                     />
                     <input
                       type="text"
-                      {...register("lastName")}
+                      {...register("lastname")}
                       placeholder="Doe"
                       className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
-                        errors.lastName
+                        errors.lastname
                           ? "border-red-300"
                           : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
                       }`}
                     />
                   </div>
-                  {errors.lastName && (
+                  {errors.lastname && (
                     <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
-                      <AlertCircle size={12} /> {errors.lastName.message}
+                      <AlertCircle size={12} /> {errors.lastname.message}
                     </p>
                   )}
                 </div>
@@ -454,18 +387,18 @@ export default function Register() {
                   />
                   <input
                     type="tel"
-                    {...register("phone")}
+                    {...register("phoneNumber")}
                     placeholder="+44 7700 900000"
                     className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
-                      errors.phone
+                      errors.phoneNumber
                         ? "border-red-300"
                         : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
                     }`}
                   />
                 </div>
-                {errors.phone && (
+                {errors.phoneNumber && (
                   <p className="text-xs text-red-500 mt-1.5 flex items-center gap-1">
-                    <AlertCircle size={12} /> {errors.phone.message}
+                    <AlertCircle size={12} /> {errors.phoneNumber.message}
                   </p>
                 )}
               </div>
@@ -503,30 +436,28 @@ export default function Register() {
                     </p>
                   )}
                 </div>
-                {selectedRole === "student" && (
-                  <div>
-                    <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
-                      English level
-                    </label>
-                    <div className="relative">
-                      <BookOpen
-                        size={16}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0B2343]/25 pointer-events-none"
-                      />
-                      <select
-                        {...register("englishLevel")}
-                        className="w-full pl-11 pr-4 py-3 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] outline-none appearance-none cursor-pointer focus:border-[#ff7c22]/40 focus:bg-white transition-colors"
-                      >
-                        <option value="">Select level</option>
-                        {cefrLevels.map((level) => (
-                          <option key={level.value} value={level.value}>
-                            {level.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                <div>
+                  <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
+                    English level
+                  </label>
+                  <div className="relative">
+                    <BookOpen
+                      size={16}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0B2343]/25 pointer-events-none"
+                    />
+                    <select
+                      {...register("currentLevel")}
+                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] outline-none appearance-none cursor-pointer focus:border-[#ff7c22]/40 focus:bg-white transition-colors"
+                    >
+                      <option value="">Select level</option>
+                      {levelOptions.map((level) => (
+                        <option key={level.value} value={level.value}>
+                          {level.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                )}
+                </div>
               </div>
 
               {/* Passwords */}
@@ -603,7 +534,6 @@ export default function Register() {
                 </div>
               </div>
 
-              {/* Password hint */}
               <p className="text-[11px] text-[#0B2343]/30 -mt-2">
                 Must contain at least 8 characters, one uppercase, one
                 lowercase, and one number.
@@ -660,7 +590,7 @@ export default function Register() {
                   </>
                 ) : (
                   <>
-                    Create Account
+                    Create Student Account
                     <ArrowRight size={16} />
                   </>
                 )}
@@ -707,8 +637,16 @@ export default function Register() {
               </span>
             </button>
 
-            {/* Sign in link */}
             <p className="text-center text-sm text-[#0B2343]/40 mt-8">
+              Want to teach instead?{" "}
+              <Link
+                to="/signup/tutor"
+                className="text-[#ff7c22] font-bold hover:underline"
+              >
+                Register as a tutor
+              </Link>
+            </p>
+            <p className="text-center text-sm text-[#0B2343]/40 mt-2">
               Already have an account?{" "}
               <Link
                 to="/login"
@@ -718,7 +656,6 @@ export default function Register() {
               </Link>
             </p>
 
-            {/* Trust footer */}
             <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-[#0B2343]/[0.04]">
               {["256-bit SSL", "UK GDPR compliant", "Stripe secured"].map(
                 (t) => (

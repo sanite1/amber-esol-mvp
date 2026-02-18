@@ -5,7 +5,7 @@ const testimonials = [
     name: "Maria Garcia",
     role: "IELTS Student · Band 7.5",
     img: "https://randomuser.me/api/portraits/women/65.jpg",
-    text: "I went from struggling with basic conversations to passing IELTS with a 7.5. My tutor was incredible — patient, professional, and always prepared for every session.",
+    text: "I went from struggling with basic conversations to passing IELTS with a 7.5. My tutor was incredible, patient, professional, and always prepared for every session.",
     highlight: "IELTS 7.5 in 3 months",
   },
   {

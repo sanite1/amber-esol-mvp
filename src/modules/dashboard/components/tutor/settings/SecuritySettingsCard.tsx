@@ -1,71 +1,68 @@
-import { KeyRound } from "lucide-react";
-import type { TutorSettingsData } from "../../../data/tutor/tutorSettingsData";
+import { Shield, Mail, Lock, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface Props {
-  settings: TutorSettingsData;
-  onToggle2FA: () => void;
+  email: string;
+  verified: boolean;
   onChangePassword: () => void;
 }
 
 export default function SecuritySettingsCard({
-  settings,
-  onToggle2FA,
+  email,
+  verified,
   onChangePassword,
 }: Props) {
   return (
-    <div className="bg-white rounded-xl border border-[#0B2343]/[0.06] p-3 sm:p-4 md:p-5">
-      <h3 className="text-[13px] sm:text-sm font-semibold text-[#0B2343] mb-4">
-        Security
-      </h3>
+    <div className="bg-white rounded-xl border border-[#0B2343]/[0.06] p-4 sm:p-5">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="w-7 h-7 rounded-lg bg-[#0B2343]/[0.04] flex items-center justify-center">
+          <Shield size={13} className="text-[#0B2343]/30" />
+        </div>
+        <h3 className="text-sm font-semibold text-[#0B2343]">Security</h3>
+      </div>
 
       <div className="space-y-3">
-        {/* Change password */}
-        <div className="flex items-center justify-between gap-3 py-2.5 px-3 rounded-lg bg-[#0B2343]/[0.015]">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <KeyRound size={15} className="text-[#0B2343]/25 shrink-0" />
-            <div className="min-w-0">
-              <p className="text-[11px] sm:text-xs font-medium text-[#0B2343]/60">
-                Password
+        {/* Email */}
+        <div className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-[#0B2343]/[0.015]">
+          <div className="flex items-center gap-2.5">
+            <Mail size={13} className="text-[#0B2343]/25" />
+            <div>
+              <p className="text-xs text-[#0B2343]/40">Email</p>
+              <p className="text-[13px] text-[#0B2343]/70 font-medium">
+                {email}
               </p>
-              <p className="text-[10px] text-[#0B2343]/25">
-                Last changed: Unknown
+            </div>
+          </div>
+          {verified ? (
+            <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+              <CheckCircle2 size={10} />
+              Verified
+            </span>
+          ) : (
+            <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+              <AlertCircle size={10} />
+              Unverified
+            </span>
+          )}
+        </div>
+
+        {/* Password */}
+        <div className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-[#0B2343]/[0.015]">
+          <div className="flex items-center gap-2.5">
+            <Lock size={13} className="text-[#0B2343]/25" />
+            <div>
+              <p className="text-xs text-[#0B2343]/40">Password</p>
+              <p className="text-[13px] text-[#0B2343]/70 font-medium">
+                ••••••••
               </p>
             </div>
           </div>
           <button
             onClick={onChangePassword}
-            className="shrink-0 px-2.5 py-1.5 rounded-lg bg-[#0B2343]/[0.04] text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 hover:bg-[#0B2343]/[0.08] transition-colors"
+            className="text-[11px] font-semibold text-[#ff7c22] hover:underline"
           >
             Change
           </button>
         </div>
-
-        {/* 2FA */}
-        {/* <div className="flex items-center justify-between gap-3 py-2.5 px-3 rounded-lg bg-[#0B2343]/[0.015]">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <Smartphone size={15} className="text-[#0B2343]/25 shrink-0" />
-            <div className="min-w-0">
-              <p className="text-[11px] sm:text-xs font-medium text-[#0B2343]/60">
-                Two-Factor Authentication
-              </p>
-              <p className="text-[10px] text-[#0B2343]/25">
-                {settings.twoFactorEnabled
-                  ? "Enabled — extra layer of security"
-                  : "Disabled — recommended for account safety"}
-              </p>
-            </div>
-          </div>
-          <label className="shrink-0 relative cursor-pointer">
-            <input
-              type="checkbox"
-              checked={settings.twoFactorEnabled}
-              onChange={onToggle2FA}
-              className="sr-only peer"
-            />
-            <div className="w-9 h-5 rounded-full bg-[#0B2343]/15 peer-checked:bg-emerald-500 transition-colors" />
-            <div className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4" />
-          </label>
-        </div> */}
       </div>
     </div>
   );

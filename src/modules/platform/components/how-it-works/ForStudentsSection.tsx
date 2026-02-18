@@ -11,7 +11,7 @@ const perks = [
   {
     icon: CreditCard,
     title: "Free trial lesson",
-    desc: "Try any tutor with a free 30-minute session — no card required.",
+    desc: "Try any tutor with a free 30-minute session, no card required.",
   },
   {
     icon: Globe,

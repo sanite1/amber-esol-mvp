@@ -55,7 +55,7 @@ export default function AboutHero() {
             data-aos-delay="200"
             className="mt-6 text-lg text-white/40 leading-relaxed max-w-2xl"
           >
-            Amber ESOL is part of Amber Training — a UK-based professional
+            Amber ESOL is part of Amber Training, a UK-based professional
             development company trusted since 2024. We're building the future of
             online English learning, one lesson at a time.
           </p>

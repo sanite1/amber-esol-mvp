@@ -1,7 +1,8 @@
+// src/pages/student/TutorDetail.tsx
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { tutorDetail as dummyTutor } from "../../data/student/tutorDetailData";
+import { useFetchUserById } from "../../lib/api/authOnboarding";
 import {
   HeroSkeleton,
   StatsSkeleton,
@@ -11,29 +12,24 @@ import {
 import TutorHero from "../../components/student/tutor-detail/TutorHero";
 import TutorStats from "../../components/student/tutor-detail/TutorStats";
 import TutorAbout from "../../components/student/tutor-detail/TutorAbout";
-import TutorReviews from "../../components/student/tutor-detail/TutorReviews";
 import TutorSidebar from "../../components/student/tutor-detail/TutorSidebar";
 import BookTrialModal from "../../components/student/tutor-detail/BookTrialModal";
 import BookLessonModal from "../../components/student/tutor-detail/BookLessonModal";
 
 export default function TutorDetail() {
-  const { slug } = useParams<{ slug: string }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
-  const [tutor, setTutor] = useState(dummyTutor);
   const [showTrialModal, setShowTrialModal] = useState(false);
   const [showLessonModal, setShowLessonModal] = useState(false);
 
+  const { data: tutor, isLoading, isError } = useFetchUserById(id ?? "");
+
   useEffect(() => {
     window.scrollTo(0, 0);
-    // TODO: fetch tutor by slug
-    const t = setTimeout(() => setIsLoading(false), 1200);
-    return () => clearTimeout(t);
-  }, [slug]);
+  }, [id]);
 
   const handleTrialSuccess = () => {
     setShowTrialModal(false);
-    setTutor((prev) => ({ ...prev, hasStudentBookedTrial: true }));
     // TODO: navigate to lessons or show toast
   };
 
@@ -43,8 +39,7 @@ export default function TutorDetail() {
   };
 
   const handleMessage = () => {
-    navigate("/messages");
-    // TODO: open or create conversation with this tutor
+    navigate(`/student/messages?tutor=${id}`);
   };
 
   if (isLoading) {
@@ -66,6 +61,27 @@ export default function TutorDetail() {
       </div>
     );
   }
+
+  if (isError || !tutor) {
+    return (
+      <div className="max-w-6xl mx-auto">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1.5 text-xs text-[#0B2343]/40 hover:text-[#0B2343]/60 transition-colors mb-6"
+        >
+          <ArrowLeft size={14} />
+          Back to tutors
+        </button>
+        <div className="text-center py-20">
+          <p className="text-sm text-[#0B2343]/40">
+            Tutor not found or something went wrong.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const hasTrialAvailable = tutor.trialLessonOffered ?? false;
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -91,17 +107,15 @@ export default function TutorDetail() {
 
       {/* Content + Sidebar */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main content */}
         <div className="lg:col-span-2 space-y-6">
           <TutorAbout tutor={tutor} />
-          <TutorReviews
+          {/* <TutorReviews
             reviews={tutor.reviews}
             rating={tutor.rating}
             totalReviews={tutor.totalReviews}
-          />
+          /> */}
         </div>
 
-        {/* Sidebar — hidden on mobile (hero has buttons), visible on desktop */}
         <div className="hidden lg:block">
           <div className="sticky top-24">
             <TutorSidebar
@@ -119,24 +133,26 @@ export default function TutorDetail() {
         <div className="flex items-center gap-3 max-w-xl mx-auto">
           <div className="shrink-0">
             <p className="text-lg font-bold text-[#0B2343]">
-              £{tutor.hourlyRate}
+              £{tutor.hourlyRate ?? 0}
             </p>
             <p className="text-[10px] text-[#0B2343]/30">per hour</p>
           </div>
           <div className="flex-1 flex gap-2">
-            {tutor.hasTrialAvailable && !tutor.hasStudentBookedTrial ? (
+            {hasTrialAvailable ? (
               <>
                 <button
                   onClick={() => setShowTrialModal(true)}
                   className="flex-1 py-2.5 rounded-xl bg-[#ff7c22] text-white text-xs font-semibold hover:bg-[#e56a10] transition-colors"
                 >
-                  Free Trial
+                  {tutor.trialLessonPrice === 0
+                    ? "Free Trial"
+                    : `Trial £${tutor.trialLessonPrice}`}
                 </button>
                 <button
                   onClick={() => setShowLessonModal(true)}
                   className="flex-1 py-2.5 rounded-xl bg-[#0B2343] text-white text-xs font-semibold hover:bg-[#0B2343]/90 transition-colors"
                 >
-                  Book Lessons
+                  Book Lesson
                 </button>
               </>
             ) : (
@@ -144,14 +160,13 @@ export default function TutorDetail() {
                 onClick={() => setShowLessonModal(true)}
                 className="flex-1 py-2.5 rounded-xl bg-[#ff7c22] text-white text-xs font-semibold hover:bg-[#e56a10] transition-colors"
               >
-                Book Lessons
+                Book Lesson
               </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Add padding at bottom for mobile sticky footer */}
       <div className="h-20 lg:hidden" />
 
       {/* Modals */}

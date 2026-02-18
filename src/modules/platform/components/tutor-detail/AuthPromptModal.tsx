@@ -75,7 +75,7 @@ export default function AuthPromptModal({ isOpen, onClose, action }: Props) {
           <div className="mt-6 pt-5 border-t border-[#0B2343]/[0.05]">
             <p className="text-[11px] text-[#0B2343]/30 flex items-center justify-center gap-1.5">
               <ShieldBadge />
-              Free trial lesson included — no credit card required
+              Free trial lesson included, no credit card required
             </p>
           </div>
         </div>

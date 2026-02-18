@@ -1,11 +1,4 @@
-import {
-  Shield,
-  CheckCircle2,
-  AlertCircle,
-  Mail,
-  Phone,
-  Key,
-} from "lucide-react";
+import { Shield, CheckCircle2, AlertCircle, Mail, Key } from "lucide-react";
 import type { StudentProfile } from "../../../data/student/studentProfileData";
 
 interface Props {
@@ -38,7 +31,7 @@ export default function SecuritySection({
             <div>
               <p className="text-sm text-[#0B2343]/55">{profile.email}</p>
               <div className="flex items-center gap-1 mt-0.5">
-                {profile.isEmailVerified ? (
+                {profile.verified ? (
                   <>
                     <CheckCircle2
                       size={10}
@@ -63,7 +56,7 @@ export default function SecuritySection({
         </div>
 
         {/* Phone */}
-        <div className="flex items-center justify-between p-3 rounded-xl border border-[#0B2343]/[0.04]">
+        {/* <div className="flex items-center justify-between p-3 rounded-xl border border-[#0B2343]/[0.04]">
           <div className="flex items-center gap-2.5">
             <Phone size={13} className="text-[#0B2343]/20 shrink-0" />
             <div>
@@ -103,7 +96,7 @@ export default function SecuritySection({
               Verify
             </button>
           )}
-        </div>
+        </div> */}
 
         {/* Password */}
         <div className="flex items-center justify-between p-3 rounded-xl border border-[#0B2343]/[0.04]">

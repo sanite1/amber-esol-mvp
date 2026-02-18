@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 const faqs = [
   {
     q: "How does the free trial lesson work?",
-    a: "Sign up and book a 30-minute trial with any available tutor — completely free. No credit card required. It's a chance to see if you're a good fit before committing.",
+    a: "Sign up and book a 30-minute trial with any available tutor, completely free. No credit card required. It's a chance to see if you're a good fit before committing.",
   },
   {
     q: "What qualifications do your tutors have?",
@@ -13,11 +13,11 @@ const faqs = [
   },
   {
     q: "Can I reschedule or cancel a lesson?",
-    a: "Yes — up to 12 hours before with no charge. Cancellations within 12 hours may have a partial fee to respect the tutor's time.",
+    a: "Yes, up to 12 hours before with no charge. Cancellations within 12 hours may have a partial fee to respect the tutor's time.",
   },
   {
     q: "What do I need for a video lesson?",
-    a: "A stable internet connection and a device with camera + microphone. Our classroom runs in your browser — no installation needed.",
+    a: "A stable internet connection and a device with camera + microphone. Our classroom runs in your browser, no installation needed.",
   },
   {
     q: "How are payments handled?",
@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     q: "Do you offer corporate training?",
-    a: "Yes — tailored packages with dedicated account management, progress reporting, and flexible billing. Contact us for a quote.",
+    a: "Yes, tailored packages with dedicated account management, progress reporting, and flexible billing. Contact us for a quote.",
   },
 ];
 

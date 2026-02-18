@@ -65,7 +65,7 @@ export default function TutorSearchBar({
         {/* Filter toggle */}
         <button
           onClick={onToggleFilters}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
+          className={`flex lg:hidden items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
             showFilters
               ? "bg-[#ff7c22] text-white border-[#ff7c22]"
               : "bg-white text-[#0B2343]/60 border-[#0B2343]/[0.08] hover:border-[#0B2343]/15"

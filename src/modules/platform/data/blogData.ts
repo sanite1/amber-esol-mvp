@@ -50,7 +50,7 @@ export const blogData: BlogPost[] = [
     content: [
       {
         subheading: "Introduction",
-        body: `Learning a language online has become one of the most accessible and effective ways to build fluency. Whether you're preparing for an exam, advancing your career, or simply exploring a new culture, online lessons offer unmatched flexibility. But flexibility alone doesn't guarantee results — the way you prepare, engage, and follow up after each session determines how fast you progress.
+        body: `Learning a language online has become one of the most accessible and effective ways to build fluency. Whether you're preparing for an exam, advancing your career, or simply exploring a new culture, online lessons offer unmatched flexibility. But flexibility alone doesn't guarantee results, the way you prepare, engage, and follow up after each session determines how fast you progress.
 
 In this guide, we'll walk you through practical strategies that can help you squeeze every drop of value from your online language lessons.`,
       },
@@ -70,7 +70,7 @@ Find a quiet spot, close unnecessary tabs on your computer, put your phone on si
         subheading: "Speak More Than You Listen",
         body: `It's tempting to let your tutor do most of the talking, especially if you're a beginner. But real progress comes from active participation. Push yourself to speak as much as possible, even if you make mistakes.
 
-Your tutor is there to guide and correct you — that's the whole point. Every error you make and correct is a step forward. Ask your tutor to give you more speaking time if you feel the balance isn't right. A good lesson should feel like a conversation, not a lecture.`,
+Your tutor is there to guide and correct you, that's the whole point. Every error you make and correct is a step forward. Ask your tutor to give you more speaking time if you feel the balance isn't right. A good lesson should feel like a conversation, not a lecture.`,
       },
       {
         subheading: "Review and Practise Between Lessons",
@@ -82,13 +82,13 @@ Many students also benefit from keeping a simple language journal where they jot
         subheading: "Build a Relationship with Your Tutor",
         body: `The best learning happens when you feel comfortable with your tutor. Don't be afraid to share your interests, challenges, and learning style. The more your tutor knows about you, the better they can personalise your lessons.
 
-If something isn't working — a particular teaching method, topic, or pace — communicate that. Great tutors welcome feedback because it helps them help you. Think of your tutor as a partner in your learning journey, not just an instructor.`,
+If something isn't working, a particular teaching method, topic, or pace, communicate that. Great tutors welcome feedback because it helps them help you. Think of your tutor as a partner in your learning journey, not just an instructor.`,
       },
       {
         subheading: "Conclusion",
         body: `Online language lessons are one of the best investments you can make in your personal and professional growth. By setting clear goals, minimising distractions, speaking actively, reviewing consistently, and building a strong relationship with your tutor, you'll accelerate your progress and enjoy the journey.
 
-Remember: it's not about how many lessons you take — it's about how much you put into each one.`,
+Remember: it's not about how many lessons you take, it's about how much you put into each one.`,
       },
     ],
   },
@@ -107,7 +107,7 @@ Remember: it's not about how many lessons you take — it's about how much you p
     content: [
       {
         subheading: "Introduction",
-        body: `Learning English is exciting, but it can also feel overwhelming — especially in the beginning. Many learners hit the same roadblocks without realising it. The good news? Most of these mistakes are easy to fix once you're aware of them.
+        body: `Learning English is exciting, but it can also feel overwhelming, especially in the beginning. Many learners hit the same roadblocks without realising it. The good news? Most of these mistakes are easy to fix once you're aware of them.
 
 In this post, we'll look at five of the most common mistakes beginners make and give you simple, practical ways to overcome each one.`,
       },
@@ -115,7 +115,7 @@ In this post, we'll look at five of the most common mistakes beginners make and 
         subheading: "1. Focusing Too Much on Grammar Rules",
         body: `Grammar is important, but obsessing over rules at the expense of actual communication is a trap. Many beginners spend hours memorising verb tables but freeze when they need to have a real conversation.
 
-The fix: Balance grammar study with speaking practice. Use grammar as a tool, not the goal. If you can communicate your idea — even imperfectly — that's progress. Your tutor can help you refine accuracy over time.`,
+The fix: Balance grammar study with speaking practice. Use grammar as a tool, not the goal. If you can communicate your idea, even imperfectly, that's progress. Your tutor can help you refine accuracy over time.`,
       },
       {
         subheading: "2. Translating Everything from Your Native Language",
@@ -127,13 +127,13 @@ The fix: Start thinking in English as early as possible. Label objects around yo
         subheading: "3. Being Afraid of Making Mistakes",
         body: `Fear of errors is the number one barrier to speaking fluency. If you wait until you can speak perfectly, you'll never speak at all.
 
-The fix: Embrace mistakes as learning opportunities. Every correction your tutor gives you is a lesson in itself. Native speakers make errors too — what matters is communication, not perfection.`,
+The fix: Embrace mistakes as learning opportunities. Every correction your tutor gives you is a lesson in itself. Native speakers make errors too, what matters is communication, not perfection.`,
       },
       {
         subheading: "4. Not Practising Listening Enough",
         body: `Many learners focus on reading and writing but neglect listening skills. This creates a gap where you can understand written English but struggle to follow a conversation.
 
-The fix: Listen to English every day. Podcasts, YouTube videos, music, and audiobooks are all excellent resources. Start with content slightly below your level and gradually increase the difficulty. Active listening — where you focus on understanding — is far more effective than background listening.`,
+The fix: Listen to English every day. Podcasts, YouTube videos, music, and audiobooks are all excellent resources. Start with content slightly below your level and gradually increase the difficulty. Active listening, where you focus on understanding, is far more effective than background listening.`,
       },
       {
         subheading: "5. Studying in Isolation",
@@ -143,7 +143,7 @@ The fix: Find conversation partners, join language exchange groups, or book regu
       },
       {
         subheading: "Conclusion",
-        body: `Every language learner makes mistakes — it's part of the process. What separates successful learners from those who give up is the willingness to recognise these patterns and adjust. Focus on communication over perfection, practise consistently, and don't be afraid to ask for help.
+        body: `Every language learner makes mistakes, it's part of the process. What separates successful learners from those who give up is the willingness to recognise these patterns and adjust. Focus on communication over perfection, practise consistently, and don't be afraid to ask for help.
 
 Your English journey is a marathon, not a sprint. Enjoy the process and celebrate every small win along the way.`,
       },
@@ -154,7 +154,7 @@ Your English journey is a marathon, not a sprint. Enjoy the process and celebrat
     title: "A Tutor's Guide to Building a Loyal Student Base",
     slug: "tutors-guide-to-building-loyal-student-base",
     excerpt:
-      "Attracting students is one thing — keeping them is another. Here's how experienced tutors build lasting relationships and grow their teaching practice.",
+      "Attracting students is one thing, keeping them is another. Here's how experienced tutors build lasting relationships and grow their teaching practice.",
     image: "/images/blog/tutor-guide.jpg",
     category: "Tutor Guides",
     date: "Jan 27, 2026",
@@ -166,7 +166,7 @@ Your English journey is a marathon, not a sprint. Enjoy the process and celebrat
         subheading: "Introduction",
         body: `As an online tutor, your income and job satisfaction depend on one thing above all else: your students. Attracting new students matters, but retaining them is what builds a sustainable teaching practice.
 
-In this guide, we'll explore practical strategies that experienced tutors use to create loyal student bases — from first impressions to long-term relationship building.`,
+In this guide, we'll explore practical strategies that experienced tutors use to create loyal student bases, from first impressions to long-term relationship building.`,
       },
       {
         subheading: "Make the Trial Lesson Count",
@@ -196,11 +196,11 @@ When a student gives feedback, act on it visibly. This shows them that their opi
         subheading: "Create a Sense of Progress",
         body: `Students who can see their improvement are students who stay. Track milestones, celebrate wins (even small ones), and periodically review how far they've come.
 
-You might say, "Remember three months ago when you couldn't talk about your job in English? Look at you now — you just explained your entire project without hesitating." Moments like these are incredibly motivating and reinforce the value of continuing.`,
+You might say, "Remember three months ago when you couldn't talk about your job in English? Look at you now, you just explained your entire project without hesitating." Moments like these are incredibly motivating and reinforce the value of continuing.`,
       },
       {
         subheading: "Conclusion",
-        body: `Building a loyal student base isn't about tricks or marketing — it's about being a great tutor who genuinely cares about their students' progress. When you combine professionalism with personalisation and consistent quality, students don't just stay — they recommend you to others.
+        body: `Building a loyal student base isn't about tricks or marketing, it's about being a great tutor who genuinely cares about their students' progress. When you combine professionalism with personalisation and consistent quality, students don't just stay, they recommend you to others.
 
 Your reputation is your most powerful growth engine. Invest in every student relationship, and your teaching practice will thrive.`,
       },
@@ -229,7 +229,7 @@ Yet many students invest in generic prep courses and study materials only to fin
         subheading: "Every Student Has Different Weaknesses",
         body: `Some students struggle with writing task coherence. Others find the listening section too fast. Some have strong grammar but lack speaking confidence. A personalised approach identifies your specific weaknesses and targets them directly.
 
-A tutor who understands your unique challenges can design practice sessions that address exactly what's holding you back — rather than wasting time on areas you've already mastered.`,
+A tutor who understands your unique challenges can design practice sessions that address exactly what's holding you back, rather than wasting time on areas you've already mastered.`,
       },
       {
         subheading: "Band Score Targets Require Specific Strategies",
@@ -272,13 +272,13 @@ Your IELTS score can open doors to universities, careers, and countries around t
     content: [
       {
         subheading: "Introduction",
-        body: `There's a persistent myth that language learning is only for the young — that if you didn't grow up bilingual, you've missed your window. This couldn't be further from the truth.
+        body: `There's a persistent myth that language learning is only for the young, that if you didn't grow up bilingual, you've missed your window. This couldn't be further from the truth.
 
 While children do have certain neurological advantages, adults bring something equally powerful to the table: motivation, life experience, and the ability to learn strategically. In this article, we'll explore why learning a language as an adult is not only possible but deeply rewarding.`,
       },
       {
         subheading: "You Already Know How to Learn",
-        body: `Unlike children, who absorb language unconsciously, adults understand how learning works. You know your strengths, your preferred study methods, and how to set goals. This metacognitive ability — thinking about how you think — is a superpower.
+        body: `Unlike children, who absorb language unconsciously, adults understand how learning works. You know your strengths, your preferred study methods, and how to set goals. This metacognitive ability, thinking about how you think, is a superpower.
 
 You can identify patterns in grammar, draw connections between languages, and use context clues that children simply don't have access to. Combined with the right tutor and materials, this makes adult learners incredibly efficient.`,
       },
@@ -302,7 +302,7 @@ Whether it's a 30-minute session during lunch or an intensive weekend study bloc
       },
       {
         subheading: "Conclusion",
-        body: `If you've been putting off learning a language because you think it's too late, let this be your sign to start. Adults make excellent language learners — you just need the right approach, the right support, and the willingness to begin.
+        body: `If you've been putting off learning a language because you think it's too late, let this be your sign to start. Adults make excellent language learners, you just need the right approach, the right support, and the willingness to begin.
 
 Every expert was once a beginner. Your future bilingual self will thank you for starting today.`,
       },

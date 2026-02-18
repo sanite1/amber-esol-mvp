@@ -1,220 +1,344 @@
-// =====================
-// 🧾 AUTH & USER TYPES
-// =====================
+/* ──────────────────────────────────────────────
+   Subdocument / nested types
+   ────────────────────────────────────────────── */
 
-// ✅ Login
+export interface Address {
+  street?: string;
+  city?: string;
+  state?: string;
+  postcode?: string;
+  country: string;
+}
+
+export interface Certification {
+  name: string;
+  issuedBy: string;
+  year: string;
+  documentUrl?: string;
+}
+
+export interface Education {
+  degree: string;
+  institution: string;
+  year: string;
+}
+
+export interface NotificationPreferences {
+  email: boolean;
+  push: boolean;
+  sms: boolean;
+  lessonReminders: boolean;
+  promotions: boolean;
+  newMessages: boolean;
+  lessonUpdates: boolean;
+  paymentAlerts: boolean;
+}
+
+export interface TeachingPreferences {
+  maxStudents: number;
+  lessonTypes: ("one-on-one" | "group")[];
+  preferredLevels: (
+    | "beginner"
+    | "elementary"
+    | "intermediate"
+    | "upper-intermediate"
+    | "advanced"
+  )[];
+  autoAcceptBookings: boolean;
+}
+// Add this new interface near the other subdocument types
+export type LanguageFluency =
+  | "native"
+  | "fluent"
+  | "advanced"
+  | "intermediate"
+  | "basic";
+
+export interface Language {
+  name: string;
+  fluency: LanguageFluency;
+}
+
+export type CurrentLevel =
+  | "beginner"
+  | "elementary"
+  | "intermediate"
+  | "upper-intermediate"
+  | "advanced"
+  | "proficiency";
+
+export type LessonTypePreference = "one-on-one" | "group" | "both";
+
+export type ScheduleSlot = "morning" | "afternoon" | "evening" | "weekend";
+
+export interface LearningPreferences {
+  currentLevel?: CurrentLevel;
+  targetLevel?: CurrentLevel;
+  goals?: string[];
+  preferredSchedule?: ScheduleSlot[];
+  lessonTypePreference?: LessonTypePreference;
+}
+
+/* ──────────────────────────────────────────────
+   User data (what the backend returns)
+   ────────────────────────────────────────────── */
+
+export interface UserData {
+  _id: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  phoneNumber: string;
+  role: "admin" | "tutor" | "student";
+  profilePicture?: string;
+  dateOfBirth?: string;
+  gender?: "male" | "female" | "other" | "prefer-not-to-say";
+  address?: Address;
+  timezone?: string;
+  bio?: string;
+
+  // Account status
+  verified: boolean;
+  isActive: boolean;
+  suspensionEnd?: string;
+  suspensionReason?: string;
+  lastLogin?: string;
+  onlineStatus: "online" | "offline" | "away";
+  lastSeen?: string;
+
+  // Tutor-specific
+  languages?: Language[];
+  nativeLanguage?: string;
+  hourlyRate?: number;
+  yearsOfExperience?: number;
+  certifications?: Certification[];
+  education?: Education[];
+  specializations?: string[];
+  teachingPreferences?: TeachingPreferences;
+  ratings?: number[];
+  averageRating?: number;
+  totalLessons?: number;
+  totalStudents?: number;
+  numberOfReviews?: number;
+  completionRate?: number;
+  responseTime?: number;
+  introVideoUrl?: string;
+  trialLessonOffered?: boolean;
+  trialLessonPrice?: number;
+
+  // Student-specific
+  learningPreferences?: LearningPreferences;
+  enrolledCourses?: string[];
+  totalLessonsTaken?: number;
+  totalHoursLearned?: number;
+  currentStreak?: number;
+  longestStreak?: number;
+
+  // Notification preferences
+  notificationPreferences?: NotificationPreferences;
+
+  createdAt: string;
+  updatedAt: string;
+}
+
+/* ──────────────────────────────────────────────
+   Decoded JWT payload
+   ────────────────────────────────────────────── */
+
+export interface DecodedUser {
+  id: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  role: "admin" | "tutor" | "student";
+  profilePicture: string;
+  exp: number;
+  iat: number;
+}
+
+/* ──────────────────────────────────────────────
+   Request payloads
+   ────────────────────────────────────────────── */
+
 export interface LoginPayload {
   email: string;
   password: string;
 }
 
-export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  message?: string;
-  user?: UserData;
-}
-
-export interface refreshResponse {
-  accessToken: string;
-}
-
-// ✅ Signup
-export interface SignupPayload {
-  // firstname: string;
-  // lastname: string;
+export interface RegisterStudentPayload {
+  firstname: string;
+  lastname: string;
   email: string;
+  phoneNumber: string;
   password: string;
-  signupCode: string;
+  profilePicture?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  address?: Address;
+  timezone?: string;
+  learningPreferences?: LearningPreferences;
 }
 
-// ✅ Update Password
+export interface RegisterTutorPayload {
+  firstname: string;
+  lastname: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+  profilePicture?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  address?: Address;
+  timezone?: string;
+  bio: string;
+  languages: Language[];
+  nativeLanguage: string;
+  hourlyRate: number;
+  yearsOfExperience: number;
+  certifications: Certification[];
+  education?: Education[];
+  specializations?: string[];
+  teachingPreferences?: TeachingPreferences;
+  trialLessonOffered?: boolean;
+  trialLessonPrice?: number;
+  introVideoUrl?: string;
+}
+
+export interface RegisterAdminPayload {
+  firstname: string;
+  lastname: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+  profilePicture?: string;
+}
+
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ResetPasswordPayload {
+  password: string;
+  confirmPassword: string;
+}
+
 export interface UpdatePasswordPayload {
   oldPassword: string;
   newPassword: string;
   confirmNewPassword: string;
 }
 
-// ✅ Forgot Password
-export interface forgotPasswordPayload {
-  email: string;
-}
-
-// ✅ Update User
 export interface UpdateUserPayload {
   firstname?: string;
   lastname?: string;
-  middlename?: string;
   phoneNumber?: string;
   profilePicture?: string;
   dateOfBirth?: string;
-  address?: Partial<IAddress>;
-  skillsAndPreferences?: Partial<ISkillsAndPreferences>;
+  gender?: string;
+  address?: Address;
+  timezone?: string;
+  bio?: string;
+  languages?: Language[];
+  nativeLanguage?: string;
+  hourlyRate?: number;
+  yearsOfExperience?: number;
+  certifications?: Certification[];
+  education?: Education[];
+  specializations?: string[];
+  teachingPreferences?: TeachingPreferences;
+  learningPreferences?: LearningPreferences;
+  notificationPreferences?: NotificationPreferences;
+  trialLessonOffered?: boolean;
+  trialLessonPrice?: number;
+  introVideoUrl?: string;
 }
 
-export type UserRole = "admin" | "contributor";
-export type UserStatus = "active" | "suspended" | "terminated" | "unverified";
-export type VerificationStatus =
-  | "not_started"
-  | "pending"
-  | "verified"
-  | "failed";
-export type LanguageProficiency =
-  | "Native"
-  | "Fluent"
-  | "Intermediate"
-  | "Basic";
-export type WeeklyAvailability =
-  | "Less than 10 hours"
-  | "10-20 hours"
-  | "20-30 hours"
-  | "30-40 hours"
-  | "40+ hours";
-
-// Sub-interfaces
-export interface ILanguage {
-  name: string;
-  proficiency: LanguageProficiency;
+export interface DeleteAccountPayload {
+  reason: string;
+  feedback?: string;
 }
 
-export interface IAddress {
-  street: string;
-  city: string;
-  state: string;
-  country: string;
-  zipCode: string;
+/* ──────────────────────────────────────────────
+   Response types
+   ────────────────────────────────────────────── */
+
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: UserData;
 }
 
-export interface IVerification {
-  emailVerified: boolean;
-  addressVerified: boolean;
-  ssnVerified: boolean;
-  ssnVerificationStatus: VerificationStatus;
-  ssnLastFour?: string; // Last 4 digits of SSN (stored encrypted)
-  ssnSubmittedAt?: string;
-  documentVerified: boolean;
-  documentVerificationStatus: VerificationStatus;
-  documentVerificationLink?: string;
-  documentSubmittedAt?: Date;
+export interface RefreshResponse {
+  accessToken: string;
 }
 
-export interface ISkillsAndPreferences {
-  skills: string[];
-  languages: ILanguage[];
-  preferredCategories: string[];
-  weeklyAvailability: WeeklyAvailability;
+export interface RegisterResponse {
+  user: UserData;
 }
 
-export interface IPaymentMethod {
-  _id: string;
-
-  type: "bank" | "paypal";
-  isDefault: boolean;
-  // Bank details (encrypted)
-  bankName?: string;
-  accountType?: "checking" | "savings";
-  accountLastFour?: string;
-  routingLastFour?: string;
-  accountHolderName?: string;
-  // PayPal details
-  paypalEmail?: string;
-  addedAt: Date;
+export interface UpdateUserResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: UserData;
 }
 
-export interface IEarnings {
-  availableBalance: number;
-  pendingBalance: number;
-  totalEarned: number;
-  lastPayoutDate?: Date;
-  lastPayoutAmount?: number;
+/* ──────────────────────────────────────────────
+   Tutor listing / filters
+   ────────────────────────────────────────────── */
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }
 
-export interface IStats {
-  tasksCompleted: number;
-  hoursWorked: number;
-  averageRating: number;
-  performanceScore: number;
-  accuracyRate: number;
-  speedScore: number;
-  qualityScore: number;
-}
+// src/lib/types/authOnboarding.ts — add/update these types
 
-// Main User Interface
-export interface UserData extends Document {
-  _id: string;
-
-  // Personal Information
-  firstname: string;
-  lastname: string;
-  middlename?: string;
-  email: string;
-  phoneNumber: string;
-  profilePicture?: string;
-  dateOfBirth?: string;
-
-  // Address
-  address?: IAddress;
-
-  // Authentication
-  password: string;
-  role: UserRole;
-  status: UserStatus;
-  signupCode: string;
-
-  // Verification
-  verification: IVerification;
-  verificationToken?: string;
-  resetToken?: string;
-  resetTokenExpires?: Date;
-
-  applicationGeoLocation?: string;
-  applicationIp?: string;
-  applicationRegion?: string;
-  applicationTimezone?: string;
-  applicationCity?: string;
-
-  // Skills & Preferences
-  skillsAndPreferences: ISkillsAndPreferences;
-
-  // Payment
-  paymentMethods: IPaymentMethod[];
-  earnings: IEarnings;
-
-  // Stats
-  stats: IStats;
-
-  // Metadata
-  lastLoginAt?: Date;
-  memberSince: Date;
-  createdAt: string;
-  updatedAt: Date;
-}
-
-// ✅ Decoded JWT User (used in Header)
-export interface DecodedUser {
-  id: string;
-  email: string;
-  fullName: string;
-  role?: string;
-  iat?: number;
-  exp?: number;
-}
-
-// SSN Verification Payload
-export interface SSNVerificationPayload {
-  ssn: string;
-}
-
-export interface UserFilters {
+export interface TutorFilters {
   page?: number;
   limit?: number;
   search?: string;
-  status?: string;
+  sort?: string;
+  language?: string;
+  specialization?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  level?: string;
+  trialOnly?: boolean;
 }
 
-export interface UserResponseData {
-  total: number;
-  currentPage: number;
-  totalPages: number;
-  users: UserData[];
+export interface TutorListItem {
+  _id: string;
+  firstname: string;
+  lastname: string;
+  profilePicture: string;
+  bio: string;
+  specializations: string[];
+  languages: Language[];
+  nativeLanguage: string;
+  hourlyRate: number;
+  trialLessonOffered: boolean;
+  trialLessonPrice: number;
+  yearsOfExperience: number;
+  rating: number;
+  totalReviews: number;
+  totalLessons: number;
+  isOnline: boolean;
+  address: {
+    country?: string;
+  };
+  timezone: string;
+  certifications: { name: string; issuedBy: string; year: string }[];
+  teachingPreferences?: {
+    maxStudents?: number;
+    lessonTypes?: string[];
+    preferredLevels?: string[];
+    autoAcceptBookings?: boolean;
+  };
+}
+
+export interface TutorListResponse {
+  tutors: TutorListItem[];
+  pagination: PaginationMeta;
 }

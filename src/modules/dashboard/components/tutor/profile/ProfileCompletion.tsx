@@ -1,13 +1,8 @@
 import { CheckCircle2, Circle, ArrowRight } from "lucide-react";
+import type { UserData } from "../../../lib/types/authOnboarding";
 
 interface Props {
-  profile: {
-    avatar?: string;
-    bio: string;
-    videoIntroUrl?: string;
-    qualifications: { id: string }[];
-    specialties: string[];
-  };
+  user: UserData;
 }
 
 interface CheckItem {
@@ -15,13 +10,22 @@ interface CheckItem {
   done: boolean;
 }
 
-export default function ProfileCompletion({ profile }: Props) {
+export default function ProfileCompletion({ user }: Props) {
   const checks: CheckItem[] = [
-    { label: "Add profile photo", done: !!profile.avatar },
-    { label: "Write your bio", done: profile.bio.length > 50 },
-    { label: "Add video introduction", done: !!profile.videoIntroUrl },
-    { label: "Add qualifications", done: profile.qualifications.length > 0 },
-    { label: "Set your specialties", done: profile.specialties.length > 0 },
+    { label: "Add profile photo", done: !!user.profilePicture },
+    { label: "Write your bio", done: (user.bio ?? "").length > 50 },
+    { label: "Add video introduction", done: !!user.introVideoUrl },
+    {
+      label: "Add certifications",
+      done: (user.certifications ?? []).length > 0,
+    },
+    { label: "Add education", done: (user.education ?? []).length > 0 },
+    {
+      label: "Set your specialties",
+      done: (user.specializations ?? []).length > 0,
+    },
+    { label: "Set hourly rate", done: (user.hourlyRate ?? 0) > 0 },
+    { label: "Add languages", done: (user.languages ?? []).length > 0 },
   ];
 
   const completed = checks.filter((c) => c.done).length;

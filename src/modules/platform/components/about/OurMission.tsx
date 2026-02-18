@@ -47,7 +47,7 @@ export default function MissionValues() {
               <h3 className="text-xl font-bold text-white mb-3">Our Mission</h3>
               <p className="text-[15px] text-white/40 leading-relaxed">
                 To make quality English language education accessible to every
-                learner in the UK and beyond — through verified tutors, modern
+                learner in the UK and beyond, through verified tutors, modern
                 technology, and a genuinely human approach to learning.
               </p>
             </div>
@@ -67,7 +67,7 @@ export default function MissionValues() {
             <p className="text-[15px] text-[#0B2343]/45 leading-relaxed">
               A world where language is never a barrier to opportunity. We
               envision Amber ESOL as the UK's most trusted platform for English
-              learning — where every student is matched with the right tutor and
+              learning, where every student is matched with the right tutor and
               every lesson moves them forward.
             </p>
           </div>

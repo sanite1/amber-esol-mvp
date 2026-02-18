@@ -1,12 +1,25 @@
+// src/data/student/studentSettingsData.ts
+
+/* ──────────────────────────────────────────────
+   Notification settings — maps 1:1 to the backend
+   notificationPreferences on the User model
+   ────────────────────────────────────────────── */
+
 export interface NotificationSettings {
-  emailLessonReminders: boolean;
-  emailLessonSummaries: boolean;
-  emailPromotions: boolean;
-  emailMessages: boolean;
-  pushLessonReminders: boolean;
-  pushMessages: boolean;
-  reminderTime: string; // e.g. "30min", "1hr", "2hr"
+  email: boolean;
+  push: boolean;
+  sms: boolean;
+  lessonReminders: boolean;
+  promotions: boolean;
+  newMessages: boolean;
+  lessonUpdates: boolean;
+  paymentAlerts: boolean;
 }
+
+/* ──────────────────────────────────────────────
+     Appearance & Privacy — NOT on the backend model.
+     Persisted in localStorage only.
+     ────────────────────────────────────────────── */
 
 export interface AppearanceSettings {
   language: string;
@@ -20,19 +33,48 @@ export interface PrivacySettings {
   allowTutorMessages: boolean;
 }
 
+/* ──────────────────────────────────────────────
+     Combined settings shape
+     ────────────────────────────────────────────── */
+
 export interface StudentSettings {
   notifications: NotificationSettings;
   appearance: AppearanceSettings;
   privacy: PrivacySettings;
 }
 
-export const reminderTimeOptions: { value: string; label: string }[] = [
-  { value: "15min", label: "15 minutes before" },
-  { value: "30min", label: "30 minutes before" },
-  { value: "1hr", label: "1 hour before" },
-  { value: "2hr", label: "2 hours before" },
-  { value: "24hr", label: "24 hours before" },
-];
+/* ── Defaults ── */
+
+export const defaultNotifications: NotificationSettings = {
+  email: true,
+  push: true,
+  sms: false,
+  lessonReminders: true,
+  promotions: false,
+  newMessages: true,
+  lessonUpdates: true,
+  paymentAlerts: true,
+};
+
+export const defaultAppearance: AppearanceSettings = {
+  language: "en",
+  dateFormat: "DD/MM/YYYY",
+  timeFormat: "24h",
+};
+
+export const defaultPrivacy: PrivacySettings = {
+  profileVisibleToTutors: true,
+  showOnlineStatus: true,
+  allowTutorMessages: true,
+};
+
+export const studentSettings: StudentSettings = {
+  notifications: defaultNotifications,
+  appearance: defaultAppearance,
+  privacy: defaultPrivacy,
+};
+
+/* ── Options for selects ── */
 
 export const languageOptions: { value: string; label: string }[] = [
   { value: "en", label: "English" },
@@ -53,25 +95,3 @@ export const dateFormatOptions: { value: string; label: string }[] = [
   { value: "MM/DD/YYYY", label: "MM/DD/YYYY" },
   { value: "YYYY-MM-DD", label: "YYYY-MM-DD" },
 ];
-
-export const studentSettings: StudentSettings = {
-  notifications: {
-    emailLessonReminders: true,
-    emailLessonSummaries: true,
-    emailPromotions: false,
-    emailMessages: true,
-    pushLessonReminders: true,
-    pushMessages: true,
-    reminderTime: "30min",
-  },
-  appearance: {
-    language: "en",
-    dateFormat: "DD/MM/YYYY",
-    timeFormat: "24h",
-  },
-  privacy: {
-    profileVisibleToTutors: true,
-    showOnlineStatus: true,
-    allowTutorMessages: true,
-  },
-};
