@@ -1,7 +1,6 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import Login from "../../pages/onboarding/Login";
-import Signup from "../../pages/onboarding/Signup";
 import ForgotPassword from "../../pages/onboarding/ForgotPassword";
 import VerifyEmail from "../../pages/onboarding/VerifyEmail";
 import ResetPassword from "../../pages/onboarding/ResetPassword";
