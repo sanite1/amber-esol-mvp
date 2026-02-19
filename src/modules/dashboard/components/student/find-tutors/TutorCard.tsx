@@ -1,14 +1,6 @@
 // src/components/student/find-tutors/TutorCard.tsx
 import { Link } from "react-router-dom";
-import {
-  Star,
-  Clock,
-  BookOpen,
-  MessageSquare,
-  Calendar,
-  Globe,
-  Award,
-} from "lucide-react";
+import { Star, Clock, BookOpen, Calendar, Globe, Award } from "lucide-react";
 import type { TutorListItem } from "../../../lib/types/authOnboarding";
 
 interface Props {

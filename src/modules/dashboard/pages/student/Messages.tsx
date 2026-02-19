@@ -19,10 +19,7 @@ import {
 import ConversationList from "../../components/student/messages/ConversationList";
 import ChatArea from "../../components/student/messages/ChatArea";
 import EmptyChat from "../../components/student/messages/EmptyChat";
-import {
-  ConversationListSkeleton,
-  ChatAreaSkeleton,
-} from "../../components/student/messages/MessagesSkeleton";
+import { ConversationListSkeleton } from "../../components/student/messages/MessagesSkeleton";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value);

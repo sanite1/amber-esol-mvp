@@ -9,14 +9,12 @@ import {
 import { toast } from "sonner";
 import {
   Conversation,
-  Message,
   StartConversationPayload,
   SendMessagePayload,
   ConversationFilters,
   MessageFilters,
   ListConversationsResponse,
   ListMessagesResponse,
-  StartConversationResponse,
   SendMessageResponse,
 } from "../types/messaging";
 

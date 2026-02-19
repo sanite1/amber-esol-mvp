@@ -8,7 +8,6 @@ import {
   MessageSquare,
   CalendarPlus,
   Loader2,
-  Loader,
 } from "lucide-react";
 import type { UserData } from "../../../lib/types/authOnboarding";
 
