@@ -1,65 +1,56 @@
-import { Link } from "react-router-dom";
 import { ArrowLeft, Calendar } from "lucide-react";
-import { Conversation } from "../../../data/student/messagesData";
+import { Link } from "react-router-dom";
+import { UIConversation } from "../../../lib/types/messaging";
 
-interface Props {
-  conversation: Conversation;
+interface ChatHeaderProps {
+  conversation: UIConversation;
   onBack: () => void;
 }
 
-export default function ChatHeader({ conversation, onBack }: Props) {
+export default function ChatHeader({ conversation, onBack }: ChatHeaderProps) {
   return (
-    <div className="px-4 py-3 border-b border-[#0B2343]/[0.06] flex items-center gap-3">
+    <div className="flex items-center gap-3 px-4 py-3 border-b border-[#0B2343]/[0.06] bg-white">
       {/* Back button (mobile) */}
       <button
         onClick={onBack}
-        className="lg:hidden p-1.5 -ml-1 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors"
+        className="lg:hidden p-1.5 -ml-1 rounded-lg hover:bg-[#F8F9FB] transition-colors"
+        aria-label="Back to conversations"
       >
-        <ArrowLeft size={18} className="text-[#0B2343]/40" />
+        <ArrowLeft className="w-5 h-5 text-[#0B2343]/60" />
       </button>
 
       {/* Avatar */}
-      <Link
-        to={`/tutors/${conversation.participantSlug}`}
-        className="relative shrink-0"
-      >
-        <img
-          src={conversation.participantAvatar}
-          alt={conversation.participantName}
-          className="w-9 h-9 rounded-full object-cover"
-        />
-        {conversation.participantIsOnline && (
-          <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-white" />
-        )}
-      </Link>
+      <img
+        src={
+          conversation.participantAvatar ||
+          `https://ui-avatars.com/api/?name=${encodeURIComponent(conversation.participantName)}&background=0B2343&color=fff&size=36`
+        }
+        alt={conversation.participantName}
+        className="w-9 h-9 rounded-full object-cover"
+      />
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <Link
-          to={`/tutors/${conversation.participantSlug}`}
-          className="text-sm font-bold text-[#0B2343] hover:text-[#ff7c22] transition-colors"
-        >
+        <h3 className="text-sm font-semibold text-[#0B2343] truncate">
           {conversation.participantName}
-        </Link>
-        <p className="text-[11px] text-[#0B2343]/35">
-          {conversation.participantIsOnline ? (
-            <span className="text-emerald-500 font-medium">Online</span>
-          ) : (
-            conversation.participantSpecialty
-          )}
+        </h3>
+        <p className="text-xs text-[#0B2343]/40 truncate">
+          {conversation.participantIsOnline
+            ? "Online"
+            : conversation.participantSpecialty || conversation.participantRole}
         </p>
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-1">
+      {/* Action: navigate to tutor profile */}
+      {conversation.participantSlug && (
         <Link
-          to={`/tutors/${conversation.participantSlug}`}
-          className="p-2 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors"
-          title="Book lesson"
+          to={`/dashboard/tutors/${conversation.participantSlug}`}
+          className="p-2 rounded-lg hover:bg-[#F8F9FB] transition-colors"
+          title="View profile & book lesson"
         >
-          <Calendar size={16} className="text-[#0B2343]/30" />
+          <Calendar className="w-4.5 h-4.5 text-[#0B2343]/40" />
         </Link>
-      </div>
+      )}
     </div>
   );
 }

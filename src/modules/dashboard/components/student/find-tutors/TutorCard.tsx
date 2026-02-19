@@ -156,13 +156,13 @@ export default function TutorCard({ tutor }: Props) {
 
         {/* Actions */}
         <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-0 mt-2 sm:mt-0">
-          <Link
-            to={`/student/messages?tutor=${tutorSlug}`}
+          {/* <Link
+            to={`/messages?tutor=${tutorSlug}`}
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#0B2343]/[0.08] text-xs font-medium text-[#0B2343]/50 hover:border-[#0B2343]/15 hover:text-[#0B2343]/70 transition-colors"
           >
             <MessageSquare size={12} />
             Message
-          </Link>
+          </Link> */}
           <Link
             to={`/tutors/${tutorSlug}`}
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#ff7c22] text-white text-xs font-bold hover:bg-[#e56a10] transition-colors"

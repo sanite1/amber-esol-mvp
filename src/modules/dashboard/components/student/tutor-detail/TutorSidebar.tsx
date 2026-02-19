@@ -6,6 +6,7 @@ import {
   PoundSterling,
   Globe,
   Shield,
+  Loader2,
 } from "lucide-react";
 import type { UserData } from "../../../lib/types/authOnboarding";
 
@@ -14,11 +15,13 @@ interface Props {
   onBookTrial: () => void;
   onBookLesson: () => void;
   onMessage: () => void;
+  isStartingChat: boolean;
 }
 
 export default function TutorSidebar({
   tutor,
   onBookTrial,
+  isStartingChat,
   onBookLesson,
   onMessage,
 }: Props) {
@@ -69,9 +72,14 @@ export default function TutorSidebar({
           </button>
           <button
             onClick={onMessage}
+            disabled={isStartingChat}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[#0B2343]/[0.08] text-sm text-[#0B2343]/60 hover:bg-[#0B2343]/[0.03] transition-colors"
           >
-            <MessageSquare size={15} />
+            {isStartingChat ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : (
+              <MessageSquare size={15} />
+            )}
             Send Message
           </button>
         </div>

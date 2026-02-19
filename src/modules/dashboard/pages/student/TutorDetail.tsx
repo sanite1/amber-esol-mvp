@@ -15,6 +15,7 @@ import TutorAbout from "../../components/student/tutor-detail/TutorAbout";
 import TutorSidebar from "../../components/student/tutor-detail/TutorSidebar";
 import BookTrialModal from "../../components/student/tutor-detail/BookTrialModal";
 import BookLessonModal from "../../components/student/tutor-detail/BookLessonModal";
+import { useStartConversation } from "../../lib/api/messaging";
 
 export default function TutorDetail() {
   const { id } = useParams<{ id: string }>();
@@ -38,8 +39,24 @@ export default function TutorDetail() {
     // TODO: navigate to lessons or show toast
   };
 
+  const startConversation = useStartConversation();
+
   const handleMessage = () => {
-    navigate(`/student/messages?tutor=${id}`);
+    startConversation.mutate(
+      { participantId: id! },
+      {
+        onSuccess: (response) => {
+          console.log("Full response:", JSON.stringify(response, null, 2));
+          // Now check the actual path to the conversation ID
+          const convId = response.data._id;
+          navigate(`/messages?chat=${convId}`);
+        },
+        onError: (error) => {
+          console.log("Error:", error);
+          navigate(`/messages`);
+        },
+      }
+    );
   };
 
   if (isLoading) {
@@ -100,6 +117,7 @@ export default function TutorDetail() {
         onBookTrial={() => setShowTrialModal(true)}
         onBookLesson={() => setShowLessonModal(true)}
         onMessage={handleMessage}
+        isStartingChat={startConversation.isPending}
       />
 
       {/* Stats */}
@@ -123,6 +141,7 @@ export default function TutorDetail() {
               onBookTrial={() => setShowTrialModal(true)}
               onBookLesson={() => setShowLessonModal(true)}
               onMessage={handleMessage}
+              isStartingChat={startConversation.isPending}
             />
           </div>
         </div>

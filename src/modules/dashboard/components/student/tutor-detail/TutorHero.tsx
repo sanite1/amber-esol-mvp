@@ -7,11 +7,14 @@ import {
   Circle,
   MessageSquare,
   CalendarPlus,
+  Loader2,
+  Loader,
 } from "lucide-react";
 import type { UserData } from "../../../lib/types/authOnboarding";
 
 interface Props {
   tutor: UserData;
+  isStartingChat: boolean;
   onBookTrial: () => void;
   onBookLesson: () => void;
   onMessage: () => void;
@@ -22,6 +25,7 @@ export default function TutorHero({
   onBookTrial,
   onBookLesson,
   onMessage,
+  isStartingChat,
 }: Props) {
   const fullName = `${tutor.firstname} ${tutor.lastname}`;
   const initials =
@@ -174,9 +178,14 @@ export default function TutorHero({
                 </button>
                 <button
                   onClick={onMessage}
+                  disabled={isStartingChat}
                   className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-[#0B2343]/[0.08] text-sm text-[#0B2343]/60 hover:bg-[#0B2343]/[0.03] transition-colors"
                 >
-                  <MessageSquare size={15} />
+                  {isStartingChat ? (
+                    <Loader2 size={15} className="animate-spin" />
+                  ) : (
+                    <MessageSquare size={15} />
+                  )}
                   Message
                 </button>
               </div>

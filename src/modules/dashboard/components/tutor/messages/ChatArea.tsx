@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Send,
   Paperclip,
@@ -8,29 +8,36 @@ import {
   VolumeX,
   Archive,
   FileText,
-  Calendar,
   Download,
   Loader2,
+  X,
+  Image as ImageIcon,
+  Check,
+  AlertCircle,
 } from "lucide-react";
 import type {
-  Conversation,
-  ChatMessage,
-} from "../../../data/tutor/tutorMessagesData";
+  TutorUIConversation,
+  TutorChatMessage,
+} from "../../../lib/types/messaging";
 import { Link } from "react-router-dom";
 
 interface Props {
-  conversation: Conversation;
+  conversation: TutorUIConversation;
+  messages: TutorChatMessage[];
   tutorId: string;
   onSendMessage: (convId: string, text: string) => void;
-  onSendFile: (convId: string, fileName: string) => void;
+  onSendFile: (convId: string, file: File) => void;
   onBack: () => void;
   onPin: (id: string) => void;
   onMute: (id: string) => void;
   onArchive: (id: string) => void;
+  isLoadingMessages?: boolean;
+  isSending?: boolean;
 }
 
 export default function ChatArea({
   conversation,
+  messages,
   tutorId,
   onSendMessage,
   onSendFile,
@@ -38,21 +45,34 @@ export default function ChatArea({
   onPin,
   onMute,
   onArchive,
+  isLoadingMessages,
+  isSending,
 }: Props) {
   const [text, setText] = useState("");
-  const [sending, setSending] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const { student, messages } = conversation;
+  const { student } = conversation;
 
   const initials = student.name
     .split(" ")
     .map((n) => n[0])
     .join("");
+
+  const isImageFile = (file: File) => file.type.startsWith("image/");
+
+  const clearFile = useCallback(() => {
+    setPendingFile(null);
+    if (filePreviewUrl) {
+      URL.revokeObjectURL(filePreviewUrl);
+      setFilePreviewUrl(null);
+    }
+  }, [filePreviewUrl]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -70,25 +90,20 @@ export default function ChatArea({
     return () => document.removeEventListener("mousedown", handler);
   }, [showMenu]);
 
-  // Auto-resize textarea
-  useEffect(() => {
+  const handleSend = () => {
+    // File mode
+    if (pendingFile) {
+      onSendFile(conversation.id, pendingFile);
+      clearFile();
+      return;
+    }
+    // Text mode
+    if (!text.trim() || isSending) return;
+    onSendMessage(conversation.id, text.trim());
+    setText("");
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${Math.min(
-        textareaRef.current.scrollHeight,
-        120
-      )}px`;
     }
-  }, [text]);
-
-  const handleSend = async () => {
-    if (!text.trim()) return;
-    const msg = text.trim();
-    setText("");
-    setSending(true);
-    await new Promise((r) => setTimeout(r, 300));
-    onSendMessage(conversation.id, msg);
-    setSending(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -98,12 +113,40 @@ export default function ChatArea({
     }
   };
 
+  const handleInput = () => {
+    const el = textareaRef.current;
+    if (el) {
+      el.style.height = "auto";
+      const capped = Math.min(el.scrollHeight, 132); // ~5 lines
+      el.style.height = `${capped}px`;
+
+      // Hide scrollbar while growing, show once max height reached
+      if (el.scrollHeight > 132) {
+        el.classList.remove("overflow-hidden");
+        el.classList.add("overflow-y-auto");
+      } else {
+        el.classList.remove("overflow-y-auto");
+        el.classList.add("overflow-hidden");
+      }
+    }
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      onSendFile(conversation.id, file.name);
+    if (!file) return;
+    setPendingFile(file);
+    if (isImageFile(file)) {
+      setFilePreviewUrl(URL.createObjectURL(file));
+    } else {
+      setFilePreviewUrl(null);
     }
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   const lastSeenLabel = () => {
@@ -121,7 +164,7 @@ export default function ChatArea({
   };
 
   // Group messages by date
-  const groupedMessages: { date: string; messages: ChatMessage[] }[] = [];
+  const groupedMessages: { date: string; messages: TutorChatMessage[] }[] = [];
   messages.forEach((msg) => {
     const date = new Date(msg.timestamp).toLocaleDateString("en-GB", {
       weekday: "long",
@@ -148,11 +191,12 @@ export default function ChatArea({
     inactive: "bg-[#0B2343]/[0.05] text-[#0B2343]/35",
   };
 
+  const canSend = pendingFile || text.trim();
+
   return (
     <div className="flex flex-col h-full">
-      {/* ── Header ── */}
+      {/*  Header  */}
       <div className="flex items-center gap-2.5 sm:gap-3 px-3 py-2.5 sm:px-4 sm:py-3 border-b border-[#0B2343]/[0.06] bg-white shrink-0">
-        {/* Back (mobile) */}
         <button
           onClick={onBack}
           className="lg:hidden shrink-0 p-1 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors"
@@ -160,7 +204,6 @@ export default function ChatArea({
           <ArrowLeft size={18} className="text-[#0B2343]/40" />
         </button>
 
-        {/* Avatar */}
         <div className="relative shrink-0">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#0B2343]/[0.06] flex items-center justify-center text-[11px] font-bold text-[#0B2343]/30 overflow-hidden">
             {student.avatar ? (
@@ -178,7 +221,6 @@ export default function ChatArea({
           )}
         </div>
 
-        {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
             <Link
@@ -187,9 +229,11 @@ export default function ChatArea({
             >
               {student.name}
             </Link>
-            <span className="text-[9px] sm:text-[10px] text-[#0B2343]/25 shrink-0">
-              {student.countryCode}
-            </span>
+            {student.countryCode && (
+              <span className="text-[9px] sm:text-[10px] text-[#0B2343]/25 shrink-0">
+                {student.countryCode}
+              </span>
+            )}
             <span
               className={`text-[8px] sm:text-[9px] font-semibold px-1.5 py-0.5 rounded-full capitalize shrink-0 ${
                 statusColors[student.status]
@@ -199,11 +243,11 @@ export default function ChatArea({
             </span>
           </div>
           <p className="text-[10px] sm:text-[11px] text-[#0B2343]/30">
-            {lastSeenLabel()} · {student.level}
+            {lastSeenLabel()}
+            {student.level && <> · {student.level}</>}
           </p>
         </div>
 
-        {/* Menu */}
         <div className="relative shrink-0" ref={menuRef}>
           <button
             onClick={() => setShowMenu(!showMenu)}
@@ -248,191 +292,277 @@ export default function ChatArea({
         </div>
       </div>
 
-      {/* ── Messages ── */}
+      {/*  Messages  */}
       <div className="flex-1 overflow-y-auto scrollbar-hide px-3 py-3 sm:px-4 sm:py-4 space-y-4 bg-[#fafbfc]">
-        {groupedMessages.map((group) => (
-          <div key={group.date}>
-            {/* Date divider */}
-            <div className="flex items-center gap-3 my-3">
-              <div className="flex-1 h-px bg-[#0B2343]/[0.06]" />
-              <span className="text-[10px] sm:text-[11px] text-[#0B2343]/25 font-medium whitespace-nowrap">
-                {group.date}
-              </span>
-              <div className="flex-1 h-px bg-[#0B2343]/[0.06]" />
-            </div>
+        {isLoadingMessages ? (
+          <div className="flex items-center justify-center h-full">
+            <Loader2 size={24} className="text-[#0B2343]/20 animate-spin" />
+          </div>
+        ) : (
+          <>
+            {groupedMessages.map((group) => (
+              <div key={group.date}>
+                <div className="flex items-center gap-3 my-3">
+                  <div className="flex-1 h-px bg-[#0B2343]/[0.06]" />
+                  <span className="text-[10px] sm:text-[11px] text-[#0B2343]/25 font-medium whitespace-nowrap">
+                    {group.date}
+                  </span>
+                  <div className="flex-1 h-px bg-[#0B2343]/[0.06]" />
+                </div>
 
-            {/* Messages */}
-            <div className="space-y-2">
-              {group.messages.map((msg) => {
-                const isMine = msg.senderType === "tutor";
-                return (
-                  <div
-                    key={msg.id}
-                    className={`flex ${
-                      isMine ? "justify-end" : "justify-start"
-                    }`}
-                  >
-                    <div
-                      className={`max-w-[85%] sm:max-w-[70%] ${
-                        isMine
-                          ? "bg-[#0B2343] text-white rounded-2xl rounded-br-md"
-                          : "bg-white border border-[#0B2343]/[0.06] text-[#0B2343]/70 rounded-2xl rounded-bl-md"
-                      } px-3 py-2 sm:px-3.5 sm:py-2.5 shadow-sm`}
-                    >
-                      {/* Text */}
-                      {msg.type === "text" && (
-                        <p className="text-[12px] sm:text-[13px] leading-relaxed whitespace-pre-wrap">
-                          {msg.text}
-                        </p>
-                      )}
+                <div className="space-y-2">
+                  {group.messages.map((msg) => {
+                    const isMine = msg.senderId === tutorId;
+                    const isPending = msg.status === "pending";
+                    const isFailed = msg.status === "failed";
 
-                      {/* File */}
-                      {msg.type === "file" && (
-                        <div className="flex items-center gap-2">
-                          <div
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                              isMine ? "bg-white/10" : "bg-[#0B2343]/[0.04]"
-                            }`}
-                          >
-                            <FileText
-                              size={14}
-                              className={
-                                isMine ? "text-white/70" : "text-[#0B2343]/30"
-                              }
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[11px] sm:text-xs font-medium truncate">
-                              {msg.fileName}
+                    return (
+                      <div
+                        key={msg.id}
+                        className={`flex ${
+                          isMine ? "justify-end" : "justify-start"
+                        }`}
+                      >
+                        <div
+                          className={`max-w-[85%] sm:max-w-[70%] ${
+                            isMine
+                              ? "bg-[#0B2343] text-white rounded-2xl rounded-br-md"
+                              : "bg-white border border-[#0B2343]/[0.06] text-[#0B2343]/70 rounded-2xl rounded-bl-md"
+                          } px-3 py-2 sm:px-3.5 sm:py-2.5 shadow-sm ${
+                            isPending ? "opacity-70" : ""
+                          }`}
+                        >
+                          {/* Text */}
+                          {msg.type === "text" && (
+                            <p className="text-[12px] sm:text-[13px] leading-relaxed whitespace-pre-wrap">
+                              {msg.text}
                             </p>
-                            <p
-                              className={`text-[9px] ${
-                                isMine ? "text-white/50" : "text-[#0B2343]/25"
-                              }`}
-                            >
-                              File
-                            </p>
-                          </div>
-                          <a
-                            href={msg.fileUrl || "#"}
-                            className={`shrink-0 p-1.5 rounded-lg transition-colors ${
-                              isMine
-                                ? "hover:bg-white/10"
-                                : "hover:bg-[#0B2343]/[0.04]"
-                            }`}
-                          >
-                            <Download
-                              size={13}
-                              className={
-                                isMine ? "text-white/60" : "text-[#0B2343]/30"
-                              }
-                            />
-                          </a>
-                        </div>
-                      )}
+                          )}
 
-                      {/* Lesson link */}
-                      {msg.type === "lesson_link" && (
-                        <div className="flex items-center gap-2">
-                          <div
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                              isMine ? "bg-white/10" : "bg-blue-50"
-                            }`}
-                          >
-                            <Calendar
-                              size={14}
-                              className={
-                                isMine ? "text-white/70" : "text-blue-400"
-                              }
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[11px] sm:text-xs font-medium">
-                              Lesson Booking
-                            </p>
-                            {msg.lessonDate && (
-                              <p
-                                className={`text-[9px] sm:text-[10px] ${
-                                  isMine ? "text-white/50" : "text-[#0B2343]/30"
+                          {/* Image */}
+                          {msg.type === "image" && msg.fileUrl && (
+                            <div>
+                              <img
+                                src={msg.fileUrl}
+                                alt={msg.fileName || "Image"}
+                                className="max-w-full rounded-lg mb-1"
+                              />
+                              {msg.text && (
+                                <p className="text-[12px] sm:text-[13px] leading-relaxed whitespace-pre-wrap mt-1">
+                                  {msg.text}
+                                </p>
+                              )}
+                            </div>
+                          )}
+
+                          {/* File */}
+                          {msg.type === "file" && (
+                            <div className="flex items-center gap-2">
+                              <div
+                                className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                                  isMine ? "bg-white/10" : "bg-[#0B2343]/[0.04]"
                                 }`}
                               >
-                                {new Date(msg.lessonDate).toLocaleDateString(
-                                  "en-GB",
-                                  {
-                                    weekday: "short",
-                                    day: "numeric",
-                                    month: "short",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
+                                <FileText
+                                  size={14}
+                                  className={
+                                    isMine
+                                      ? "text-white/70"
+                                      : "text-[#0B2343]/30"
                                   }
-                                )}
-                              </p>
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[11px] sm:text-xs font-medium truncate">
+                                  {msg.fileName || "File"}
+                                </p>
+                                <p
+                                  className={`text-[9px] ${
+                                    isMine
+                                      ? "text-white/50"
+                                      : "text-[#0B2343]/25"
+                                  }`}
+                                >
+                                  File
+                                </p>
+                              </div>
+                              {msg.fileUrl && !isPending && (
+                                <a
+                                  href={msg.fileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={`shrink-0 p-1.5 rounded-lg transition-colors ${
+                                    isMine
+                                      ? "hover:bg-white/10"
+                                      : "hover:bg-[#0B2343]/[0.04]"
+                                  }`}
+                                >
+                                  <Download
+                                    size={13}
+                                    className={
+                                      isMine
+                                        ? "text-white/60"
+                                        : "text-[#0B2343]/30"
+                                    }
+                                  />
+                                </a>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Timestamp / status row */}
+                          <div
+                            className={`flex items-center gap-1.5 mt-1 ${
+                              isMine ? "justify-end" : "justify-start"
+                            }`}
+                          >
+                            {isPending ? (
+                              <span
+                                className={`flex items-center gap-1 text-[9px] ${
+                                  isMine ? "text-white/40" : "text-[#0B2343]/20"
+                                }`}
+                              >
+                                <Loader2 size={10} className="animate-spin" />
+                                Sending…
+                              </span>
+                            ) : isFailed ? (
+                              <span
+                                className={`flex items-center gap-1 text-[9px] ${
+                                  isMine ? "text-red-300" : "text-red-400"
+                                }`}
+                              >
+                                <AlertCircle size={10} />
+                                Failed to send
+                              </span>
+                            ) : (
+                              <span
+                                className={`flex items-center gap-1 text-[9px] ${
+                                  isMine ? "text-white/40" : "text-[#0B2343]/20"
+                                }`}
+                              >
+                                {formatTime(msg.timestamp)}
+                                {isMine && <Check size={10} />}
+                              </span>
                             )}
                           </div>
                         </div>
-                      )}
-
-                      {/* Timestamp */}
-                      <p
-                        className={`text-[9px] mt-1 text-right ${
-                          isMine ? "text-white/40" : "text-[#0B2343]/20"
-                        }`}
-                      >
-                        {formatTime(msg.timestamp)}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </>
+        )}
       </div>
 
-      {/* ── Input ── */}
-      <div className="shrink-0 px-3 py-2.5 sm:px-4 sm:py-3 border-t border-[#0B2343]/[0.06] bg-white">
-        <div className="flex items-end gap-2">
-          {/* Attach */}
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="shrink-0 p-2 rounded-lg text-[#0B2343]/25 hover:bg-[#0B2343]/[0.04] hover:text-[#0B2343]/40 transition-colors mb-0.5"
-          >
-            <Paperclip size={16} />
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            onChange={handleFileSelect}
-            className="hidden"
-          />
+      {/*  Input  */}
+      <div className="shrink-0 border-t border-[#0B2343]/[0.06] bg-white">
+        {pendingFile ? (
+          /* ── File preview mode: replaces entire input ── */
+          <div className="px-3 py-2.5 sm:px-4 sm:py-3">
+            <div className="flex items-center gap-3 p-2.5 rounded-xl bg-[#fafbfc] border border-[#0B2343]/[0.06]">
+              {filePreviewUrl && isImageFile(pendingFile) ? (
+                <img
+                  src={filePreviewUrl}
+                  alt={pendingFile.name}
+                  className="w-14 h-14 rounded-lg object-cover shrink-0"
+                />
+              ) : (
+                <div className="w-11 h-11 rounded-lg bg-[#0B2343]/[0.06] flex items-center justify-center shrink-0">
+                  <FileText size={18} className="text-[#0B2343]/30" />
+                </div>
+              )}
 
-          {/* Textarea */}
-          <div className="flex-1 min-w-0 relative">
-            <textarea
-              ref={textareaRef}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Type a message…"
-              rows={1}
-              className="w-full px-4 py-2.5 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/30 focus:bg-white resize-none transition-colors disabled:opacity-50 scrollbar-none"
-            />
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] sm:text-[13px] font-medium text-[#0B2343] truncate">
+                  {pendingFile.name}
+                </p>
+                <p className="text-[10px] text-[#0B2343]/30 mt-0.5 flex items-center gap-1.5">
+                  {formatFileSize(pendingFile.size)}
+                  {isImageFile(pendingFile) && (
+                    <span className="inline-flex items-center gap-0.5 text-[#0B2343]/25">
+                      <ImageIcon size={10} />
+                      Image
+                    </span>
+                  )}
+                </p>
+              </div>
+
+              <button
+                onClick={clearFile}
+                disabled={isSending}
+                className="p-1.5 rounded-lg hover:bg-[#0B2343]/[0.08] transition-colors shrink-0"
+                title="Remove file"
+              >
+                <X size={14} className="text-[#0B2343]/35" />
+              </button>
+
+              <button
+                onClick={handleSend}
+                disabled={isSending}
+                className="shrink-0 p-2 sm:p-2.5 rounded-xl bg-[#ff7c22] text-white hover:bg-[#e56a10] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                title="Send file"
+              >
+                <Send size={16} />
+              </button>
+            </div>
           </div>
+        ) : (
+          /* ── Normal text input mode ── */
+          <div className="px-3 py-2.5 sm:px-4 sm:py-3">
+            <div className="flex items-center gap-2">
+              {/* Attachment button */}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isSending}
+                className="shrink-0 p-2 rounded-lg text-[#0B2343]/25 hover:bg-[#0B2343]/[0.04] hover:text-[#0B2343]/40 transition-colors disabled:opacity-40"
+              >
+                <Paperclip size={16} />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                onChange={handleFileSelect}
+                className="hidden"
+                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+              />
 
-          {/* Send */}
-          <button
-            onClick={handleSend}
-            disabled={!text.trim() || sending}
-            className="shrink-0 p-2 sm:p-2.5 rounded-xl bg-[#ff7c22] text-white hover:bg-[#e56a10] disabled:opacity-30 disabled:cursor-not-allowed transition-colors mb-0.5"
-          >
-            {sending ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <Send size={16} />
-            )}
-          </button>
-        </div>
+              {/* Auto-expanding textarea */}
+              <textarea
+                ref={textareaRef}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onInput={handleInput}
+                placeholder="Type a message..."
+                rows={1}
+                disabled={isSending}
+                className="flex-1 resize-none rounded-xl bg-[#fafbfc] border border-[#0B2343]/[0.08] px-4 py-2.5 text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/30 focus:bg-white transition-colors disabled:opacity-50 overflow-hidden"
+                style={{ maxHeight: 132 }}
+              />
+
+              {/* Send button */}
+              <button
+                onClick={handleSend}
+                disabled={!canSend || isSending}
+                className="shrink-0 p-2 sm:p-2.5 rounded-xl bg-[#ff7c22] text-white hover:bg-[#e56a10] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                title="Send"
+              >
+                {isSending ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Send size={16} />
+                )}
+              </button>
+            </div>
+            <p className="text-[10px] text-[#0B2343]/25 mt-1.5 text-center">
+              Press <span className="font-medium">Enter</span> to send,{" "}
+              <span className="font-medium">Shift + Enter</span> for new line
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
