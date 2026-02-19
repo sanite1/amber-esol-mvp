@@ -8,8 +8,8 @@ export interface TutorReview {
   id: string;
   studentName: string;
   studentAvatar?: string;
-  studentCountry: string;
-  studentCountryCode: string;
+  studentCountry?: string; // ← now optional
+  studentCountryCode?: string; // ← now optional
   rating: number;
   text: string;
   date: string;

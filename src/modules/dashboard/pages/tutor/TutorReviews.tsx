@@ -1,9 +1,31 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Star } from "lucide-react";
+
+/* ── API hooks ── */
 import {
-  tutorReviewsData,
-  type TutorReviewsData,
+  useFetchTutorReviews,
+  useFetchReviewStats,
+  useAddReply,
+  useUpdateReply,
+  useDeleteReply,
+  useReportReview,
+} from "../../lib/api/review";
+
+/* ── API types ── */
+import type {
+  Review,
+  ReviewStudent,
+  ReviewBooking,
+  ReviewFilters,
+} from "../../lib/types/review";
+
+/* ── Local UI types (consumed by child components) ── */
+import type {
+  TutorReview,
+  ReviewStats,
 } from "../../data/tutor/tutorReviewsData";
+
+/* ── Components ── */
 import { ReviewsPageSkeleton } from "../../components/tutor/reviews/ReviewsSkeleton";
 import ReviewsOverview from "../../components/tutor/reviews/ReviewsOverview";
 import ReviewsFilter, {
@@ -16,10 +38,131 @@ import ReviewsPagination from "../../components/tutor/reviews/ReviewsPagination"
 
 const PER_PAGE = 6;
 
-export default function TutorReviews() {
-  const [data, setData] = useState<TutorReviewsData | null>(null);
-  const [loading, setLoading] = useState(true);
+/* ══════════════════════════════════════════════
+   Type guards for populated fields
+   ══════════════════════════════════════════════ */
 
+const isPopulatedStudent = (v: string | ReviewStudent): v is ReviewStudent =>
+  typeof v === "object" && v !== null && "_id" in v;
+
+const isPopulatedBooking = (v: string | ReviewBooking): v is ReviewBooking =>
+  typeof v === "object" && v !== null && "_id" in v;
+
+/* ══════════════════════════════════════════════
+   Mapper: API Review → local TutorReview
+   ══════════════════════════════════════════════ */
+
+const apiReviewToLocal = (r: Review): TutorReview => {
+  const student = isPopulatedStudent(r.studentId) ? r.studentId : null;
+  const booking = isPopulatedBooking(r.bookingId) ? r.bookingId : null;
+
+  return {
+    id: r._id,
+    studentName: student
+      ? `${student.firstname} ${student.lastname}`
+      : "Student",
+    studentAvatar: student?.profilePicture,
+    studentCountry: student?.address?.country,
+    studentCountryCode: student?.address?.country
+      ? student.address.country.substring(0, 2).toUpperCase()
+      : undefined,
+    rating: r.rating,
+    text: r.comment,
+    date: r.createdAt,
+    lessonType: (r.lessonType ?? booking?.type ?? "regular") as
+      | "trial"
+      | "regular",
+    lessonTopic: r.lessonTopic ?? booking?.specialty,
+    helpful: r.helpfulCount,
+    reported: r.reported,
+    reply: r.reply
+      ? {
+          id: r._id, // use review id since reply has no _id
+          text: r.reply.text,
+          date: r.reply.updatedAt ?? r.reply.createdAt,
+        }
+      : undefined,
+  };
+};
+
+/* ══════════════════════════════════════════════
+   Mapper: API ReviewStatsResponse → local ReviewStats
+   ══════════════════════════════════════════════ */
+
+const buildStats = (
+  apiStats:
+    | {
+        averageRating: number;
+        totalReviews: number;
+        totalHelpful: number;
+        ratingDistribution: Record<number, number>;
+      }
+    | undefined,
+  reviews: TutorReview[]
+): ReviewStats => {
+  const dist = apiStats?.ratingDistribution ?? {};
+  const repliedCount = reviews.filter((r) => !!r.reply).length;
+
+  // Calculate trend from review dates (last 30 days vs previous 30 days)
+  const now = Date.now();
+  const thirtyDays = 30 * 86400000;
+  const recent = reviews.filter(
+    (r) => now - new Date(r.date).getTime() < thirtyDays
+  );
+  const previous = reviews.filter((r) => {
+    const age = now - new Date(r.date).getTime();
+    return age >= thirtyDays && age < thirtyDays * 2;
+  });
+  const recentAvg =
+    recent.length > 0
+      ? recent.reduce((s, r) => s + r.rating, 0) / recent.length
+      : 0;
+  const prevAvg =
+    previous.length > 0
+      ? previous.reduce((s, r) => s + r.rating, 0) / previous.length
+      : 0;
+  const diff = Math.round((recentAvg - prevAvg) * 10) / 10;
+
+  return {
+    averageRating: Math.round((apiStats?.averageRating ?? 0) * 10) / 10,
+    totalReviews: apiStats?.totalReviews ?? 0,
+    ratingBreakdown: {
+      5: dist[5] ?? 0,
+      4: dist[4] ?? 0,
+      3: dist[3] ?? 0,
+      2: dist[2] ?? 0,
+      1: dist[1] ?? 0,
+    },
+    responseRate:
+      reviews.length > 0
+        ? Math.round((repliedCount / reviews.length) * 100)
+        : 0,
+    recentTrend: diff > 0 ? "up" : diff < 0 ? "down" : "stable",
+    recentTrendValue: Math.abs(diff),
+  };
+};
+
+/* ══════════════════════════════════════════════
+   Sort option mapping: local → API
+   ══════════════════════════════════════════════ */
+
+const sortMap: Record<ReviewSortOption, ReviewFilters["sort"]> = {
+  newest: "newest",
+  oldest: "oldest",
+  highest: "rating_high",
+  lowest: "rating_low",
+  helpful: "most_helpful",
+};
+
+/* ══════════════════════════════════════════════
+   Component
+   ══════════════════════════════════════════════ */
+
+export default function TutorReviews() {
+  // Get current user's tutor ID from localStorage
+  const userId = localStorage.getItem("userId") ?? "";
+
+  /* ── Filter / pagination state ── */
   const [search, setSearch] = useState("");
   const [ratingFilter, setRatingFilter] = useState<RatingFilter>("all");
   const [lessonTypeFilter, setLessonTypeFilter] =
@@ -30,95 +173,52 @@ export default function TutorReviews() {
   const [sort, setSort] = useState<ReviewSortOption>("newest");
   const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setData(tutorReviewsData);
-      setLoading(false);
-    }, 800);
-    return () => clearTimeout(t);
-  }, []);
+  /* ── API query filters ── */
+  const apiFilters: ReviewFilters = useMemo(
+    () => ({
+      page,
+      limit: PER_PAGE,
+      rating: ratingFilter !== "all" ? ratingFilter : undefined,
+      sort: sortMap[sort],
+    }),
+    [page, ratingFilter, sort]
+  );
 
-  // Reset page on filter change
-  useEffect(() => {
-    setPage(1);
-  }, [search, ratingFilter, lessonTypeFilter, repliedFilter, sort]);
+  /* ── Queries ── */
+  const { data: reviewsRes, isLoading: reviewsLoading } = useFetchTutorReviews(
+    userId,
+    apiFilters
+  );
+  const { data: statsRes, isLoading: statsLoading } =
+    useFetchReviewStats(userId);
 
-  /* ── Action handlers ── */
-  const handleReply = (reviewId: string, text: string) => {
-    setData((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        reviews: prev.reviews.map((r) =>
-          r.id === reviewId
-            ? {
-                ...r,
-                reply: {
-                  id: `rpl-${Date.now()}`,
-                  text,
-                  date: new Date().toISOString().split("T")[0],
-                },
-              }
-            : r
-        ),
-      };
-    });
-  };
+  /* ── Mutations ── */
+  const addReplyMutation = useAddReply();
+  const updateReplyMutation = useUpdateReply();
+  const deleteReplyMutation = useDeleteReply();
+  const reportMutation = useReportReview();
 
-  const handleEditReply = (reviewId: string, replyId: string, text: string) => {
-    setData((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        reviews: prev.reviews.map((r) =>
-          r.id === reviewId && r.reply && r.reply.id === replyId
-            ? {
-                ...r,
-                reply: {
-                  ...r.reply,
-                  text,
-                  date: new Date().toISOString().split("T")[0],
-                },
-              }
-            : r
-        ),
-      };
-    });
-  };
+  /* ── Loading ── */
+  const isLoading = reviewsLoading || statsLoading;
 
-  const handleDeleteReply = (reviewId: string, _replyId: string) => {
-    setData((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        reviews: prev.reviews.map((r) =>
-          r.id === reviewId ? { ...r, reply: undefined } : r
-        ),
-      };
-    });
-  };
+  /* ── Unwrap responses ── */
+  const reviewsRaw: Review[] = useMemo(
+    () => reviewsRes?.data?.reviews ?? [],
+    [reviewsRes]
+  );
+  const pagination = reviewsRes?.data?.pagination;
+  const apiStats = statsRes?.data;
 
-  const handleReport = (reviewId: string) => {
-    setData((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        reviews: prev.reviews.map((r) =>
-          r.id === reviewId ? { ...r, reported: true } : r
-        ),
-      };
-    });
-  };
+  /* ── Map to local types ── */
+  const allReviews: TutorReview[] = useMemo(
+    () => reviewsRaw.map(apiReviewToLocal),
+    [reviewsRaw]
+  );
 
-  /* ── Filtering + sorting ── */
-  const processed = useMemo(() => {
-    if (!data) return [];
-    let list = [...data.reviews];
-
-    // Rating
-    if (ratingFilter !== "all") {
-      list = list.filter((r) => r.rating === ratingFilter);
-    }
+  /* ── Client-side filters (lessonType, replied, search) ── */
+  // These filters are not supported by the API so we apply them locally.
+  const filtered = useMemo(() => {
+    let list = [...allReviews];
 
     // Lesson type
     if (lessonTypeFilter !== "all") {
@@ -144,36 +244,81 @@ export default function TutorReviews() {
       );
     }
 
-    // Sort
-    switch (sort) {
-      case "newest":
-        list.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
-        break;
-      case "oldest":
-        list.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        );
-        break;
-      case "highest":
-        list.sort((a, b) => b.rating - a.rating);
-        break;
-      case "lowest":
-        list.sort((a, b) => a.rating - b.rating);
-        break;
-      case "helpful":
-        list.sort((a, b) => b.helpful - a.helpful);
-        break;
-    }
-
     return list;
-  }, [data, search, ratingFilter, lessonTypeFilter, repliedFilter, sort]);
+  }, [allReviews, lessonTypeFilter, repliedFilter, search]);
 
-  const totalPages = Math.ceil(processed.length / PER_PAGE);
-  const paginated = processed.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  /* ── Build stats ── */
+  const stats: ReviewStats = useMemo(
+    () => buildStats(apiStats, allReviews),
+    [apiStats, allReviews]
+  );
 
-  if (loading || !data) {
+  /* ── Pagination ── */
+  // Server handles primary pagination (page/limit/rating/sort).
+  // Client filters may reduce the count further, so we paginate the
+  // filtered list if client-side filters are active.
+  const clientFiltersActive =
+    lessonTypeFilter !== "all" ||
+    repliedFilter !== "all" ||
+    search.trim() !== "";
+
+  // const displayReviews = clientFiltersActive ? filtered : allReviews;
+  const totalPages = clientFiltersActive
+    ? Math.ceil(filtered.length / PER_PAGE)
+    : (pagination?.totalPages ?? 1);
+  const paginated = clientFiltersActive
+    ? filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+    : allReviews;
+
+  /* ── Reset page on filter change ── */
+  const handleRatingChange = (v: RatingFilter) => {
+    setRatingFilter(v);
+    setPage(1);
+  };
+  const handleLessonTypeChange = (v: LessonTypeFilter) => {
+    setLessonTypeFilter(v);
+    setPage(1);
+  };
+  const handleRepliedChange = (v: "all" | "replied" | "unreplied") => {
+    setRepliedFilter(v);
+    setPage(1);
+  };
+  const handleSortChange = (v: ReviewSortOption) => {
+    setSort(v);
+    setPage(1);
+  };
+  const handleSearchChange = (v: string) => {
+    setSearch(v);
+    setPage(1);
+  };
+
+  /* ── Action handlers ── */
+  const handleReply = (reviewId: string, text: string) => {
+    // Find the API _id from the local review
+    addReplyMutation.mutate({ id: reviewId, payload: { text } });
+  };
+
+  const handleEditReply = (
+    reviewId: string,
+    _replyId: string,
+    text: string
+  ) => {
+    updateReplyMutation.mutate({ id: reviewId, payload: { text } });
+  };
+
+  const handleDeleteReply = (reviewId: string, _replyId: string) => {
+    deleteReplyMutation.mutate(reviewId);
+  };
+
+  const handleReport = (reviewId: string) => {
+    reportMutation.mutate({
+      id: reviewId,
+      payload: { reason: "Reported by tutor from reviews page" },
+    });
+  };
+
+  /* ── Render ── */
+  if (isLoading) {
     return <ReviewsPageSkeleton />;
   }
 
@@ -195,21 +340,21 @@ export default function TutorReviews() {
       </div>
 
       {/* Overview */}
-      <ReviewsOverview stats={data.stats} />
+      <ReviewsOverview stats={stats} />
 
       {/* Filters */}
       <ReviewsFilter
         search={search}
-        onSearchChange={setSearch}
+        onSearchChange={handleSearchChange}
         ratingFilter={ratingFilter}
-        onRatingChange={setRatingFilter}
+        onRatingChange={handleRatingChange}
         lessonTypeFilter={lessonTypeFilter}
-        onLessonTypeChange={setLessonTypeFilter}
+        onLessonTypeChange={handleLessonTypeChange}
         sort={sort}
-        onSortChange={setSort}
+        onSortChange={handleSortChange}
         repliedFilter={repliedFilter}
-        onRepliedChange={setRepliedFilter}
-        count={processed.length}
+        onRepliedChange={handleRepliedChange}
+        count={clientFiltersActive ? filtered.length : (pagination?.total ?? 0)}
       />
 
       {/* Reviews list */}

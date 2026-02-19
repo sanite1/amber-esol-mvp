@@ -160,9 +160,11 @@ export default function ReviewCard({
                 <p className="text-xs sm:text-[13px] font-semibold text-[#0B2343] truncate">
                   {review.studentName}
                 </p>
-                <span className="text-[9px] sm:text-[10px] text-[#0B2343]/25 shrink-0">
-                  {review.studentCountryCode}
-                </span>
+                {review.studentCountryCode && (
+                  <span className="text-[9px] sm:text-[10px] text-[#0B2343]/25 shrink-0">
+                    {review.studentCountryCode}
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-1.5 flex-wrap">
                 {/* Stars */}
