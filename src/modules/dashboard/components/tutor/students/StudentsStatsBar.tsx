@@ -1,5 +1,5 @@
 import { Users, UserCheck, UserPlus, TrendingUp } from "lucide-react";
-import type { TutorStudentsStats } from "../../../data/tutor/tutorStudentsData";
+import { TutorStudentsStats } from "../../../lib/types/myStudents";
 
 interface Props {
   stats: TutorStudentsStats;

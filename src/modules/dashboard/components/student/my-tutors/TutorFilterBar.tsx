@@ -1,5 +1,5 @@
 import { Search, SlidersHorizontal } from "lucide-react";
-import { TutorFilter, TutorSort } from "../../../data/student/myTutorsData";
+import { TutorFilter, TutorSort } from "../../../lib/types/myTutors";
 
 interface Props {
   activeFilter: TutorFilter;

@@ -1,6 +1,6 @@
 import { Users } from "lucide-react";
-import type { TutorStudent } from "../../../data/tutor/tutorStudentsData";
 import StudentCard from "./StudentCard";
+import { TutorStudent } from "../../../lib/types/myStudents";
 
 interface Props {
   students: TutorStudent[];

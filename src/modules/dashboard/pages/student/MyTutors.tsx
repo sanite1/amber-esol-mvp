@@ -1,100 +1,69 @@
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
-  myTutors as initialTutors,
-  MyTutor,
-  TutorFilter,
-  TutorSort,
-} from "../../data/student/myTutorsData";
+  useFetchMyTutors,
+  useToggleFavouriteTutor,
+} from "../../lib/api/myTutors";
+import { TutorFilter, TutorSort } from "../../lib/types/myTutors";
 
 import TutorFilterBar from "../../components/student/my-tutors/TutorFilterBar";
 import TutorList from "../../components/student/my-tutors/TutorList";
 import QuickFindBanner from "../../components/student/my-tutors/QuickFindBanner";
-
+import TutorSummaryStats from "../../components/student/my-tutors/TutorSummaryStats";
 import {
   SummarySkeleton,
   FilterBarSkeleton,
   TutorListSkeleton,
 } from "../../components/student/my-tutors/MyTutorsSkeleton";
-import TutorSummaryStats from "../../components/student/my-tutors/TutorSummaryStats";
 
 export default function MyTutors() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [tutors, setTutors] = useState<MyTutor[]>(initialTutors);
   const [activeFilter, setActiveFilter] = useState<TutorFilter>("all");
   const [sortBy, setSortBy] = useState<TutorSort>("recent");
   const [searchQuery, setSearchQuery] = useState("");
+  const [favouriteLoadingId, setFavouriteLoadingId] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-
-    // Simulate API fetch
-    const timer = setTimeout(() => {
-      setTutors(initialTutors);
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
   }, []);
 
+  // ── Fetch from API ──
+  const { data, isLoading, isFetching } = useFetchMyTutors({
+    filter: activeFilter,
+    sort: sortBy,
+    search: searchQuery || undefined,
+    limit: 50,
+  });
+
+  const hasData = !!data;
+  const isInitialLoad = isLoading && !hasData;
+
+  const summary = data?.data?.summary;
+
   // ── Toggle favourite ──
+  const toggleFavMutation = useToggleFavouriteTutor();
+
   const handleToggleFavourite = (id: string) => {
-    setTutors((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, isFavourite: !t.isFavourite } : t))
-    );
+    setFavouriteLoadingId(id);
+    toggleFavMutation.mutate(id, {
+      onSettled: () => {
+        setFavouriteLoadingId(null);
+      },
+    });
   };
 
-  // ── Filter + sort + search logic ──
+  // ── Derive tutors + client-side search in a single memo ──
   const filteredTutors = useMemo(() => {
-    let result = [...tutors];
-
-    // Search
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (t) =>
-          t.name.toLowerCase().includes(q) ||
-          t.specialty.toLowerCase().includes(q) ||
-          t.headline.toLowerCase().includes(q)
-      );
-    }
-
-    // Filter
-    switch (activeFilter) {
-      case "active":
-        result = result.filter((t) => t.nextLesson !== null);
-        break;
-      case "past":
-        result = result.filter(
-          (t) => t.nextLesson === null && t.completedLessons > 0
-        );
-        break;
-      case "favourites":
-        result = result.filter((t) => t.isFavourite);
-        break;
-    }
-
-    // Sort
-    switch (sortBy) {
-      case "recent":
-        result.sort((a, b) => {
-          const dateA = a.nextLesson?.date || a.lastLessonDate || "";
-          const dateB = b.nextLesson?.date || b.lastLessonDate || "";
-          return new Date(dateB).getTime() - new Date(dateA).getTime();
-        });
-        break;
-      case "name":
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "lessons":
-        result.sort((a, b) => b.completedLessons - a.completedLessons);
-        break;
-      case "rating":
-        result.sort((a, b) => b.rating - a.rating);
-        break;
-    }
-
-    return result;
-  }, [tutors, activeFilter, sortBy, searchQuery]);
+    const tutors = data?.data?.tutors ?? [];
+    if (!searchQuery.trim()) return tutors;
+    const q = searchQuery.toLowerCase();
+    return tutors.filter(
+      (t) =>
+        t.name.toLowerCase().includes(q) ||
+        t.specialty.toLowerCase().includes(q) ||
+        t.headline.toLowerCase().includes(q)
+    );
+  }, [data, searchQuery]);
 
   return (
     <div className="space-y-6">
@@ -108,11 +77,15 @@ export default function MyTutors() {
         </p>
       </div>
 
-      {/* Summary stats */}
-      {isLoading ? <SummarySkeleton /> : <TutorSummaryStats tutors={tutors} />}
+      {/* Summary stats — skeleton only on initial load */}
+      {isInitialLoad ? (
+        <SummarySkeleton />
+      ) : summary ? (
+        <TutorSummaryStats summary={summary} />
+      ) : null}
 
-      {/* Filters */}
-      {isLoading ? (
+      {/* Filters — skeleton only on initial load */}
+      {isInitialLoad ? (
         <FilterBarSkeleton />
       ) : (
         <TutorFilterBar
@@ -126,18 +99,31 @@ export default function MyTutors() {
         />
       )}
 
-      {/* Tutor list */}
-      {isLoading ? (
+      {/* Tutor list — skeleton on initial load, subtle overlay on refetch */}
+      {isInitialLoad ? (
         <TutorListSkeleton />
       ) : (
-        <TutorList
-          tutors={filteredTutors}
-          onToggleFavourite={handleToggleFavourite}
-        />
+        <div className="relative">
+          {isFetching && (
+            <div className="absolute inset-0 bg-white/60 rounded-xl z-10 flex items-start justify-center pt-20">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white shadow-sm border border-[#0B2343]/[0.06]">
+                <div className="w-4 h-4 border-2 border-[#ff7c22] border-t-transparent rounded-full animate-spin" />
+                <span className="text-xs font-medium text-[#0B2343]/40">
+                  Updating...
+                </span>
+              </div>
+            </div>
+          )}
+          <TutorList
+            tutors={filteredTutors}
+            onToggleFavourite={handleToggleFavourite}
+            favouriteLoadingId={favouriteLoadingId}
+          />
+        </div>
       )}
 
       {/* Quick find banner */}
-      {!isLoading && <QuickFindBanner />}
+      {!isInitialLoad && <QuickFindBanner />}
     </div>
   );
 }

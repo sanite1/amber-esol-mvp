@@ -10,9 +10,13 @@ import {
   XCircle,
   Target,
   StickyNote,
+  Loader2,
+  Check,
+  Pencil,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { TutorStudent } from "../../../data/tutor/tutorStudentsData";
+import { TutorStudent } from "../../../lib/types/myStudents";
+import { useUpdateStudentNotes } from "../../../lib/api/myStudents";
 
 interface Props {
   student: TutorStudent;
@@ -51,6 +55,10 @@ const lessonStatusColors: Record<string, string> = {
 
 export default function StudentCard({ student }: Props) {
   const [expanded, setExpanded] = useState(false);
+  const [editingNotes, setEditingNotes] = useState(false);
+  const [notesValue, setNotesValue] = useState(student.notes || "");
+
+  const updateNotesMutation = useUpdateStudentNotes();
 
   const sc = statusConfig[student.status];
 
@@ -76,6 +84,22 @@ export default function StudentCard({ student }: Props) {
 
   const formatShortDate = (d: string) =>
     new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+
+  const handleSaveNotes = () => {
+    updateNotesMutation.mutate(
+      { studentId: student.id, notes: notesValue },
+      {
+        onSuccess: () => {
+          setEditingNotes(false);
+        },
+      }
+    );
+  };
+
+  const handleCancelNotes = () => {
+    setNotesValue(student.notes || "");
+    setEditingNotes(false);
+  };
 
   return (
     <div className="bg-white rounded-xl border border-[#0B2343]/[0.06] hover:border-[#0B2343]/[0.12] transition-colors">
@@ -136,7 +160,7 @@ export default function StudentCard({ student }: Props) {
               </p>
               <p className="text-[9px] text-[#0B2343]/25">hours</p>
             </div>
-            {student.averageRating && (
+            {student.averageRating !== null && (
               <div className="flex items-center gap-0.5">
                 <Star size={11} className="text-amber-400 fill-amber-400" />
                 <span className="text-xs font-semibold text-[#0B2343]/60">
@@ -243,7 +267,7 @@ export default function StudentCard({ student }: Props) {
             </div>
           </div>
 
-          {/* Info row: country, languages, joined, revenue */}
+          {/* Info row */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 text-[11px] sm:text-xs text-[#0B2343]/40">
             <span>{student.country}</span>
             <span>Speaks: {student.languages.join(", ")}</span>
@@ -256,7 +280,7 @@ export default function StudentCard({ student }: Props) {
           </div>
 
           {/* Goals */}
-          {student.goals && student.goals.length > 0 && (
+          {student.goals.length > 0 && (
             <div className="mt-3">
               <p className="text-[10px] font-semibold text-[#0B2343]/25 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                 <Target size={10} /> Goals
@@ -274,18 +298,83 @@ export default function StudentCard({ student }: Props) {
             </div>
           )}
 
-          {/* Notes */}
-          {student.notes && (
-            <div className="mt-3 flex items-start gap-2 bg-amber-50/50 border border-amber-100/60 rounded-lg px-2.5 py-2 sm:px-3">
-              <StickyNote
-                size={12}
-                className="text-amber-400 mt-0.5 shrink-0"
-              />
-              <p className="text-[11px] sm:text-xs text-[#0B2343]/50 leading-relaxed">
-                {student.notes}
-              </p>
-            </div>
-          )}
+          {/* Notes — with inline edit */}
+          <div className="mt-3">
+            {editingNotes ? (
+              <div className="bg-amber-50/50 border border-amber-100/60 rounded-lg px-2.5 py-2 sm:px-3">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <StickyNote size={12} className="text-amber-400" />
+                  <span className="text-[10px] font-semibold text-[#0B2343]/30 uppercase tracking-wider">
+                    Notes
+                  </span>
+                </div>
+                <textarea
+                  value={notesValue}
+                  onChange={(e) => setNotesValue(e.target.value)}
+                  maxLength={1000}
+                  rows={3}
+                  className="w-full text-[11px] sm:text-xs text-[#0B2343]/60 bg-white border border-[#0B2343]/[0.08] rounded-lg px-2.5 py-2 outline-none focus:border-[#ff7c22]/30 resize-none"
+                  placeholder="Add private notes about this student..."
+                />
+                <div className="flex items-center justify-between mt-1.5">
+                  <span className="text-[9px] text-[#0B2343]/20">
+                    {notesValue.length}/1000
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={handleCancelNotes}
+                      disabled={updateNotesMutation.isPending}
+                      className="px-2.5 py-1 rounded-md text-[10px] font-medium text-[#0B2343]/40 hover:bg-[#0B2343]/[0.04] transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSaveNotes}
+                      disabled={updateNotesMutation.isPending}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-medium bg-[#ff7c22] text-white hover:bg-[#e56a10] disabled:opacity-50 transition-colors"
+                    >
+                      {updateNotesMutation.isPending ? (
+                        <Loader2 size={10} className="animate-spin" />
+                      ) : (
+                        <Check size={10} />
+                      )}
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : student.notes ? (
+              <div className="flex items-start gap-2 bg-amber-50/50 border border-amber-100/60 rounded-lg px-2.5 py-2 sm:px-3 group">
+                <StickyNote
+                  size={12}
+                  className="text-amber-400 mt-0.5 shrink-0"
+                />
+                <p className="text-[11px] sm:text-xs text-[#0B2343]/50 leading-relaxed flex-1">
+                  {student.notes}
+                </p>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditingNotes(true);
+                  }}
+                  className="opacity-0 group-hover:opacity-100 p-1 rounded text-[#0B2343]/20 hover:text-[#0B2343]/40 transition-all shrink-0"
+                >
+                  <Pencil size={11} />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingNotes(true);
+                }}
+                className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-[#0B2343]/25 hover:text-[#0B2343]/40 transition-colors"
+              >
+                <StickyNote size={11} />
+                Add notes...
+              </button>
+            )}
+          </div>
 
           {/* Recent lessons */}
           {student.recentLessons.length > 0 && (

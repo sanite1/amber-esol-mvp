@@ -1,38 +1,33 @@
 import { Users, BookOpen, Star, Heart } from "lucide-react";
-import { MyTutor } from "../../../data/student/myTutorsData";
+import { MyTutorsSummary } from "../../../lib/types/myTutors";
 
 interface Props {
-  tutors: MyTutor[];
+  summary: MyTutorsSummary;
 }
 
-export default function TutorSummaryStats({ tutors }: Props) {
-  const totalTutors = tutors.length;
-  const activeTutors = tutors.filter((t) => t.nextLesson !== null).length;
-  const totalLessons = tutors.reduce((sum, t) => sum + t.completedLessons, 0);
-  const favourites = tutors.filter((t) => t.isFavourite).length;
-
+export default function TutorSummaryStats({ summary }: Props) {
   const cards = [
     {
       label: "Total Tutors",
-      value: totalTutors,
+      value: summary.totalTutors,
       icon: Users,
       color: "bg-[#ff7c22]/10 text-[#ff7c22]",
     },
     {
       label: "Active Now",
-      value: activeTutors,
+      value: summary.activeTutors,
       icon: BookOpen,
       color: "bg-emerald-50 text-emerald-500",
     },
     {
       label: "Lessons Taken",
-      value: totalLessons,
+      value: summary.totalLessons,
       icon: Star,
       color: "bg-blue-50 text-blue-500",
     },
     {
       label: "Favourites",
-      value: favourites,
+      value: summary.favourites,
       icon: Heart,
       color: "bg-pink-50 text-pink-500",
     },

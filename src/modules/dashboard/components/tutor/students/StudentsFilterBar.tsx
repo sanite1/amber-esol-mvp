@@ -1,7 +1,8 @@
 import { Search, SlidersHorizontal } from "lucide-react";
-
-export type StudentStatusFilter = "all" | "active" | "trial" | "inactive";
-export type StudentSortOption = "recent" | "name" | "lessons" | "joined";
+import {
+  StudentSortOption,
+  StudentStatusFilter,
+} from "../../../lib/types/myStudents";
 
 interface Props {
   search: string;

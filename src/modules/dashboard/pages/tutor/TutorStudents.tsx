@@ -1,39 +1,32 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Users } from "lucide-react";
-import {
-  tutorStudentsData,
-  type TutorStudentsData,
-} from "../../data/tutor/tutorStudentsData";
+import { useFetchMyStudents } from "../../lib/api/myStudents";
+import type {
+  StudentStatusFilter,
+  StudentSortOption,
+  TutorStudent,
+  TutorStudentsStats,
+} from "../../lib/types/myStudents";
 import {
   StatsBarSkeleton,
   FilterBarSkeleton,
   StudentListSkeleton,
 } from "../../components/tutor/students/StudentsSkeleton";
 import StudentsStatsBar from "../../components/tutor/students/StudentsStatsBar";
-import StudentsFilterBar, {
-  type StudentStatusFilter,
-  type StudentSortOption,
-} from "../../components/tutor/students/StudentsFilterBar";
+import StudentsFilterBar from "../../components/tutor/students/StudentsFilterBar";
 import StudentList from "../../components/tutor/students/StudentList";
 import StudentsPagination from "../../components/tutor/students/StudentsPagination";
 
 const PER_PAGE = 8;
 
 export default function TutorStudents() {
-  const [data, setData] = useState<TutorStudentsData | null>(null);
-  const [loading, setLoading] = useState(true);
-
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StudentStatusFilter>("all");
   const [sort, setSort] = useState<StudentSortOption>("recent");
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    const t = setTimeout(() => {
-      setData(tutorStudentsData);
-      setLoading(false);
-    }, 800);
-    return () => clearTimeout(t);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   // Reset page when filters change
@@ -41,55 +34,27 @@ export default function TutorStudents() {
     setPage(1);
   }, [search, statusFilter, sort]);
 
-  const processed = useMemo(() => {
-    if (!data) return [];
-    let list = [...data.students];
+  // ── Fetch from API ──
+  const {
+    data: response,
+    isLoading,
+    isFetching,
+  } = useFetchMyStudents({
+    filter: statusFilter,
+    sort,
+    search: search || undefined,
+    page,
+    limit: PER_PAGE,
+  });
 
-    // Status filter
-    if (statusFilter !== "all") {
-      list = list.filter((s) => s.status === statusFilter);
-    }
+  const hasData = !!response;
+  const isInitialLoad = isLoading && !hasData;
 
-    // Search
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(
-        (s) =>
-          s.name.toLowerCase().includes(q) ||
-          s.country.toLowerCase().includes(q) ||
-          s.level.toLowerCase().includes(q) ||
-          s.email.toLowerCase().includes(q)
-      );
-    }
-
-    // Sort
-    switch (sort) {
-      case "recent":
-        list.sort(
-          (a, b) =>
-            new Date(b.lastLessonDate).getTime() -
-            new Date(a.lastLessonDate).getTime()
-        );
-        break;
-      case "name":
-        list.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "lessons":
-        list.sort((a, b) => b.completedLessons - a.completedLessons);
-        break;
-      case "joined":
-        list.sort(
-          (a, b) =>
-            new Date(b.joinedDate).getTime() - new Date(a.joinedDate).getTime()
-        );
-        break;
-    }
-
-    return list;
-  }, [data, search, statusFilter, sort]);
-
-  const totalPages = Math.ceil(processed.length / PER_PAGE);
-  const paginated = processed.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const students: TutorStudent[] = response?.data?.students ?? [];
+  const stats: TutorStudentsStats | undefined = response?.data?.stats;
+  const pagination = response?.data?.pagination;
+  const totalPages = pagination?.totalPages ?? 0;
+  const totalCount = pagination?.total ?? 0;
 
   return (
     <div className="space-y-4 sm:space-y-5">
@@ -108,15 +73,15 @@ export default function TutorStudents() {
         </div>
       </div>
 
-      {/* Stats */}
-      {loading || !data ? (
+      {/* Stats — skeleton only on initial load */}
+      {isInitialLoad ? (
         <StatsBarSkeleton />
-      ) : (
-        <StudentsStatsBar stats={data.stats} />
-      )}
+      ) : stats ? (
+        <StudentsStatsBar stats={stats} />
+      ) : null}
 
-      {/* Filters */}
-      {loading ? (
+      {/* Filters — skeleton only on initial load */}
+      {isInitialLoad ? (
         <FilterBarSkeleton />
       ) : (
         <StudentsFilterBar
@@ -126,22 +91,32 @@ export default function TutorStudents() {
           onStatusChange={setStatusFilter}
           sort={sort}
           onSortChange={setSort}
-          count={processed.length}
+          count={totalCount}
         />
       )}
 
-      {/* List */}
-      {loading ? (
+      {/* List — skeleton on initial load, overlay on refetch */}
+      {isInitialLoad ? (
         <StudentListSkeleton />
       ) : (
-        <>
-          <StudentList students={paginated} />
+        <div className="relative">
+          {isFetching && (
+            <div className="absolute inset-0 bg-white/60 rounded-xl z-10 flex items-start justify-center pt-20">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white shadow-sm border border-[#0B2343]/[0.06]">
+                <div className="w-4 h-4 border-2 border-[#ff7c22] border-t-transparent rounded-full animate-spin" />
+                <span className="text-xs font-medium text-[#0B2343]/40">
+                  Updating...
+                </span>
+              </div>
+            </div>
+          )}
+          <StudentList students={students} />
           <StudentsPagination
             page={page}
             totalPages={totalPages}
             onPageChange={setPage}
           />
-        </>
+        </div>
       )}
     </div>
   );
