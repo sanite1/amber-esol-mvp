@@ -37,7 +37,7 @@ export default function TutorSearchBar({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by name, specialty, or language..."
-            className="w-full pl-10 pr-9 py-2.5 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/40 focus:bg-white transition-colors"
+            className="w-full pl-10 pr-9 py-2.5 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/40 focus:bg-white transition-colors"
           />
           {searchQuery && (
             <button
@@ -53,7 +53,7 @@ export default function TutorSearchBar({
         <select
           value={sortBy}
           onChange={(e) => onSortChange(e.target.value)}
-          className="px-3 py-2.5 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] outline-none focus:border-[#ff7c22]/40 transition-colors cursor-pointer"
+          className="px-3 py-2.5 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] outline-none focus:border-[#ff7c22]/40 transition-colors cursor-pointer"
         >
           {sortOptions.map((opt) => (
             <option key={opt.value} value={opt.value}>

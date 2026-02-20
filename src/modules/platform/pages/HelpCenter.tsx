@@ -219,7 +219,7 @@ export default function Help() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search for help..."
-              className="w-full pl-11 pr-4 py-4 text-sm bg-white/[0.06] border border-white/[0.08] rounded-2xl text-white placeholder-white/25 outline-none focus:border-[#ff7c22]/40 focus:bg-white/[0.08] transition-colors duration-200"
+              className="w-full pl-11 pr-4 py-4 text-base lg:text-sm bg-white/[0.06] border border-white/[0.08] rounded-2xl text-white placeholder-white/25 outline-none focus:border-[#ff7c22]/40 focus:bg-white/[0.08] transition-colors duration-200"
             />
           </div>
         </div>
@@ -511,7 +511,7 @@ export default function Help() {
                           }))
                         }
                         placeholder="you@example.com"
-                        className={`w-full px-4 py-3 text-sm rounded-xl border bg-white text-[#0B2343] placeholder-[#0B2343]/20 outline-none transition-colors duration-200 ${
+                        className={`w-full px-4 py-3 text-base lg:text-sm rounded-xl border bg-white text-[#0B2343] placeholder-[#0B2343]/20 outline-none transition-colors duration-200 ${
                           errors.email
                             ? "border-red-300 focus:border-red-400"
                             : "border-[#0B2343]/10 focus:border-[#ff7c22]/40"
@@ -540,7 +540,7 @@ export default function Help() {
                           }))
                         }
                         placeholder="Brief summary of your issue"
-                        className={`w-full px-4 py-3 text-sm rounded-xl border bg-white text-[#0B2343] placeholder-[#0B2343]/20 outline-none transition-colors duration-200 ${
+                        className={`w-full px-4 py-3 text-base lg:text-sm rounded-xl border bg-white text-[#0B2343] placeholder-[#0B2343]/20 outline-none transition-colors duration-200 ${
                           errors.subject
                             ? "border-red-300 focus:border-red-400"
                             : "border-[#0B2343]/10 focus:border-[#ff7c22]/40"
@@ -570,7 +570,7 @@ export default function Help() {
                       }
                       placeholder="Describe your issue in detail, what happened, what you expected, and any steps to reproduce..."
                       rows={5}
-                      className={`w-full px-4 py-3 text-sm rounded-xl border bg-white text-[#0B2343] placeholder-[#0B2343]/20 outline-none resize-none transition-colors duration-200 ${
+                      className={`w-full px-4 py-3 text-base lg:text-sm rounded-xl border bg-white text-[#0B2343] placeholder-[#0B2343]/20 outline-none resize-none transition-colors duration-200 ${
                         errors.description
                           ? "border-red-300 focus:border-red-400"
                           : "border-[#0B2343]/10 focus:border-[#ff7c22]/40"

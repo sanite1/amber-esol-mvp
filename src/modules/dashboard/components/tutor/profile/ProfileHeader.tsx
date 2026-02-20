@@ -153,7 +153,7 @@ export default function ProfileHeader({
   };
 
   const inputClass = (hasError: boolean) =>
-    `w-full px-3 py-2 rounded-lg border text-xs sm:text-sm text-[#0B2343] outline-none transition-colors ${
+    `w-full px-3 py-2 rounded-lg border text-base lg:text-sm text-[#0B2343] outline-none transition-colors ${
       hasError
         ? "border-red-300 bg-red-50/30 focus:border-red-400"
         : "border-[#0B2343]/[0.1] bg-[#fafbfc] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -215,7 +215,7 @@ export default function ProfileHeader({
               type="file"
               accept="image/*"
               onChange={handleFileSelect}
-              className="hidden"
+              className="hidden text-base lg:text-sm"
             />
             {profile.verified && (
               <div className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-400 border-[2.5px] border-white" />

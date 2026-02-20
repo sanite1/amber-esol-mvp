@@ -307,14 +307,14 @@ export default function TutorRegister() {
 
   /* ─── Shared input class helper ─── */
   const inputClass = (hasError: boolean) =>
-    `w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+    `w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
       hasError
         ? "border-red-300"
         : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
     }`;
 
   const inputClassNoPad = (hasError: boolean) =>
-    `w-full px-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+    `w-full px-4 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
       hasError
         ? "border-red-300"
         : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -675,7 +675,7 @@ export default function TutorRegister() {
                       {...register("bio")}
                       rows={4}
                       placeholder="Tell students about your teaching style, experience, and what makes your lessons special..."
-                      className={`w-full px-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors resize-none ${
+                      className={`w-full px-4 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors resize-none ${
                         errors.bio
                           ? "border-red-300"
                           : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -700,7 +700,7 @@ export default function TutorRegister() {
                       />
                       <select
                         {...register("nativeLanguage")}
-                        className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] outline-none appearance-none cursor-pointer transition-colors ${
+                        className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] outline-none appearance-none cursor-pointer transition-colors ${
                           errors.nativeLanguage
                             ? "border-red-300"
                             : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -757,7 +757,7 @@ export default function TutorRegister() {
                             <input
                               {...register(`languages.${index}.name`)}
                               placeholder="e.g. English, French, Spanish"
-                              className={`w-full px-3 py-2.5 rounded-lg border text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                              className={`w-full px-3 py-2.5 rounded-lg border text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                                 errors.languages?.[index]?.name
                                   ? "border-red-300 bg-red-50/30"
                                   : "border-[#0B2343]/[0.08] bg-white focus:border-[#ff7c22]/40"

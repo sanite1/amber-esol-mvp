@@ -129,7 +129,7 @@ export default function TicketFormModal({
                 setFormData((prev) => ({ ...prev, email: e.target.value }))
               }
               placeholder="you@example.com"
-              className={`w-full px-4 py-3 text-sm rounded-xl border bg-white text-[#0B2343] placeholder-[#0B2343]/25 outline-none transition-colors duration-200 ${
+              className={`w-full px-4 py-3 text-base lg:text-sm rounded-xl border bg-white text-[#0B2343] placeholder-[#0B2343]/25 outline-none transition-colors duration-200 ${
                 errors.email
                   ? "border-red-300 focus:border-red-400"
                   : "border-[#0B2343]/10 focus:border-[#ff7c22]/40"
@@ -155,7 +155,7 @@ export default function TicketFormModal({
                 setFormData((prev) => ({ ...prev, subject: e.target.value }))
               }
               placeholder="Brief summary of your issue"
-              className={`w-full px-4 py-3 text-sm rounded-xl border bg-white text-[#0B2343] placeholder-[#0B2343]/25 outline-none transition-colors duration-200 ${
+              className={`w-full px-4 py-3 text-base lg:text-sm rounded-xl border bg-white text-[#0B2343] placeholder-[#0B2343]/25 outline-none transition-colors duration-200 ${
                 errors.subject
                   ? "border-red-300 focus:border-red-400"
                   : "border-[#0B2343]/10 focus:border-[#ff7c22]/40"
@@ -184,7 +184,7 @@ export default function TicketFormModal({
               }
               placeholder="Describe your issue in detail, what happened, what you expected, and any steps to reproduce..."
               rows={5}
-              className={`w-full px-4 py-3 text-sm rounded-xl border bg-white text-[#0B2343] placeholder-[#0B2343]/25 outline-none resize-none transition-colors duration-200 ${
+              className={`w-full px-4 py-3 text-base lg:text-sm rounded-xl border bg-white text-[#0B2343] placeholder-[#0B2343]/25 outline-none resize-none transition-colors duration-200 ${
                 errors.description
                   ? "border-red-300 focus:border-red-400"
                   : "border-[#0B2343]/10 focus:border-[#ff7c22]/40"
@@ -237,7 +237,7 @@ export default function TicketFormModal({
                   multiple
                   accept="image/*,.pdf,.doc,.docx"
                   onChange={(e) => handleFileAdd(e.target.files)}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-base lg:text-sm"
                 />
                 <Upload size={20} className="mx-auto text-[#0B2343]/20 mb-2" />
                 <p className="text-sm text-[#0B2343]/40">

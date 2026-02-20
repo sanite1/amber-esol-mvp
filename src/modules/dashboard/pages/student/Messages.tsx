@@ -301,7 +301,7 @@ export default function Messages() {
                     placeholder="Search conversations..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-9 py-2 text-sm rounded-lg bg-[#F8F9FB] border border-[#0B2343]/[0.06] text-[#0B2343] placeholder:text-[#0B2343]/30 outline-none focus:ring-2 focus:ring-[#ff7c22]/20 focus:border-[#ff7c22]/30 transition-all"
+                    className="w-full pl-9 pr-9 py-2 text-base lg:text-sm rounded-lg bg-[#F8F9FB] border border-[#0B2343]/[0.06] text-[#0B2343] placeholder:text-[#0B2343]/30 outline-none focus:ring-2 focus:ring-[#ff7c22]/20 focus:border-[#ff7c22]/30 transition-all"
                   />
                   {isSearchRefetching && (
                     <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#ff7c22]/60 animate-spin" />

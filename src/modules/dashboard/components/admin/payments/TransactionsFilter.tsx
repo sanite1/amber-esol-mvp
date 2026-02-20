@@ -58,7 +58,7 @@ export default function TransactionsFilter({
             placeholder="Search by student, tutor, topic, ID…"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-9 pr-8 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-xs sm:text-sm text-[#0B2343] placeholder:text-[#0B2343]/30 focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
+            className="w-full pl-9 pr-8 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/30 focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
           />
           {search && (
             <button
@@ -73,7 +73,7 @@ export default function TransactionsFilter({
           <select
             value={typeFilter}
             onChange={(e) => onTypeChange(e.target.value as TxnTypeFilter)}
-            className="px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-xs sm:text-sm text-[#0B2343] focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
+            className="px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
           >
             <option value="all">All Types</option>
             <option value="lesson_payment">Payment</option>
@@ -83,7 +83,7 @@ export default function TransactionsFilter({
           <select
             value={sort}
             onChange={(e) => onSortChange(e.target.value as TxnSort)}
-            className="px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-xs sm:text-sm text-[#0B2343] focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
+            className="px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
           >
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>

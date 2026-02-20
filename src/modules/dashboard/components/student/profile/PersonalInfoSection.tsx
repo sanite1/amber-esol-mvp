@@ -43,7 +43,7 @@ export default function PersonalInfoSection({ profile, onSave }: Props) {
   };
 
   const inputClass =
-    "w-full px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/30 focus:bg-white transition-colors";
+    "w-full px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/30 focus:bg-white transition-colors";
   const labelClass = "text-[11px] font-medium text-[#0B2343]/40 mb-1 block";
 
   return (

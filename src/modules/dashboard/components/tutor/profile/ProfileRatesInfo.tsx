@@ -78,7 +78,7 @@ export default function ProfileRatesInfo({
   };
 
   const inputClass = (hasError: boolean) =>
-    `w-full px-3 py-2 rounded-lg border text-sm font-bold text-center outline-none transition-colors ${
+    `w-full px-3 py-2 rounded-lg border text-base lg:text-sm font-bold text-center outline-none transition-colors ${
       hasError
         ? "border-red-300 bg-red-50/30 focus:border-red-400 text-red-600"
         : "border-[#0B2343]/[0.1] bg-[#fafbfc] focus:border-[#ff7c22]/40 focus:bg-white text-[#0B2343]"

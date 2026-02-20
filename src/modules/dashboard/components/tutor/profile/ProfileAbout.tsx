@@ -312,7 +312,7 @@ export default function ProfileAbout({ user, onUpdate, isUpdating }: Props) {
                   }
                 }}
                 placeholder="Add specialty…"
-                className="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-[11px] sm:text-xs text-[#0B2343] outline-none focus:border-[#ff7c22]/30"
+                className="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] outline-none focus:border-[#ff7c22]/30"
               />
               <button
                 onClick={() =>

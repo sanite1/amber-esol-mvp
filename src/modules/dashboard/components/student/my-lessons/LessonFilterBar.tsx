@@ -72,7 +72,7 @@ export default function LessonFilterBar({
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search lessons..."
-              className="w-full sm:w-40 pl-8 pr-3 py-2 rounded-lg border border-[#0B2343]/[0.06] bg-white text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/30 transition-colors"
+              className="w-full sm:w-40 pl-8 pr-3 py-2 rounded-lg border border-[#0B2343]/[0.06] bg-white text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/30 transition-colors"
             />
           </div>
 

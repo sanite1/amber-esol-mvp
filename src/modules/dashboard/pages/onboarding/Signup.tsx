@@ -373,7 +373,7 @@ export default function Register() {
                       type="text"
                       {...register("firstName")}
                       placeholder="John"
-                      className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                      className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                         errors.firstName
                           ? "border-red-300"
                           : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -399,7 +399,7 @@ export default function Register() {
                       type="text"
                       {...register("lastName")}
                       placeholder="Doe"
-                      className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                      className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                         errors.lastName
                           ? "border-red-300"
                           : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -428,7 +428,7 @@ export default function Register() {
                     type="email"
                     {...register("email")}
                     placeholder="you@example.com"
-                    className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                    className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                       errors.email
                         ? "border-red-300"
                         : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -456,7 +456,7 @@ export default function Register() {
                     type="tel"
                     {...register("phone")}
                     placeholder="+44 7700 900000"
-                    className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                    className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                       errors.phone
                         ? "border-red-300"
                         : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -483,7 +483,7 @@ export default function Register() {
                     />
                     <select
                       {...register("nativeLanguage")}
-                      className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] outline-none appearance-none cursor-pointer transition-colors ${
+                      className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] outline-none appearance-none cursor-pointer transition-colors ${
                         errors.nativeLanguage
                           ? "border-red-300"
                           : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -515,7 +515,7 @@ export default function Register() {
                       />
                       <select
                         {...register("englishLevel")}
-                        className="w-full pl-11 pr-4 py-3 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] outline-none appearance-none cursor-pointer focus:border-[#ff7c22]/40 focus:bg-white transition-colors"
+                        className="w-full pl-11 pr-4 py-3 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] outline-none appearance-none cursor-pointer focus:border-[#ff7c22]/40 focus:bg-white transition-colors"
                       >
                         <option value="">Select level</option>
                         {cefrLevels.map((level) => (
@@ -544,7 +544,7 @@ export default function Register() {
                       type={showPassword ? "text" : "password"}
                       {...register("password")}
                       placeholder="Min. 8 characters"
-                      className={`w-full pl-11 pr-11 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                      className={`w-full pl-11 pr-11 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                         errors.password
                           ? "border-red-300"
                           : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -577,7 +577,7 @@ export default function Register() {
                       type={showConfirmPassword ? "text" : "password"}
                       {...register("confirmPassword")}
                       placeholder="Re-enter password"
-                      className={`w-full pl-11 pr-11 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                      className={`w-full pl-11 pr-11 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                         errors.confirmPassword
                           ? "border-red-300"
                           : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"

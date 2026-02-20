@@ -525,7 +525,7 @@ export default function ChatArea({
                 ref={fileInputRef}
                 type="file"
                 onChange={handleFileSelect}
-                className="hidden"
+                className="hidden text-base lg:text-sm"
                 accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
               />
 
@@ -539,7 +539,7 @@ export default function ChatArea({
                 placeholder="Type a message..."
                 rows={1}
                 disabled={isSending}
-                className="flex-1 resize-none rounded-xl bg-[#fafbfc] border border-[#0B2343]/[0.08] px-4 py-2.5 text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/30 focus:bg-white transition-colors disabled:opacity-50 overflow-hidden"
+                className="flex-1 resize-none rounded-xl bg-[#fafbfc] border border-[#0B2343]/[0.08] px-4 py-2.5 text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/30 focus:bg-white transition-colors disabled:opacity-50 overflow-hidden"
                 style={{ maxHeight: 132 }}
               />
 

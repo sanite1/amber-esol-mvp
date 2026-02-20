@@ -292,7 +292,7 @@ export default function ForgotPassword() {
                         type="email"
                         {...register("email")}
                         placeholder="you@example.com"
-                        className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                        className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                           errors.email
                             ? "border-red-300 focus:border-red-400"
                             : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"

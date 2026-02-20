@@ -200,7 +200,7 @@ export default function Footer() {
               <input
                 type="email"
                 placeholder="Your email address"
-                className="w-full px-4 py-2.5 text-sm bg-white/[0.06] border border-white/[0.08] rounded-xl text-white placeholder-white/25 focus:outline-none focus:border-[#ff7c22]/50 transition-colors duration-200"
+                className="w-full px-4 py-2.5 text-base lg:text-sm bg-white/[0.06] border border-white/[0.08] rounded-xl text-white placeholder-white/25 focus:outline-none focus:border-[#ff7c22]/50 transition-colors duration-200"
               />
               <button
                 type="submit"

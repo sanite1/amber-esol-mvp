@@ -183,7 +183,7 @@ export default function Contact() {
                         value={formData.name}
                         onChange={handleChange}
                         placeholder="John Doe"
-                        className={`w-full px-4 py-3 rounded-xl bg-white border text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                        className={`w-full px-4 py-3 rounded-xl bg-white border text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                           errors.name
                             ? "border-red-400"
                             : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40"
@@ -206,7 +206,7 @@ export default function Contact() {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="john@example.com"
-                        className={`w-full px-4 py-3 rounded-xl bg-white border text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                        className={`w-full px-4 py-3 rounded-xl bg-white border text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                           errors.email
                             ? "border-red-400"
                             : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40"
@@ -229,7 +229,7 @@ export default function Contact() {
                       value={formData.subject}
                       onChange={handleChange}
                       placeholder="What's this about?"
-                      className={`w-full px-4 py-3 rounded-xl bg-white border text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                      className={`w-full px-4 py-3 rounded-xl bg-white border text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                         errors.subject
                           ? "border-red-400"
                           : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40"
@@ -252,7 +252,7 @@ export default function Contact() {
                       onChange={handleChange}
                       rows={5}
                       placeholder="Tell us more…"
-                      className={`w-full px-4 py-3 rounded-xl bg-white border text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none resize-none transition-colors ${
+                      className={`w-full px-4 py-3 rounded-xl bg-white border text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none resize-none transition-colors ${
                         errors.message
                           ? "border-red-400"
                           : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40"

@@ -34,7 +34,7 @@ export default function TutorSearch({
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Search by name, specialty, or language…"
-          className="w-full pl-11 pr-4 py-3 rounded-xl bg-white border border-[#0B2343]/[0.08] text-sm text-[#0B2343] placeholder:text-[#0B2343]/30 outline-none focus:border-[#ff7c22]/40 transition-colors"
+          className="w-full pl-11 pr-4 py-3 rounded-xl bg-white border border-[#0B2343]/[0.08] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/30 outline-none focus:border-[#ff7c22]/40 transition-colors"
         />
       </div>
 
@@ -55,7 +55,7 @@ export default function TutorSearch({
         <select
           value={sort}
           onChange={(e) => onSortChange(e.target.value)}
-          className="px-4 py-3 rounded-xl bg-white border border-[#0B2343]/[0.08] text-sm text-[#0B2343] outline-none focus:border-[#ff7c22]/40 transition-colors cursor-pointer"
+          className="px-4 py-3 rounded-xl bg-white border border-[#0B2343]/[0.08] text-base lg:text-sm text-[#0B2343] outline-none focus:border-[#ff7c22]/40 transition-colors cursor-pointer"
         >
           {sortOptions.map((o) => (
             <option key={o.value} value={o.value}>

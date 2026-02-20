@@ -93,10 +93,10 @@ export default function DateOverridesCard({
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const inputClass =
-    "w-full px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-xs sm:text-sm text-[#0B2343] outline-none focus:border-[#ff7c22]/30 focus:bg-white transition-colors";
+    "w-full px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] outline-none focus:border-[#ff7c22]/30 focus:bg-white transition-colors";
 
   const selectClass =
-    "px-2 py-1.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-[10px] sm:text-[11px] text-[#0B2343] outline-none focus:border-[#ff7c22]/30 transition-colors";
+    "px-2 py-1.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] outline-none focus:border-[#ff7c22]/30 transition-colors";
 
   return (
     <div className="bg-white rounded-2xl border border-[#0B2343]/[0.06] p-3 sm:p-4 md:p-5">

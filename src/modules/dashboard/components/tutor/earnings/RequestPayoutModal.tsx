@@ -142,7 +142,7 @@ export default function RequestPayoutModal({
                 step="0.01"
                 min={settings.minPayout}
                 max={availableBalance}
-                className={`w-full pl-8 pr-3 py-2.5 rounded-xl border text-sm font-semibold text-[#0B2343] outline-none transition-colors ${
+                className={`w-full pl-8 pr-3 py-2.5 rounded-xl border text-base lg:text-sm font-semibold text-[#0B2343] outline-none transition-colors ${
                   error
                     ? "border-red-300 bg-red-50/30 focus:border-red-400"
                     : "border-[#0B2343]/[0.1] bg-[#fafbfc] focus:border-[#ff7c22]/40 focus:bg-white"

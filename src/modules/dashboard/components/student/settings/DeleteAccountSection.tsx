@@ -168,7 +168,7 @@ export default function DeleteAccountSection({
                   value={confirmText}
                   onChange={(e) => setConfirmText(e.target.value)}
                   placeholder="DELETE"
-                  className="w-full px-3 py-2.5 rounded-xl border border-red-200 bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/15 outline-none focus:border-red-300 focus:bg-white transition-colors"
+                  className="w-full px-3 py-2.5 rounded-xl border border-red-200 bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/15 outline-none focus:border-red-300 focus:bg-white transition-colors"
                 />
               </div>
 

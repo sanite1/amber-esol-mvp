@@ -354,7 +354,7 @@ export default function TutorMessages() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search students..."
-                    className="w-full pl-8 pr-8 py-1.5 sm:py-2 rounded-lg border border-[#0B2343]/[0.06] bg-[#fafbfc] text-[11px] sm:text-xs text-[#0B2343] outline-none focus:border-[#ff7c22]/30 focus:bg-white transition-colors"
+                    className="w-full pl-8 pr-8 py-1.5 sm:py-2 rounded-lg border border-[#0B2343]/[0.06] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] outline-none focus:border-[#ff7c22]/30 focus:bg-white transition-colors"
                   />
                   {isSearchRefetching && (
                     <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#ff7c22]/60 animate-spin" />

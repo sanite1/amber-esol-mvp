@@ -158,7 +158,7 @@ export default function ProfileQualifications({
   };
 
   const inputClass = (hasError: boolean) =>
-    `w-full px-2.5 py-1.5 rounded-lg border text-[11px] sm:text-xs text-[#0B2343] outline-none transition-colors ${
+    `w-full px-2.5 py-1.5 rounded-lg border text-base lg:text-sm text-[#0B2343] outline-none transition-colors ${
       hasError
         ? "border-red-300 bg-red-50/30 focus:border-red-400"
         : "border-[#0B2343]/[0.1] bg-[#fafbfc] focus:border-[#ff7c22]/40 focus:bg-white"

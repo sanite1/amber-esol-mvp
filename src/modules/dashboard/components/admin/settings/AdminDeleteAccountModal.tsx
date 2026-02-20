@@ -64,7 +64,7 @@ export default function AdminDeleteAccountModal({ onClose, onConfirm }: Props) {
               value={confirmText}
               onChange={(e) => setConfirmText(e.target.value)}
               placeholder="DELETE"
-              className="w-full px-3 py-2.5 rounded-xl border border-red-200 bg-[#fafbfc] text-xs sm:text-sm text-[#0B2343] placeholder:text-[#0B2343]/20 focus:outline-none focus:border-red-300 transition-colors"
+              className="w-full px-3 py-2.5 rounded-xl border border-red-200 bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/20 focus:outline-none focus:border-red-300 transition-colors"
             />
           </div>
 

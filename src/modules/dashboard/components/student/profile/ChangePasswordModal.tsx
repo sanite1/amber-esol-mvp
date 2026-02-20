@@ -66,7 +66,7 @@ export default function ChangePasswordModal({
   };
 
   const inputClass =
-    "w-full px-3 py-2.5 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/30 focus:bg-white transition-colors pr-10";
+    "w-full px-3 py-2.5 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/30 focus:bg-white transition-colors pr-10";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

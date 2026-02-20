@@ -70,14 +70,14 @@ export default function PlatformSettingsCard({ settings, onUpdate }: Props) {
   }
 
   const inputClass = (field: string) =>
-    `w-full px-3 py-2 rounded-xl border text-xs sm:text-sm text-[#0B2343] bg-[#fafbfc] focus:outline-none transition-colors ${
+    `w-full px-3 py-2 rounded-xl border text-base lg:text-sm text-[#0B2343] bg-[#fafbfc] focus:outline-none transition-colors ${
       errors[field]
         ? "border-red-300 focus:border-red-400"
         : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/30"
     }`;
 
   const selectClass = (field: string) =>
-    `w-full px-3 py-2 rounded-xl border text-xs sm:text-sm text-[#0B2343] bg-[#fafbfc] focus:outline-none transition-colors ${
+    `w-full px-3 py-2 rounded-xl border text-base lg:text-sm text-[#0B2343] bg-[#fafbfc] focus:outline-none transition-colors ${
       errors[field]
         ? "border-red-300 focus:border-red-400"
         : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/30"

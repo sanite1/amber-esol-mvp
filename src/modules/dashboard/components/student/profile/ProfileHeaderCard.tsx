@@ -107,7 +107,7 @@ export default function ProfileHeaderCard({
             ref={fileRef}
             type="file"
             accept="image/*"
-            className="hidden"
+            className="hidden text-base lg:text-sm"
             onChange={handleFileSelect}
           />
         </div>

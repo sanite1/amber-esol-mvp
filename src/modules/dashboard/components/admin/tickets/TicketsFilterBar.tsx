@@ -74,7 +74,7 @@ export default function TicketsFilterBar({
             placeholder="Search by subject, name, email, ID…"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-9 pr-8 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-xs sm:text-sm text-[#0B2343] placeholder:text-[#0B2343]/30 focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
+            className="w-full pl-9 pr-8 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/30 focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
           />
           {search && (
             <button
@@ -91,7 +91,7 @@ export default function TicketsFilterBar({
             onChange={(e) =>
               onCategoryChange(e.target.value as TicketCategoryFilter)
             }
-            className="px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-xs sm:text-sm text-[#0B2343] focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
+            className="px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
           >
             <option value="all">All Categories</option>
             <option value="billing">Billing</option>
@@ -106,7 +106,7 @@ export default function TicketsFilterBar({
             onChange={(e) =>
               onPriorityChange(e.target.value as TicketPriorityFilter)
             }
-            className="px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-xs sm:text-sm text-[#0B2343] focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
+            className="px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
           >
             <option value="all">All Priorities</option>
             <option value="urgent">Urgent</option>
@@ -117,7 +117,7 @@ export default function TicketsFilterBar({
           <select
             value={userFilter}
             onChange={(e) => onUserChange(e.target.value as TicketUserFilter)}
-            className="px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-xs sm:text-sm text-[#0B2343] focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
+            className="px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
           >
             <option value="all">All Users</option>
             <option value="student">Students</option>
@@ -126,7 +126,7 @@ export default function TicketsFilterBar({
           <select
             value={sort}
             onChange={(e) => onSortChange(e.target.value as TicketSort)}
-            className="px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-xs sm:text-sm text-[#0B2343] focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
+            className="px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
           >
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>

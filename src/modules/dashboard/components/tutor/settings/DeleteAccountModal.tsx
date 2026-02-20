@@ -76,7 +76,7 @@ export default function DeleteAccountModal({
             <select
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] outline-none focus:border-[#ff7c22]/40 focus:bg-white transition-colors appearance-none cursor-pointer"
+              className="w-full px-3 py-2.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] outline-none focus:border-[#ff7c22]/40 focus:bg-white transition-colors appearance-none cursor-pointer"
             >
               {reasonOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -98,7 +98,7 @@ export default function DeleteAccountModal({
               rows={3}
               maxLength={500}
               placeholder="Your feedback helps us improve…"
-              className="w-full px-3 py-2.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/40 focus:bg-white transition-colors resize-none"
+              className="w-full px-3 py-2.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/40 focus:bg-white transition-colors resize-none"
             />
             <p className="text-[9px] text-[#0B2343]/20 mt-0.5 text-right">
               {feedback.length}/500
@@ -116,7 +116,7 @@ export default function DeleteAccountModal({
               value={confirmText}
               onChange={(e) => setConfirmText(e.target.value)}
               placeholder="DELETE"
-              className="w-full px-3 py-2.5 rounded-lg border border-red-200 bg-[#fafbfc] text-sm text-[#0B2343] outline-none focus:border-red-400 focus:bg-white transition-colors font-mono tracking-wider"
+              className="w-full px-3 py-2.5 rounded-lg border border-red-200 bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] outline-none focus:border-red-400 focus:bg-white transition-colors font-mono tracking-wider"
             />
           </div>
         </div>

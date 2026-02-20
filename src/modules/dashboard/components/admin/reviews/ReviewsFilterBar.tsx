@@ -62,7 +62,7 @@ export default function ReviewsFilterBar({
             placeholder="Search by student, tutor, comment…"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-9 pr-8 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-xs sm:text-sm text-[#0B2343] placeholder:text-[#0B2343]/30 focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
+            className="w-full pl-9 pr-8 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/30 focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
           />
           {search && (
             <button
@@ -79,7 +79,7 @@ export default function ReviewsFilterBar({
             onChange={(e) =>
               onRatingChange(e.target.value as ReviewRatingFilter)
             }
-            className="px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-xs sm:text-sm text-[#0B2343] focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
+            className="px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
           >
             <option value="all">All Ratings</option>
             <option value="5">5 Stars</option>
@@ -91,7 +91,7 @@ export default function ReviewsFilterBar({
           <select
             value={sort}
             onChange={(e) => onSortChange(e.target.value as ReviewSort)}
-            className="px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-xs sm:text-sm text-[#0B2343] focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
+            className="px-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] focus:outline-none focus:border-[#ff7c22]/30 transition-colors"
           >
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>

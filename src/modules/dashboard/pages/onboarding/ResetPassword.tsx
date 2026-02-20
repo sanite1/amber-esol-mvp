@@ -321,7 +321,7 @@ export default function ResetPassword() {
                         type={showPassword ? "text" : "password"}
                         {...register("newPassword")}
                         placeholder="••••••••"
-                        className={`w-full pl-11 pr-12 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                        className={`w-full pl-11 pr-12 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                           errors.newPassword
                             ? "border-red-300 focus:border-red-400"
                             : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -360,7 +360,7 @@ export default function ResetPassword() {
                         type={showConfirmPassword ? "text" : "password"}
                         {...register("confirmPassword")}
                         placeholder="••••••••"
-                        className={`w-full pl-11 pr-12 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                        className={`w-full pl-11 pr-12 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                           errors.confirmPassword
                             ? "border-red-300 focus:border-red-400"
                             : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"

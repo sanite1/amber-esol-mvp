@@ -306,7 +306,7 @@ export default function StudentRegister() {
                       type="text"
                       {...register("firstname")}
                       placeholder="John"
-                      className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                      className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                         errors.firstname
                           ? "border-red-300"
                           : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -332,7 +332,7 @@ export default function StudentRegister() {
                       type="text"
                       {...register("lastname")}
                       placeholder="Doe"
-                      className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                      className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                         errors.lastname
                           ? "border-red-300"
                           : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -361,7 +361,7 @@ export default function StudentRegister() {
                     type="email"
                     {...register("email")}
                     placeholder="you@example.com"
-                    className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                    className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                       errors.email
                         ? "border-red-300"
                         : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -389,7 +389,7 @@ export default function StudentRegister() {
                     type="tel"
                     {...register("phoneNumber")}
                     placeholder="+44 7700 900000"
-                    className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                    className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                       errors.phoneNumber
                         ? "border-red-300"
                         : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -416,7 +416,7 @@ export default function StudentRegister() {
                     />
                     <select
                       {...register("nativeLanguage")}
-                      className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] outline-none appearance-none cursor-pointer transition-colors ${
+                      className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] outline-none appearance-none cursor-pointer transition-colors ${
                         errors.nativeLanguage
                           ? "border-red-300"
                           : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -447,7 +447,7 @@ export default function StudentRegister() {
                     />
                     <select
                       {...register("currentLevel")}
-                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] outline-none appearance-none cursor-pointer focus:border-[#ff7c22]/40 focus:bg-white transition-colors"
+                      className="w-full pl-11 pr-4 py-3 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] outline-none appearance-none cursor-pointer focus:border-[#ff7c22]/40 focus:bg-white transition-colors"
                     >
                       <option value="">Select level</option>
                       {levelOptions.map((level) => (
@@ -475,7 +475,7 @@ export default function StudentRegister() {
                       type={showPassword ? "text" : "password"}
                       {...register("password")}
                       placeholder="Min. 8 characters"
-                      className={`w-full pl-11 pr-11 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                      className={`w-full pl-11 pr-11 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                         errors.password
                           ? "border-red-300"
                           : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
@@ -508,7 +508,7 @@ export default function StudentRegister() {
                       type={showConfirmPassword ? "text" : "password"}
                       {...register("confirmPassword")}
                       placeholder="Re-enter password"
-                      className={`w-full pl-11 pr-11 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+                      className={`w-full pl-11 pr-11 py-3 rounded-xl border bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
                         errors.confirmPassword
                           ? "border-red-300"
                           : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"

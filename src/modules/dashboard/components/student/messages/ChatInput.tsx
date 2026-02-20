@@ -164,7 +164,7 @@ export default function ChatInput({
                 <input
                   ref={fileInputRef}
                   type="file"
-                  className="hidden"
+                  className="hidden text-base lg:text-sm"
                   onChange={handleFileChange}
                   accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
                 />
