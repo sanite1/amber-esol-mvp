@@ -38,11 +38,17 @@ export default function DeleteAccountModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-red-100 sticky top-0 bg-white rounded-t-2xl">
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+      {/* ── Backdrop ── */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* ── Modal shell ── */}
+      <div className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[70vh] flex flex-col">
+        {/* ── Fixed header ── */}
+        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-red-100 shrink-0">
           <h3 className="text-sm sm:text-[15px] font-semibold text-red-600 flex items-center gap-2">
             <AlertTriangle size={16} />
             Delete Account
@@ -55,7 +61,8 @@ export default function DeleteAccountModal({
           </button>
         </div>
 
-        <div className="px-4 py-4 sm:px-5 sm:py-5 space-y-4">
+        {/* ── Scrollable body ── */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5 space-y-4">
           {/* Warning */}
           <div className="p-3 sm:p-4 rounded-xl bg-red-50 border border-red-100">
             <p className="text-xs sm:text-[13px] text-red-700 leading-relaxed font-medium mb-2">
@@ -121,8 +128,8 @@ export default function DeleteAccountModal({
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] flex items-center gap-2">
+        {/* ── Fixed footer ── */}
+        <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] flex items-center gap-2 shrink-0">
           <button
             onClick={onClose}
             disabled={isPending}

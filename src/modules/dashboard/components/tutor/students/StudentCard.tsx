@@ -313,7 +313,7 @@ export default function StudentCard({ student }: Props) {
                   onChange={(e) => setNotesValue(e.target.value)}
                   maxLength={1000}
                   rows={3}
-                  className="w-full text-[11px] sm:text-xs text-[#0B2343]/60 bg-white border border-[#0B2343]/[0.08] rounded-lg px-2.5 py-2 outline-none focus:border-[#ff7c22]/30 resize-none"
+                  className="w-full text-base lg:text-sm text-[#0B2343]/60 bg-white border border-[#0B2343]/[0.08] rounded-lg px-2.5 py-2 outline-none focus:border-[#ff7c22]/30 resize-none"
                   placeholder="Add private notes about this student..."
                 />
                 <div className="flex items-center justify-between mt-1.5">

@@ -181,7 +181,7 @@ export default function ChatInput({
               placeholder="Type a message..."
               disabled={disabled}
               rows={1}
-              className="flex-1 resize-none rounded-xl bg-[#F8F9FB] border border-[#0B2343]/[0.06] px-4 py-2.5 text-sm text-[#0B2343] placeholder:text-[#0B2343]/30 outline-none focus:ring-2 focus:ring-[#ff7c22]/20 focus:border-[#ff7c22]/30 transition-all disabled:opacity-50 overflow-hidden"
+              className="flex-1 resize-none rounded-xl bg-[#F8F9FB] border border-[#0B2343]/[0.06] px-4 py-2.5 text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/30 outline-none focus:ring-2 focus:ring-[#ff7c22]/20 focus:border-[#ff7c22]/30 transition-all disabled:opacity-50 overflow-hidden"
               style={{ maxHeight: 132 }}
             />
 

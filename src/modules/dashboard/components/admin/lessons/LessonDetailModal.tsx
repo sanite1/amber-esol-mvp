@@ -58,8 +58,7 @@ const statusConfig: Record<
 };
 
 function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("en-GB", {
+  return new Date(dateStr).toLocaleDateString("en-GB", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -111,7 +110,6 @@ export default function LessonDetailModal({
   const [showRefundConfirm, setShowRefundConfirm] = useState(false);
 
   const status = statusConfig[lesson.status] || statusConfig.upcoming;
-  //   const isCancelled = lesson.status.startsWith("cancelled");
   const canCancel =
     lesson.status === "upcoming" || lesson.status === "in_progress";
   const canRefund =
@@ -151,14 +149,14 @@ export default function LessonDetailModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-        {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-[#0B2343]/[0.06] px-4 sm:px-5 py-3 sm:py-4 flex items-center justify-between z-10">
+      <div className="relative z-[10000] bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[85vh] flex flex-col shadow-2xl">
+        {/* Header — pinned */}
+        <div className="shrink-0 bg-white border-b border-[#0B2343]/[0.06] px-4 sm:px-5 py-3 sm:py-4 flex items-center justify-between rounded-t-2xl">
           <div className="min-w-0">
             <h2 className="text-sm sm:text-base font-bold text-[#0B2343] truncate">
               Lesson Details
@@ -175,8 +173,8 @@ export default function LessonDetailModal({
           </button>
         </div>
 
-        {/* Body */}
-        <div className="px-4 sm:px-5 py-4 sm:py-5 space-y-4 sm:space-y-5">
+        {/* Body — scrollable */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-5 py-4 sm:py-5 space-y-4 sm:space-y-5">
           {/* Status + Flagged */}
           <div className="flex flex-wrap items-center gap-2">
             <span
@@ -197,7 +195,6 @@ export default function LessonDetailModal({
             )}
           </div>
 
-          {/* Topic */}
           <div>
             <h3 className="text-sm sm:text-base font-semibold text-[#0B2343] mb-0.5">
               {lesson.topic || lesson.subject}
@@ -207,7 +204,6 @@ export default function LessonDetailModal({
             </p>
           </div>
 
-          {/* Info Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <InfoRow
               icon={Calendar}
@@ -217,7 +213,7 @@ export default function LessonDetailModal({
             <InfoRow
               icon={Clock}
               label="Time"
-              value={`${lesson.startTime} – ${lesson.endTime} (${lesson.duration} min)`}
+              value={`${lesson.startTime}  ${lesson.endTime} (${lesson.duration} min)`}
             />
             <InfoRow
               icon={User}
@@ -241,7 +237,6 @@ export default function LessonDetailModal({
             />
           </div>
 
-          {/* Financial */}
           <div className="bg-[#0B2343]/[0.02] rounded-xl border border-[#0B2343]/[0.06] p-3 sm:p-4">
             <h4 className="text-[11px] sm:text-xs font-semibold text-[#0B2343]/60 mb-2.5">
               Financial Details
@@ -250,33 +245,25 @@ export default function LessonDetailModal({
               <div>
                 <p className="text-[10px] text-[#0B2343]/40">Charged</p>
                 <p className="text-sm font-semibold text-[#0B2343]">
-                  {lesson.amount > 0 ? `£${lesson.amount.toFixed(2)}` : "Free"}
+                  {lesson.amount > 0 ? `${lesson.amount.toFixed(2)}` : "Free"}
                 </p>
               </div>
               <div>
                 <p className="text-[10px] text-[#0B2343]/40">Tutor Earns</p>
                 <p className="text-sm font-semibold text-emerald-600">
-                  £{lesson.tutorEarnings.toFixed(2)}
+                  {lesson.tutorEarnings.toFixed(2)}
                 </p>
               </div>
               <div>
                 <p className="text-[10px] text-[#0B2343]/40">Commission</p>
                 <p className="text-sm font-semibold text-[#ff7c22]">
-                  £{lesson.commission.toFixed(2)}
+                  {lesson.commission.toFixed(2)}
                 </p>
               </div>
               <div>
                 <p className="text-[10px] text-[#0B2343]/40">Payment</p>
                 <p
-                  className={`text-sm font-semibold ${
-                    lesson.paymentStatus === "paid"
-                      ? "text-emerald-600"
-                      : lesson.paymentStatus === "refunded"
-                        ? "text-red-500"
-                        : lesson.paymentStatus === "pending"
-                          ? "text-amber-500"
-                          : "text-[#0B2343]/40"
-                  }`}
+                  className={`text-sm font-semibold ${lesson.paymentStatus === "paid" ? "text-emerald-600" : lesson.paymentStatus === "refunded" ? "text-red-500" : lesson.paymentStatus === "pending" ? "text-amber-500" : "text-[#0B2343]/40"}`}
                 >
                   {lesson.paymentStatus.charAt(0).toUpperCase() +
                     lesson.paymentStatus.slice(1)}
@@ -285,7 +272,6 @@ export default function LessonDetailModal({
             </div>
           </div>
 
-          {/* Rating */}
           {lesson.rating && (
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-0.5">
@@ -307,7 +293,6 @@ export default function LessonDetailModal({
             </div>
           )}
 
-          {/* Cancel reason */}
           {lesson.cancelReason && (
             <div className="bg-red-50 rounded-xl p-3">
               <p className="text-[11px] font-medium text-red-400 mb-0.5">
@@ -316,8 +301,6 @@ export default function LessonDetailModal({
               <p className="text-xs text-red-600">{lesson.cancelReason}</p>
             </div>
           )}
-
-          {/* Flag reason */}
           {lesson.flagged && lesson.flagReason && (
             <div className="bg-amber-50 rounded-xl p-3">
               <p className="text-[11px] font-medium text-amber-500 mb-0.5">
@@ -326,8 +309,6 @@ export default function LessonDetailModal({
               <p className="text-xs text-amber-700">{lesson.flagReason}</p>
             </div>
           )}
-
-          {/* Notes */}
           {lesson.notes && (
             <div className="bg-[#0B2343]/[0.02] rounded-xl p-3">
               <p className="text-[11px] font-medium text-[#0B2343]/50 mb-0.5">
@@ -337,13 +318,10 @@ export default function LessonDetailModal({
             </div>
           )}
 
-          {/* ── Actions ─────────────────────────────────────── */}
           <div className="space-y-2.5">
             <h4 className="text-[11px] sm:text-xs font-semibold text-[#0B2343]/60">
               Admin Actions
             </h4>
-
-            {/* Flag / Unflag */}
             {!showFlagForm && !showCancelForm && !showRefundConfirm && (
               <div className="flex flex-wrap gap-2">
                 {lesson.flagged ? (
@@ -368,7 +346,6 @@ export default function LessonDetailModal({
                     Flag Lesson
                   </button>
                 )}
-
                 {canCancel && (
                   <button
                     onClick={() => setShowCancelForm(true)}
@@ -378,7 +355,6 @@ export default function LessonDetailModal({
                     Cancel Lesson
                   </button>
                 )}
-
                 {canRefund && (
                   <button
                     onClick={() => setShowRefundConfirm(true)}
@@ -390,8 +366,6 @@ export default function LessonDetailModal({
                 )}
               </div>
             )}
-
-            {/* Flag form */}
             {showFlagForm && (
               <div className="bg-amber-50 rounded-xl p-3 space-y-2.5">
                 <p className="text-[11px] font-semibold text-amber-600">
@@ -400,9 +374,9 @@ export default function LessonDetailModal({
                 <textarea
                   value={flagReason}
                   onChange={(e) => setFlagReason(e.target.value)}
-                  placeholder="Describe the reason for flagging…"
+                  placeholder="Describe the reason for flagging"
                   rows={3}
-                  className="w-full px-3 py-2 rounded-xl border border-amber-200 bg-white text-xs text-[#0B2343] placeholder:text-[#0B2343]/30 focus:outline-none focus:border-amber-300 resize-none"
+                  className="w-full px-3 py-2 rounded-xl border border-amber-200 bg-white text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/30 focus:outline-none focus:border-amber-300 resize-none"
                 />
                 <div className="flex justify-end gap-2">
                   <button
@@ -425,8 +399,6 @@ export default function LessonDetailModal({
                 </div>
               </div>
             )}
-
-            {/* Cancel form */}
             {showCancelForm && (
               <div className="bg-red-50 rounded-xl p-3 space-y-2.5">
                 <p className="text-[11px] font-semibold text-red-500">
@@ -439,9 +411,9 @@ export default function LessonDetailModal({
                 <textarea
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
-                  placeholder="Reason for admin cancellation…"
+                  placeholder="Reason for admin cancellation"
                   rows={3}
-                  className="w-full px-3 py-2 rounded-xl border border-red-200 bg-white text-xs text-[#0B2343] placeholder:text-[#0B2343]/30 focus:outline-none focus:border-red-300 resize-none"
+                  className="w-full px-3 py-2 rounded-xl border border-red-200 bg-white text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/30 focus:outline-none focus:border-red-300 resize-none"
                 />
                 <div className="flex justify-end gap-2">
                   <button
@@ -466,8 +438,6 @@ export default function LessonDetailModal({
                 </div>
               </div>
             )}
-
-            {/* Refund confirm */}
             {showRefundConfirm && (
               <div className="bg-[#ff7c22]/[0.05] rounded-xl p-3 space-y-2.5">
                 <p className="text-[11px] font-semibold text-[#ff7c22]">
@@ -476,7 +446,7 @@ export default function LessonDetailModal({
                 <p className="text-[10px] text-[#0B2343]/50">
                   Refund{" "}
                   <span className="font-semibold">
-                    £{lesson.amount.toFixed(2)}
+                    {lesson.amount.toFixed(2)}
                   </span>{" "}
                   to {lesson.studentName}? This cannot be undone.
                 </p>

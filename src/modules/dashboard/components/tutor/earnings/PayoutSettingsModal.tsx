@@ -1,3 +1,4 @@
+// PayoutSettingsModal.tsx — updated convention
 import { useState } from "react";
 import { X, Settings, AlertCircle, Loader2, Check } from "lucide-react";
 import type { PayoutSettings } from "../../../data/tutor/tutorEarningsData";
@@ -82,11 +83,17 @@ export default function PayoutSettingsModal({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] sticky top-0 bg-white rounded-t-2xl">
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+      {/* ── Backdrop: dark + blurred ── */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* ── Modal shell: max 70vh, flex column ── */}
+      <div className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[75vh] flex flex-col">
+        {/* ── Fixed header ── */}
+        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] shrink-0">
           <h3 className="text-sm sm:text-[15px] font-semibold text-[#0B2343] flex items-center gap-2">
             <Settings size={16} className="text-[#0B2343]/30" />
             Payout Settings
@@ -99,7 +106,8 @@ export default function PayoutSettingsModal({
           </button>
         </div>
 
-        <div className="px-4 py-4 sm:px-5 sm:py-5 space-y-4">
+        {/* ── Scrollable body ── */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5 space-y-4">
           {/* Method selector */}
           <div>
             <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 mb-1.5 block">
@@ -269,8 +277,8 @@ export default function PayoutSettingsModal({
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] flex items-center gap-2">
+        {/* ── Fixed footer ── */}
+        <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] flex items-center gap-2 shrink-0">
           <button
             onClick={onClose}
             disabled={saving}

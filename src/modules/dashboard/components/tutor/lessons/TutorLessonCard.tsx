@@ -385,7 +385,7 @@ export default function TutorLessonCard({
                   value={declineReason}
                   onChange={(e) => setDeclineReason(e.target.value)}
                   placeholder="Schedule conflict, not available…"
-                  className="w-full rounded-lg border border-red-200 bg-white p-2.5 text-sm text-[#0B2343] placeholder:text-[#0B2343]/30 outline-none focus:border-red-300 resize-none"
+                  className="w-full rounded-lg border border-red-200 bg-white p-2.5 text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/30 outline-none focus:border-red-300 resize-none"
                   rows={2}
                   onClick={(e) => e.stopPropagation()}
                 />

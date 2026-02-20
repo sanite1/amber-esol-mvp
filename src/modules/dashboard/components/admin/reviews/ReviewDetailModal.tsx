@@ -153,16 +153,19 @@ export default function ReviewDetailModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+      {/* Backdrop — fixed & full-viewport */}
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-        {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-[#0B2343]/[0.06] px-4 sm:px-5 py-3 sm:py-4 flex items-center justify-between z-10">
+
+      {/* Drawer / Modal panel */}
+      <div className="relative z-[10000] w-full sm:max-w-lg bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] flex flex-col">
+        {/* Header — pinned */}
+        <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] rounded-t-2xl">
           <div className="min-w-0">
-            <h2 className="text-sm sm:text-base font-bold text-[#0B2343] truncate">
+            <h2 className="text-sm sm:text-[15px] font-semibold text-[#0B2343] truncate">
               Review Details
             </h2>
             <p className="text-[10px] sm:text-[11px] text-[#0B2343]/40">
@@ -171,14 +174,14 @@ export default function ReviewDetailModal({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-[#0B2343]/[0.04] flex items-center justify-center hover:bg-[#0B2343]/[0.08] transition-colors shrink-0"
+            className="p-1.5 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors shrink-0"
           >
-            <X size={16} className="text-[#0B2343]/60" />
+            <X size={16} className="text-[#0B2343]/30" />
           </button>
         </div>
 
-        {/* Body */}
-        <div className="px-4 sm:px-5 py-4 sm:py-5 space-y-4 sm:space-y-5">
+        {/* Body — scrollable */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5 space-y-4 sm:space-y-5">
           {/* Badges */}
           <div className="flex flex-wrap items-center gap-2">
             <span
@@ -299,7 +302,7 @@ export default function ReviewDetailModal({
             </div>
           )}
 
-          {/* ── Reports Section ─────────────────────────── */}
+          {/* Reports Section */}
           {review.reports.length > 0 && (
             <div className="space-y-2.5">
               <h4 className="text-[11px] sm:text-xs font-semibold text-[#0B2343]/60 flex items-center gap-1.5">
@@ -332,7 +335,7 @@ export default function ReviewDetailModal({
                           </span>
                         </p>
                         <p className="text-[10px] text-[#0B2343]/40">
-                          {reportReasonLabels[report.reason]} ·{" "}
+                          {reportReasonLabels[report.reason]} &middot;{" "}
                           {formatDateTime(report.createdAt)}
                         </p>
                       </div>
@@ -381,7 +384,7 @@ export default function ReviewDetailModal({
             </div>
           )}
 
-          {/* ── Review Actions ──────────────────────────── */}
+          {/* Review Actions */}
           <div className="space-y-2.5">
             <h4 className="text-[11px] sm:text-xs font-semibold text-[#0B2343]/60">
               Review Actions
@@ -477,6 +480,16 @@ export default function ReviewDetailModal({
               </div>
             )}
           </div>
+        </div>
+
+        {/* Footer — pinned */}
+        <div className="shrink-0 px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] flex items-center gap-2">
+          <button
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-xl bg-[#0B2343]/[0.04] text-xs sm:text-[13px] font-medium text-[#0B2343]/50 hover:bg-[#0B2343]/[0.08] transition-colors"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>

@@ -137,16 +137,19 @@ export default function TransactionDetailModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+      {/* Backdrop — fixed & full-viewport */}
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-        {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-[#0B2343]/[0.06] px-4 sm:px-5 py-3 sm:py-4 flex items-center justify-between z-10">
+
+      {/* Drawer / Modal panel */}
+      <div className="relative z-[10000] w-full sm:max-w-lg bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] flex flex-col">
+        {/* Header — pinned */}
+        <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] rounded-t-2xl">
           <div className="min-w-0">
-            <h2 className="text-sm sm:text-base font-bold text-[#0B2343] truncate">
+            <h2 className="text-sm sm:text-[15px] font-semibold text-[#0B2343] truncate">
               Transaction Details
             </h2>
             <p className="text-[10px] sm:text-[11px] text-[#0B2343]/40">
@@ -155,14 +158,14 @@ export default function TransactionDetailModal({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-[#0B2343]/[0.04] flex items-center justify-center hover:bg-[#0B2343]/[0.08] transition-colors shrink-0"
+            className="p-1.5 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors shrink-0"
           >
-            <X size={16} className="text-[#0B2343]/60" />
+            <X size={16} className="text-[#0B2343]/30" />
           </button>
         </div>
 
-        {/* Body */}
-        <div className="px-4 sm:px-5 py-4 sm:py-5 space-y-4 sm:space-y-5">
+        {/* Body — scrollable */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5 space-y-4 sm:space-y-5">
           {/* Badges */}
           <div className="flex flex-wrap items-center gap-2">
             <span
@@ -232,7 +235,7 @@ export default function TransactionDetailModal({
             )}
           </div>
 
-          {/* Financial */}
+          {/* Financial breakdown */}
           <div className="bg-[#0B2343]/[0.02] rounded-xl border border-[#0B2343]/[0.06] p-3 sm:p-4">
             <h4 className="text-[11px] sm:text-xs font-semibold text-[#0B2343]/60 mb-2.5">
               Financial Breakdown
@@ -279,7 +282,7 @@ export default function TransactionDetailModal({
             </div>
           )}
 
-          {/* ── Actions ─────────────────────────────────── */}
+          {/* Admin Actions */}
           <div className="space-y-2.5">
             <h4 className="text-[11px] sm:text-xs font-semibold text-[#0B2343]/60">
               Admin Actions
@@ -330,9 +333,9 @@ export default function TransactionDetailModal({
                 <textarea
                   value={flagReason}
                   onChange={(e) => setFlagReason(e.target.value)}
-                  placeholder="Reason for flagging…"
+                  placeholder="Reason for flagging"
                   rows={3}
-                  className="w-full px-3 py-2 rounded-xl border border-amber-200 bg-white text-xs text-[#0B2343] placeholder:text-[#0B2343]/30 focus:outline-none focus:border-amber-300 resize-none"
+                  className="w-full px-3 py-2 rounded-xl border border-amber-200 bg-white text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/30 focus:outline-none focus:border-amber-300 resize-none"
                 />
                 <div className="flex justify-end gap-2">
                   <button
@@ -367,9 +370,9 @@ export default function TransactionDetailModal({
                 <textarea
                   value={refundReason}
                   onChange={(e) => setRefundReason(e.target.value)}
-                  placeholder="Reason for refund…"
+                  placeholder="Reason for refund"
                   rows={3}
-                  className="w-full px-3 py-2 rounded-xl border border-red-200 bg-white text-xs text-[#0B2343] placeholder:text-[#0B2343]/30 focus:outline-none focus:border-red-300 resize-none"
+                  className="w-full px-3 py-2 rounded-xl border border-red-200 bg-white text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/30 focus:outline-none focus:border-red-300 resize-none"
                 />
                 <div className="flex justify-end gap-2">
                   <button
@@ -395,6 +398,16 @@ export default function TransactionDetailModal({
               </div>
             )}
           </div>
+        </div>
+
+        {/* Footer — pinned */}
+        <div className="shrink-0 px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] flex items-center gap-2">
+          <button
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-xl bg-[#0B2343]/[0.04] text-xs sm:text-[13px] font-medium text-[#0B2343]/50 hover:bg-[#0B2343]/[0.08] transition-colors"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>

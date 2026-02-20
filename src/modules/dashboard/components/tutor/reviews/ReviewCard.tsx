@@ -273,7 +273,7 @@ export default function ReviewCard({
                 }}
                 rows={3}
                 placeholder="Write your reply…"
-                className={`w-full px-3 py-2 rounded-lg border text-[11px] sm:text-xs text-[#0B2343] outline-none resize-none transition-colors ${
+                className={`w-full px-3 py-2 rounded-lg border text-base lg:text-sm text-[#0B2343] outline-none resize-none transition-colors ${
                   replyError
                     ? "border-red-300 bg-red-50/30 focus:border-red-400"
                     : "border-[#0B2343]/[0.08] bg-white focus:border-[#ff7c22]/30"
@@ -405,7 +405,7 @@ export default function ReviewCard({
                       if (editError) setEditError("");
                     }}
                     rows={3}
-                    className={`w-full px-3 py-2 rounded-lg border text-[11px] sm:text-xs text-[#0B2343] outline-none resize-none transition-colors ${
+                    className={`w-full px-3 py-2 rounded-lg border text-base lg:text-sm text-[#0B2343] outline-none resize-none transition-colors ${
                       editError
                         ? "border-red-300 bg-red-50/30 focus:border-red-400"
                         : "border-emerald-200 bg-white focus:border-emerald-300"

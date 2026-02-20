@@ -78,29 +78,31 @@ export default function AdminChangePasswordModal({ onClose, onSave }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+      {/* Backdrop — fixed & full-viewport */}
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-[#0B2343]/[0.06]">
-          <div className="flex items-center gap-2">
+
+      {/* Drawer / Modal panel */}
+      <div className="relative z-[10000] w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] flex flex-col">
+        {/* Header — pinned */}
+        <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] rounded-t-2xl">
+          <h3 className="text-sm sm:text-[15px] font-semibold text-[#0B2343] flex items-center gap-2">
             <Lock size={16} className="text-[#0B2343]/50" />
-            <h2 className="text-sm sm:text-base font-bold text-[#0B2343]">
-              Change Password
-            </h2>
-          </div>
+            Change Password
+          </h3>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-[#0B2343]/[0.04] flex items-center justify-center hover:bg-[#0B2343]/[0.08] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors shrink-0"
           >
-            <X size={16} className="text-[#0B2343]/60" />
+            <X size={16} className="text-[#0B2343]/30" />
           </button>
         </div>
 
-        <div className="px-4 sm:px-5 py-4 sm:py-5">
+        {/* Body — scrollable */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5">
           {success ? (
             <div className="text-center py-6">
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto mb-3">
@@ -117,7 +119,7 @@ export default function AdminChangePasswordModal({ onClose, onSave }: Props) {
             <div className="space-y-3">
               {/* Current */}
               <div>
-                <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/50 mb-1 block">
+                <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 mb-1.5 block">
                   Current Password
                 </label>
                 <div className="relative">
@@ -145,7 +147,7 @@ export default function AdminChangePasswordModal({ onClose, onSave }: Props) {
 
               {/* New */}
               <div>
-                <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/50 mb-1 block">
+                <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 mb-1.5 block">
                   New Password
                 </label>
                 <div className="relative">
@@ -178,7 +180,7 @@ export default function AdminChangePasswordModal({ onClose, onSave }: Props) {
 
               {/* Confirm */}
               <div>
-                <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/50 mb-1 block">
+                <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 mb-1.5 block">
                   Confirm New Password
                 </label>
                 <div className="relative">
@@ -203,26 +205,35 @@ export default function AdminChangePasswordModal({ onClose, onSave }: Props) {
                   </p>
                 )}
               </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  onClick={onClose}
-                  className="px-4 py-2 rounded-xl text-[11px] sm:text-xs font-medium text-[#0B2343]/50 hover:bg-[#0B2343]/[0.04] transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0B2343] text-white text-[11px] sm:text-xs font-medium hover:bg-[#0B2343]/90 transition-colors disabled:opacity-50"
-                >
-                  {saving && <Loader2 size={12} className="animate-spin" />}
-                  Update Password
-                </button>
-              </div>
             </div>
           )}
         </div>
+
+        {/* Footer — pinned */}
+        {!success && (
+          <div className="shrink-0 px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] flex items-center gap-2">
+            <button
+              onClick={onClose}
+              className="flex-1 py-2.5 rounded-xl bg-[#0B2343]/[0.04] text-xs sm:text-[13px] font-medium text-[#0B2343]/50 hover:bg-[#0B2343]/[0.08] transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#0B2343] text-white text-xs sm:text-[13px] font-medium hover:bg-[#0B2343]/90 transition-colors disabled:opacity-50"
+            >
+              {saving ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" />
+                  Updating…
+                </>
+              ) : (
+                "Update Password"
+              )}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

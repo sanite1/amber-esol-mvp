@@ -55,11 +55,17 @@ export default function ChangePasswordModal({
     "w-full pl-10 pr-10 py-2.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/40 focus:bg-white transition-colors";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] sticky top-0 bg-white rounded-t-2xl">
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+      {/* ── Backdrop ── */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* ── Modal shell ── */}
+      <div className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[70vh] flex flex-col">
+        {/* ── Fixed header ── */}
+        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] shrink-0">
           <h3 className="text-sm sm:text-[15px] font-semibold text-[#0B2343] flex items-center gap-2">
             <Lock size={15} className="text-[#0B2343]/30" />
             Change Password
@@ -72,7 +78,8 @@ export default function ChangePasswordModal({
           </button>
         </div>
 
-        <div className="px-4 py-4 sm:px-5 sm:py-5 space-y-4">
+        {/* ── Scrollable body ── */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5 space-y-4">
           {error && (
             <div className="flex items-start gap-2.5 p-3 bg-red-50 border border-red-100 rounded-xl">
               <AlertCircle size={14} className="text-red-500 shrink-0 mt-0.5" />
@@ -172,8 +179,8 @@ export default function ChangePasswordModal({
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] flex items-center gap-2">
+        {/* ── Fixed footer ── */}
+        <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] flex items-center gap-2 shrink-0">
           <button
             onClick={onClose}
             disabled={isPending}
@@ -191,7 +198,7 @@ export default function ChangePasswordModal({
             ) : (
               <Check size={14} />
             )}
-            {isPending ? "Updating…" : "Update Password"}
+            {isPending ? "Updating" : "Update Password"}
           </button>
         </div>
       </div>

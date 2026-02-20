@@ -26,11 +26,17 @@ export default function EarningDetailModal({ entry, onClose }: Props) {
     .join("");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] sticky top-0 bg-white rounded-t-2xl">
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+      {/* ── Backdrop ── */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* ── Modal shell ── */}
+      <div className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[70vh] flex flex-col">
+        {/* ── Fixed header ── */}
+        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] shrink-0">
           <h3 className="text-sm sm:text-[15px] font-semibold text-[#0B2343]">
             Earning Details
           </h3>
@@ -42,7 +48,8 @@ export default function EarningDetailModal({ entry, onClose }: Props) {
           </button>
         </div>
 
-        <div className="px-4 py-4 sm:px-5 sm:py-5 space-y-4">
+        {/* ── Scrollable body ── */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5 space-y-4">
           {/* Amount + status */}
           <div className="text-center">
             <p
@@ -70,7 +77,6 @@ export default function EarningDetailModal({ entry, onClose }: Props) {
               <p className="text-[13px] font-semibold text-[#0B2343] truncate">
                 {entry.studentName}
               </p>
-              {/* ─── CHANGED: optional chaining for country fields ─── */}
               <p className="text-[11px] text-[#0B2343]/30">
                 {[entry.studentCountry, entry.studentCountryCode]
                   .filter(Boolean)
@@ -86,7 +92,7 @@ export default function EarningDetailModal({ entry, onClose }: Props) {
             </Link>
           </div>
 
-          {/* Lesson details — unchanged from here down */}
+          {/* Lesson details */}
           <div className="space-y-2.5">
             <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-[#0B2343]/[0.015]">
               <span className="flex items-center gap-1.5 text-[11px] sm:text-xs text-[#0B2343]/40">
@@ -175,8 +181,8 @@ export default function EarningDetailModal({ entry, onClose }: Props) {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06]">
+        {/* ── Fixed footer ── */}
+        <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] shrink-0">
           <button
             onClick={onClose}
             className="w-full py-2.5 rounded-xl bg-[#0B2343]/[0.04] text-xs sm:text-[13px] font-medium text-[#0B2343]/50 hover:bg-[#0B2343]/[0.08] transition-colors"

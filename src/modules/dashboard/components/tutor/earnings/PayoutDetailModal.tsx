@@ -59,11 +59,17 @@ export default function PayoutDetailModal({ payout, onClose }: Props) {
     });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] sticky top-0 bg-white rounded-t-2xl">
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+      {/* ── Backdrop ── */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* ── Modal shell ── */}
+      <div className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[70vh] flex flex-col">
+        {/* ── Fixed header ── */}
+        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] shrink-0">
           <h3 className="text-sm sm:text-[15px] font-semibold text-[#0B2343]">
             Payout Details
           </h3>
@@ -75,7 +81,8 @@ export default function PayoutDetailModal({ payout, onClose }: Props) {
           </button>
         </div>
 
-        <div className="px-4 py-4 sm:px-5 sm:py-5 space-y-4">
+        {/* ── Scrollable body ── */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5 space-y-4">
           {/* Amount + status */}
           <div className="text-center">
             <p className="text-2xl sm:text-3xl font-bold text-[#0B2343]">
@@ -185,8 +192,8 @@ export default function PayoutDetailModal({ payout, onClose }: Props) {
           )}
         </div>
 
-        {/* Footer */}
-        <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06]">
+        {/* ── Fixed footer ── */}
+        <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] shrink-0">
           <button
             onClick={onClose}
             className="w-full py-2.5 rounded-xl bg-[#0B2343]/[0.04] text-xs sm:text-[13px] font-medium text-[#0B2343]/50 hover:bg-[#0B2343]/[0.08] transition-colors"

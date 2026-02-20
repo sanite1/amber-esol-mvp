@@ -80,23 +80,30 @@ export default function TutorDetailModal({
   const isPending = tutor.status === "pending_approval";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative w-full sm:max-w-lg bg-white rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] sticky top-0 bg-white rounded-t-2xl z-10">
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+      {/* Backdrop — fixed & full-viewport */}
+      <div
+        className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Drawer / Modal panel */}
+      <div className="relative z-[10000] w-full sm:max-w-lg bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] flex flex-col">
+        {/* Header — pinned */}
+        <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] rounded-t-2xl">
           <h3 className="text-sm sm:text-[15px] font-semibold text-[#0B2343]">
             {isPending ? "Tutor Application" : "Tutor Details"}
           </h3>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors shrink-0"
           >
             <X size={16} className="text-[#0B2343]/30" />
           </button>
         </div>
 
-        <div className="px-4 py-4 sm:px-5 sm:py-5 space-y-4">
+        {/* Body — scrollable */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5 space-y-4">
           {/* Profile */}
           <div className="flex items-center gap-3">
             <div className="w-14 h-14 rounded-full bg-[#0B2343]/[0.06] flex items-center justify-center text-sm font-bold text-[#0B2343]/30 shrink-0">
@@ -306,125 +313,125 @@ export default function TutorDetailModal({
               </div>
             )}
           </div>
+        </div>
 
-          {/* Actions */}
-          <div className="pt-3 border-t border-[#0B2343]/[0.04] space-y-2">
-            <p className="text-[10px] font-semibold text-[#0B2343]/25 uppercase tracking-wider">
-              Actions
-            </p>
+        {/* Footer — pinned actions */}
+        <div className="shrink-0 px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] space-y-2">
+          <p className="text-[10px] font-semibold text-[#0B2343]/25 uppercase tracking-wider">
+            Actions
+          </p>
 
-            {/* Pending approval actions */}
-            {isPending && (
-              <div className="flex gap-2">
+          {/* Pending approval actions */}
+          {isPending && (
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleAction("active")}
+                disabled={processing}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-700 disabled:opacity-40 transition-colors"
+              >
+                {processing && actionType === "active" ? (
+                  <Loader2 size={13} className="animate-spin" />
+                ) : (
+                  <CheckCircle2 size={13} />
+                )}
+                {processing && actionType === "active"
+                  ? "Approving…"
+                  : "Approve"}
+              </button>
+              <button
+                onClick={() => handleAction("rejected")}
+                disabled={processing}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-red-50 text-red-500 text-xs font-medium hover:bg-red-100 disabled:opacity-40 transition-colors"
+              >
+                {processing && actionType === "rejected" ? (
+                  <Loader2 size={13} className="animate-spin" />
+                ) : (
+                  <UserX size={13} />
+                )}
+                {processing && actionType === "rejected"
+                  ? "Rejecting…"
+                  : "Reject"}
+              </button>
+            </div>
+          )}
+
+          {/* Active / Inactive actions */}
+          {(tutor.status === "active" || tutor.status === "inactive") && (
+            <div className="flex gap-2">
+              {tutor.status === "inactive" && (
                 <button
                   onClick={() => handleAction("active")}
                   disabled={processing}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-700 disabled:opacity-40 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-emerald-50 text-emerald-600 text-xs font-medium hover:bg-emerald-100 disabled:opacity-40 transition-colors"
                 >
                   {processing && actionType === "active" ? (
                     <Loader2 size={13} className="animate-spin" />
                   ) : (
-                    <CheckCircle2 size={13} />
+                    <UserCheck size={13} />
                   )}
-                  {processing && actionType === "active"
-                    ? "Approving…"
-                    : "Approve"}
+                  Reactivate
                 </button>
+              )}
+              {tutor.status === "active" && (
                 <button
-                  onClick={() => handleAction("rejected")}
+                  onClick={() => handleAction("inactive")}
                   disabled={processing}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-red-50 text-red-500 text-xs font-medium hover:bg-red-100 disabled:opacity-40 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#0B2343]/[0.04] text-[#0B2343]/50 text-xs font-medium hover:bg-[#0B2343]/[0.08] disabled:opacity-40 transition-colors"
                 >
-                  {processing && actionType === "rejected" ? (
-                    <Loader2 size={13} className="animate-spin" />
-                  ) : (
-                    <UserX size={13} />
-                  )}
-                  {processing && actionType === "rejected"
-                    ? "Rejecting…"
-                    : "Reject"}
+                  Deactivate
                 </button>
-              </div>
-            )}
-
-            {/* Active / Inactive actions */}
-            {(tutor.status === "active" || tutor.status === "inactive") && (
-              <div className="flex gap-2">
-                {tutor.status === "inactive" && (
+              )}
+              {!confirmBan ? (
+                <button
+                  onClick={() => setConfirmBan(true)}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-red-50 text-red-500 text-xs font-medium hover:bg-red-100 transition-colors"
+                >
+                  <Ban size={13} /> Ban
+                </button>
+              ) : (
+                <div className="flex-1 flex gap-1.5">
                   <button
-                    onClick={() => handleAction("active")}
+                    onClick={() => handleAction("banned")}
                     disabled={processing}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-emerald-50 text-emerald-600 text-xs font-medium hover:bg-emerald-100 disabled:opacity-40 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-1 py-2.5 rounded-xl bg-red-600 text-white text-xs font-medium hover:bg-red-700 disabled:opacity-40 transition-colors"
                   >
-                    {processing && actionType === "active" ? (
-                      <Loader2 size={13} className="animate-spin" />
+                    {processing && actionType === "banned" ? (
+                      <Loader2 size={11} className="animate-spin" />
                     ) : (
-                      <UserCheck size={13} />
-                    )}
-                    Reactivate
+                      <Ban size={11} />
+                    )}{" "}
+                    Confirm
                   </button>
-                )}
-                {tutor.status === "active" && (
                   <button
-                    onClick={() => handleAction("inactive")}
-                    disabled={processing}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#0B2343]/[0.04] text-[#0B2343]/50 text-xs font-medium hover:bg-[#0B2343]/[0.08] disabled:opacity-40 transition-colors"
+                    onClick={() => setConfirmBan(false)}
+                    className="px-3 py-2.5 rounded-xl bg-[#0B2343]/[0.04] text-xs text-[#0B2343]/40 hover:bg-[#0B2343]/[0.08] transition-colors"
                   >
-                    Deactivate
+                    Cancel
                   </button>
-                )}
-                {!confirmBan ? (
-                  <button
-                    onClick={() => setConfirmBan(true)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-red-50 text-red-500 text-xs font-medium hover:bg-red-100 transition-colors"
-                  >
-                    <Ban size={13} /> Ban
-                  </button>
-                ) : (
-                  <div className="flex-1 flex gap-1.5">
-                    <button
-                      onClick={() => handleAction("banned")}
-                      disabled={processing}
-                      className="flex-1 flex items-center justify-center gap-1 py-2.5 rounded-xl bg-red-600 text-white text-xs font-medium hover:bg-red-700 disabled:opacity-40 transition-colors"
-                    >
-                      {processing && actionType === "banned" ? (
-                        <Loader2 size={11} className="animate-spin" />
-                      ) : (
-                        <Ban size={11} />
-                      )}{" "}
-                      Confirm
-                    </button>
-                    <button
-                      onClick={() => setConfirmBan(false)}
-                      className="px-3 py-2.5 rounded-xl bg-[#0B2343]/[0.04] text-xs text-[#0B2343]/40"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
+          )}
 
-            {/* Banned / Rejected */}
-            {(tutor.status === "banned" || tutor.status === "rejected") && (
-              <button
-                onClick={() => handleAction("active")}
-                disabled={processing}
-                className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-700 disabled:opacity-40 transition-colors"
-              >
-                {processing ? (
-                  <Loader2 size={13} className="animate-spin" />
-                ) : (
-                  <UserCheck size={13} />
-                )}
-                {processing
-                  ? "Processing…"
-                  : tutor.status === "banned"
-                    ? "Unban Tutor"
-                    : "Approve Tutor"}
-              </button>
-            )}
-          </div>
+          {/* Banned / Rejected */}
+          {(tutor.status === "banned" || tutor.status === "rejected") && (
+            <button
+              onClick={() => handleAction("active")}
+              disabled={processing}
+              className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-700 disabled:opacity-40 transition-colors"
+            >
+              {processing ? (
+                <Loader2 size={13} className="animate-spin" />
+              ) : (
+                <UserCheck size={13} />
+              )}
+              {processing
+                ? "Processing…"
+                : tutor.status === "banned"
+                  ? "Unban Tutor"
+                  : "Approve Tutor"}
+            </button>
+          )}
         </div>
       </div>
     </div>

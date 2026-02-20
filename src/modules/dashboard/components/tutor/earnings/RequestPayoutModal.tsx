@@ -61,12 +61,16 @@ export default function RequestPayoutModal({
     setSuccess(true);
   };
 
+  /* ── Success view ── */
   if (success) {
     return (
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-        <div className="relative w-full sm:max-w-sm bg-white rounded-t-2xl sm:rounded-2xl">
-          <div className="px-5 py-8 sm:py-10 text-center">
+      <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div
+          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          onClick={onClose}
+        />
+        <div className="relative w-full sm:max-w-sm bg-white rounded-t-2xl sm:rounded-2xl max-h-[70vh] flex flex-col">
+          <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-8 sm:py-10 text-center">
             <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 size={28} className="text-emerald-500" />
             </div>
@@ -80,7 +84,7 @@ export default function RequestPayoutModal({
               Usually arrives within 2–3 business days
             </p>
           </div>
-          <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06]">
+          <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] shrink-0">
             <button
               onClick={onClose}
               className="w-full py-2.5 rounded-xl bg-[#0B2343] text-white text-xs sm:text-[13px] font-medium hover:bg-[#0B2343]/90 transition-colors"
@@ -93,12 +97,19 @@ export default function RequestPayoutModal({
     );
   }
 
+  /* ── Form view ── */
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] sticky top-0 bg-white rounded-t-2xl">
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+      {/* ── Backdrop ── */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* ── Modal shell ── */}
+      <div className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[70vh] flex flex-col">
+        {/* ── Fixed header ── */}
+        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] shrink-0">
           <h3 className="text-sm sm:text-[15px] font-semibold text-[#0B2343] flex items-center gap-2">
             <Wallet size={16} className="text-emerald-500" />
             Request Payout
@@ -111,7 +122,8 @@ export default function RequestPayoutModal({
           </button>
         </div>
 
-        <div className="px-4 py-4 sm:px-5 sm:py-5 space-y-4">
+        {/* ── Scrollable body ── */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5 space-y-4">
           {/* Available balance */}
           <div className="text-center py-3 px-4 rounded-xl bg-emerald-50/50 border border-emerald-100/60">
             <p className="text-[11px] text-emerald-600/60 mb-0.5">
@@ -199,8 +211,8 @@ export default function RequestPayoutModal({
           </p>
         </div>
 
-        {/* Footer */}
-        <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] flex items-center gap-2">
+        {/* ── Fixed footer ── */}
+        <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] flex items-center gap-2 shrink-0">
           <button
             onClick={onClose}
             disabled={processing}
