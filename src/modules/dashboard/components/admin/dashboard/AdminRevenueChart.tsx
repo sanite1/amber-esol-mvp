@@ -1,5 +1,6 @@
 import { useState } from "react";
-import type { MonthlyRevenue } from "../../../data/admin/adminDashboardData";
+import { BarChart3 } from "lucide-react";
+import type { MonthlyRevenue } from "../../../lib/types/adminDashboard";
 
 interface Props {
   data: MonthlyRevenue[];
@@ -27,6 +28,41 @@ export default function AdminRevenueChart({ data, commissionRate }: Props) {
     return `£${v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v}`;
   };
 
+  const views: { value: ChartView; label: string }[] = [
+    { value: "revenue", label: "Revenue" },
+    { value: "commission", label: "Commission" },
+    { value: "lessons", label: "Lessons" },
+  ];
+
+  /* ── Empty state ── */
+  if (data.length === 0) {
+    return (
+      <div className="bg-white rounded-xl border border-[#0B2343]/[0.06] p-3 sm:p-4 md:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+          <h3 className="text-[13px] sm:text-sm font-semibold text-[#0B2343]">
+            Monthly Overview
+          </h3>
+        </div>
+        <div className="py-10 text-center">
+          <div className="w-10 h-10 rounded-full bg-[#0B2343]/[0.03] flex items-center justify-center mx-auto mb-2.5">
+            <BarChart3 size={18} className="text-[#0B2343]/15" />
+          </div>
+          <p className="text-xs text-[#0B2343]/25">
+            No revenue data available yet
+          </p>
+        </div>
+        <div className="flex items-center justify-center gap-4 mt-3 pt-3 border-t border-[#0B2343]/[0.04]">
+          <p className="text-[10px] text-[#0B2343]/25">
+            Commission rate:{" "}
+            <span className="font-semibold text-[#0B2343]/40">
+              {commissionRate}%
+            </span>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const maxVal = Math.max(...data.map(getValue), 1);
 
   const barColor =
@@ -41,12 +77,6 @@ export default function AdminRevenueChart({ data, commissionRate }: Props) {
       : view === "commission"
         ? "bg-violet-500"
         : "bg-[#ff7c22]";
-
-  const views: { value: ChartView; label: string }[] = [
-    { value: "revenue", label: "Revenue" },
-    { value: "commission", label: "Commission" },
-    { value: "lessons", label: "Lessons" },
-  ];
 
   return (
     <div className="bg-white rounded-xl border border-[#0B2343]/[0.06] p-3 sm:p-4 md:p-5">

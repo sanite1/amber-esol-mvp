@@ -1,151 +1,147 @@
-import { useEffect, useState, useMemo } from "react";
-import { getDecodedJwt } from "../../lib/auth";
-import { useFetchUserById } from "../../lib/api/authOnboarding";
-import { studentDashboardData } from "../../data/student/studentDashboardData";
+import { useMemo } from "react";
 
-// ── NEW: booking hooks & types ──
-import {
-  useFetchUpcomingBookings,
-  useFetchBookingStats,
-} from "../../lib/api/booking";
+// ── Single dashboard hook & types ──
+import { useFetchStudentDashboard } from "../../lib/api/studentDashboard";
 import type {
-  Booking,
-  BookingTutor,
-  BookingStatsResponse,
-  DashboardUpcomingLesson,
-} from "../../lib/types/booking";
+  DashboardUpcomingLesson as ApiUpcomingLesson,
+  DashboardRecentMessage as ApiRecentMessage,
+} from "../../lib/types/studentDashboard";
 
+// ── Existing child-component prop types ──
+import type { DashboardUpcomingLesson } from "../../lib/types/booking";
+import type {
+  RecentMessage,
+  SpendingSummary,
+  LearningProgress,
+  RecommendedTutor,
+} from "../../data/student/studentDashboardData";
+
+// ── Child components ──
 import WelcomeBanner from "../../components/student/dashboard/WelcomeBanner";
-import {
-  SpendingSkeleton,
-  MessagesSkeleton,
-  ProgressSkeleton,
-  RecommendedSkeleton,
-  StatsGridSkeleton,
-  UpcomingLessonsSkeleton,
-} from "../../components/student/dashboard/DashboardSkeleton";
 import StatsGrid from "../../components/student/dashboard/StatsGrid";
 import UpcomingLessons from "../../components/student/dashboard/UpcomingLessons";
 import RecentMessages from "../../components/student/dashboard/RecentMessages";
 import SpendingSummaryCard from "../../components/student/dashboard/SpendingSummaryCard";
 import LearningProgressCard from "../../components/student/dashboard/LearningProgressCard";
 import RecommendedTutors from "../../components/student/dashboard/RecommendedTutors";
+import {
+  StatsGridSkeleton,
+  UpcomingLessonsSkeleton,
+  MessagesSkeleton,
+  SpendingSkeleton,
+  ProgressSkeleton,
+  RecommendedSkeleton,
+} from "../../components/student/dashboard/DashboardSkeleton";
 
 /* ──────────────────────────────────────────────
-   Helper: resolve populated tutor
+   Mapper: API upcoming lesson → component shape
    ────────────────────────────────────────────── */
-function getTutor(val: string | BookingTutor): BookingTutor {
-  if (typeof val === "string") {
-    return { _id: val, firstname: "Unknown", lastname: "Tutor" };
-  }
-  return val;
+function toUpcomingLesson(l: ApiUpcomingLesson): DashboardUpcomingLesson {
+  return {
+    id: l.id,
+    tutorName: l.tutorName,
+    tutorAvatar: l.tutorAvatar,
+    date: l.date,
+    startTime: l.startTime,
+    endTime: l.endTime,
+    type: l.type,
+    status: l.status,
+    meetingUrl: l.meetingUrl,
+  };
 }
 
 /* ──────────────────────────────────────────────
-   Mapper: Booking → DashboardUpcomingLesson
+   Mapper: API message → component shape
    ────────────────────────────────────────────── */
-function bookingToUpcomingLesson(b: Booking): DashboardUpcomingLesson {
-  const tutor = getTutor(b.tutorId);
+function toRecentMessage(m: ApiRecentMessage): RecentMessage {
   return {
-    id: b._id,
-    tutorName: `${tutor.firstname} ${tutor.lastname}`,
-    tutorAvatar: tutor.profilePicture ?? "",
-    date: b.date,
-    startTime: b.startTime,
-    endTime: b.endTime,
-    type: b.type,
-    status: b.status,
-    meetingUrl: b.meetingUrl ?? null,
+    id: m.id,
+    senderName: m.senderName,
+    senderAvatar: m.senderAvatar,
+    senderRole: m.senderRole,
+    lastMessage: m.lastMessage,
+    timestamp: m.timestamp,
+    unread: m.unread,
   };
+}
+
+/* ──────────────────────────────────────────────
+   Helper: format next lesson time for banner
+   ────────────────────────────────────────────── */
+function formatNextLessonTime(isoString: string | null): string | undefined {
+  if (!isoString) return undefined;
+
+  const lessonDate = new Date(isoString);
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
+
+  let dayLabel: string;
+  if (lessonDate.toDateString() === today.toDateString()) {
+    dayLabel = "today";
+  } else if (lessonDate.toDateString() === tomorrow.toDateString()) {
+    dayLabel = "tomorrow";
+  } else {
+    dayLabel = lessonDate.toLocaleDateString("en-GB", { weekday: "long" });
+  }
+
+  const time = lessonDate.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  return `${dayLabel} at ${time}`;
 }
 
 /* ══════════════════════════════════════════════
    Component
    ══════════════════════════════════════════════ */
 export default function StudentDashboard() {
-  // ── Modules that are STILL dummy data (messages, spending, progress, tutors) ──
-  const [isModulesLoading, setIsModulesLoading] = useState(true);
-  const [data, setData] = useState(studentDashboardData);
+  /* ── Single API call fetches everything ── */
+  const { data: response, isLoading } = useFetchStudentDashboard({
+    upcomingLimit: 5,
+    messagesLimit: 4,
+    recommendedLimit: 3,
+  });
 
-  // ── User ──
-  const decoded = getDecodedJwt();
-  const { data: user, isLoading: isUserLoading } = useFetchUserById(
-    decoded?.id || ""
-  );
-
-  // ── NEW: live upcoming bookings (confirmed/pending, limit 5) ──
-  const { data: upcomingResponse, isLoading: isUpcomingLoading } =
-    useFetchUpcomingBookings({ limit: 5 });
-
-  // ── NEW: live booking stats ──
-  const { data: statsResponse, isLoading: isStatsLoading } =
-    useFetchBookingStats();
-
-  // ── Combined loading flag ──
-  const isLoading =
-    isUserLoading || isModulesLoading || isUpcomingLoading || isStatsLoading;
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    // Simulate loading for modules without backend endpoints yet
-    const timer = setTimeout(() => {
-      setData(studentDashboardData);
-      setIsModulesLoading(false);
-    }, 1200);
-    return () => clearTimeout(timer);
-  }, []);
+  const dashboard = response?.data;
 
   /* ────────────────────────────────────────────
-     Transform API data
+     Transform API data → child-component shapes
      ──────────────────────────────────────────── */
   const upcomingLessons: DashboardUpcomingLesson[] = useMemo(
-    () => (upcomingResponse?.data?.bookings ?? []).map(bookingToUpcomingLesson),
-    [upcomingResponse]
+    () => (dashboard?.upcomingLessons ?? []).map(toUpcomingLesson),
+    [dashboard?.upcomingLessons]
   );
 
-  const bookingStats: BookingStatsResponse | null = statsResponse?.data ?? null;
+  const recentMessages: RecentMessage[] = useMemo(
+    () => (dashboard?.recentMessages ?? []).map(toRecentMessage),
+    [dashboard?.recentMessages]
+  );
+
+  const spendingSummary: SpendingSummary | null =
+    dashboard?.spendingSummary ?? null;
+
+  const learningProgress: LearningProgress | null =
+    dashboard?.learningProgress ?? null;
+
+  const recommendedTutors: RecommendedTutor[] =
+    dashboard?.recommendedTutors ?? [];
 
   /* ────────────────────────────────────────────
-     Next lesson info for the welcome banner
+     Welcome banner values
      ──────────────────────────────────────────── */
-  const nextLesson = upcomingLessons[0];
-  const nextLessonTime = useMemo(() => {
-    if (!nextLesson) return undefined;
-    const lessonDate = new Date(nextLesson.date + "T00:00:00");
-    const today = new Date();
-    const tomorrow = new Date();
-    tomorrow.setDate(today.getDate() + 1);
-
-    let dayLabel: string;
-    if (lessonDate.toDateString() === today.toDateString()) {
-      dayLabel = "today";
-    } else if (lessonDate.toDateString() === tomorrow.toDateString()) {
-      dayLabel = "tomorrow";
-    } else {
-      dayLabel = lessonDate.toLocaleDateString("en-GB", { weekday: "long" });
-    }
-    return `${dayLabel} at ${nextLesson.startTime}`;
-  }, [nextLesson]);
-
-  /* ────────────────────────────────────────────
-     Stats for the grid — live where available,
-     fallback to dummy for fields not yet in the API
-     ──────────────────────────────────────────── */
-  const totalLessons =
-    user?.totalLessonsTaken ?? bookingStats?.total ?? data.stats.totalLessons;
-  const completedLessons =
-    bookingStats?.completed ?? data.stats.completedLessons;
-  const cancelledLessons =
-    bookingStats?.cancelled ?? data.stats.cancelledLessons;
-  // activeTutors is not in bookingStats — keep the dummy value for now
-  const activeTutors = data.stats.activeTutors;
+  const welcome = dashboard?.welcome;
+  const stats = dashboard?.stats;
+  const nextLessonTime = formatNextLessonTime(welcome?.nextLessonTime ?? null);
 
   return (
     <div className="space-y-6">
       {/* Welcome */}
       <WelcomeBanner
-        firstName={user?.firstname || decoded?.firstname || "there"}
-        hasUpcomingLesson={upcomingLessons.length > 0}
+        firstName={welcome?.firstName ?? "there"}
+        hasUpcomingLesson={welcome?.hasUpcomingLesson ?? false}
         nextLessonTime={nextLessonTime}
       />
 
@@ -154,10 +150,10 @@ export default function StudentDashboard() {
         <StatsGridSkeleton />
       ) : (
         <StatsGrid
-          totalLessons={totalLessons}
-          completedLessons={completedLessons}
-          cancelledLessons={cancelledLessons}
-          activeTutors={activeTutors}
+          totalLessons={stats?.totalLessons ?? 0}
+          completedLessons={stats?.completedLessons ?? 0}
+          cancelledLessons={stats?.cancelledLessons ?? 0}
+          activeTutors={stats?.activeTutors ?? 0}
         />
       )}
 
@@ -173,7 +169,7 @@ export default function StudentDashboard() {
           {isLoading ? (
             <MessagesSkeleton />
           ) : (
-            <RecentMessages messages={data.recentMessages} />
+            <RecentMessages messages={recentMessages} />
           )}
         </div>
 
@@ -181,14 +177,14 @@ export default function StudentDashboard() {
         <div className="space-y-5">
           {isLoading ? (
             <SpendingSkeleton />
-          ) : (
-            <SpendingSummaryCard summary={data.spendingSummary} />
-          )}
+          ) : spendingSummary ? (
+            <SpendingSummaryCard summary={spendingSummary} />
+          ) : null}
           {isLoading ? (
             <ProgressSkeleton />
-          ) : (
-            <LearningProgressCard progress={data.learningProgress} />
-          )}
+          ) : learningProgress ? (
+            <LearningProgressCard progress={learningProgress} />
+          ) : null}
         </div>
       </div>
 
@@ -196,7 +192,7 @@ export default function StudentDashboard() {
       {isLoading ? (
         <RecommendedSkeleton />
       ) : (
-        <RecommendedTutors tutors={data.recommendedTutors} />
+        <RecommendedTutors tutors={recommendedTutors} />
       )}
     </div>
   );

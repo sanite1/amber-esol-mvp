@@ -1,22 +1,17 @@
-import { useState, useEffect, useMemo } from "react";
-import { getDecodedJwt } from "../../lib/auth";
-import { useFetchUserById } from "../../lib/api/authOnboarding";
-import { useFetchAvailability } from "../../lib/api/availability";
-import { tutorDashboardData } from "../../data/tutor/tutorDashboardData";
+import { useMemo } from "react";
 
-// ── Booking hooks & types ──
-import {
-  useFetchUpcomingBookings,
-  useFetchBookingStats,
-  useConfirmBooking,
-  useDeclineBooking,
-} from "../../lib/api/booking";
+// ── New single dashboard hook & types ──
+import { useFetchTutorDashboard } from "../../lib/api/tutorDashboard";
 import type {
-  Booking,
-  BookingStudent,
-  BookingStatsResponse,
-  TutorDashboardLesson,
+  DashboardUpcomingLesson,
   DashboardPendingBooking,
+} from "../../lib/types/tutorDashboard";
+
+// ── Booking mutations (confirm / decline still use existing booking hooks) ──
+import { useConfirmBooking, useDeclineBooking } from "../../lib/api/booking";
+import type {
+  TutorDashboardLesson,
+  DashboardPendingBooking as BookingPendingBooking,
 } from "../../lib/types/booking";
 
 // ── Child components ──
@@ -37,138 +32,59 @@ import {
   MessagesSkeleton,
   AvailabilitySkeleton,
 } from "../../components/tutor/dashboard/DashboardSkeleton";
-import { DashboardAvailabilityStatus } from "../../lib/types/availability";
 
 /* ──────────────────────────────────────────────
-   Helper: resolve populated student object
+   Mapper: API → component shape (TutorDashboardLesson)
    ────────────────────────────────────────────── */
-function getStudent(val: string | BookingStudent): BookingStudent {
-  if (typeof val === "string") {
-    return { _id: val, firstname: "Unknown", lastname: "Student" };
-  }
-  return val;
-}
-
-/* ──────────────────────────────────────────────
-   Mapper: Booking → TutorDashboardLesson
-   ────────────────────────────────────────────── */
-function bookingToTutorDashboardLesson(b: Booking): TutorDashboardLesson {
-  const student = getStudent(b.studentId);
+function toTutorDashboardLesson(
+  l: DashboardUpcomingLesson
+): TutorDashboardLesson {
   return {
-    id: b._id,
-    studentName: `${student.firstname} ${student.lastname}`,
-    studentAvatar: student.profilePicture ?? "",
-    studentLevel: student.learningPreferences?.currentLevel ?? "Unknown",
-    lessonType: b.type,
-    status: b.status,
-    specialty: b.specialty ?? "General English",
-    date: b.date,
-    startTime: b.startTime,
-    endTime: b.endTime,
-    meetingUrl: b.meetingUrl,
-    notes: b.notes,
+    id: l.id,
+    studentName: l.studentName,
+    studentAvatar: l.studentAvatar,
+    studentLevel: l.studentLevel,
+    lessonType: l.lessonType,
+    status: l.status,
+    specialty: l.specialty,
+    date: l.date,
+    startTime: l.startTime,
+    endTime: l.endTime,
+    meetingUrl: l.meetingUrl,
+    notes: l.notes,
   };
 }
 
 /* ──────────────────────────────────────────────
-   Mapper: Booking → DashboardPendingBooking
+   Mapper: API → component shape (BookingPendingBooking)
    ────────────────────────────────────────────── */
-function bookingToPendingBooking(b: Booking): DashboardPendingBooking {
-  const student = getStudent(b.studentId);
+function toBookingPendingBooking(
+  b: DashboardPendingBooking
+): BookingPendingBooking {
   return {
-    id: b._id,
-    studentName: `${student.firstname} ${student.lastname}`,
-    studentAvatar: student.profilePicture ?? "",
-    studentLevel: student.learningPreferences?.currentLevel ?? "Unknown",
-    lessonType: b.type,
-    hoursRequested: 1,
-    totalAmount: b.price,
-    requestedDate: b.createdAt,
-    message: b.message ?? b.notes,
+    id: b.id,
+    studentName: b.studentName,
+    studentAvatar: b.studentAvatar,
+    studentLevel: b.studentLevel,
+    lessonType: b.lessonType,
+    hoursRequested: b.hoursRequested,
+    totalAmount: b.totalAmount,
+    requestedDate: b.requestedDate,
+    message: b.message,
   };
-}
-
-/* ──────────────────────────────────────────────
-   Helper: count total weekly slots from schedule
-   ────────────────────────────────────────────── */
-function countWeeklySlots(
-  weeklySchedule: Array<{
-    day: string;
-    enabled: boolean;
-    blocks: Array<{ startTime: string; endTime: string }>;
-  }>,
-  bufferMinutes: number,
-  slotDuration: number = 60
-): number {
-  let total = 0;
-  for (const day of weeklySchedule) {
-    if (!day.enabled) continue;
-    for (const block of day.blocks) {
-      const [sh, sm] = block.startTime.split(":").map(Number);
-      const [eh, em] = block.endTime.split(":").map(Number);
-      const startMin = sh * 60 + sm;
-      const endMin = eh * 60 + em;
-      const available = endMin - startMin;
-      if (available <= 0) continue;
-      const slotsInBlock = Math.floor(
-        (available + bufferMinutes) / (slotDuration + bufferMinutes)
-      );
-      total += slotsInBlock;
-    }
-  }
-  return total;
-}
-
-/* ──────────────────────────────────────────────
-   Helper: find next available slot from bookings
-   ────────────────────────────────────────────── */
-function findNextAvailableSlot(
-  upcomingLessons: TutorDashboardLesson[]
-): string {
-  const now = new Date();
-  // Find the first confirmed lesson in the future
-  const next = upcomingLessons.find((l) => {
-    const lessonStart = new Date(`${l.date}T${l.startTime}:00`);
-    return lessonStart > now && l.status === "confirmed";
-  });
-  if (!next) return "";
-  return `${next.date}T${next.startTime}:00`;
 }
 
 /* ══════════════════════════════════════════════
    Component
    ══════════════════════════════════════════════ */
 export default function TutorDashboard() {
-  const decoded = getDecodedJwt();
-  const userId = decoded?.id ?? "";
+  /* ── Single API call fetches everything ── */
+  const { data: response, isLoading } = useFetchTutorDashboard({
+    upcomingLimit: 10,
+    messagesLimit: 4,
+  });
 
-  /* ── Live user data from API ── */
-  const { data: user, isLoading: isUserLoading } = useFetchUserById(userId);
-
-  /* ── Static module data (messages, earnings, performance — until those backends are built) ── */
-  const [isModulesLoading, setIsModulesLoading] = useState(true);
-  const [data, setData] = useState(tutorDashboardData);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    const timer = setTimeout(() => {
-      setData(tutorDashboardData);
-      setIsModulesLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  /* ── Live upcoming bookings (confirmed + pending, limit 10) ── */
-  const { data: upcomingResponse, isLoading: isUpcomingLoading } =
-    useFetchUpcomingBookings({ limit: 10 });
-
-  /* ── Live booking stats ── */
-  const { data: statsResponse, isLoading: isStatsLoading } =
-    useFetchBookingStats();
-
-  /* ── Live availability schedule ── */
-  const { data: availabilityResponse, isLoading: isAvailabilityLoading } =
-    useFetchAvailability(userId);
+  const dashboard = response?.data;
 
   /* ── Confirm / decline mutations ── */
   const { mutate: confirmBooking, isPending: confirmPending } =
@@ -176,78 +92,18 @@ export default function TutorDashboard() {
   const { mutate: declineBooking, isPending: declinePending } =
     useDeclineBooking();
 
-  const isLoading =
-    isUserLoading ||
-    isModulesLoading ||
-    isUpcomingLoading ||
-    isStatsLoading ||
-    isAvailabilityLoading;
-
   /* ────────────────────────────────────────────
-     Transform API data
+     Transform API data → child-component shapes
      ──────────────────────────────────────────── */
-  const allUpcoming: Booking[] = useMemo(
-    () => upcomingResponse?.data?.bookings ?? [],
-    [upcomingResponse]
-  );
-
   const upcomingLessons: TutorDashboardLesson[] = useMemo(
-    () =>
-      allUpcoming
-        .filter((b) => b.status === "confirmed" || b.status === "pending")
-        .map(bookingToTutorDashboardLesson),
-    [allUpcoming]
+    () => (dashboard?.upcomingLessons ?? []).map(toTutorDashboardLesson),
+    [dashboard?.upcomingLessons]
   );
 
-  const pendingBookings: DashboardPendingBooking[] = useMemo(
-    () =>
-      allUpcoming
-        .filter((b) => b.status === "pending")
-        .map(bookingToPendingBooking),
-    [allUpcoming]
+  const pendingBookings: BookingPendingBooking[] = useMemo(
+    () => (dashboard?.pendingBookings ?? []).map(toBookingPendingBooking),
+    [dashboard?.pendingBookings]
   );
-
-  const bookingStats: BookingStatsResponse | null = statsResponse?.data ?? null;
-
-  /* ────────────────────────────────────────────
-     Compute live availability status
-     ──────────────────────────────────────────── */
-  const availabilityStatus: DashboardAvailabilityStatus = useMemo(() => {
-    const availData = availabilityResponse?.data;
-    const schedule = availData?.availability?.weeklySchedule;
-    const bufferMinutes = availData?.availability?.bufferMinutes ?? 10;
-
-    // Count total slots this week from the tutor's weekly schedule
-    const totalSlotsThisWeek = schedule
-      ? countWeeklySlots(schedule, bufferMinutes)
-      : 0;
-
-    // Count booked slots this week from upcoming bookings
-    const now = new Date();
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - now.getDay() + 1); // Monday
-    startOfWeek.setHours(0, 0, 0, 0);
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 7);
-
-    const bookedSlotsThisWeek = allUpcoming.filter((b) => {
-      const d = new Date(b.date + "T00:00:00");
-      return (
-        d >= startOfWeek &&
-        d < endOfWeek &&
-        (b.status === "confirmed" || b.status === "pending")
-      );
-    }).length;
-
-    // Find next available slot
-    const nextAvailableSlot = findNextAvailableSlot(upcomingLessons);
-
-    return {
-      totalSlotsThisWeek,
-      bookedSlotsThisWeek,
-      nextAvailableSlot,
-    };
-  }, [availabilityResponse, allUpcoming, upcomingLessons]);
 
   /* ────────────────────────────────────────────
      Handlers
@@ -261,35 +117,35 @@ export default function TutorDashboard() {
   };
 
   /* ────────────────────────────────────────────
-     Derived values
+     Derived display values
      ──────────────────────────────────────────── */
-  const todayLessons = upcomingLessons.filter(
-    (l) =>
-      new Date(l.date + "T00:00:00").toDateString() ===
-      new Date().toDateString()
-  );
-  const nextLesson = todayLessons[0];
-  const nextLessonTime = nextLesson?.startTime;
+  const welcome = dashboard?.welcome;
+  const stats = dashboard?.stats;
+  const earnings = dashboard?.earnings;
+  const availability = dashboard?.availability;
+  const performance = dashboard?.performance;
+  const recentMessages = dashboard?.recentMessages ?? [];
 
-  const displayName = user?.firstname || decoded?.firstname || "there";
-  const isOnline = user?.onlineStatus === "online";
+  const todayLessons = useMemo(() => {
+    const todayStr = new Date().toDateString();
+    return upcomingLessons.filter(
+      (l) => new Date(l.date + "T00:00:00").toDateString() === todayStr
+    );
+  }, [upcomingLessons]);
 
-  const statsTodayLessons = todayLessons.length;
-  const statsWeekLessons = bookingStats?.upcoming ?? data.stats.weekLessons;
-  const statsNewStudents = data.stats.newStudents;
-  const statsUnreadMessages = data.stats.unreadMessages;
+  const nextLessonTime = todayLessons[0]?.startTime;
 
   return (
     <div className="space-y-5">
       {/* Welcome */}
       <TutorWelcomeBanner
-        firstName={displayName}
-        todayLessons={statsTodayLessons}
+        firstName={welcome?.firstName ?? "there"}
+        todayLessons={stats?.todayLessons ?? todayLessons.length}
         nextLessonTime={nextLessonTime}
-        isOnline={isOnline}
-        avatarUrl={user?.profilePicture}
-        averageRating={user?.averageRating}
-        totalStudents={user?.totalStudents}
+        isOnline={welcome?.isOnline ?? false}
+        avatarUrl={welcome?.avatarUrl}
+        averageRating={welcome?.averageRating}
+        totalStudents={welcome?.totalStudents}
       />
 
       {/* Stats */}
@@ -297,14 +153,14 @@ export default function TutorDashboard() {
         <StatsRowSkeleton />
       ) : (
         <TutorStatsRow
-          todayLessons={statsTodayLessons}
-          weekLessons={statsWeekLessons}
-          newStudents={statsNewStudents}
-          unreadMessages={statsUnreadMessages}
-          totalLessons={user?.totalLessons ?? bookingStats?.total}
-          averageRating={user?.averageRating}
-          completionRate={user?.completionRate}
-          totalStudents={user?.totalStudents}
+          todayLessons={stats?.todayLessons ?? todayLessons.length}
+          weekLessons={stats?.weekLessons ?? 0}
+          newStudents={stats?.newStudents ?? 0}
+          unreadMessages={stats?.unreadMessages ?? 0}
+          totalLessons={stats?.totalLessons}
+          averageRating={stats?.averageRating}
+          completionRate={stats?.completionRate}
+          totalStudents={stats?.totalStudents}
         />
       )}
 
@@ -333,7 +189,7 @@ export default function TutorDashboard() {
           {isLoading ? (
             <MessagesSkeleton />
           ) : (
-            <TutorRecentMessages messages={data.recentMessages} />
+            <TutorRecentMessages messages={recentMessages} />
           )}
         </div>
 
@@ -341,25 +197,25 @@ export default function TutorDashboard() {
         <div className="space-y-5">
           {isLoading ? (
             <EarningsSkeleton />
-          ) : (
-            <EarningsCard earnings={data.earnings} />
-          )}
+          ) : earnings ? (
+            <EarningsCard earnings={earnings} />
+          ) : null}
           {isLoading ? (
             <AvailabilitySkeleton />
-          ) : (
-            <AvailabilityCard availability={availabilityStatus} />
-          )}
+          ) : availability ? (
+            <AvailabilityCard availability={availability} />
+          ) : null}
           {isLoading ? (
             <PerformanceSkeleton />
-          ) : (
+          ) : performance ? (
             <PerformanceCard
-              performance={data.performance}
-              averageRating={user?.averageRating}
-              completionRate={user?.completionRate}
-              totalLessons={user?.totalLessons ?? bookingStats?.total}
-              numberOfReviews={user?.numberOfReviews}
+              performance={performance}
+              averageRating={stats?.averageRating}
+              completionRate={stats?.completionRate}
+              totalLessons={stats?.totalLessons}
+              numberOfReviews={undefined}
             />
-          )}
+          ) : null}
         </div>
       </div>
     </div>

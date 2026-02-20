@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
 import { LayoutDashboard } from "lucide-react";
-import {
-  adminDashboardData,
-  type AdminDashboardData,
-} from "../../data/admin/adminDashboardData";
+
+// ── Single dashboard hook ──
+import { useFetchAdminDashboard } from "../../lib/api/adminDashboard";
+
+// ── Child components ──
 import { AdminDashboardSkeleton } from "../../components/admin/dashboard/DashboardSkeleton";
 import AdminStatsRow from "../../components/admin/dashboard/AdminStatsRow";
 import AdminRevenueChart from "../../components/admin/dashboard/AdminRevenueChart";
@@ -14,18 +14,16 @@ import RecentTransactionsCard from "../../components/admin/dashboard/RecentTrans
 import QuickActionsCard from "../../components/admin/dashboard/QuickActionsCard";
 
 export default function AdminDashboard() {
-  const [data, setData] = useState<AdminDashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: response, isLoading } = useFetchAdminDashboard({
+    signupsLimit: 7,
+    lessonsLimit: 6,
+    transactionsLimit: 5,
+    chartMonths: 6,
+  });
 
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setData(adminDashboardData);
-      setLoading(false);
-    }, 800);
-    return () => clearTimeout(t);
-  }, []);
+  const data = response?.data;
 
-  if (loading || !data) {
+  if (isLoading || !data) {
     return <AdminDashboardSkeleton />;
   }
 
@@ -74,14 +72,10 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-5">
         <div className="lg:col-span-2">
-          {/* Transactions */}
           <RecentTransactionsCard transactions={data.recentTransactions} />
         </div>
         <div className="lg:col-span-3">
-          {/* Flagged items (top priority) */}
-          {data.flaggedItems.length > 0 && (
-            <FlaggedItemsCard items={data.flaggedItems} />
-          )}
+          <FlaggedItemsCard items={data.flaggedItems} />
         </div>
       </div>
     </div>

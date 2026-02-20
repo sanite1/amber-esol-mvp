@@ -5,7 +5,7 @@ import {
   ArrowDownLeft,
   RefreshCw,
 } from "lucide-react";
-import type { RecentTransaction } from "../../../data/admin/adminDashboardData";
+import type { RecentTransaction } from "../../../lib/types/adminDashboard";
 
 interface Props {
   transactions: RecentTransaction[];
@@ -65,51 +65,60 @@ export default function RecentTransactionsCard({ transactions }: Props) {
         </Link>
       </div>
 
-      <div className="space-y-1.5">
-        {transactions.slice(0, 5).map((tx) => {
-          const tc = typeConfig[tx.type] || typeConfig.payment;
-          const Icon = tc.icon;
-          return (
-            <Link
-              key={tx.id}
-              to={`/admin/payments`}
-              className="flex items-center gap-2.5 py-2 px-2 sm:px-2.5 rounded-lg hover:bg-[#0B2343]/[0.02] transition-colors group"
-            >
-              <div
-                className={`w-8 h-8 rounded-lg ${tc.bg} flex items-center justify-center shrink-0`}
+      {transactions.length === 0 ? (
+        <div className="py-8 text-center">
+          <div className="w-10 h-10 rounded-full bg-[#0B2343]/[0.03] flex items-center justify-center mx-auto mb-2.5">
+            <CreditCard size={18} className="text-[#0B2343]/15" />
+          </div>
+          <p className="text-xs text-[#0B2343]/25">No recent transactions</p>
+        </div>
+      ) : (
+        <div className="space-y-1.5">
+          {transactions.slice(0, 4).map((tx) => {
+            const tc = typeConfig[tx.type] || typeConfig.payment;
+            const Icon = tc.icon;
+            return (
+              <Link
+                key={tx.id}
+                to="/admin/payments"
+                className="flex items-center gap-2.5 py-2 px-2 sm:px-2.5 rounded-lg hover:bg-[#0B2343]/[0.02] transition-colors group"
               >
-                <Icon size={13} className={tc.color} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] sm:text-xs font-medium text-[#0B2343]/70 truncate">
-                  {tx.type === "payout"
-                    ? `Payout → ${tx.tutorName}`
-                    : tx.type === "refund"
-                      ? `Refund → ${tx.studentName}`
-                      : `${tx.studentName} → ${tx.tutorName}`}
-                </p>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span
-                    className={`text-[8px] sm:text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${statusColors[tx.status]}`}
-                  >
-                    {tx.status}
-                  </span>
-                  <span className="text-[9px] text-[#0B2343]/20">
-                    {formatTime(tx.date)}
-                  </span>
+                <div
+                  className={`w-8 h-8 rounded-lg ${tc.bg} flex items-center justify-center shrink-0`}
+                >
+                  <Icon size={13} className={tc.color} />
                 </div>
-              </div>
-              <p
-                className={`text-[11px] sm:text-xs font-bold shrink-0 ${
-                  tx.type === "refund" ? "text-red-400" : "text-[#0B2343]/60"
-                }`}
-              >
-                {tx.type === "refund" ? "-" : ""}£{tx.amount.toLocaleString()}
-              </p>
-            </Link>
-          );
-        })}
-      </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] sm:text-xs font-medium text-[#0B2343]/70 truncate">
+                    {tx.type === "payout"
+                      ? `Payout → ${tx.tutorName}`
+                      : tx.type === "refund"
+                        ? `Refund → ${tx.studentName}`
+                        : `${tx.studentName} → ${tx.tutorName}`}
+                  </p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span
+                      className={`text-[8px] sm:text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${statusColors[tx.status]}`}
+                    >
+                      {tx.status}
+                    </span>
+                    <span className="text-[9px] text-[#0B2343]/20">
+                      {formatTime(tx.date)}
+                    </span>
+                  </div>
+                </div>
+                <p
+                  className={`text-[11px] sm:text-xs font-bold shrink-0 ${
+                    tx.type === "refund" ? "text-red-400" : "text-[#0B2343]/60"
+                  }`}
+                >
+                  {tx.type === "refund" ? "-" : ""}£{tx.amount.toLocaleString()}
+                </p>
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
