@@ -222,7 +222,7 @@ export default function TutorCard({
       {/* ── Actions ── */}
       <div className="px-5 pb-4 flex items-center gap-2">
         <Link
-          to={`/booking/${tutor.slug}`}
+          to={`/tutors/${tutor.id}`}
           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#ff7c22] text-white text-xs font-bold hover:bg-[#e56a10] active:scale-[0.97] transition-all"
         >
           <Calendar size={12} />
