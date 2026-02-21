@@ -18,7 +18,7 @@ import {
   Loader2,
   AlertTriangle,
 } from "lucide-react";
-import type { AdminTutor } from "../../../data/admin/adminUsersData";
+import type { AdminTutor } from "../../../lib/types/adminTutors";
 
 interface Props {
   tutor: AdminTutor;

@@ -1,7 +1,7 @@
 import React from "react";
 import { BookOpen } from "lucide-react";
-import type { AdminLesson } from "../../../data/admin/adminLessonsData";
 import AdminLessonCard from "./AdminLessonCard";
+import { AdminLesson } from "../../../lib/types/adminLesson";
 
 interface Props {
   lessons: AdminLesson[];

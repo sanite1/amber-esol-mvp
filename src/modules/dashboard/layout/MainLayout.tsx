@@ -85,12 +85,12 @@ const DashboardLayout = () => {
             { name: "Payments", icon: CreditCard, path: "/admin/payments" },
           ],
         },
-        {
-          label: "System",
-          items: [
-            { name: "Settings", icon: Settings, path: "/admin/settings" },
-          ],
-        },
+        // {
+        //   label: "System",
+        //   items: [
+        //     { name: "Settings", icon: Settings, path: "/admin/settings" },
+        //   ],
+        // },
       ];
     }
 

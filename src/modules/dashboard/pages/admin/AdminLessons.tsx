@@ -1,9 +1,35 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { BookOpen } from "lucide-react";
+
+// ── API hooks (existing) ──
+import { useFetchBookings, useCancelBooking } from "../../lib/api/booking";
 import {
-  adminLessonsData,
-  type AdminLesson,
-} from "../../data/admin/adminLessonsData";
+  useRefundTransaction,
+  useFetchTransactions,
+} from "../../lib/api/payment";
+
+// ── New API hooks ──
+import {
+  useFetchAdminLessonStats,
+  useFlagBooking,
+} from "../../lib/api/adminLesson";
+
+// ── API types ──
+import type {
+  Booking,
+  BookingTutor,
+  BookingStudent,
+  BookingFilters,
+} from "../../lib/types/booking";
+import type { Transaction, TransactionBooking } from "../../lib/types/payment";
+
+// ── Local UI types ──
+import type {
+  AdminLesson,
+  AdminLessonsStats,
+} from "../../lib/types/adminLesson";
+
+// ── Child components ──
 import { LessonsPageSkeleton } from "../../components/admin/lessons/LessonsSkeleton";
 import LessonsStatsRow from "../../components/admin/lessons/LessonsStatsRow";
 import LessonsFilterBar, {
@@ -16,12 +42,106 @@ import LessonDetailModal from "../../components/admin/lessons/LessonDetailModal"
 import LessonsPagination from "../../components/admin/lessons/LessonsPagination";
 
 const PER_PAGE = 10;
+const PLATFORM_COMMISSION_RATE = 0.15;
+
+/* ═══════════════════════════════════════════════
+   Type guards
+   ═══════════════════════════════════════════════ */
+
+const isPopulatedStudent = (
+  val: string | BookingStudent
+): val is BookingStudent => typeof val === "object" && val !== null;
+
+const isPopulatedTutor = (val: string | BookingTutor): val is BookingTutor =>
+  typeof val === "object" && val !== null;
+
+/* ═══════════════════════════════════════════════
+   Helpers
+   ═══════════════════════════════════════════════ */
+
+function computeDuration(start: string, end: string): number {
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+  return eh * 60 + em - (sh * 60 + sm);
+}
+
+function deriveDisplayStatus(booking: Booking): AdminLesson["status"] {
+  // If the API status is pending or confirmed, decide between "upcoming" and "in_progress"
+  if (booking.status === "pending" || booking.status === "confirmed") {
+    const now = new Date();
+    const today = now.toISOString().split("T")[0];
+    const currentHHmm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+    if (
+      booking.status === "confirmed" &&
+      booking.date === today &&
+      booking.startTime <= currentHHmm &&
+      booking.endTime > currentHHmm
+    ) {
+      return "in_progress";
+    }
+    return "upcoming";
+  }
+
+  return booking.status as AdminLesson["status"];
+}
+
+/* ═══════════════════════════════════════════════
+   Mapper: API Booking → AdminLesson
+   ═══════════════════════════════════════════════ */
+
+function apiBookingToAdminLesson(
+  b: Booking,
+  txnMap: Map<string, Transaction>
+): AdminLesson {
+  const student = isPopulatedStudent(b.studentId) ? b.studentId : null;
+  const tutor = isPopulatedTutor(b.tutorId) ? b.tutorId : null;
+  const txn = txnMap.get(b._id);
+
+  const amount = b.price || 0;
+  const commission = txn
+    ? txn.platformCommission
+    : Math.round(amount * PLATFORM_COMMISSION_RATE * 100) / 100;
+  const tutorEarnings = txn
+    ? txn.tutorEarnings
+    : Math.round((amount - commission) * 100) / 100;
+
+  return {
+    id: b._id,
+    studentId:
+      student?._id ?? (typeof b.studentId === "string" ? b.studentId : ""),
+    studentName: student
+      ? `${student.firstname} ${student.lastname}`
+      : "Unknown Student",
+    studentAvatar: student?.profilePicture,
+    tutorId: tutor?._id ?? (typeof b.tutorId === "string" ? b.tutorId : ""),
+    tutorName: tutor ? `${tutor.firstname} ${tutor.lastname}` : "Unknown Tutor",
+    tutorAvatar: tutor?.profilePicture,
+    date: b.date,
+    startTime: b.startTime,
+    endTime: b.endTime,
+    duration: computeDuration(b.startTime, b.endTime),
+    type: b.type === "trial" ? "trial" : "standard",
+    status: deriveDisplayStatus(b),
+    subject: b.specialty || "English",
+    topic: b.specialty || undefined,
+    amount,
+    tutorEarnings: amount === 0 ? 0 : tutorEarnings,
+    commission: amount === 0 ? 0 : commission,
+    paymentStatus: b.paymentStatus as AdminLesson["paymentStatus"],
+    notes: b.notes,
+    flagged: (b as any).flagged ?? false,
+    flagReason: (b as any).flagReason,
+    cancelReason: b.cancelReason,
+    createdAt: b.createdAt,
+  };
+}
+
+/* ═══════════════════════════════════════════════
+   Component
+   ═══════════════════════════════════════════════ */
 
 export default function AdminLessons() {
-  const [loading, setLoading] = useState(true);
-  const [lessons, setLessons] = useState<AdminLesson[]>([]);
-  const [stats, setStats] = useState(adminLessonsData.stats);
-
   // Filters
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<LessonStatusFilter>("all");
@@ -34,158 +154,219 @@ export default function AdminLessons() {
     null
   );
 
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setLessons(adminLessonsData.lessons);
-      setLoading(false);
-    }, 800);
-    return () => clearTimeout(t);
-  }, []);
+  // ── Build API filter params ──
+  const apiFilters: BookingFilters = useMemo(() => {
+    const filters: BookingFilters = {
+      page,
+      limit: PER_PAGE,
+      sort:
+        sort === "newest"
+          ? "newest"
+          : sort === "oldest"
+            ? "oldest"
+            : sort === "amount_high"
+              ? "price_high"
+              : "price_low",
+    };
 
-  // Reset page on filter change
-  useEffect(() => {
-    setPage(1);
-  }, [search, statusFilter, typeFilter, sort]);
+    if (search.trim()) filters.search = search.trim();
 
-  // Process lessons
-  const processed = useMemo(() => {
-    let result = [...lessons];
-
-    // Search
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (l) =>
-          l.studentName.toLowerCase().includes(q) ||
-          l.tutorName.toLowerCase().includes(q) ||
-          (l.topic && l.topic.toLowerCase().includes(q)) ||
-          l.subject.toLowerCase().includes(q) ||
-          l.id.toLowerCase().includes(q)
-      );
+    // Map local status filter to API status
+    if (statusFilter === "cancelled") {
+      // API doesn't support a single "cancelled" filter — we fetch all and filter client-side
+      // Alternatively we could add cancelled_student,cancelled_tutor,cancelled_admin
+      // For now, we don't send status and filter client-side
+    } else if (statusFilter === "flagged") {
+      // No API status for flagged — filter client-side
+    } else if (statusFilter === "upcoming") {
+      filters.status = "confirmed"; // pending + confirmed are "upcoming"
+    } else if (statusFilter === "in_progress") {
+      filters.status = "confirmed"; // we'll filter by time client-side
+    } else if (statusFilter !== "all") {
+      filters.status = statusFilter;
     }
 
-    // Status filter
+    // Type filter
+    if (typeFilter === "trial") {
+      filters.type = "trial";
+    } else if (typeFilter === "standard") {
+      filters.type = "regular";
+    }
+
+    return filters;
+  }, [page, search, statusFilter, typeFilter, sort]);
+
+  // ── API queries ──
+  const { data: bookingsRes, isLoading: bookingsLoading } =
+    useFetchBookings(apiFilters);
+
+  const { data: statsRes, isLoading: statsLoading } =
+    useFetchAdminLessonStats();
+
+  // Fetch transactions for financial data (matching bookings)
+  const { data: txnRes } = useFetchTransactions({
+    limit: 200,
+    sort: "newest",
+  });
+
+  // ── Mutations ──
+  const cancelMutation = useCancelBooking();
+  const flagMutation = useFlagBooking();
+  const refundMutation = useRefundTransaction();
+
+  const isLoading = bookingsLoading || statsLoading;
+
+  // ── Unwrap responses ──
+  const bookingsRaw: Booking[] = useMemo(
+    () => bookingsRes?.data?.bookings ?? [],
+    [bookingsRes]
+  );
+
+  const pagination = bookingsRes?.data?.pagination;
+
+  // Build a Map of bookingId → Transaction for financial lookups
+  const txnMap: Map<string, Transaction> = useMemo(() => {
+    const map = new Map<string, Transaction>();
+    const txns = txnRes?.data?.transactions ?? [];
+    for (const txn of txns) {
+      const bookingId =
+        typeof txn.bookingId === "object" && txn.bookingId !== null
+          ? (txn.bookingId as TransactionBooking)._id
+          : (txn.bookingId as string);
+      if (bookingId) map.set(bookingId, txn);
+    }
+    return map;
+  }, [txnRes]);
+
+  const stats: AdminLessonsStats = useMemo(() => {
+    const s = statsRes?.data;
+    return {
+      totalLessons: s?.totalLessons ?? 0,
+      completedLessons: s?.completedLessons ?? 0,
+      upcomingLessons: s?.upcomingLessons ?? 0,
+      cancelledLessons: s?.cancelledLessons ?? 0,
+      noShowLessons: s?.noShowLessons ?? 0,
+      inProgressLessons: s?.inProgressLessons ?? 0,
+      trialLessons: s?.trialLessons ?? 0,
+      totalRevenue: s?.totalRevenue ?? 0,
+      totalCommission: s?.totalCommission ?? 0,
+      completionRate: s?.completionRate ?? 0,
+      avgRating: s?.avgRating ?? 0,
+      flaggedLessons: s?.flaggedLessons ?? 0,
+    };
+  }, [statsRes]);
+
+  // ── Map to local shapes ──
+  const lessons: AdminLesson[] = useMemo(
+    () => bookingsRaw.map((b) => apiBookingToAdminLesson(b, txnMap)),
+    [bookingsRaw, txnMap]
+  );
+
+  // ── Client-side filtering for statuses the API can't handle ──
+  const processedLessons = useMemo(() => {
+    let result = lessons;
+
     if (statusFilter === "flagged") {
       result = result.filter((l) => l.flagged);
     } else if (statusFilter === "cancelled") {
       result = result.filter((l) => l.status.startsWith("cancelled"));
-    } else if (statusFilter !== "all") {
-      result = result.filter((l) => l.status === statusFilter);
-    }
-
-    // Type filter
-    if (typeFilter !== "all") {
-      result = result.filter((l) => l.type === typeFilter);
-    }
-
-    // Sort
-    switch (sort) {
-      case "newest":
-        result.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
-        break;
-      case "oldest":
-        result.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        );
-        break;
-      case "amount_high":
-        result.sort((a, b) => b.amount - a.amount);
-        break;
-      case "amount_low":
-        result.sort((a, b) => a.amount - b.amount);
-        break;
+    } else if (statusFilter === "in_progress") {
+      result = result.filter((l) => l.status === "in_progress");
     }
 
     return result;
-  }, [lessons, search, statusFilter, typeFilter, sort]);
+  }, [lessons, statusFilter]);
 
-  const totalPages = Math.ceil(processed.length / PER_PAGE);
-  const paginated = processed.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const totalPages = pagination?.totalPages ?? 1;
 
-  // ── Action handlers ──────────────────────────────────
+  // ── Filter reset helpers ──
+  const handleSearchChange = (v: string) => {
+    setSearch(v);
+    setPage(1);
+  };
+  const handleStatusChange = (v: LessonStatusFilter) => {
+    setStatusFilter(v);
+    setPage(1);
+  };
+  const handleTypeChange = (v: LessonTypeFilter) => {
+    setTypeFilter(v);
+    setPage(1);
+  };
+  const handleSortChange = (v: LessonSort) => {
+    setSort(v);
+    setPage(1);
+  };
+
+  // ── Action handlers ──
 
   function handleFlag(lessonId: string, reason: string) {
-    setLessons((prev) =>
-      prev.map((l) =>
-        l.id === lessonId ? { ...l, flagged: true, flagReason: reason } : l
-      )
-    );
-    setStats((prev) => ({ ...prev, flaggedLessons: prev.flaggedLessons + 1 }));
-    setSelectedLesson((prev) =>
-      prev && prev.id === lessonId
-        ? { ...prev, flagged: true, flagReason: reason }
-        : prev
+    flagMutation.mutate(
+      { id: lessonId, payload: { flagged: true, flagReason: reason } },
+      {
+        onSuccess: () => {
+          setSelectedLesson((prev) =>
+            prev && prev.id === lessonId
+              ? { ...prev, flagged: true, flagReason: reason }
+              : prev
+          );
+        },
+      }
     );
   }
 
   function handleUnflag(lessonId: string) {
-    setLessons((prev) =>
-      prev.map((l) =>
-        l.id === lessonId ? { ...l, flagged: false, flagReason: undefined } : l
-      )
-    );
-    setStats((prev) => ({
-      ...prev,
-      flaggedLessons: Math.max(0, prev.flaggedLessons - 1),
-    }));
-    setSelectedLesson((prev) =>
-      prev && prev.id === lessonId
-        ? { ...prev, flagged: false, flagReason: undefined }
-        : prev
+    flagMutation.mutate(
+      { id: lessonId, payload: { flagged: false, flagReason: undefined } },
+      {
+        onSuccess: () => {
+          setSelectedLesson((prev) =>
+            prev && prev.id === lessonId
+              ? { ...prev, flagged: false, flagReason: undefined }
+              : prev
+          );
+        },
+      }
     );
   }
 
   function handleCancel(lessonId: string, reason: string) {
-    setLessons((prev) =>
-      prev.map((l) =>
-        l.id === lessonId
-          ? {
-              ...l,
-              status: "cancelled_admin" as const,
-              cancelReason: reason,
-              paymentStatus:
-                l.paymentStatus === "paid"
-                  ? ("refunded" as const)
-                  : l.paymentStatus,
-              tutorEarnings: 0,
-              commission: 0,
-            }
-          : l
-      )
+    cancelMutation.mutate(
+      { id: lessonId, payload: { reason } },
+      {
+        onSuccess: () => {
+          setSelectedLesson(null);
+        },
+      }
     );
-    setStats((prev) => ({
-      ...prev,
-      cancelledLessons: prev.cancelledLessons + 1,
-      upcomingLessons: Math.max(0, prev.upcomingLessons - 1),
-    }));
-    // Close modal after action
-    setSelectedLesson(null);
   }
 
   function handleRefund(lessonId: string) {
-    setLessons((prev) =>
-      prev.map((l) =>
-        l.id === lessonId
-          ? {
-              ...l,
-              paymentStatus: "refunded" as const,
-              tutorEarnings: 0,
-              commission: 0,
-            }
-          : l
-      )
-    );
-    setSelectedLesson((prev) =>
-      prev && prev.id === lessonId
-        ? {
-            ...prev,
-            paymentStatus: "refunded" as const,
-            tutorEarnings: 0,
-            commission: 0,
-          }
-        : prev
+    // Find the transaction for this booking to get the transactionId
+    const txn = txnMap.get(lessonId);
+    if (!txn) {
+      // If no transaction found, we can't refund
+      return;
+    }
+
+    refundMutation.mutate(
+      {
+        transactionId: txn._id,
+        payload: { reason: "Admin-initiated refund" },
+      },
+      {
+        onSuccess: () => {
+          setSelectedLesson((prev) =>
+            prev && prev.id === lessonId
+              ? {
+                  ...prev,
+                  paymentStatus: "refunded" as const,
+                  tutorEarnings: 0,
+                  commission: 0,
+                }
+              : prev
+          );
+        },
+      }
     );
   }
 
@@ -206,7 +387,7 @@ export default function AdminLessons() {
         </div>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <LessonsPageSkeleton />
       ) : (
         <>
@@ -214,17 +395,20 @@ export default function AdminLessons() {
 
           <LessonsFilterBar
             search={search}
-            onSearchChange={setSearch}
+            onSearchChange={handleSearchChange}
             statusFilter={statusFilter}
-            onStatusChange={setStatusFilter}
+            onStatusChange={handleStatusChange}
             typeFilter={typeFilter}
-            onTypeChange={setTypeFilter}
+            onTypeChange={handleTypeChange}
             sort={sort}
-            onSortChange={setSort}
-            totalCount={processed.length}
+            onSortChange={handleSortChange}
+            totalCount={pagination?.total ?? processedLessons.length}
           />
 
-          <AdminLessonList lessons={paginated} onSelect={setSelectedLesson} />
+          <AdminLessonList
+            lessons={processedLessons}
+            onSelect={setSelectedLesson}
+          />
 
           <LessonsPagination
             currentPage={page}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import {
   GraduationCap,
   Search,
@@ -9,9 +9,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 import {
-  adminTutorsData,
-  type AdminTutor,
-} from "../../data/admin/adminUsersData";
+  useFetchAdminTutors,
+  useUpdateTutorStatus,
+} from "../../lib/api/adminTutors";
+import type { AdminTutor } from "../../lib/types/adminTutors";
 import { UsersPageSkeleton } from "../../components/admin/users/UsersSkeleton";
 import TutorDetailModal from "../../components/admin/users/TutorDetailModal";
 
@@ -52,22 +53,18 @@ const statusConfig: Record<
 };
 
 export default function AdminTutors() {
-  const [tutors, setTutors] = useState<AdminTutor[]>([]);
-  const [loading, setLoading] = useState(true);
-
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [sort, setSort] = useState<SortOption>("newest");
   const [page, setPage] = useState(1);
   const [selectedTutor, setSelectedTutor] = useState<AdminTutor | null>(null);
 
+  // Debounce search
   useEffect(() => {
-    const t = setTimeout(() => {
-      setTutors(adminTutorsData.tutors);
-      setLoading(false);
-    }, 700);
+    const t = setTimeout(() => setDebouncedSearch(search), 400);
     return () => clearTimeout(t);
-  }, []);
+  }, [search]);
 
   // Check URL for status param
   useEffect(() => {
@@ -76,63 +73,55 @@ export default function AdminTutors() {
     if (status === "pending") setStatusFilter("pending_approval");
   }, []);
 
+  // Reset page on filter change
   useEffect(() => {
     setPage(1);
-  }, [search, statusFilter, sort]);
+  }, [debouncedSearch, statusFilter, sort]);
 
-  const processed = useMemo(() => {
-    let list = [...tutors];
-    if (statusFilter !== "all")
-      list = list.filter((t) => t.status === statusFilter);
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(
-        (t) =>
-          t.name.toLowerCase().includes(q) ||
-          t.email.toLowerCase().includes(q) ||
-          t.country.toLowerCase().includes(q) ||
-          t.specialties.some((s) => s.toLowerCase().includes(q))
-      );
-    }
-    switch (sort) {
-      case "newest":
-        list.sort(
-          (a, b) =>
-            new Date(b.joinedDate).getTime() - new Date(a.joinedDate).getTime()
-        );
-        break;
-      case "name":
-        list.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "earned":
-        list.sort((a, b) => b.totalEarned - a.totalEarned);
-        break;
-      case "rating":
-        list.sort((a, b) => b.averageRating - a.averageRating);
-        break;
-      case "lessons":
-        list.sort((a, b) => b.totalLessons - a.totalLessons);
-        break;
-      case "students":
-        list.sort((a, b) => b.totalStudents - a.totalStudents);
-        break;
-    }
-    return list;
-  }, [tutors, search, statusFilter, sort]);
+  // Fetch data
+  const { data, isLoading, isFetching } = useFetchAdminTutors({
+    page,
+    limit: PER_PAGE,
+    search: debouncedSearch || undefined,
+    status: statusFilter,
+    sort,
+  });
 
-  const totalPages = Math.ceil(processed.length / PER_PAGE);
-  const paginated = processed.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const updateStatusMutation = useUpdateTutorStatus();
+
+  const tutors = data?.data?.tutors || [];
+  const stats = data?.data?.stats || {
+    total: 0,
+    active: 0,
+    inactive: 0,
+    pendingApproval: 0,
+    rejected: 0,
+    banned: 0,
+    newThisMonth: 0,
+  };
+  const pagination = data?.data?.pagination || {
+    page: 1,
+    limit: PER_PAGE,
+    total: 0,
+    totalPages: 1,
+  };
+
+  const totalPages = pagination.totalPages;
 
   const handleUpdateStatus = (id: string, status: AdminTutor["status"]) => {
-    setTutors((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)));
-    setSelectedTutor((prev) =>
-      prev && prev.id === id ? { ...prev, status } : prev
+    updateStatusMutation.mutate(
+      { tutorId: id, data: { status } },
+      {
+        onSuccess: () => {
+          setSelectedTutor((prev) =>
+            prev && prev.id === id ? { ...prev, status } : prev
+          );
+        },
+      }
     );
   };
 
-  const stats = adminTutorsData.stats;
-
-  if (loading) return <UsersPageSkeleton />;
+  if (isLoading) return <UsersPageSkeleton />;
 
   const initials = (name: string) =>
     name
@@ -204,7 +193,7 @@ export default function AdminTutors() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search tutors…"
+                placeholder="Search tutors"
                 className="w-full pl-8 pr-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] outline-none focus:border-[#ff7c22]/30 focus:bg-white transition-colors"
               />
             </div>
@@ -237,7 +226,10 @@ export default function AdminTutors() {
           </div>
           <div className="flex items-center justify-between sm:justify-end gap-2">
             <span className="text-[10px] sm:text-[11px] text-[#0B2343]/30">
-              {processed.length} tutors
+              {pagination.total} tutors
+              {isFetching && !isLoading && (
+                <span className="ml-1 text-[#ff7c22]">updating…</span>
+              )}
             </span>
             <div className="flex items-center gap-1.5">
               <SlidersHorizontal size={12} className="text-[#0B2343]/25" />
@@ -258,7 +250,7 @@ export default function AdminTutors() {
         </div>
 
         {/* List */}
-        {paginated.length === 0 ? (
+        {tutors.length === 0 ? (
           <div className="bg-white rounded-xl border border-[#0B2343]/[0.06] py-10 text-center">
             <GraduationCap
               size={24}
@@ -268,7 +260,7 @@ export default function AdminTutors() {
           </div>
         ) : (
           <div className="space-y-2">
-            {paginated.map((t) => {
+            {tutors.map((t) => {
               const sc = statusConfig[t.status];
               return (
                 <button
@@ -398,7 +390,11 @@ export default function AdminTutors() {
               <button
                 key={p}
                 onClick={() => setPage(p)}
-                className={`w-8 h-8 rounded-lg text-xs font-medium transition-colors ${page === p ? "bg-[#0B2343] text-white" : "text-[#0B2343]/40 hover:bg-[#0B2343]/[0.04]"}`}
+                className={`w-8 h-8 rounded-lg text-xs font-medium transition-colors ${
+                  page === p
+                    ? "bg-[#0B2343] text-white"
+                    : "text-[#0B2343]/40 hover:bg-[#0B2343]/[0.04]"
+                }`}
               >
                 {p}
               </button>

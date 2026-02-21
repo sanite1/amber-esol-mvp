@@ -1,9 +1,34 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { MessageSquare } from "lucide-react";
+
+// ── API hooks (existing) ──
 import {
-  adminReviewsData,
-  type AdminReview,
-} from "../../data/admin/adminReviewsData";
+  useFetchAdminReviews,
+  useHideReview,
+  useUnhideReview,
+  useRemoveReview,
+  useRestoreReview,
+  useHandleReport,
+} from "../../lib/api/review";
+import { useFetchAdminReviewStats } from "../../lib/api/adminReview";
+
+// ── API types ──
+import type {
+  Review,
+  ReviewStudent,
+  ReviewTutor,
+  ReviewBooking,
+  ReviewReporter,
+  AdminReviewFilters,
+} from "../../lib/types/review";
+
+// ── Local UI types ──
+import type {
+  AdminReview,
+  AdminReviewsStats,
+} from "../../lib/types/adminReview";
+
+// ── Child components ──
 import { ReviewsPageSkeleton } from "../../components/admin/reviews/ReviewsSkeleton";
 import ReviewsStatsRow from "../../components/admin/reviews/ReviewsStatsRow";
 import ReviewsFilterBar, {
@@ -17,11 +42,91 @@ import ReviewsPagination from "../../components/admin/reviews/ReviewsPagination"
 
 const PER_PAGE = 8;
 
-export default function AdminReviews() {
-  const [loading, setLoading] = useState(true);
-  const [reviews, setReviews] = useState<AdminReview[]>([]);
-  const [stats, setStats] = useState(adminReviewsData.stats);
+/* ═══════════════════════════════════════════════
+   Type guards
+   ═══════════════════════════════════════════════ */
 
+const isPopulatedStudent = (
+  val: string | ReviewStudent
+): val is ReviewStudent => typeof val === "object" && val !== null;
+
+const isPopulatedTutor = (val: string | ReviewTutor): val is ReviewTutor =>
+  typeof val === "object" && val !== null;
+
+const isPopulatedBooking = (
+  val: string | ReviewBooking
+): val is ReviewBooking => typeof val === "object" && val !== null;
+
+const isPopulatedReporter = (
+  val: string | ReviewReporter
+): val is ReviewReporter => typeof val === "object" && val !== null;
+
+/* ═══════════════════════════════════════════════
+   Mapper: API Review → AdminReview (child component shape)
+   ═══════════════════════════════════════════════ */
+
+function apiReviewToAdmin(r: Review): AdminReview {
+  const student = isPopulatedStudent(r.studentId) ? r.studentId : null;
+  const tutor = isPopulatedTutor(r.tutorId) ? r.tutorId : null;
+  const booking = isPopulatedBooking(r.bookingId) ? r.bookingId : null;
+
+  return {
+    id: r._id,
+    studentId:
+      student?._id ?? (typeof r.studentId === "string" ? r.studentId : ""),
+    studentName: student
+      ? `${student.firstname} ${student.lastname}`
+      : "Unknown Student",
+    tutorId: tutor?._id ?? (typeof r.tutorId === "string" ? r.tutorId : ""),
+    tutorName: tutor ? `${tutor.firstname} ${tutor.lastname}` : "Unknown Tutor",
+    lessonId:
+      booking?._id ?? (typeof r.bookingId === "string" ? r.bookingId : ""),
+    lessonTopic: r.lessonTopic || booking?.specialty || "General English",
+    lessonDate: booking?.date || r.createdAt.split("T")[0],
+    lessonType:
+      r.lessonType === "trial"
+        ? "trial"
+        : booking?.type === "trial"
+          ? "trial"
+          : "standard",
+    rating: r.rating,
+    comment: r.comment,
+    tutorReply: r.reply?.text,
+    tutorRepliedAt: r.reply?.createdAt,
+    createdAt: r.createdAt,
+    status: r.status,
+    reported: r.reported,
+    reports: r.reports.map((rep) => {
+      const reporter = isPopulatedReporter(rep.reporterId)
+        ? rep.reporterId
+        : null;
+      return {
+        id: rep._id,
+        reporterId:
+          reporter?._id ??
+          (typeof rep.reporterId === "string" ? rep.reporterId : ""),
+        reporterName: reporter
+          ? `${reporter.firstname} ${reporter.lastname}`
+          : "Unknown User",
+        reporterType: "student" as const, // API doesn't return this; default
+        reason: rep.reason as AdminReview["reports"][0]["reason"],
+        description: rep.reason, // API stores reason as the description
+        createdAt: rep.createdAt,
+        status:
+          rep.status === "reviewed"
+            ? ("action_taken" as const)
+            : (rep.status as "pending" | "dismissed" | "action_taken"),
+      };
+    }),
+    helpfulCount: r.helpfulCount,
+  };
+}
+
+/* ═══════════════════════════════════════════════
+   Component
+   ═══════════════════════════════════════════════ */
+
+export default function AdminReviews() {
   // Filters
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<ReviewStatusFilter>("all");
@@ -34,168 +139,210 @@ export default function AdminReviews() {
     null
   );
 
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setReviews(adminReviewsData.reviews);
-      setLoading(false);
-    }, 800);
-    return () => clearTimeout(t);
-  }, []);
+  // ── Build API filter params ──
+  const apiFilters: AdminReviewFilters = useMemo(() => {
+    const filters: AdminReviewFilters = {
+      page,
+      limit: PER_PAGE,
+      sort,
+    };
 
-  useEffect(() => {
-    setPage(1);
-  }, [search, statusFilter, ratingFilter, sort]);
+    if (search.trim()) filters.search = search.trim();
 
-  // Process reviews
-  const processed = useMemo(() => {
-    let result = [...reviews];
-
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (r) =>
-          r.studentName.toLowerCase().includes(q) ||
-          r.tutorName.toLowerCase().includes(q) ||
-          r.comment.toLowerCase().includes(q) ||
-          r.lessonTopic.toLowerCase().includes(q) ||
-          r.id.toLowerCase().includes(q)
-      );
-    }
-
+    // Map local status filter to API params
     if (statusFilter === "reported") {
-      result = result.filter((r) => r.reported);
+      filters.reported = true;
     } else if (statusFilter !== "all") {
-      result = result.filter((r) => r.status === statusFilter);
+      filters.status = statusFilter as "published" | "hidden" | "removed";
     }
 
-    if (ratingFilter !== "all") {
-      result = result.filter((r) => r.rating === parseInt(ratingFilter));
-    }
+    // Rating filter — the API doesn't natively support rating filter,
+    // so we handle it client-side (see processedReviews below).
+    // If you later add ?rating= to the backend, move it here.
 
-    switch (sort) {
-      case "newest":
-        result.sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        break;
-      case "oldest":
-        result.sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
-        break;
-      case "rating_high":
-        result.sort((a, b) => b.rating - a.rating);
-        break;
-      case "rating_low":
-        result.sort((a, b) => a.rating - b.rating);
-        break;
-      case "most_reported":
-        result.sort((a, b) => b.reports.length - a.reports.length);
-        break;
-    }
+    return filters;
+  }, [page, search, statusFilter, sort]);
 
-    return result;
-  }, [reviews, search, statusFilter, ratingFilter, sort]);
+  // ── API queries ──
+  const { data: reviewsRes, isLoading: reviewsLoading } =
+    useFetchAdminReviews(apiFilters);
 
-  const totalPages = Math.ceil(processed.length / PER_PAGE);
-  const paginated = processed.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const { data: statsRes, isLoading: statsLoading } =
+    useFetchAdminReviewStats();
 
-  // ── Helpers to sync selected modal state ─────────────
+  // ── Mutations ──
+  const hideMutation = useHideReview();
+  const unhideMutation = useUnhideReview();
+  const removeMutation = useRemoveReview();
+  const restoreMutation = useRestoreReview();
+  const handleReportMutation = useHandleReport();
 
-  function updateReview(
-    reviewId: string,
-    updater: (r: AdminReview) => AdminReview
-  ) {
-    setReviews((prev) => prev.map((r) => (r.id === reviewId ? updater(r) : r)));
-    setSelectedReview((prev) =>
-      prev && prev.id === reviewId ? updater(prev) : prev
+  const isLoading = reviewsLoading || statsLoading;
+
+  // ── Unwrap responses ──
+  const reviewsRaw: Review[] = useMemo(
+    () => reviewsRes?.data?.reviews ?? [],
+    [reviewsRes]
+  );
+
+  const pagination = reviewsRes?.data?.pagination;
+
+  const stats: AdminReviewsStats = useMemo(() => {
+    const s = statsRes?.data;
+    return {
+      totalReviews: s?.totalReviews ?? 0,
+      publishedReviews: s?.publishedReviews ?? 0,
+      hiddenReviews: s?.hiddenReviews ?? 0,
+      removedReviews: s?.removedReviews ?? 0,
+      averageRating: s?.averageRating ?? 0,
+      totalReports: s?.totalReports ?? 0,
+      pendingReports: s?.pendingReports ?? 0,
+      dismissedReports: s?.dismissedReports ?? 0,
+      actionsTaken: s?.actionsTaken ?? 0,
+      reviewsThisMonth: s?.reviewsThisMonth ?? 0,
+      reportsThisMonth: s?.reportsThisMonth ?? 0,
+    };
+  }, [statsRes]);
+
+  // ── Map to local shapes ──
+  const reviews: AdminReview[] = useMemo(
+    () => reviewsRaw.map(apiReviewToAdmin),
+    [reviewsRaw]
+  );
+
+  // ── Client-side rating filter (API doesn't support ?rating for admin) ──
+  const processedReviews = useMemo(() => {
+    if (ratingFilter === "all") return reviews;
+    return reviews.filter((r) => r.rating === parseInt(ratingFilter));
+  }, [reviews, ratingFilter]);
+
+  const totalPages = pagination?.totalPages ?? 1;
+
+  // ── Reset page on filter change ──
+  const handleSearchChange = (v: string) => {
+    setSearch(v);
+    setPage(1);
+  };
+  const handleStatusChange = (v: ReviewStatusFilter) => {
+    setStatusFilter(v);
+    setPage(1);
+  };
+  const handleRatingChange = (v: ReviewRatingFilter) => {
+    setRatingFilter(v);
+    // Don't reset page since rating is client-side filtered
+  };
+  const handleSortChange = (v: ReviewSort) => {
+    setSort(v);
+    setPage(1);
+  };
+
+  // ── Action handlers ──
+
+  function handleHide(reviewId: string) {
+    hideMutation.mutate(
+      { id: reviewId, payload: {} },
+      {
+        onSuccess: () => {
+          // Update selected review in modal
+          setSelectedReview((prev) =>
+            prev && prev.id === reviewId ? { ...prev, status: "hidden" } : prev
+          );
+        },
+      }
     );
   }
 
-  // ── Actions ──────────────────────────────────────────
-
-  function handleHide(reviewId: string) {
-    updateReview(reviewId, (r) => ({ ...r, status: "hidden" }));
-    setStats((prev) => ({
-      ...prev,
-      publishedReviews: prev.publishedReviews - 1,
-      hiddenReviews: prev.hiddenReviews + 1,
-    }));
-  }
-
   function handleUnhide(reviewId: string) {
-    updateReview(reviewId, (r) => ({ ...r, status: "published" }));
-    setStats((prev) => ({
-      ...prev,
-      hiddenReviews: Math.max(0, prev.hiddenReviews - 1),
-      publishedReviews: prev.publishedReviews + 1,
-    }));
+    unhideMutation.mutate(
+      { id: reviewId, payload: {} },
+      {
+        onSuccess: () => {
+          setSelectedReview((prev) =>
+            prev && prev.id === reviewId
+              ? { ...prev, status: "published" }
+              : prev
+          );
+        },
+      }
+    );
   }
 
   function handleRemove(reviewId: string) {
-    const review = reviews.find((r) => r.id === reviewId);
-    if (!review) return;
-    const wasPublished = review.status === "published";
-    const wasHidden = review.status === "hidden";
-
-    updateReview(reviewId, (r) => ({ ...r, status: "removed" }));
-    setStats((prev) => ({
-      ...prev,
-      removedReviews: prev.removedReviews + 1,
-      publishedReviews: wasPublished
-        ? prev.publishedReviews - 1
-        : prev.publishedReviews,
-      hiddenReviews: wasHidden
-        ? Math.max(0, prev.hiddenReviews - 1)
-        : prev.hiddenReviews,
-    }));
+    removeMutation.mutate(
+      { id: reviewId, payload: {} },
+      {
+        onSuccess: () => {
+          setSelectedReview((prev) =>
+            prev && prev.id === reviewId ? { ...prev, status: "removed" } : prev
+          );
+        },
+      }
+    );
   }
 
   function handleRestore(reviewId: string) {
-    updateReview(reviewId, (r) => ({ ...r, status: "published" }));
-    setStats((prev) => ({
-      ...prev,
-      removedReviews: Math.max(0, prev.removedReviews - 1),
-      publishedReviews: prev.publishedReviews + 1,
-    }));
+    restoreMutation.mutate(
+      { id: reviewId, payload: {} },
+      {
+        onSuccess: () => {
+          setSelectedReview((prev) =>
+            prev && prev.id === reviewId
+              ? { ...prev, status: "published" }
+              : prev
+          );
+        },
+      }
+    );
   }
 
   function handleDismissReport(reviewId: string, reportId: string) {
-    updateReview(reviewId, (r) => ({
-      ...r,
-      reports: r.reports.map((rep) =>
-        rep.id === reportId ? { ...rep, status: "dismissed" as const } : rep
-      ),
-      reported:
-        r.reports.filter(
-          (rep) => rep.id !== reportId && rep.status === "pending"
-        ).length > 0,
-    }));
-    setStats((prev) => ({
-      ...prev,
-      pendingReports: Math.max(0, prev.pendingReports - 1),
-      dismissedReports: prev.dismissedReports + 1,
-    }));
+    handleReportMutation.mutate(
+      { reviewId, reportId, payload: { status: "dismissed" } },
+      {
+        onSuccess: () => {
+          setSelectedReview((prev) => {
+            if (!prev || prev.id !== reviewId) return prev;
+            return {
+              ...prev,
+              reports: prev.reports.map((rep) =>
+                rep.id === reportId
+                  ? { ...rep, status: "dismissed" as const }
+                  : rep
+              ),
+              reported:
+                prev.reports.filter(
+                  (rep) => rep.id !== reportId && rep.status === "pending"
+                ).length > 0,
+            };
+          });
+        },
+      }
+    );
   }
 
   function handleActionReport(reviewId: string, reportId: string) {
-    updateReview(reviewId, (r) => ({
-      ...r,
-      reports: r.reports.map((rep) =>
-        rep.id === reportId ? { ...rep, status: "action_taken" as const } : rep
-      ),
-      reported:
-        r.reports.filter(
-          (rep) => rep.id !== reportId && rep.status === "pending"
-        ).length > 0,
-    }));
-    setStats((prev) => ({
-      ...prev,
-      pendingReports: Math.max(0, prev.pendingReports - 1),
-      actionsTaken: prev.actionsTaken + 1,
-    }));
+    handleReportMutation.mutate(
+      { reviewId, reportId, payload: { status: "reviewed" } },
+      {
+        onSuccess: () => {
+          setSelectedReview((prev) => {
+            if (!prev || prev.id !== reviewId) return prev;
+            return {
+              ...prev,
+              reports: prev.reports.map((rep) =>
+                rep.id === reportId
+                  ? { ...rep, status: "action_taken" as const }
+                  : rep
+              ),
+              reported:
+                prev.reports.filter(
+                  (rep) => rep.id !== reportId && rep.status === "pending"
+                ).length > 0,
+            };
+          });
+        },
+      }
+    );
   }
 
   return (
@@ -215,7 +362,7 @@ export default function AdminReviews() {
         </div>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <ReviewsPageSkeleton />
       ) : (
         <>
@@ -223,19 +370,19 @@ export default function AdminReviews() {
 
           <ReviewsFilterBar
             search={search}
-            onSearchChange={setSearch}
+            onSearchChange={handleSearchChange}
             statusFilter={statusFilter}
-            onStatusChange={setStatusFilter}
+            onStatusChange={handleStatusChange}
             ratingFilter={ratingFilter}
-            onRatingChange={setRatingFilter}
+            onRatingChange={handleRatingChange}
             sort={sort}
-            onSortChange={setSort}
-            totalCount={processed.length}
+            onSortChange={handleSortChange}
+            totalCount={pagination?.total ?? processedReviews.length}
           />
 
-          {paginated.length > 0 ? (
+          {processedReviews.length > 0 ? (
             <div className="space-y-2.5 sm:space-y-3">
-              {paginated.map((review) => (
+              {processedReviews.map((review) => (
                 <AdminReviewCard
                   key={review.id}
                   review={review}

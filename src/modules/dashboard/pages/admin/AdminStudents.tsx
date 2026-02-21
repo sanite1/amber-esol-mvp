@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import {
   Users,
   Search,
@@ -8,9 +8,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 import {
-  adminStudentsData,
-  type AdminStudent,
-} from "../../data/admin/adminUsersData";
+  useFetchAdminStudents,
+  useUpdateStudentStatus,
+} from "../../lib/api/adminStudents";
+import type { AdminStudent } from "../../lib/types/adminStudents";
 import { UsersPageSkeleton } from "../../components/admin/users/UsersSkeleton";
 import StudentDetailModal from "../../components/admin/users/StudentDetailModal";
 
@@ -33,10 +34,8 @@ const statusConfig: Record<
 };
 
 export default function AdminStudents() {
-  const [students, setStudents] = useState<AdminStudent[]>([]);
-  const [loading, setLoading] = useState(true);
-
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [sort, setSort] = useState<SortOption>("newest");
   const [page, setPage] = useState(1);
@@ -44,72 +43,60 @@ export default function AdminStudents() {
     null
   );
 
+  // Debounce search
   useEffect(() => {
-    const t = setTimeout(() => {
-      setStudents(adminStudentsData.students);
-      setLoading(false);
-    }, 700);
+    const t = setTimeout(() => setDebouncedSearch(search), 400);
     return () => clearTimeout(t);
-  }, []);
+  }, [search]);
 
+  // Reset page on filter change
   useEffect(() => {
     setPage(1);
-  }, [search, statusFilter, sort]);
+  }, [debouncedSearch, statusFilter, sort]);
 
-  const processed = useMemo(() => {
-    let list = [...students];
-    if (statusFilter !== "all")
-      list = list.filter((s) => s.status === statusFilter);
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(
-        (s) =>
-          s.name.toLowerCase().includes(q) ||
-          s.email.toLowerCase().includes(q) ||
-          s.country.toLowerCase().includes(q)
-      );
-    }
-    switch (sort) {
-      case "newest":
-        list.sort(
-          (a, b) =>
-            new Date(b.joinedDate).getTime() - new Date(a.joinedDate).getTime()
-        );
-        break;
-      case "name":
-        list.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "spent":
-        list.sort((a, b) => b.totalSpent - a.totalSpent);
-        break;
-      case "lessons":
-        list.sort((a, b) => b.totalLessons - a.totalLessons);
-        break;
-      case "recent":
-        list.sort(
-          (a, b) =>
-            new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
-        );
-        break;
-    }
-    return list;
-  }, [students, search, statusFilter, sort]);
+  // Fetch data
+  const { data, isLoading, isFetching } = useFetchAdminStudents({
+    page,
+    limit: PER_PAGE,
+    search: debouncedSearch || undefined,
+    status: statusFilter,
+    sort,
+  });
 
-  const totalPages = Math.ceil(processed.length / PER_PAGE);
-  const paginated = processed.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const updateStatusMutation = useUpdateStudentStatus();
+
+  const students = data?.data?.students || [];
+  const stats = data?.data?.stats || {
+    total: 0,
+    active: 0,
+    inactive: 0,
+    banned: 0,
+    newThisMonth: 0,
+  };
+  const pagination = data?.data?.pagination || {
+    page: 1,
+    limit: PER_PAGE,
+    total: 0,
+    totalPages: 1,
+  };
+
+  const totalPages = pagination.totalPages;
 
   const handleUpdateStatus = (id: string, status: AdminStudent["status"]) => {
-    setStudents((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, status } : s))
-    );
-    setSelectedStudent((prev) =>
-      prev && prev.id === id ? { ...prev, status } : prev
+    updateStatusMutation.mutateAsync(
+      { studentId: id, data: { status } },
+      {
+        onSuccess: () => {
+          // Update the selected student in modal
+          setSelectedStudent((prev) =>
+            prev && prev.id === id ? { ...prev, status } : prev
+          );
+        },
+      }
     );
   };
 
-  const stats = adminStudentsData.stats;
-
-  if (loading) return <UsersPageSkeleton />;
+  if (isLoading) return <UsersPageSkeleton />;
 
   const initials = (name: string) =>
     name
@@ -180,7 +167,7 @@ export default function AdminStudents() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search students…"
+                placeholder="Search students"
                 className="w-full pl-8 pr-3 py-2 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] outline-none focus:border-[#ff7c22]/30 focus:bg-white transition-colors"
               />
             </div>
@@ -204,7 +191,10 @@ export default function AdminStudents() {
           </div>
           <div className="flex items-center justify-between sm:justify-end gap-2">
             <span className="text-[10px] sm:text-[11px] text-[#0B2343]/30">
-              {processed.length} students
+              {pagination.total} students
+              {isFetching && !isLoading && (
+                <span className="ml-1 text-[#ff7c22]">updating…</span>
+              )}
             </span>
             <div className="flex items-center gap-1.5">
               <SlidersHorizontal size={12} className="text-[#0B2343]/25" />
@@ -224,14 +214,14 @@ export default function AdminStudents() {
         </div>
 
         {/* List */}
-        {paginated.length === 0 ? (
+        {students.length === 0 ? (
           <div className="bg-white rounded-xl border border-[#0B2343]/[0.06] py-10 text-center">
             <Users size={24} className="text-[#0B2343]/10 mx-auto mb-3" />
             <p className="text-sm text-[#0B2343]/30">No students found</p>
           </div>
         ) : (
           <div className="space-y-2">
-            {paginated.map((s) => {
+            {students.map((s) => {
               const sc = statusConfig[s.status];
               return (
                 <button
@@ -330,7 +320,11 @@ export default function AdminStudents() {
               <button
                 key={p}
                 onClick={() => setPage(p)}
-                className={`w-8 h-8 rounded-lg text-xs font-medium transition-colors ${page === p ? "bg-[#0B2343] text-white" : "text-[#0B2343]/40 hover:bg-[#0B2343]/[0.04]"}`}
+                className={`w-8 h-8 rounded-lg text-xs font-medium transition-colors ${
+                  page === p
+                    ? "bg-[#0B2343] text-white"
+                    : "text-[#0B2343]/40 hover:bg-[#0B2343]/[0.04]"
+                }`}
               >
                 {p}
               </button>

@@ -49,23 +49,27 @@ export default function AdminDashboard() {
 
       {/* Chart + Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-5">
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-3 space-y-4 sm:space-y-5">
           <AdminRevenueChart
             data={data.monthlyRevenue}
             commissionRate={data.stats.platformCommission}
           />
+          <RecentLessonsCard lessons={data.recentLessons} />
+          <RecentTransactionsCard transactions={data.recentTransactions} />
         </div>
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-5">
+          <FlaggedItemsCard items={data.flaggedItems} />
           <QuickActionsCard
             pendingApprovals={data.stats.pendingTutorApprovals}
             reportedReviews={data.stats.reportedReviews}
             pendingPayouts={data.stats.pendingPayouts}
           />
+          <RecentSignupsCard signups={data.recentSignups} />
         </div>
       </div>
 
       {/* Recent activity grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+      {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
         <RecentSignupsCard signups={data.recentSignups} />
         <RecentLessonsCard lessons={data.recentLessons} />
       </div>
@@ -77,7 +81,7 @@ export default function AdminDashboard() {
         <div className="lg:col-span-3">
           <FlaggedItemsCard items={data.flaggedItems} />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

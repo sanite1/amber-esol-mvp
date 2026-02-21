@@ -7,7 +7,7 @@ import {
   AlertTriangle,
   DollarSign,
 } from "lucide-react";
-import type { AdminLessonsStats } from "../../../data/admin/adminLessonsData";
+import { AdminLessonsStats } from "../../../lib/types/adminLesson";
 
 interface Props {
   stats: AdminLessonsStats;

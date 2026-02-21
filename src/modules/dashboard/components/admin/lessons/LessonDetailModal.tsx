@@ -13,7 +13,7 @@ import {
   Loader2,
   ExternalLink,
 } from "lucide-react";
-import type { AdminLesson } from "../../../data/admin/adminLessonsData";
+import { AdminLesson } from "../../../lib/types/adminLesson";
 
 interface Props {
   lesson: AdminLesson;

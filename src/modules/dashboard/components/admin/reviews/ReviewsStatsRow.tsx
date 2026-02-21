@@ -7,7 +7,7 @@ import {
   Trash2,
   AlertTriangle,
 } from "lucide-react";
-import type { AdminReviewsStats } from "../../../data/admin/adminReviewsData";
+import { AdminReviewsStats } from "../../../lib/types/adminReview";
 
 interface Props {
   stats: AdminReviewsStats;

@@ -1,9 +1,12 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { Ticket } from "lucide-react";
 import {
-  adminTicketsData,
-  type AdminTicket,
-} from "../../data/admin/adminTicketsData";
+  useFetchAdminTickets,
+  useAdminReplyTicket,
+  useUpdateTicketStatus,
+  useUpdateTicketPriority,
+} from "../../lib/api/adminTickets";
+import type { AdminTicket } from "../../lib/types/adminTickets";
 import { TicketsPageSkeleton } from "../../components/admin/tickets/TicketsSkeleton";
 import TicketsStatsRow from "../../components/admin/tickets/TicketsStatsRow";
 import TicketsFilterBar, {
@@ -19,19 +22,9 @@ import TicketsPagination from "../../components/admin/tickets/TicketsPagination"
 
 const PER_PAGE = 8;
 
-const priorityOrder: Record<string, number> = {
-  urgent: 0,
-  high: 1,
-  medium: 2,
-  low: 3,
-};
-
 export default function AdminTickets() {
-  const [loading, setLoading] = useState(true);
-  const [tickets, setTickets] = useState<AdminTicket[]>([]);
-  const [stats, setStats] = useState(adminTicketsData.stats);
-
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<TicketStatusFilter>("all");
   const [categoryFilter, setCategoryFilter] =
     useState<TicketCategoryFilter>("all");
@@ -40,86 +33,21 @@ export default function AdminTickets() {
   const [userFilter, setUserFilter] = useState<TicketUserFilter>("all");
   const [sort, setSort] = useState<TicketSort>("newest");
   const [page, setPage] = useState(1);
-
   const [selectedTicket, setSelectedTicket] = useState<AdminTicket | null>(
     null
   );
 
+  // Debounce search
   useEffect(() => {
-    const t = setTimeout(() => {
-      setTickets(adminTicketsData.tickets);
-      setLoading(false);
-    }, 800);
+    const t = setTimeout(() => setDebouncedSearch(search), 400);
     return () => clearTimeout(t);
-  }, []);
+  }, [search]);
 
+  // Reset page on filter change
   useEffect(() => {
     setPage(1);
-  }, [search, statusFilter, categoryFilter, priorityFilter, userFilter, sort]);
-
-  // Process
-  const processed = useMemo(() => {
-    let result = [...tickets];
-
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (t) =>
-          t.subject.toLowerCase().includes(q) ||
-          t.submitterName.toLowerCase().includes(q) ||
-          t.submitterEmail.toLowerCase().includes(q) ||
-          t.id.toLowerCase().includes(q) ||
-          t.messages.some((m) => m.message.toLowerCase().includes(q))
-      );
-    }
-
-    if (statusFilter !== "all") {
-      result = result.filter((t) => t.status === statusFilter);
-    }
-
-    if (categoryFilter !== "all") {
-      result = result.filter((t) => t.category === categoryFilter);
-    }
-
-    if (priorityFilter !== "all") {
-      result = result.filter((t) => t.priority === priorityFilter);
-    }
-
-    if (userFilter !== "all") {
-      result = result.filter((t) => t.submitterType === userFilter);
-    }
-
-    switch (sort) {
-      case "newest":
-        result.sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        break;
-      case "oldest":
-        result.sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
-        break;
-      case "priority_high":
-        result.sort(
-          (a, b) =>
-            (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3)
-        );
-        break;
-      case "last_updated":
-        result.sort(
-          (a, b) =>
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-        );
-        break;
-    }
-
-    return result;
   }, [
-    tickets,
-    search,
+    debouncedSearch,
     statusFilter,
     categoryFilter,
     priorityFilter,
@@ -127,162 +55,121 @@ export default function AdminTickets() {
     sort,
   ]);
 
-  const totalPages = Math.ceil(processed.length / PER_PAGE);
-  const paginated = processed.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  // Fetch
+  const { data, isLoading } = useFetchAdminTickets({
+    page,
+    limit: PER_PAGE,
+    search: debouncedSearch || undefined,
+    status: statusFilter,
+    category: categoryFilter,
+    priority: priorityFilter,
+    submitterType: userFilter,
+    sort,
+  });
 
-  // ── Actions ──────────────────────────────────────────
+  const replyMutation = useAdminReplyTicket();
+  const statusMutation = useUpdateTicketStatus();
+  const priorityMutation = useUpdateTicketPriority();
+
+  const tickets = data?.data?.tickets || [];
+  const stats = data?.data?.stats || {
+    totalTickets: 0,
+    openTickets: 0,
+    inProgressTickets: 0,
+    awaitingUserTickets: 0,
+    resolvedTickets: 0,
+    closedTickets: 0,
+    avgResponseTimeHours: 0,
+    avgResolutionTimeHours: 0,
+    ticketsThisWeek: 0,
+    studentTickets: 0,
+    tutorTickets: 0,
+    urgentTickets: 0,
+  };
+  const pagination = data?.data?.pagination || {
+    page: 1,
+    limit: PER_PAGE,
+    total: 0,
+    totalPages: 1,
+  };
+
+  // ── Handlers ──
 
   function handleReply(ticketId: string, message: string) {
-    const newMessage = {
-      id: `msg-new-${Date.now()}`,
-      senderId: "admin-001",
-      senderName: "Admin",
-      senderType: "admin" as const,
-      message,
-      createdAt: new Date().toISOString(),
-    };
-
-    setTickets((prev) =>
-      prev.map((t) =>
-        t.id === ticketId
-          ? {
-              ...t,
-              messages: [...t.messages, newMessage],
-              updatedAt: new Date().toISOString(),
-              status: t.status === "open" ? ("in_progress" as const) : t.status,
-            }
-          : t
-      )
-    );
-
-    setSelectedTicket((prev) => {
-      if (!prev || prev.id !== ticketId) return prev;
-      return {
-        ...prev,
-        messages: [...prev.messages, newMessage],
-        updatedAt: new Date().toISOString(),
-        status: prev.status === "open" ? ("in_progress" as const) : prev.status,
-      };
-    });
-
-    // Update stats if status changed
-    setStats((prev) => {
-      const ticket = tickets.find((t) => t.id === ticketId);
-      if (ticket && ticket.status === "open") {
-        return {
-          ...prev,
-          openTickets: Math.max(0, prev.openTickets - 1),
-          inProgressTickets: prev.inProgressTickets + 1,
-        };
+    replyMutation.mutate(
+      { ticketId, message },
+      {
+        onSuccess: (res) => {
+          // Update selected ticket with new data
+          if (res.data) {
+            const updated = res.data as any;
+            setSelectedTicket((prev) => {
+              if (!prev || prev.id !== ticketId) return prev;
+              return {
+                ...prev,
+                messages: (updated.messages || []).map((m: any) => ({
+                  id: (m._id || m.id || "").toString(),
+                  senderId: m.senderId?.toString() || "",
+                  senderName: m.senderName,
+                  senderType: m.senderType,
+                  message: m.message,
+                  createdAt:
+                    m.createdAt instanceof Date
+                      ? m.createdAt.toISOString()
+                      : m.createdAt || new Date().toISOString(),
+                  attachments: m.attachments || [],
+                })),
+                status: updated.status || prev.status,
+                updatedAt: updated.updatedAt || new Date().toISOString(),
+              };
+            });
+          }
+        },
       }
-      return prev;
-    });
+    );
   }
 
   function handleChangeStatus(
     ticketId: string,
     newStatus: AdminTicket["status"]
   ) {
-    setTickets((prev) =>
-      prev.map((t) =>
-        t.id === ticketId
-          ? {
-              ...t,
+    statusMutation.mutate(
+      { ticketId, status: newStatus },
+      {
+        onSuccess: (res) => {
+          setSelectedTicket((prev) => {
+            if (!prev || prev.id !== ticketId) return prev;
+            return {
+              ...prev,
               status: newStatus,
               updatedAt: new Date().toISOString(),
-              resolvedAt:
-                newStatus === "resolved"
-                  ? new Date().toISOString()
-                  : newStatus === "closed"
-                    ? t.resolvedAt || new Date().toISOString()
-                    : undefined,
-            }
-          : t
-      )
+              resolvedAt: (res.data as any)?.resolvedAt || prev.resolvedAt,
+            };
+          });
+        },
+      }
     );
-
-    setSelectedTicket((prev) => {
-      if (!prev || prev.id !== ticketId) return prev;
-      return {
-        ...prev,
-        status: newStatus,
-        updatedAt: new Date().toISOString(),
-        resolvedAt:
-          newStatus === "resolved"
-            ? new Date().toISOString()
-            : newStatus === "closed"
-              ? prev.resolvedAt || new Date().toISOString()
-              : undefined,
-      };
-    });
-
-    // Recalculate stats
-    const ticket = tickets.find((t) => t.id === ticketId);
-    if (!ticket) return;
-    const oldStatus = ticket.status;
-
-    setStats((prev) => {
-      const updated = { ...prev };
-
-      // Decrement old
-      if (oldStatus === "open")
-        updated.openTickets = Math.max(0, updated.openTickets - 1);
-      if (oldStatus === "in_progress")
-        updated.inProgressTickets = Math.max(0, updated.inProgressTickets - 1);
-      if (oldStatus === "awaiting_user")
-        updated.awaitingUserTickets = Math.max(
-          0,
-          updated.awaitingUserTickets - 1
-        );
-      if (oldStatus === "resolved")
-        updated.resolvedTickets = Math.max(0, updated.resolvedTickets - 1);
-      if (oldStatus === "closed")
-        updated.closedTickets = Math.max(0, updated.closedTickets - 1);
-
-      // Increment new
-      if (newStatus === "open") updated.openTickets += 1;
-      if (newStatus === "in_progress") updated.inProgressTickets += 1;
-      if (newStatus === "awaiting_user") updated.awaitingUserTickets += 1;
-      if (newStatus === "resolved") updated.resolvedTickets += 1;
-      if (newStatus === "closed") updated.closedTickets += 1;
-
-      return updated;
-    });
   }
 
   function handleChangePriority(
     ticketId: string,
     newPriority: AdminTicket["priority"]
   ) {
-    const ticket = tickets.find((t) => t.id === ticketId);
-    const wasPriorityUrgent = ticket?.priority === "urgent";
-    const isNowUrgent = newPriority === "urgent";
-
-    setTickets((prev) =>
-      prev.map((t) =>
-        t.id === ticketId
-          ? { ...t, priority: newPriority, updatedAt: new Date().toISOString() }
-          : t
-      )
+    priorityMutation.mutate(
+      { ticketId, priority: newPriority },
+      {
+        onSuccess: () => {
+          setSelectedTicket((prev) => {
+            if (!prev || prev.id !== ticketId) return prev;
+            return {
+              ...prev,
+              priority: newPriority,
+              updatedAt: new Date().toISOString(),
+            };
+          });
+        },
+      }
     );
-
-    setSelectedTicket((prev) => {
-      if (!prev || prev.id !== ticketId) return prev;
-      return {
-        ...prev,
-        priority: newPriority,
-        updatedAt: new Date().toISOString(),
-      };
-    });
-
-    if (wasPriorityUrgent && !isNowUrgent) {
-      setStats((prev) => ({
-        ...prev,
-        urgentTickets: Math.max(0, prev.urgentTickets - 1),
-      }));
-    } else if (!wasPriorityUrgent && isNowUrgent) {
-      setStats((prev) => ({ ...prev, urgentTickets: prev.urgentTickets + 1 }));
-    }
   }
 
   return (
@@ -302,7 +189,7 @@ export default function AdminTickets() {
         </div>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <TicketsPageSkeleton />
       ) : (
         <>
@@ -321,12 +208,12 @@ export default function AdminTickets() {
             onUserChange={setUserFilter}
             sort={sort}
             onSortChange={setSort}
-            totalCount={processed.length}
+            totalCount={pagination.total}
           />
 
-          {paginated.length > 0 ? (
+          {tickets.length > 0 ? (
             <div className="space-y-2.5 sm:space-y-3">
-              {paginated.map((ticket) => (
+              {tickets.map((ticket) => (
                 <TicketCard
                   key={ticket.id}
                   ticket={ticket}
@@ -350,7 +237,7 @@ export default function AdminTickets() {
 
           <TicketsPagination
             currentPage={page}
-            totalPages={totalPages}
+            totalPages={pagination.totalPages}
             onPageChange={setPage}
           />
         </>

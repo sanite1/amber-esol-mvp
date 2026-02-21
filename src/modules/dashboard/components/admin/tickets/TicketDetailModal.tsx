@@ -12,12 +12,12 @@ import {
 import type {
   AdminTicket,
   TicketMessage,
-} from "../../../data/admin/adminTicketsData";
+} from "../../../lib/types/adminTickets";
 import {
   categoryLabels,
   priorityConfig,
   statusConfig,
-} from "../../../data/admin/adminTicketsData";
+} from "../../../lib/types/adminTickets";
 
 interface Props {
   ticket: AdminTicket;

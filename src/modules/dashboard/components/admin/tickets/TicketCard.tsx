@@ -1,11 +1,11 @@
 import React from "react";
 import { MessageSquare, Paperclip, User, GraduationCap } from "lucide-react";
-import type { AdminTicket } from "../../../data/admin/adminTicketsData";
+import type { AdminTicket } from "../../../lib/types/adminTickets";
 import {
   categoryLabels,
   priorityConfig,
   statusConfig,
-} from "../../../data/admin/adminTicketsData";
+} from "../../../lib/types/adminTickets";
 
 interface Props {
   ticket: AdminTicket;

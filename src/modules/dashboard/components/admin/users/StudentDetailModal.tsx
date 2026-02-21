@@ -10,7 +10,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useState } from "react";
-import type { AdminStudent } from "../../../data/admin/adminUsersData";
+import type { AdminStudent } from "../../../lib/types/adminStudents";
 
 interface Props {
   student: AdminStudent;
@@ -48,7 +48,7 @@ export default function StudentDetailModal({
   const handleStatusChange = async (newStatus: AdminStudent["status"]) => {
     setProcessing(true);
     await new Promise((r) => setTimeout(r, 600));
-    onUpdateStatus(student.id, newStatus);
+    await onUpdateStatus(student.id, newStatus);
     setProcessing(false);
     setConfirmBan(false);
   };
@@ -215,6 +215,7 @@ export default function StudentDetailModal({
                   disabled={processing}
                   className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#0B2343]/[0.04] text-[#0B2343]/50 text-xs font-medium hover:bg-[#0B2343]/[0.08] disabled:opacity-40 transition-colors"
                 >
+                  {processing && <Loader2 size={11} className="animate-spin" />}
                   Deactivate
                 </button>
               )}

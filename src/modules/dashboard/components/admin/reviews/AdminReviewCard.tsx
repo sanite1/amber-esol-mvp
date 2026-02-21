@@ -6,7 +6,7 @@ import {
   ThumbsUp,
   Zap,
 } from "lucide-react";
-import type { AdminReview } from "../../../data/admin/adminReviewsData";
+import { AdminReview } from "../../../lib/types/adminReview";
 
 interface Props {
   review: AdminReview;

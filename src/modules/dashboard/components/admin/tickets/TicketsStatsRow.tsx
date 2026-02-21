@@ -7,7 +7,7 @@ import {
   CheckCircle,
   AlertTriangle,
 } from "lucide-react";
-import type { AdminTicketsStats } from "../../../data/admin/adminTicketsData";
+import type { AdminTicketsStats } from "../../../lib/types/adminTickets";
 
 interface Props {
   stats: AdminTicketsStats;
