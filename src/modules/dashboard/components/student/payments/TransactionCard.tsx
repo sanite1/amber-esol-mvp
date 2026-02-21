@@ -55,9 +55,13 @@ export default function TransactionCard({ transaction: txn }: Props) {
                   : undefined,
             });
 
-  const upcomingSessions = txn.sessions.filter(
-    (s) => new Date(s.date) >= now
-  ).length;
+  const upcomingSessions = txn.sessions.filter((s) => {
+    const sDate = new Date(s.date);
+    const [eH, eM] = s.endTime.split(":").map(Number);
+    const sEnd = new Date(sDate);
+    sEnd.setHours(eH, eM, 0, 0);
+    return sEnd >= now;
+  }).length;
   const completedSessions = txn.sessions.length - upcomingSessions;
 
   return (
@@ -232,7 +236,10 @@ export default function TransactionCard({ transaction: txn }: Props) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2">
                 {txn.sessions.map((session, i) => {
                   const sessionDate = new Date(session.date);
-                  const isPast = sessionDate < now;
+                  const [endH, endM] = session.endTime.split(":").map(Number);
+                  const sessionEnd = new Date(sessionDate);
+                  sessionEnd.setHours(endH, endM, 0, 0);
+                  const isPast = sessionEnd < now;
                   return (
                     <div
                       key={i}
@@ -278,7 +285,7 @@ export default function TransactionCard({ transaction: txn }: Props) {
             {/* Footer */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-3 border-t border-[#0B2343]/[0.04]">
               <Link
-                to={`/tutors/${txn.tutorSlug}`}
+                to={`/tutors/${txn.id}`}
                 className="flex items-center gap-1.5 text-[11px] sm:text-xs text-[#ff7c22] hover:underline"
               >
                 <User size={12} />

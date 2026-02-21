@@ -96,6 +96,7 @@ function apiTransactionToEarning(tx: Transaction): EarningEntry {
       student?._id ?? (typeof tx.studentId === "string" ? tx.studentId : ""),
     studentCountry: undefined,
     studentCountryCode: undefined,
+    createdAt: tx.createdAt,
     lessonDate: booking?.date
       ? `${booking.date}T${booking.startTime ?? "00:00"}:00Z`
       : tx.createdAt,
@@ -332,27 +333,6 @@ export default function TutorEarnings() {
           e.lessonTopic?.toLowerCase().includes(q) ||
           e.payoutId?.toLowerCase().includes(q)
       );
-    }
-
-    switch (sort) {
-      case "newest":
-        list.sort(
-          (a, b) =>
-            new Date(b.lessonDate).getTime() - new Date(a.lessonDate).getTime()
-        );
-        break;
-      case "oldest":
-        list.sort(
-          (a, b) =>
-            new Date(a.lessonDate).getTime() - new Date(b.lessonDate).getTime()
-        );
-        break;
-      case "highest":
-        list.sort((a, b) => b.amount - a.amount);
-        break;
-      case "lowest":
-        list.sort((a, b) => a.amount - b.amount);
-        break;
     }
 
     return list;

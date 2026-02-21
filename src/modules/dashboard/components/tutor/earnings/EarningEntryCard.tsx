@@ -39,19 +39,31 @@ export default function EarningEntryCard({ entry, onViewDetails }: Props) {
     .map((n) => n[0])
     .join("");
 
-  const lessonDate = new Date(entry.lessonDate);
-  const diffDays = Math.floor((Date.now() - lessonDate.getTime()) / 86400000);
+  const createdAt = new Date(entry.createdAt);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const createdDay = new Date(createdAt);
+  createdDay.setHours(0, 0, 0, 0);
+
+  const diffDays = Math.round(
+    (createdDay.getTime() - today.getTime()) / 86400000
+  );
+
   const dateLabel =
     diffDays === 0
       ? "Today"
-      : diffDays === 1
+      : diffDays === -1
         ? "Yesterday"
-        : diffDays < 7
-          ? `${diffDays}d ago`
-          : lessonDate.toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "short",
-            });
+        : diffDays === 1
+          ? "Tomorrow"
+          : diffDays > 1 && diffDays < 7
+            ? `In ${diffDays} days`
+            : diffDays < -1 && diffDays > -7
+              ? `${Math.abs(diffDays)}d ago`
+              : createdAt.toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "short",
+                });
 
   return (
     <button

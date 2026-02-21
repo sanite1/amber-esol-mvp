@@ -52,13 +52,6 @@ function formatLessonDate(dateStr: string): string {
   });
 }
 
-function isUpcoming(lesson: Lesson): boolean {
-  return (
-    (lesson.status === "confirmed" || lesson.status === "pending") &&
-    new Date(lesson.date) >= new Date(new Date().toDateString())
-  );
-}
-
 function isJoinable(lesson: Lesson): boolean {
   if (lesson.status !== "confirmed" || !lesson.meetingUrl) return false;
   const lessonDate = new Date(lesson.date);
@@ -73,7 +66,12 @@ function isJoinable(lesson: Lesson): boolean {
 export default function LessonCard({ lesson, onCancel, onReview }: Props) {
   const [expanded, setExpanded] = useState(false);
   const status = statusConfig[lesson.status];
-  const upcoming = isUpcoming(lesson);
+  const upcoming = (() => {
+    if (!["confirmed", "pending"].includes(lesson.status)) return false;
+    const now = new Date();
+    const lessonStart = new Date(`${lesson.date}T${lesson.startTime}`);
+    return lessonStart > now;
+  })();
   const joinable = isJoinable(lesson);
 
   return (
@@ -88,7 +86,7 @@ export default function LessonCard({ lesson, onCancel, onReview }: Props) {
       <div className="p-4 sm:p-5">
         <div className="flex items-start gap-3.5">
           {/* Avatar */}
-          <Link to={`/tutors/${lesson.tutorSlug}`} className="shrink-0">
+          <Link to={`/tutors/${lesson.id}`} className="shrink-0">
             <img
               src={lesson.tutorAvatar}
               alt={lesson.tutorName}
@@ -100,7 +98,7 @@ export default function LessonCard({ lesson, onCancel, onReview }: Props) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <Link
-                to={`/tutors/${lesson.tutorSlug}`}
+                to={`/tutors/${lesson.id}`}
                 className="text-sm font-bold text-[#0B2343] hover:text-[#ff7c22] transition-colors"
               >
                 {lesson.tutorName}
@@ -158,20 +156,16 @@ export default function LessonCard({ lesson, onCancel, onReview }: Props) {
 
           {/* Actions */}
           <div className="flex items-center gap-2 ml-auto">
-            {/* Join button */}
-            {upcoming && lesson.meetingUrl && (
+            {/* Join button — only visible within the joinable time window */}
+            {joinable && (
               <a
-                href={lesson.meetingUrl}
+                href={lesson.meetingUrl!}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                  joinable
-                    ? "bg-[#ff7c22] text-white hover:bg-[#e56a10]"
-                    : "bg-[#ff7c22]/10 text-[#ff7c22]"
-                }`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#ff7c22] text-white hover:bg-[#e56a10] transition-colors"
               >
                 <Video size={12} />
-                {joinable ? "Join Now" : "Join"}
+                Join Now
               </a>
             )}
 
