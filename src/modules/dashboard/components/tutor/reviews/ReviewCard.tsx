@@ -12,6 +12,7 @@ import {
   Trash2,
   Check,
   AlertCircle,
+  AlertTriangle,
 } from "lucide-react";
 import type { TutorReview } from "../../../data/tutor/tutorReviewsData";
 
@@ -20,7 +21,8 @@ interface Props {
   onReply: (reviewId: string, text: string) => void;
   onEditReply: (reviewId: string, replyId: string, text: string) => void;
   onDeleteReply: (reviewId: string, replyId: string) => void;
-  onReport: (reviewId: string) => void;
+  onReport: (reviewId: string, reason: string) => void;
+  isReporting?: boolean;
 }
 
 export default function ReviewCard({
@@ -29,6 +31,7 @@ export default function ReviewCard({
   onEditReply,
   onDeleteReply,
   onReport,
+  isReporting = false,
 }: Props) {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyText, setReplyText] = useState("");
@@ -39,7 +42,8 @@ export default function ReviewCard({
   const [editReplyText, setEditReplyText] = useState("");
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState("");
-
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -131,9 +135,24 @@ export default function ReviewCard({
   };
 
   /* ── Report handler ── */
-  const handleReport = () => {
-    onReport(review.id);
+  const handleSubmitReport = () => {
+    if (!reportReason.trim()) return;
+    onReport(review.id, reportReason.trim());
   };
+
+  // Close modal when report succeeds (isReporting goes from true → false)
+  // We track this with a simple effect-like pattern
+  const [wasReporting, setWasReporting] = useState(false);
+  if (isReporting && !wasReporting) {
+    setWasReporting(true);
+  }
+  if (!isReporting && wasReporting) {
+    setWasReporting(false);
+    if (showReportModal) {
+      setShowReportModal(false);
+      setReportReason("");
+    }
+  }
 
   return (
     <div className="bg-white rounded-xl border border-[#0B2343]/[0.06] hover:border-[#0B2343]/[0.1] transition-colors">
@@ -245,7 +264,7 @@ export default function ReviewCard({
               {/* Report */}
               {!review.reported ? (
                 <button
-                  onClick={handleReport}
+                  onClick={() => setShowReportModal(true)}
                   className="flex items-center gap-1 text-[10px] sm:text-[11px] text-[#0B2343]/20 hover:text-red-400 transition-colors ml-auto"
                 >
                   <Flag size={10} />
@@ -441,6 +460,103 @@ export default function ReviewCard({
                   </div>
                 </>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* ── Report Confirmation Modal ── */}
+        {showReportModal && (
+          <div
+            className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!isReporting) {
+                setShowReportModal(false);
+                setReportReason("");
+              }
+            }}
+          >
+            <div className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm" />
+            <div
+              className="relative z-[10000] w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06]">
+                <h3 className="text-sm sm:text-[15px] font-semibold text-[#0B2343] flex items-center gap-2">
+                  <AlertTriangle size={16} className="text-red-500" />
+                  Report this review
+                </h3>
+                <button
+                  onClick={() => {
+                    if (!isReporting) {
+                      setShowReportModal(false);
+                      setReportReason("");
+                    }
+                  }}
+                  disabled={isReporting}
+                  className="p-1.5 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors disabled:opacity-50"
+                >
+                  <X size={16} className="text-[#0B2343]/30" />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="px-4 py-4 sm:px-5 sm:py-5 space-y-4">
+                <p className="text-xs sm:text-[13px] text-[#0B2343]/50 leading-relaxed">
+                  Are you sure you want to report this review from{" "}
+                  <span className="font-semibold text-[#0B2343]">
+                    {review.studentName}
+                  </span>
+                  ? This will flag it for admin review.
+                </p>
+                <div>
+                  <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 mb-1.5 block">
+                    Reason for reporting
+                  </label>
+                  <textarea
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    placeholder="Describe the issue (e.g., inappropriate language, false information, spam)..."
+                    rows={3}
+                    disabled={isReporting}
+                    className="w-full px-3 py-2.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-red-300 focus:bg-white transition-colors resize-none disabled:opacity-50"
+                  />
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    if (!isReporting) {
+                      setShowReportModal(false);
+                      setReportReason("");
+                    }
+                  }}
+                  disabled={isReporting}
+                  className="flex-1 py-2.5 rounded-xl bg-[#0B2343]/[0.04] text-xs sm:text-[13px] font-medium text-[#0B2343]/50 hover:bg-[#0B2343]/[0.08] transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmitReport}
+                  disabled={!reportReason.trim() || isReporting}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-red-600 text-white text-xs sm:text-[13px] font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
+                >
+                  {isReporting ? (
+                    <>
+                      <Loader2 size={13} className="animate-spin" />
+                      Reporting…
+                    </>
+                  ) : (
+                    <>
+                      <Flag size={13} />
+                      Report Review
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}

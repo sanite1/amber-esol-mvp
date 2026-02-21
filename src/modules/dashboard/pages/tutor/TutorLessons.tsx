@@ -93,6 +93,8 @@ function bookingToTutorLesson(b: Booking): TutorLesson {
     //   ? { reason: b.cancelReason, cancelledBy: b.cancelledBy ?? "student" }
     //   : undefined,
     materials: [],
+    cancelledBy: b.cancelledBy ?? undefined,
+    cancellationReason: b.cancelReason ?? undefined,
 
     timezone: b.timezone,
     currency: b.currency,

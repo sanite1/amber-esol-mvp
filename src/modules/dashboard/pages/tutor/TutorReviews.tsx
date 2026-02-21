@@ -311,10 +311,10 @@ export default function TutorReviews() {
     deleteReplyMutation.mutate(reviewId);
   };
 
-  const handleReport = (reviewId: string) => {
+  const handleReport = (reviewId: string, reason: string) => {
     reportMutation.mutate({
       id: reviewId,
-      payload: { reason: "Reported by tutor from reviews page" },
+      payload: { reason },
     });
   };
 
@@ -365,6 +365,7 @@ export default function TutorReviews() {
         onEditReply={handleEditReply}
         onDeleteReply={handleDeleteReply}
         onReport={handleReport}
+        isReporting={reportMutation.isPending}
       />
 
       {/* Pagination */}

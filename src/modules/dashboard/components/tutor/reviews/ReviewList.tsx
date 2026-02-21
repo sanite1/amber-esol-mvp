@@ -7,7 +7,8 @@ interface Props {
   onReply: (reviewId: string, text: string) => void;
   onEditReply: (reviewId: string, replyId: string, text: string) => void;
   onDeleteReply: (reviewId: string, replyId: string) => void;
-  onReport: (reviewId: string) => void;
+  onReport: (reviewId: string, reason: string) => void;
+  isReporting?: boolean;
 }
 
 export default function ReviewList({
@@ -16,6 +17,7 @@ export default function ReviewList({
   onEditReply,
   onDeleteReply,
   onReport,
+  isReporting = false,
 }: Props) {
   if (reviews.length === 0) {
     return (
@@ -41,6 +43,7 @@ export default function ReviewList({
           onEditReply={onEditReply}
           onDeleteReply={onDeleteReply}
           onReport={onReport}
+          isReporting={isReporting}
         />
       ))}
     </div>

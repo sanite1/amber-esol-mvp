@@ -102,8 +102,8 @@ function bookingToLesson(b: Booking): Lesson {
     notes: b.notes ?? null,
     cancelledBy: b.cancelledBy ?? null,
     cancelReason: b.cancelReason ?? null,
-    hasReview: false, // TODO: wire up when review endpoint exists
-    review: null,
+    hasReview: b.hasReview ?? false,
+    review: b.review ?? null,
     materials: [],
     createdAt: b.createdAt,
   };

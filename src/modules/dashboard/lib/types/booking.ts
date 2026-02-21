@@ -73,6 +73,12 @@ export interface Booking {
   specialty?: string;
   notes?: string;
   message?: string;
+  review?: {
+    rating: number;
+    comment: string;
+    date: string;
+  } | null;
+  hasReview?: boolean;
 
   meetingUrl?: string;
   calendarEventId?: string;
