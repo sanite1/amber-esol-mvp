@@ -54,7 +54,7 @@ export default function TutorCard({
         {/* ── Row 1: Avatar + Info + Rating/Fav ── */}
         <div className="flex items-start gap-3.5">
           {/* Avatar */}
-          <Link to={`/tutors/${tutor.slug}`} className="relative shrink-0">
+          <Link to={`/tutors/${tutor.id}`} className="relative shrink-0">
             <img
               src={tutor.avatar || ""}
               alt={tutor.name}
@@ -69,7 +69,7 @@ export default function TutorCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
               <Link
-                to={`/tutors/${tutor.slug}`}
+                to={`/tutors/${tutor.id}`}
                 className="text-md font-bold text-[#0B2343] hover:text-[#ff7c22] transition-colors truncate"
               >
                 {tutor.name}
