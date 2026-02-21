@@ -316,8 +316,6 @@ export default function TutorEarnings() {
     setPayoutSettings(settings);
     // TODO: replace with API call when a payout-settings endpoint is added
   };
-
-  /* ── Filtering / sorting ── */
   const processed = useMemo(() => {
     let list = [...allEarnings];
 
@@ -336,7 +334,7 @@ export default function TutorEarnings() {
     }
 
     return list;
-  }, [allEarnings, search, statusFilter, sort]);
+  }, [allEarnings, search, statusFilter]);
 
   const totalPages = Math.ceil(processed.length / PER_PAGE);
   const paginated = processed.slice((page - 1) * PER_PAGE, page * PER_PAGE);
