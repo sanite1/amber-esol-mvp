@@ -13,7 +13,6 @@ import {
   UserX,
   Globe,
   CreditCard,
-  Hash,
   MessageSquare,
   CalendarClock,
   GraduationCap,
