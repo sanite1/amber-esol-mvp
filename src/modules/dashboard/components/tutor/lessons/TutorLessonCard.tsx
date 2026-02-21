@@ -681,8 +681,8 @@ export default function TutorLessonCard({
                 ) : (
                   <p className="text-xs text-[#0B2343]/30">
                     {isPending
-                      ? "A meeting link will be generated when you confirm this booking."
-                      : "No meeting link set. Click 'Add link' to add one."}
+                      ? "Add your Zoom or Google Meet link after confirming this booking."
+                      : "No meeting link yet. Add your Zoom or Google Meet link so your student can join."}
                   </p>
                 )}
               </div>
