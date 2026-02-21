@@ -25,6 +25,8 @@ import {
   Loader2,
 } from "lucide-react";
 import type { TutorLesson } from "../../../data/tutor/tutorLessonsData";
+import { useUpdateMeetingUrl } from "../../../lib/api/booking";
+import { Link2, Pencil, ExternalLink } from "lucide-react";
 
 interface Props {
   lesson: TutorLesson;
@@ -93,6 +95,11 @@ export default function TutorLessonCard({
   const [isDeclining, setIsDeclining] = useState(false);
   const [declineReason, setDeclineReason] = useState("");
   const [showDeclineInput, setShowDeclineInput] = useState(false);
+  const [editingMeetingUrl, setEditingMeetingUrl] = useState(false);
+  const [meetingUrlInput, setMeetingUrlInput] = useState(
+    lesson.meetingUrl || ""
+  );
+  const updateMeetingUrlMutation = useUpdateMeetingUrl();
 
   const isPending = lesson.originalStatus === "pending";
   const status =
@@ -146,6 +153,19 @@ export default function TutorLessonCard({
     } else {
       setShowDeclineInput(true);
     }
+  };
+
+  const handleSaveMeetingUrl = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!meetingUrlInput.trim()) return;
+    updateMeetingUrlMutation.mutate(
+      { id: lesson.id, meetingUrl: meetingUrlInput.trim() },
+      {
+        onSuccess: () => {
+          setEditingMeetingUrl(false);
+        },
+      }
+    );
   };
 
   const isProcessing = isAccepting || isDeclining;
@@ -571,11 +591,100 @@ export default function TutorLessonCard({
                     {payment.label}
                   </span>
                 </div>
-                {lesson.stripeCheckoutSessionId && (
+                {/* {lesson.stripeCheckoutSessionId && (
                   <span className="flex items-center gap-1 text-[11px] text-[#0B2343]/35 font-mono">
                     <Hash size={10} />
                     {lesson.stripeCheckoutSessionId.slice(0, 24)}…
                   </span>
+                )} */}
+              </div>
+            )}
+            {/* Meeting link (tutor can view / edit) */}
+            {(lesson.status === "upcoming" ||
+              lesson.originalStatus === "confirmed") && (
+              <div className="p-3 rounded-lg bg-[#0B2343]/[0.02] border border-[#0B2343]/[0.06]">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Link2 size={14} className="text-[#0B2343]/40" />
+                    <p className="text-xs font-semibold text-[#0B2343]/60">
+                      Meeting Link
+                    </p>
+                  </div>
+                  {!editingMeetingUrl && !isPending && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMeetingUrlInput(lesson.meetingUrl || "");
+                        setEditingMeetingUrl(true);
+                      }}
+                      className="flex items-center gap-1 text-[11px] font-medium text-[#ff7c22] hover:underline"
+                    >
+                      <Pencil size={10} />
+                      {lesson.meetingUrl ? "Change" : "Add link"}
+                    </button>
+                  )}
+                </div>
+
+                {editingMeetingUrl ? (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="url"
+                      value={meetingUrlInput}
+                      onChange={(e) => setMeetingUrlInput(e.target.value)}
+                      placeholder="https://zoom.us/j/... or https://meet.google.com/..."
+                      className="w-full rounded-lg border border-[#0B2343]/10 bg-white p-2.5 text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/40 transition-colors"
+                    />
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        onClick={handleSaveMeetingUrl}
+                        disabled={
+                          !meetingUrlInput.trim() ||
+                          updateMeetingUrlMutation.isPending
+                        }
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#ff7c22] text-white text-xs font-semibold hover:bg-[#e56a10] disabled:opacity-50 transition-colors"
+                      >
+                        {updateMeetingUrlMutation.isPending ? (
+                          <Loader2 size={11} className="animate-spin" />
+                        ) : (
+                          <Check size={11} />
+                        )}
+                        Save
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingMeetingUrl(false);
+                          setMeetingUrlInput(lesson.meetingUrl || "");
+                        }}
+                        className="px-3 py-1.5 rounded-lg border border-[#0B2343]/10 text-xs text-[#0B2343]/50 hover:bg-[#0B2343]/[0.03] transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-[#0B2343]/30 mt-2">
+                      Paste your own Zoom, Google Meet, or Teams link to
+                      override the auto-generated room.
+                    </p>
+                  </div>
+                ) : lesson.meetingUrl ? (
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={lesson.meetingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-xs text-[#ff7c22] hover:underline truncate flex items-center gap-1"
+                    >
+                      {lesson.meetingUrl}
+                      <ExternalLink size={10} className="shrink-0" />
+                    </a>
+                  </div>
+                ) : (
+                  <p className="text-xs text-[#0B2343]/30">
+                    {isPending
+                      ? "A meeting link will be generated when you confirm this booking."
+                      : "No meeting link set. Click 'Add link' to add one."}
+                  </p>
                 )}
               </div>
             )}

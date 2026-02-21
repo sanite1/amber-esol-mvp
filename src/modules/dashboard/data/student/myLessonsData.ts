@@ -37,7 +37,12 @@ export interface Lesson {
   createdAt: string;
 }
 
-export type LessonFilter = "all" | "upcoming" | "completed" | "cancelled";
+export type LessonFilter =
+  | "all"
+  | "pending"
+  | "upcoming"
+  | "completed"
+  | "cancelled";
 export type LessonSort = "date_desc" | "date_asc" | "tutor" | "price";
 
 export interface LessonStats {

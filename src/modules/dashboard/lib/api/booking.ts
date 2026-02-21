@@ -391,3 +391,50 @@ export const useNoShowBooking = () => {
     },
   });
 };
+
+/* ═══════════════════════════════════════════════
+   UPDATE MEETING URL (tutor)
+   PATCH /api/bookings/:id/meeting-url
+   ═══════════════════════════════════════════════ */
+
+export const updateMeetingUrl = async (
+  id: string,
+  meetingUrl: string
+): Promise<ApiResponse<Booking>> => {
+  const res = await api.patch<ApiResponse<Booking>>(
+    `/bookings/${id}/meeting-url`,
+    { meetingUrl }
+  );
+  return res;
+};
+
+export const useUpdateMeetingUrl = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    ApiResponse<Booking>,
+    ApiError,
+    { id: string; meetingUrl: string }
+  >({
+    mutationFn: ({ id, meetingUrl }) => updateMeetingUrl(id, meetingUrl),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["upcomingBookings"] });
+      queryClient.invalidateQueries({ queryKey: ["booking"] });
+      queryClient.invalidateQueries({ queryKey: ["tutorDashboard"] });
+
+      toast.success("Meeting Link Updated", {
+        description:
+          response.message || "The meeting link has been updated successfully.",
+      });
+    },
+    onError: (error: ApiError) => {
+      toast.error("Update Failed", {
+        description: getErrorMessage(
+          error,
+          "Failed to update meeting link. Please check the URL and try again."
+        ),
+      });
+    },
+  });
+};

@@ -180,8 +180,11 @@ export default function MyLessons() {
 
     // Status filter
     switch (activeFilter) {
-      case "upcoming":
+      case "pending":
         filters.status = "pending";
+        break;
+      case "upcoming":
+        filters.status = "confirmed";
         break;
       case "completed":
         filters.status = "completed";

@@ -44,7 +44,7 @@ export default function RecommendedTutors({ tutors }: Props) {
           {tutors.map((tutor) => (
             <Link
               key={tutor.id}
-              to={`/tutors/${tutor.slug}`}
+              to={`/tutors/${tutor.id}`}
               className="group p-4 rounded-lg border border-[#0B2343]/[0.04] hover:border-[#ff7c22]/20 hover:bg-[#ff7c22]/[0.01] transition-all text-center"
             >
               <img

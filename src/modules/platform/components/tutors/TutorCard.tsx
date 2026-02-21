@@ -9,7 +9,7 @@ interface Props {
 export default function TutorCard({ tutor }: Props) {
   return (
     <Link
-      to={`/tutors/${tutor.slug}`}
+      to={`/tutors/${tutor.id}`}
       className="group block bg-white rounded-2xl border border-[#0B2343]/[0.06] overflow-hidden hover:border-[#ff7c22]/20 hover:shadow-[0_8px_30px_rgba(255,124,34,0.06)] transition-all duration-300"
     >
       {/* Top row */}

@@ -19,6 +19,7 @@ interface Props {
 
 const filterTabs: { value: FilterType; label: string }[] = [
   { value: "all", label: "All" },
+  { value: "pending", label: "Pending" },
   { value: "upcoming", label: "Upcoming" },
   { value: "completed", label: "Completed" },
   { value: "cancelled", label: "Cancelled" },

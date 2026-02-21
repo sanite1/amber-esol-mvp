@@ -42,7 +42,7 @@ export default function TutorDetail() {
         </div>
       </div>
 
-      <SimilarTutors tutors={tutors} currentSlug={tutor.slug} />
+      <SimilarTutors tutors={tutors} currentSlug={tutor.id} />
     </div>
   );
 }

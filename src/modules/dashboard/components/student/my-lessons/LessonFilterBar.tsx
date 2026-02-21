@@ -16,6 +16,7 @@ interface Props {
 
 const filters: { value: LessonFilter; label: string }[] = [
   { value: "all", label: "All" },
+  { value: "pending", label: "Pending" },
   { value: "upcoming", label: "Upcoming" },
   { value: "completed", label: "Completed" },
   { value: "cancelled", label: "Cancelled" },

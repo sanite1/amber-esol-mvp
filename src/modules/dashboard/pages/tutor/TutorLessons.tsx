@@ -130,8 +130,10 @@ function mapFilterToApiStatus(
   filter: FilterType
 ): BookingFilters["status"] | undefined {
   switch (filter) {
-    case "upcoming":
+    case "pending":
       return "pending";
+    case "upcoming":
+      return "confirmed";
     case "completed":
       return "completed";
     case "cancelled":

@@ -2,6 +2,7 @@
 
 export type TutorLessonStatus =
   | "upcoming"
+  | "pending"
   | "completed"
   | "cancelled"
   | "no_show";
