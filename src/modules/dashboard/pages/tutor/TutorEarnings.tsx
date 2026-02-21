@@ -212,7 +212,7 @@ export default function TutorEarnings() {
     method: "bank_transfer",
     bankName: "Barclays",
     accountLast4: "7842",
-    minPayout: 50,
+    minPayout: 20,
     autoPayout: true,
     autoPayoutDay: 1,
   });

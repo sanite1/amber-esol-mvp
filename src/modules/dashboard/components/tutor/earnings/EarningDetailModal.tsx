@@ -77,14 +77,14 @@ export default function EarningDetailModal({ entry, onClose }: Props) {
               <p className="text-[13px] font-semibold text-[#0B2343] truncate">
                 {entry.studentName}
               </p>
-              <p className="text-[11px] text-[#0B2343]/30">
+              {/* <p className="text-[11px] text-[#0B2343]/30">
                 {[entry.studentCountry, entry.studentCountryCode]
                   .filter(Boolean)
                   .join(" · ") || "—"}
-              </p>
+              </p> */}
             </div>
             <Link
-              to={`/tutor/students/${entry.studentId}`}
+              to={"/tutor/students"}
               onClick={onClose}
               className="text-[10px] sm:text-[11px] font-medium text-[#ff7c22] hover:underline shrink-0"
             >

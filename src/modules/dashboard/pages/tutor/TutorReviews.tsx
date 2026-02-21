@@ -35,6 +35,7 @@ import ReviewsFilter, {
 } from "../../components/tutor/reviews/ReviewsFilter";
 import ReviewList from "../../components/tutor/reviews/ReviewList";
 import ReviewsPagination from "../../components/tutor/reviews/ReviewsPagination";
+import { getDecodedJwt } from "../../lib/auth";
 
 const PER_PAGE = 6;
 
@@ -159,8 +160,8 @@ const sortMap: Record<ReviewSortOption, ReviewFilters["sort"]> = {
    ══════════════════════════════════════════════ */
 
 export default function TutorReviews() {
-  // Get current user's tutor ID from localStorage
-  const userId = localStorage.getItem("userId") ?? "";
+  const decoded = getDecodedJwt();
+  const userId = decoded?.id ?? "";
 
   /* ── Filter / pagination state ── */
   const [search, setSearch] = useState("");

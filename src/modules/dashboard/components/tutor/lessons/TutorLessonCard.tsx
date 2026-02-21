@@ -22,9 +22,13 @@ import {
   Check,
   X,
   Loader2,
+  CheckCircle2,
 } from "lucide-react";
 import type { TutorLesson } from "../../../data/tutor/tutorLessonsData";
-import { useUpdateMeetingUrl } from "../../../lib/api/booking";
+import {
+  useCompleteBooking,
+  useUpdateMeetingUrl,
+} from "../../../lib/api/booking";
 import { Link2, Pencil, ExternalLink } from "lucide-react";
 
 interface Props {
@@ -99,6 +103,7 @@ export default function TutorLessonCard({
     lesson.meetingUrl || ""
   );
   const updateMeetingUrlMutation = useUpdateMeetingUrl();
+  const completeBooking = useCompleteBooking();
 
   const isPending = lesson.originalStatus === "pending";
   const status =
@@ -133,6 +138,13 @@ export default function TutorLessonCard({
     ld.setHours(h, m, 0, 0);
     const diff = (ld.getTime() - now.getTime()) / 60000;
     return diff <= 15 && diff >= -60;
+  })();
+
+  const isCompletable = (() => {
+    if (lesson.status !== "upcoming") return false;
+    const now = new Date();
+    const lessonEnd = new Date(`${lesson.date}T${lesson.endTime}`);
+    return lessonEnd < now;
   })();
 
   const handleAccept = async (e: React.MouseEvent) => {
@@ -284,6 +296,20 @@ export default function TutorLessonCard({
               Join
             </a>
           )}
+          {isCompletable && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                completeBooking.mutate(lesson.id);
+              }}
+              disabled={completeBooking.isPending}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition-colors disabled:opacity-50"
+            >
+              <CheckCircle2 size={12} />
+              {completeBooking.isPending ? "Completing..." : "Mark Complete"}
+            </button>
+          )}
+
           <ChevronDown
             size={16}
             className={`text-[#0B2343]/30 transition-transform ${expanded ? "rotate-180" : ""}`}
