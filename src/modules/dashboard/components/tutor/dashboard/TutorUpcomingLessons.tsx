@@ -25,11 +25,21 @@ export default function TutorUpcomingLessons({ lessons }: Props) {
 
   const isJoinable = (lesson: TutorDashboardLesson) => {
     if (!lesson.meetingUrl) return false;
-    const lessonDate = new Date(lesson.date);
-    const [h, m] = lesson.startTime.split(":").map(Number);
-    lessonDate.setHours(h, m, 0, 0);
-    const diffMin = (lessonDate.getTime() - now.getTime()) / 60000;
-    return diffMin <= 15 && diffMin >= -60;
+
+    const lessonDate = new Date(lesson.date + "T00:00:00");
+    const [sh, sm] = lesson.startTime.split(":").map(Number);
+    const [eh, em] = lesson.endTime.split(":").map(Number);
+
+    const start = new Date(lessonDate);
+    start.setHours(sh, sm, 0, 0);
+
+    const end = new Date(lessonDate);
+    end.setHours(eh, em, 0, 0);
+
+    const nowMs = now.getTime();
+
+    // Joinable: from 15 min before start until the lesson ends
+    return nowMs >= start.getTime() - 15 * 60000 && nowMs <= end.getTime();
   };
 
   return (

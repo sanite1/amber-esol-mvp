@@ -24,6 +24,67 @@ function formatDate(dateStr: string): string {
 }
 
 export default function UpcomingLessons({ lessons }: Props) {
+  const now = new Date();
+
+  const isJoinable = (lesson: DashboardUpcomingLesson) => {
+    if (lesson.status !== "confirmed" || !lesson.meetingUrl) return false;
+
+    const lessonDate = new Date(lesson.date + "T00:00:00");
+    const [sh, sm] = lesson.startTime.split(":").map(Number);
+    const [eh, em] = lesson.endTime.split(":").map(Number);
+
+    const start = new Date(lessonDate);
+    start.setHours(sh, sm, 0, 0);
+
+    const end = new Date(lessonDate);
+    end.setHours(eh, em, 0, 0);
+
+    const nowMs = now.getTime();
+
+    // Joinable: from 15 min before start until the lesson ends
+    return nowMs >= start.getTime() - 15 * 60000 && nowMs <= end.getTime();
+  };
+
+  const statusStyle: Record<
+    string,
+    { label: string; color: string; bg: string }
+  > = {
+    confirmed: {
+      label: "Confirmed",
+      color: "text-emerald-600",
+      bg: "bg-emerald-50",
+    },
+    pending: { label: "Pending", color: "text-amber-600", bg: "bg-amber-50" },
+    completed: {
+      label: "Completed",
+      color: "text-[#0B2343]/40",
+      bg: "bg-[#0B2343]/[0.04]",
+    },
+    cancelled_student: {
+      label: "Cancelled",
+      color: "text-red-500",
+      bg: "bg-red-50",
+    },
+    cancelled_tutor: {
+      label: "Cancelled",
+      color: "text-red-500",
+      bg: "bg-red-50",
+    },
+    cancelled_admin: {
+      label: "Cancelled",
+      color: "text-red-500",
+      bg: "bg-red-50",
+    },
+    no_show: { label: "No Show", color: "text-orange-600", bg: "bg-orange-50" },
+  };
+
+  const getStatus = (status: string) =>
+    statusStyle[status] ?? {
+      label: status,
+      color: "text-[#0B2343]/30",
+      bg: "bg-[#0B2343]/[0.03]",
+    };
+
   return (
     <div className="bg-white rounded-xl border border-[#0B2343]/[0.06]">
       {/* Header */}
@@ -104,9 +165,9 @@ export default function UpcomingLessons({ lessons }: Props) {
               </div>
 
               {/* Action */}
-              {lesson.status === "confirmed" && lesson.meetingUrl ? (
+              {isJoinable(lesson) ? (
                 <a
-                  href={lesson.meetingUrl}
+                  href={lesson.meetingUrl!}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#ff7c22] text-white text-xs font-bold hover:bg-[#e56a10] transition-colors shrink-0"
@@ -115,8 +176,10 @@ export default function UpcomingLessons({ lessons }: Props) {
                   Join
                 </a>
               ) : (
-                <span className="text-[10px] font-semibold text-[#0B2343]/30 uppercase px-2.5 py-1.5 rounded-lg bg-[#0B2343]/[0.03] shrink-0">
-                  {lesson.status}
+                <span
+                  className={`text-[10px] font-semibold uppercase px-2.5 py-1.5 rounded-lg shrink-0 ${getStatus(lesson.status).bg} ${getStatus(lesson.status).color}`}
+                >
+                  {getStatus(lesson.status).label}
                 </span>
               )}
             </div>

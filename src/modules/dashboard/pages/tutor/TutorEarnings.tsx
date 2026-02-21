@@ -98,8 +98,9 @@ function apiTransactionToEarning(tx: Transaction): EarningEntry {
     studentCountryCode: undefined,
     createdAt: tx.createdAt,
     lessonDate: booking?.date
-      ? `${booking.date}T${booking.startTime ?? "00:00"}:00Z`
+      ? `${booking.date}T${booking.startTime ?? "00:00"}:00`
       : tx.createdAt,
+
     lessonType: tx.type === "trial" ? "trial" : "regular",
     lessonTopic: booking?.specialty,
     duration,

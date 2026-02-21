@@ -133,7 +133,22 @@ export default function TutorDashboard() {
     );
   }, [upcomingLessons]);
 
-  const nextLessonTime = todayLessons[0]?.startTime;
+  const nextLessonTime = useMemo(() => {
+    const now = new Date();
+    const todayStr = now.toDateString();
+
+    // Find the first upcoming lesson today whose start time hasn't passed
+    const upcoming = upcomingLessons.find((l) => {
+      if (new Date(l.date + "T00:00:00").toDateString() !== todayStr)
+        return false;
+      const [h, m] = l.startTime.split(":").map(Number);
+      const lessonStart = new Date();
+      lessonStart.setHours(h, m, 0, 0);
+      return lessonStart > now;
+    });
+
+    return upcoming?.startTime;
+  }, [upcomingLessons]);
 
   return (
     <div className="space-y-5">

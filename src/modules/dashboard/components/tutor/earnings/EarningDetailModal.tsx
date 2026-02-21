@@ -118,8 +118,16 @@ export default function EarningDetailModal({ entry, onClose }: Props) {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
+                {" – "}
+                {new Date(
+                  lessonDate.getTime() + entry.duration * 60000
+                ).toLocaleTimeString("en-GB", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </span>
             </div>
+
             <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-[#0B2343]/[0.015]">
               <span className="flex items-center gap-1.5 text-[11px] sm:text-xs text-[#0B2343]/40">
                 <BookOpen size={12} className="text-[#0B2343]/25" />
