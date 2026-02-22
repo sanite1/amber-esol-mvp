@@ -1,15 +1,20 @@
 import { Link } from "react-router-dom";
-import { Star, Clock, BookOpen, ArrowRight } from "lucide-react";
-import type { Tutor } from "../../data/tutorsData";
+import { Star, Clock, BookOpen, ArrowRight, Globe, Award } from "lucide-react";
+import type { TutorListItem } from "../../../dashboard/lib/types/authOnboarding";
 
 interface Props {
-  tutor: Tutor;
+  tutor: TutorListItem;
 }
 
 export default function TutorCard({ tutor }: Props) {
+  const fullName = `${tutor.firstname} ${tutor.lastname}`;
+  const initials =
+    `${tutor.firstname?.[0] ?? ""}${tutor.lastname?.[0] ?? ""}`.toUpperCase();
+  const country = tutor.address?.country ?? "";
+
   return (
     <Link
-      to={`/tutors/${tutor.id}`}
+      to={`/tutors/${tutor._id}`}
       className="group block bg-white rounded-2xl border border-[#0B2343]/[0.06] overflow-hidden hover:border-[#ff7c22]/20 hover:shadow-[0_8px_30px_rgba(255,124,34,0.06)] transition-all duration-300"
     >
       {/* Top row */}
@@ -17,13 +22,21 @@ export default function TutorCard({ tutor }: Props) {
         <div className="flex items-start gap-4">
           {/* Avatar */}
           <div className="relative shrink-0">
-            <img
-              src={tutor.avatar}
-              alt={tutor.name}
-              loading="lazy"
-              className="w-14 h-14 rounded-xl object-cover"
-            />
-            {tutor.available && (
+            {tutor.profilePicture ? (
+              <img
+                src={tutor.profilePicture}
+                alt={fullName}
+                loading="lazy"
+                className="w-14 h-14 rounded-xl object-cover"
+              />
+            ) : (
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#0B2343]/[0.08] to-[#0B2343]/[0.04] flex items-center justify-center">
+                <span className="text-base font-bold text-[#0B2343]/25">
+                  {initials}
+                </span>
+              </div>
+            )}
+            {tutor.isOnline && (
               <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#22C55E] border-2 border-white" />
             )}
           </div>
@@ -32,42 +45,61 @@ export default function TutorCard({ tutor }: Props) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-bold text-[#0B2343] truncate">
-                {tutor.name}
+                {fullName}
               </h3>
               <span className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-[#ff7c22]">
                 <Star size={12} fill="#ff7c22" />
-                {tutor.rating}
+                {tutor.rating?.toFixed(1) ?? "New"}
               </span>
             </div>
-            <p className="text-xs text-[#0B2343]/45 mt-0.5">
-              {tutor.specialty}
+            <p className="text-xs text-[#0B2343]/45 mt-0.5 flex items-center gap-1">
+              <Globe size={10} />
+              {country || "Unknown"}
+              {tutor.timezone && (
+                <>
+                  <span className="text-[#0B2343]/15">·</span>
+                  {tutor.timezone}
+                </>
+              )}
             </p>
             <div className="flex flex-wrap gap-1.5 mt-2">
-              {tutor.badges.map((b) => (
+              {tutor.specializations.slice(0, 3).map((b) => (
                 <span
                   key={b}
-                  className="px-2 py-0.5 rounded-md bg-[#0B2343]/[0.04] text-[10px] font-semibold text-[#0B2343]/50"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#ff7c22]/[0.06] text-[10px] font-semibold text-[#ff7c22]"
                 >
+                  <Award size={9} />
                   {b}
                 </span>
               ))}
+              {tutor.specializations.length > 3 && (
+                <span className="text-[10px] text-[#0B2343]/25 self-center">
+                  +{tutor.specializations.length - 3} more
+                </span>
+              )}
             </div>
           </div>
 
           {/* Price */}
           <div className="text-right shrink-0">
             <p className="text-lg font-extrabold text-[#0B2343]">
-              {tutor.currency}
-              {tutor.price}
+              £{tutor.hourlyRate}
+              <span className="text-xs font-normal text-[#0B2343]/25">/hr</span>
             </p>
-            <p className="text-[10px] text-[#0B2343]/35">per lesson</p>
+            {tutor.trialLessonOffered && tutor.trialLessonPrice === 0 && (
+              <p className="text-[10px] font-semibold text-emerald-500">
+                Free trial
+              </p>
+            )}
           </div>
         </div>
 
         {/* Bio */}
-        <p className="mt-3 text-xs text-[#0B2343]/45 leading-relaxed line-clamp-2">
-          {tutor.bio}
-        </p>
+        {tutor.bio && (
+          <p className="mt-3 text-xs text-[#0B2343]/45 leading-relaxed line-clamp-2">
+            {tutor.bio}
+          </p>
+        )}
       </div>
 
       {/* Divider */}
@@ -76,24 +108,25 @@ export default function TutorCard({ tutor }: Props) {
       {/* Footer */}
       <div className="px-5 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4 text-[11px] text-[#0B2343]/40">
+          {tutor.totalLessons > 0 && (
+            <span className="flex items-center gap-1">
+              <BookOpen size={12} /> {tutor.totalLessons} lessons
+            </span>
+          )}
+          {tutor.totalReviews > 0 && (
+            <span className="flex items-center gap-1">
+              <Star size={12} /> {tutor.totalReviews} reviews
+            </span>
+          )}
           <span className="flex items-center gap-1">
-            <BookOpen size={12} /> {tutor.lessonsCompleted} lessons
-          </span>
-          <span className="flex items-center gap-1">
-            <Star size={12} /> {tutor.reviews} reviews
+            <Clock size={12} /> {tutor.yearsOfExperience} yr
+            {tutor.yearsOfExperience !== 1 ? "s" : ""} exp
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
-          {tutor.available && (
-            <span className="flex items-center gap-1 text-[11px] text-[#22C55E] font-semibold">
-              <Clock size={12} /> {tutor.nextSlot}
-            </span>
-          )}
-          <span className="w-6 h-6 rounded-full bg-[#ff7c22]/[0.08] flex items-center justify-center text-[#ff7c22] opacity-0 group-hover:opacity-100 transition-opacity">
-            <ArrowRight size={12} />
-          </span>
-        </div>
+        <span className="w-6 h-6 rounded-full bg-[#ff7c22]/[0.08] flex items-center justify-center text-[#ff7c22] opacity-0 group-hover:opacity-100 transition-opacity">
+          <ArrowRight size={12} />
+        </span>
       </div>
     </Link>
   );

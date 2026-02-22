@@ -17,7 +17,7 @@ interface Props {
   isOpen: boolean;
 }
 
-export default function TutorFilters({
+export default function TutorFiltersBar({
   selectedSpecialties,
   onToggleSpecialty,
   selectedLevels,
@@ -62,7 +62,7 @@ export default function TutorFilters({
       </div>
 
       {/* Available now */}
-      <label className="flex items-center gap-3 cursor-pointer group">
+      {/* <label className="flex items-center gap-3 cursor-pointer group">
         <div
           className={`w-10 h-6 rounded-full p-0.5 transition-colors ${
             availableOnly ? "bg-[#ff7c22]" : "bg-[#0B2343]/10"
@@ -78,7 +78,7 @@ export default function TutorFilters({
         <span className="text-sm text-[#0B2343]/70 group-hover:text-[#0B2343] transition-colors">
           Available now
         </span>
-      </label>
+      </label> */}
 
       {/* Specialty */}
       <div>
@@ -117,7 +117,7 @@ export default function TutorFilters({
               <button
                 key={l}
                 onClick={() => onToggleLevel(l)}
-                className={`w-11 h-9 rounded-lg text-xs font-bold border transition-colors ${
+                className={`p-2 capitalize rounded-lg text-xs font-bold border transition-colors ${
                   active
                     ? "bg-[#ff7c22] text-white border-[#ff7c22]"
                     : "bg-white text-[#0B2343]/60 border-[#0B2343]/[0.08] hover:border-[#ff7c22]/30"

@@ -1,5 +1,7 @@
+// src/modules/platform/components/tutor-detail/AuthPromptModal.tsx
 import { X, LogIn, GraduationCap, Lock, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const APP_URL = process.env.REACT_APP_DASHBOARD_URL;
 
@@ -10,26 +12,55 @@ interface Props {
 }
 
 export default function AuthPromptModal({ isOpen, onClose, action }: Props) {
-  if (!isOpen) return null;
+  const [visible, setVisible] = useState(false);
+  const [animating, setAnimating] = useState(false);
+
+  // Handle open/close animation
+  useEffect(() => {
+    if (isOpen) {
+      setAnimating(true);
+      // Small delay so the backdrop renders before the drawer slides up
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setVisible(true));
+      });
+    } else {
+      setVisible(false);
+      const timer = setTimeout(() => setAnimating(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  if (!isOpen && !animating) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+    <div className="fixed inset-0 z-50 flex items-end justify-center">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-[#0B2343]/60 backdrop-blur-sm"
+        className={`absolute inset-0 bg-[#000000]/60 backdrop-blur-sm transition-opacity duration-300 ${
+          visible ? "opacity-100" : "opacity-0"
+        }`}
         onClick={onClose}
       />
 
-      {/* Modal */}
-      <div className="relative bg-white rounded-3xl shadow-2xl shadow-black/10 max-w-sm w-full overflow-hidden">
+      {/* Drawer */}
+      <div
+        className={`relative w-full max-w-lg bg-white rounded-t-3xl shadow-2xl shadow-black/10 transition-transform duration-300 ease-out ${
+          visible ? "translate-y-0" : "translate-y-full"
+        }`}
+      >
+        {/* Drag handle */}
+        {/* <div className="flex justify-center pt-3 pb-1">
+          <div className="w-10 h-1 rounded-full bg-[#0B2343]/[0.08]" />
+        </div> */}
+
         {/* Top accent bar */}
-        <div className="h-1.5 w-full bg-gradient-to-r from-[#ff7c22] via-[#ff9f5a] to-[#ff7c22]" />
+        {/* <div className="h-1 mx-6 rounded-full bg-gradient-to-r from-[#ff7c22] via-[#ff9f5a] to-[#ff7c22]" /> */}
 
         <div className="p-8 text-center">
           {/* Close */}
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 w-8 h-8 rounded-full bg-[#0B2343]/[0.04] flex items-center justify-center text-[#0B2343]/30 hover:bg-[#0B2343]/[0.08] hover:text-[#0B2343] transition-colors"
+            className="absolute top-4 right-5 w-8 h-8 rounded-full bg-[#0B2343]/[0.04] flex items-center justify-center text-[#0B2343]/30 hover:bg-[#0B2343]/[0.08] hover:text-[#0B2343] transition-colors"
           >
             <X size={14} />
           </button>
@@ -79,6 +110,9 @@ export default function AuthPromptModal({ isOpen, onClose, action }: Props) {
             </p>
           </div>
         </div>
+
+        {/* Safe area padding for mobile devices with home indicator */}
+        <div className="h-[env(safe-area-inset-bottom,0px)]" />
       </div>
     </div>
   );

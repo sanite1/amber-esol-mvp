@@ -5,15 +5,14 @@ import {
   ShieldCheck,
   MessageCircle,
   CalendarCheck,
-  Zap,
   Share2,
   Flag,
 } from "lucide-react";
-import type { Tutor } from "../../data/tutorsData";
 import AuthPromptModal from "./AuthPromptModal";
+import { UserData } from "../../../dashboard/lib/types/authOnboarding";
 
 interface Props {
-  tutor: Tutor;
+  tutor: UserData;
 }
 
 export default function BookingSidebar({ tutor }: Props) {
@@ -34,8 +33,7 @@ export default function BookingSidebar({ tutor }: Props) {
           {/* Price */}
           <div className="flex items-baseline gap-1 mb-5">
             <span className="text-3xl font-extrabold text-[#0B2343]">
-              {tutor.currency}
-              {tutor.price}
+              £{tutor.hourlyRate}
             </span>
             <span className="text-sm text-[#0B2343]/35">/ lesson</span>
           </div>
@@ -60,14 +58,14 @@ export default function BookingSidebar({ tutor }: Props) {
           </div>
 
           {/* Next available */}
-          {tutor.available && tutor.nextSlot && (
+          {/* {tutor.available && tutor.nextSlot && (
             <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-[#22C55E]/[0.06] border border-[#22C55E]/10 mb-5">
               <Zap size={14} className="text-[#22C55E] shrink-0" />
               <p className="text-xs text-[#22C55E] font-semibold">
                 Next available: {tutor.nextSlot}
               </p>
             </div>
-          )}
+          )} */}
 
           {/* Book CTA */}
           <button

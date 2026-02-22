@@ -1,17 +1,48 @@
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import AOS from "aos";
-import {
-  tutors as allTutors,
-  specialties,
-  levels,
-  priceRanges,
-  sortOptions,
-} from "../data/tutorsData";
 import TutorSearch from "../components/tutors/TutorSearch";
-import TutorFilters from "../components/tutors/TutorFilters";
+import TutorFiltersBar from "../components/tutors/TutorFilters";
 import TutorGrid from "../components/tutors/TutorGrid";
 import ActiveFilters from "../components/tutors/ActiveFilters";
+import { TutorFilters } from "../../dashboard/lib/types/authOnboarding";
+import { useFetchTutors } from "../../dashboard/lib/api/authOnboarding";
+
+// Keep these as static options for the filter UI
+const specialties = [
+  "General English",
+  "IELTS Preparation",
+  "Business English",
+  "Conversational English",
+  "Academic English",
+  "Exam Preparation",
+  "Pronunciation",
+];
+
+const levels = [
+  "beginner",
+  "elementary",
+  "intermediate",
+  "upper-intermediate",
+  "advanced",
+];
+
+const priceRanges = [
+  { label: "Under £20", min: 0, max: 20 },
+  { label: "£20 – £25", min: 20, max: 25 },
+  { label: "£25 – £30", min: 25, max: 30 },
+  { label: "£30+", min: 30, max: 999 },
+];
+
+const sortOptions = [
+  { label: "Recommended", value: "recommended" },
+  { label: "Price: Low to High", value: "price-asc" },
+  { label: "Price: High to Low", value: "price-desc" },
+  { label: "Highest Rated", value: "rating" },
+  { label: "Most Reviews", value: "reviews" },
+];
+
+const ITEMS_PER_PAGE = 12;
 
 export default function FindTutors() {
   const [searchParams] = useSearchParams();
@@ -27,8 +58,9 @@ export default function FindTutors() {
   } | null>(null);
   const [availableOnly, setAvailableOnly] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Read ?level= from URL (e.g. from Levels section on Home)
+  // Read ?level= from URL
   useEffect(() => {
     const urlLevel = searchParams.get("level");
     if (urlLevel && levels.includes(urlLevel)) {
@@ -41,83 +73,56 @@ export default function FindTutors() {
     AOS.refresh();
   }, []);
 
-  // Filtering + sorting
-  const filtered = useMemo(() => {
-    let result = [...allTutors];
-
-    // Search
-    if (query.trim()) {
-      const q = query.toLowerCase();
-      result = result.filter(
-        (t) =>
-          t.name.toLowerCase().includes(q) ||
-          t.specialty.toLowerCase().includes(q) ||
-          t.languages.some((l) => l.toLowerCase().includes(q))
-      );
-    }
-
-    // Specialty
-    if (selectedSpecialties.length > 0) {
-      result = result.filter((t) => selectedSpecialties.includes(t.specialty));
-    }
-
-    // Level
-    if (selectedLevels.length > 0) {
-      result = result.filter((t) =>
-        t.levels.some((l) => selectedLevels.includes(l))
-      );
-    }
-
-    // Price
-    if (selectedPrice) {
-      result = result.filter(
-        (t) => t.price >= selectedPrice.min && t.price <= selectedPrice.max
-      );
-    }
-
-    // Available
-    if (availableOnly) {
-      result = result.filter((t) => t.available);
-    }
-
-    // Sort
-    switch (sort) {
-      case "price-asc":
-        result.sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        result.sort((a, b) => b.price - a.price);
-        break;
-      case "rating":
-        result.sort((a, b) => b.rating - a.rating);
-        break;
-      case "reviews":
-        result.sort((a, b) => b.reviews - a.reviews);
-        break;
-    }
-
-    return result;
+  // Reset page on filter change
+  useEffect(() => {
+    setCurrentPage(1);
   }, [
     query,
+    sort,
     selectedSpecialties,
     selectedLevels,
     selectedPrice,
     availableOnly,
-    sort,
   ]);
+
+  // Build API filters
+  const apiFilters: TutorFilters = useMemo(() => {
+    const f: TutorFilters = { page: currentPage, limit: ITEMS_PER_PAGE };
+    if (query.trim()) f.search = query.trim();
+    if (sort !== "recommended") f.sort = sort;
+    if (selectedSpecialties.length > 0)
+      f.specialization = selectedSpecialties[0];
+    if (selectedLevels.length > 0) f.level = selectedLevels[0];
+    if (selectedPrice) {
+      f.minPrice = selectedPrice.min;
+      if (selectedPrice.max < 999) f.maxPrice = selectedPrice.max;
+    }
+    if (availableOnly) f.trialOnly = true;
+    return f;
+  }, [
+    query,
+    sort,
+    selectedSpecialties,
+    selectedLevels,
+    selectedPrice,
+    availableOnly,
+    currentPage,
+  ]);
+
+  const { data, isLoading, isFetching } = useFetchTutors(apiFilters);
+  const tutors = data?.data?.tutors ?? [];
+  const totalResults = data?.data?.pagination?.total ?? 0;
 
   function toggleSpecialty(s: string) {
     setSelectedSpecialties((prev) =>
       prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]
     );
   }
-
   function toggleLevel(l: string) {
     setSelectedLevels((prev) =>
       prev.includes(l) ? prev.filter((x) => x !== l) : [...prev, l]
     );
   }
-
   function clearAll() {
     setQuery("");
     setSelectedSpecialties([]);
@@ -168,7 +173,6 @@ export default function FindTutors() {
 
       {/* Main content */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
-        {/* Search + Sort */}
         <div data-aos="fade-up">
           <TutorSearch
             query={query}
@@ -176,13 +180,12 @@ export default function FindTutors() {
             sort={sort}
             onSortChange={setSort}
             sortOptions={sortOptions}
-            resultCount={filtered.length}
+            resultCount={totalResults}
             onToggleFilters={() => setFiltersOpen((p) => !p)}
             filtersOpen={filtersOpen}
           />
         </div>
 
-        {/* Active filter pills */}
         <div className="mt-4" data-aos="fade-up" data-aos-delay="50">
           <ActiveFilters
             selectedSpecialties={selectedSpecialties}
@@ -197,9 +200,8 @@ export default function FindTutors() {
           />
         </div>
 
-        {/* Sidebar + Grid */}
         <div className="mt-8 flex gap-10">
-          <TutorFilters
+          <TutorFiltersBar
             selectedSpecialties={selectedSpecialties}
             onToggleSpecialty={toggleSpecialty}
             selectedLevels={selectedLevels}
@@ -223,7 +225,39 @@ export default function FindTutors() {
             data-aos="fade-up"
             data-aos-delay="100"
           >
-            <TutorGrid tutors={filtered} onClearFilters={clearAll} />
+            {/* Loading indicator for refetches */}
+            {isFetching && !isLoading && (
+              <div className="h-0.5 bg-[#ff7c22]/20 rounded-full overflow-hidden mb-3">
+                <div className="h-full w-1/3 bg-[#ff7c22] rounded-full animate-pulse" />
+              </div>
+            )}
+
+            {isLoading ? (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-white rounded-2xl border border-[#0B2343]/[0.06] p-5 animate-pulse"
+                  >
+                    <div className="flex gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-[#0B2343]/[0.06]" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 w-32 rounded bg-[#0B2343]/[0.06]" />
+                        <div className="h-3 w-24 rounded bg-[#0B2343]/[0.04]" />
+                      </div>
+                      <div className="h-6 w-12 rounded bg-[#0B2343]/[0.06]" />
+                    </div>
+                    <div className="mt-3 h-8 rounded bg-[#0B2343]/[0.04]" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <TutorGrid
+                tutors={tutors}
+                isLoading={isFetching}
+                onClearFilters={clearAll}
+              />
+            )}
           </div>
         </div>
       </section>

@@ -2,17 +2,17 @@ import { Link } from "react-router-dom";
 import {
   Star,
   MapPin,
-  Clock,
   Globe,
   MessageCircle,
   BookOpen,
   ArrowLeft,
   CheckCircle2,
 } from "lucide-react";
-import type { Tutor } from "../../data/tutorsData";
+import { UserData } from "../../../dashboard/lib/types/authOnboarding";
+import { formatDate } from "../../../dashboard/lib/utils/formatDate";
 
 interface Props {
-  tutor: Tutor;
+  tutor: UserData;
 }
 
 export default function TutorProfileHeader({ tutor }: Props) {
@@ -37,15 +37,15 @@ export default function TutorProfileHeader({ tutor }: Props) {
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Avatar + quick info */}
-          <div className="flex items-start gap-5">
+          <div className="flex items-center gap-5">
             <div className="relative shrink-0">
               <img
-                src={tutor.avatar}
-                alt={tutor.name}
+                src={tutor.profilePicture}
+                alt={tutor.firstname}
                 loading="lazy"
                 className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-2 border-white/10"
               />
-              {tutor.available && (
+              {tutor.isActive && (
                 <span className="absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#22C55E] border-3 border-[#0B2343]" />
               )}
             </div>
@@ -53,7 +53,7 @@ export default function TutorProfileHeader({ tutor }: Props) {
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-                  {tutor.name}
+                  {`${tutor.firstname} ${tutor.lastname}`}
                 </h1>
                 <CheckCircle2
                   size={20}
@@ -63,29 +63,39 @@ export default function TutorProfileHeader({ tutor }: Props) {
                 />
               </div>
 
-              <p className="text-sm text-white/45 mt-1">{tutor.specialty}</p>
-
+              {/* {tutor?.specializations!.length > 3 &&
+                tutor.specializations!.map((s) => (
+                  <span
+                    key={s}
+                    className="text-xs text-[#0B2343]/50 bg-[#ff7c22]/[0.06] px-3 py-1.5 rounded-lg font-medium"
+                  >
+                    {s}
+                  </span>
+                ))} */}
               {/* Meta row */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-1 ">
                 <span className="flex items-center gap-1 text-sm font-semibold text-[#ff7c22]">
-                  <Star size={14} fill="#ff7c22" /> {tutor.rating}
+                  <Star size={14} fill="#ff7c22" /> {tutor.ratings}
                   <span className="text-white/30 font-normal ml-1">
-                    ({tutor.reviews} reviews)
+                    ({tutor.numberOfReviews} reviews)
                   </span>
                 </span>
                 <span className="flex items-center gap-1 text-xs text-white/35">
-                  <MapPin size={12} /> {tutor.country}
+                  <MapPin size={12} /> {tutor.address?.country}
                 </span>
                 <span className="flex items-center gap-1 text-xs text-white/35">
-                  <BookOpen size={12} /> {tutor.lessonsCompleted} lessons
+                  <BookOpen size={12} /> {tutor.totalLessons} lessons
                 </span>
-                <span className="flex items-center gap-1 text-xs text-white/35">
-                  <Globe size={12} /> {tutor.languages?.join(", ")}
-                </span>
+                <div className="w-full">
+                  <span className="flex items-center gap-1 text-xs text-white/35">
+                    <Globe size={12} />{" "}
+                    {tutor.languages?.map((l) => l.name).join(", ")}
+                  </span>
+                </div>
               </div>
 
               {/* Badges */}
-              <div className="flex flex-wrap gap-2 mt-3">
+              {/* <div className="flex flex-wrap gap-2 mt-3">
                 {tutor.badges.map((b) => (
                   <span
                     key={b}
@@ -94,25 +104,25 @@ export default function TutorProfileHeader({ tutor }: Props) {
                     {b}
                   </span>
                 ))}
-              </div>
+              </div> */}
             </div>
           </div>
 
           {/* Quick stats (desktop) */}
           <div className="hidden lg:flex items-start gap-3 ml-auto shrink-0">
-            <QuickStat
+            {/* <QuickStat
               label="Response time"
-              value={tutor.responseTime || "< 2 hrs"}
+              value={String(tutor.responseTime) || "< 2 hrs"}
               icon={<Clock size={14} />}
             />
             <QuickStat
               label="Timezone"
               value={tutor.timezone || "GMT"}
               icon={<Globe size={14} />}
-            />
+            /> */}
             <QuickStat
               label="Member since"
-              value={tutor.memberSince || "2024"}
+              value={formatDate(tutor.createdAt) || "2024"}
               icon={<MessageCircle size={14} />}
             />
           </div>

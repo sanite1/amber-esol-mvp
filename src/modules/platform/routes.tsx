@@ -28,9 +28,9 @@ export const PlatformRoutes: React.FC = () => {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/help" element={<HelpCenter />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/tutors/:slug" element={<TutorDetail />} />
-          <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/tutors" element={<FindTutors />} />
+          <Route path="/tutors/:id" element={<TutorDetail />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/blogs" element={<BlogsPage />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
         </Route>
