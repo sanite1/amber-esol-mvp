@@ -4,10 +4,10 @@ import { Toaster } from "sonner";
 import { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./lib/query/client";
 
 const App: React.FC = () => {
-  const queryClient = new QueryClient();
   useEffect(() => {
     AOS.init({
       duration: 800,
@@ -16,13 +16,12 @@ const App: React.FC = () => {
       offset: 50,
     });
   }, []);
+
   return (
-    <div>
-      <QueryClientProvider client={queryClient}>
-        <Toaster richColors position="top-right" />
-        <RoutesWrapper />
-      </QueryClientProvider>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <Toaster richColors position="top-right" />
+      <RoutesWrapper />
+    </QueryClientProvider>
   );
 };
 

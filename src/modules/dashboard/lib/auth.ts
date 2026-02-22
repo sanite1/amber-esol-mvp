@@ -82,3 +82,16 @@ export const isStudent = (): boolean => {
     return false;
   }
 };
+
+export const syncAuthData = (data: {
+  accessToken: string;
+  refreshToken?: string;
+  user: any;
+}) => {
+  localStorage.setItem("token", data.accessToken);
+  if (data.refreshToken) {
+    localStorage.setItem("refreshToken", data.refreshToken);
+  }
+  localStorage.setItem("user", JSON.stringify(data.user));
+  window.dispatchEvent(new Event("userUpdated"));
+};

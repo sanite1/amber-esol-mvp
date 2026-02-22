@@ -145,7 +145,6 @@ export default function StudentProfile() {
   ) => {
     try {
       await updatePassword({
-        id: userId,
         oldPassword: currentPassword,
         newPassword,
         confirmNewPassword,

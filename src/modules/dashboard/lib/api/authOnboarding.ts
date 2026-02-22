@@ -331,13 +331,9 @@ export const useResetPassword = () => {
    ═══════════════════════════════════════════════ */
 
 export const updatePassword = async (
-  id: string,
   payload: UpdatePasswordPayload
 ): Promise<ApiResponse> => {
-  const res = await api.patch<ApiResponse>(
-    `/users/update-password/${id}`,
-    payload
-  );
+  const res = await api.patch<ApiResponse>(`/users/update-password`, payload);
   return res;
 };
 
@@ -346,13 +342,12 @@ export const useUpdatePassword = () => {
     ApiResponse,
     ApiError,
     {
-      id: string;
       oldPassword: string;
       newPassword: string;
       confirmNewPassword: string;
     }
   >({
-    mutationFn: ({ id, ...payload }) => updatePassword(id, payload),
+    mutationFn: ({ ...payload }) => updatePassword(payload),
     onSuccess: () => {
       toast.success("Password Updated", {
         description: "Your password has been changed successfully.",

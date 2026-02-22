@@ -88,7 +88,6 @@ export default function TutorSettings() {
     confirmNewPassword: string
   ) => {
     await updatePassword({
-      id: userId,
       oldPassword: currentPassword,
       newPassword,
       confirmNewPassword,

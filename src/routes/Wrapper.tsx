@@ -2,10 +2,7 @@ import React from "react";
 import { PlatformRoutes } from "../modules/platform/routes";
 import { DashboardRoutes } from "../modules/dashboard/routes";
 import { AuthProvider } from "../modules/dashboard/context/AuthContext";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { getModule } from "../utils";
-
-const queryClient = new QueryClient();
 
 const RoutesWrapper: React.FC = () => {
   const module = getModule();
@@ -16,11 +13,9 @@ const RoutesWrapper: React.FC = () => {
 
   if (module === "dashboard") {
     return (
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <DashboardRoutes />
-        </AuthProvider>
-      </QueryClientProvider>
+      <AuthProvider>
+        <DashboardRoutes />
+      </AuthProvider>
     );
   }
 
