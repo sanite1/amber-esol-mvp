@@ -90,8 +90,6 @@ export const fetchBookings = async (
   filters: BookingFilters
 ): Promise<ApiResponse<ListBookingsResponse>> => {
   const params = new URLSearchParams();
-  console.log("status");
-  console.log(filters.status);
 
   if (filters.page) params.append("page", String(filters.page));
   if (filters.limit) params.append("limit", String(filters.limit));
