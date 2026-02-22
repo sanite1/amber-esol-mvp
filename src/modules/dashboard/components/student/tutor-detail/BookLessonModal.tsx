@@ -15,6 +15,8 @@ import type { UserData } from "../../../lib/types/authOnboarding";
 import { useFetchAvailableSlots } from "../../../lib/api/availability";
 import { useCreateBooking } from "../../../lib/api/booking";
 import type { SlotSelection } from "../../../lib/types/booking";
+import dayjs from "dayjs";
+import { formatLessonDate } from "../../../lib/utils/dateHelpers";
 
 interface Props {
   tutor: UserData;
@@ -38,20 +40,18 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
   const totalCost = hours * (tutor.hourlyRate ?? 0);
 
   const dates = useMemo(() => {
-    const result: Date[] = [];
-    const today = new Date();
-    const start = new Date(today);
-    start.setDate(today.getDate() + weekOffset * 7);
+    const result: dayjs.Dayjs[] = [];
+    const today = dayjs();
+    const start = today.add(weekOffset * 7, "day");
     for (let i = 0; i < 7; i++) {
-      const d = new Date(start);
-      d.setDate(start.getDate() + i);
-      if (d >= new Date(today.toDateString())) result.push(d);
+      const d = start.add(i, "day");
+      if (!d.isBefore(today, "day")) result.push(d);
     }
     return result;
   }, [weekOffset]);
 
   const [viewDate, setViewDate] = useState<string | null>(null);
-  const toDateStr = (d: Date) => d.toISOString().split("T")[0];
+  // const toDateStr = (d: Date) => d.toISOString().split("T")[0];
 
   const slotsQuery = useMemo(
     () => ({ date: viewDate ?? "", duration: 50 }),
@@ -118,17 +118,13 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
     );
   };
 
-  const formatDayShort = (d: Date) =>
-    d.toLocaleDateString("en-GB", { weekday: "short" });
-  const formatDayNum = (d: Date) => d.getDate();
-  const formatMonth = (d: Date) =>
-    d.toLocaleDateString("en-GB", { month: "short" });
+  const toDateStr = (d: dayjs.Dayjs) => d.format("YYYY-MM-DD");
+  const formatDayShort = (d: dayjs.Dayjs) => d.format("ddd");
+  const formatDayNum = (d: dayjs.Dayjs) => d.date();
+  const formatMonth = (d: dayjs.Dayjs) => d.format("MMM");
+
   const formatFullDate = (dateStr: string) =>
-    new Date(dateStr + "T00:00:00").toLocaleDateString("en-GB", {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-    });
+    formatLessonDate(dateStr, tutor.timezone || "Europe/London");
 
   const stepTitles: Record<number, string> = {
     1: "Select Hours",

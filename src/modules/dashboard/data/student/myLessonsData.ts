@@ -22,6 +22,7 @@ export interface Lesson {
   endTime: string;
   type: LessonType;
   status: LessonStatus;
+  timezone?: string;
   price: number;
   meetingUrl: string | null;
   notes: string | null;

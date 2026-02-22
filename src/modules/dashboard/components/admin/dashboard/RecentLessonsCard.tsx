@@ -2,6 +2,27 @@ import { Link } from "react-router-dom";
 import { BookOpen } from "lucide-react";
 import type { RecentLesson } from "../../../lib/types/adminDashboard";
 
+import dayjs from "dayjs";
+import { lessonDateTime } from "../../../lib/utils/dateHelpers";
+
+const formatTime = (dateStr: string, startTime?: string) => {
+  // The `l.date` coming from the API is a YYYY-MM-DD string
+  const lessonMoment = startTime
+    ? lessonDateTime(dateStr, startTime, "Europe/London")
+    : dayjs(dateStr);
+  const now = dayjs();
+  const diffMs = now.diff(lessonMoment);
+  if (diffMs < 0) {
+    const fHrs = Math.floor(-diffMs / 3600000);
+    if (fHrs < 1) return "Starting soon";
+    return `In ${fHrs}h`;
+  }
+  const diffHrs = Math.floor(diffMs / 3600000);
+  if (diffHrs < 1) return "Just now";
+  if (diffHrs < 24) return `${diffHrs}h ago`;
+  return `${Math.floor(diffHrs / 24)}d ago`;
+};
+
 interface Props {
   lessons: RecentLesson[];
 }
@@ -26,21 +47,6 @@ const statusConfig: Record<
 };
 
 export default function RecentLessonsCard({ lessons }: Props) {
-  const formatTime = (ts: string) => {
-    const d = new Date(ts);
-    const now = new Date();
-    const diffMs = now.getTime() - d.getTime();
-    const diffHrs = Math.floor(diffMs / 3600000);
-    if (diffMs < 0) {
-      const fHrs = Math.floor(-diffMs / 3600000);
-      if (fHrs < 1) return "Starting soon";
-      return `In ${fHrs}h`;
-    }
-    if (diffHrs < 1) return "Just now";
-    if (diffHrs < 24) return `${diffHrs}h ago`;
-    return `${Math.floor(diffHrs / 24)}d ago`;
-  };
-
   return (
     <div className="bg-white rounded-xl border border-[#0B2343]/[0.06] p-3 sm:p-4 md:p-5">
       <div className="flex items-center justify-between gap-2 mb-3">

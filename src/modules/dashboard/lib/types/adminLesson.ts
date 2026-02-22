@@ -30,6 +30,7 @@ export interface AdminLesson {
   tutorId: string;
   tutorName: string;
   tutorAvatar?: string;
+  timezone?: string;
   date: string;
   startTime: string;
   endTime: string;

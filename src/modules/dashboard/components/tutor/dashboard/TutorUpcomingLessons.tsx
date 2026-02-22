@@ -2,44 +2,34 @@ import { Link } from "react-router-dom";
 import { Calendar, Clock, Video, ArrowRight, Sparkles } from "lucide-react";
 // ── CHANGED: import from booking types instead of dummy data ──
 import type { TutorDashboardLesson } from "../../../lib/types/booking";
+import dayjs from "dayjs";
+import {
+  formatLessonDate,
+  formatLessonTime,
+  lessonDateTime,
+} from "../../../lib/utils/dateHelpers";
 
 interface Props {
   lessons: TutorDashboardLesson[];
 }
 
 export default function TutorUpcomingLessons({ lessons }: Props) {
-  const now = new Date();
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    if (date.toDateString() === now.toDateString()) return "Today";
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    if (date.toDateString() === tomorrow.toDateString()) return "Tomorrow";
-    return date.toLocaleDateString("en-GB", {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-    });
-  };
+  function formatDate(dateStr: string, tz: string = "Europe/London"): string {
+    const lessonDay = dayjs.tz(`${dateStr} 00:00`, "YYYY-MM-DD HH:mm", tz);
+    const today = dayjs().tz(tz).startOf("day");
+    const tomorrow = today.add(1, "day");
+    if (lessonDay.isSame(today, "day")) return "Today";
+    if (lessonDay.isSame(tomorrow, "day")) return "Tomorrow";
+    return formatLessonDate(dateStr, tz);
+  }
 
   const isJoinable = (lesson: TutorDashboardLesson) => {
-    if (!lesson.meetingUrl) return false;
-
-    const lessonDate = new Date(lesson.date + "T00:00:00");
-    const [sh, sm] = lesson.startTime.split(":").map(Number);
-    const [eh, em] = lesson.endTime.split(":").map(Number);
-
-    const start = new Date(lessonDate);
-    start.setHours(sh, sm, 0, 0);
-
-    const end = new Date(lessonDate);
-    end.setHours(eh, em, 0, 0);
-
-    const nowMs = now.getTime();
-
-    // Joinable: from 15 min before start until the lesson ends
-    return nowMs >= start.getTime() - 15 * 60000 && nowMs <= end.getTime();
+    if (lesson.status !== "confirmed" || !lesson.meetingUrl) return false;
+    const tz = lesson?.timezone || "Europe/London";
+    const start = lessonDateTime(lesson.date, lesson.startTime, tz);
+    const end = lessonDateTime(lesson.date, lesson.endTime, tz);
+    const now = dayjs();
+    return now.isAfter(start.subtract(15, "minute")) && now.isBefore(end);
   };
 
   return (
@@ -136,7 +126,20 @@ export default function TutorUpcomingLessons({ lessons }: Props) {
                   ) : (
                     <div className="flex items-center gap-1 text-[10px] text-[#0B2343]/20 shrink-0">
                       <Clock size={10} />
-                      {lesson.startTime}
+                      <div className="">
+                        {formatLessonTime(
+                          lesson.date,
+                          lesson.startTime,
+                          lesson.timezone || "Europe/London"
+                        )}{" "}
+                        –{" "}
+                        {formatLessonTime(
+                          lesson.date,
+                          lesson.endTime,
+                          lesson.timezone || "Europe/London"
+                        )}
+                        {/* {lesson.startTime} – {lesson.endTime} */}
+                      </div>
                     </div>
                   )}
                 </div>

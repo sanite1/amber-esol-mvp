@@ -65,7 +65,7 @@ export interface Booking {
   date: string; // "YYYY-MM-DD"
   startTime: string; // "HH:mm"
   endTime: string; // "HH:mm"
-  timezone: string;
+  timezone?: string;
 
   price: number;
   currency: string;
@@ -226,6 +226,7 @@ export interface TutorLesson {
   studentLevel: string;
   studentCountry: string;
   lessonType: BookingType;
+  timezone?: string;
   status: BookingStatus;
   specialty: string;
   date: string;
@@ -248,6 +249,7 @@ export interface PendingBooking {
   totalAmount: number;
   requestedDate: string;
   lessonType: BookingType;
+  timezone?: string;
   message?: string;
 }
 
@@ -278,6 +280,7 @@ export interface DashboardUpcomingLesson {
   tutorName: string;
   tutorAvatar: string;
   date: string;
+  timezone?: string;
   startTime: string;
   endTime: string;
   type: BookingType;
@@ -292,6 +295,7 @@ export interface TutorDashboardLesson {
   studentAvatar: string;
   studentLevel: string;
   lessonType: BookingType;
+  timezone?: string;
   status: string;
   specialty: string;
   date: string;
@@ -308,6 +312,7 @@ export interface DashboardPendingBooking {
   studentAvatar: string;
   studentLevel: string;
   lessonType: BookingType;
+  timezone?: string;
   hoursRequested: number;
   totalAmount: number;
   requestedDate: string;

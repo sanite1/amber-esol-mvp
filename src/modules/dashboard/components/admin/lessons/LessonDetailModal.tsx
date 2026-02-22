@@ -15,6 +15,11 @@ import {
 } from "lucide-react";
 import { AdminLesson } from "../../../lib/types/adminLesson";
 
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 interface Props {
   lesson: AdminLesson;
   onClose: () => void;
@@ -57,13 +62,10 @@ const statusConfig: Record<
   no_show: { label: "No-show", bg: "bg-amber-50", text: "text-amber-600" },
 };
 
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+function formatDate(dateStr: string, tz: string = "Europe/London"): string {
+  return dayjs
+    .tz(`${dateStr} 00:00`, "YYYY-MM-DD HH:mm", tz)
+    .format("dddd, D MMMM YYYY");
 }
 
 function InfoRow({

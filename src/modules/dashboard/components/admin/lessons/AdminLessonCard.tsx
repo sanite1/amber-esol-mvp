@@ -2,6 +2,11 @@ import React from "react";
 import { Star, AlertTriangle } from "lucide-react";
 import { AdminLesson } from "../../../lib/types/adminLesson";
 
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 interface Props {
   lesson: AdminLesson;
   onClick: (lesson: AdminLesson) => void;
@@ -85,6 +90,8 @@ function Initials({ name }: { name: string }) {
 }
 
 export default function AdminLessonCard({ lesson, onClick }: Props) {
+  const tz = lesson?.timezone || "Europe/London";
+  const lessonDay = dayjs.tz(`${lesson.date} 00:00`, "YYYY-MM-DD HH:mm", tz);
   const status = statusConfig[lesson.status] || statusConfig.upcoming;
   const payment = paymentConfig[lesson.paymentStatus] || paymentConfig.pending;
 
@@ -120,7 +127,9 @@ export default function AdminLessonCard({ lesson, onClick }: Props) {
                   {lesson.topic || lesson.subject}
                 </p>
                 <p className="text-[10px] sm:text-[11px] text-[#0B2343]/40">
-                  {lesson.startTime} – {lesson.endTime} · {lesson.duration} min
+                  <span>{lessonDay.format("ddd")}</span>{" "}
+                  <span>{lessonDay.date()}</span> · {lesson.startTime} –
+                  {lesson.endTime} · {lesson.duration} min
                 </p>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">

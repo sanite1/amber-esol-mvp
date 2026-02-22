@@ -2,6 +2,14 @@ import { Link } from "react-router-dom";
 import { CalendarClock, ArrowRight } from "lucide-react";
 import type { Transaction } from "../../../data/student/paymentsData";
 
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+const tz = "Europe/London";
+
 interface Props {
   transactions: Transaction[];
 }
@@ -43,11 +51,9 @@ export default function UpcomingPaymentsBanner({ transactions }: Props) {
   const nextSession = allUpcoming[0];
 
   const nextSessionDate = nextSession
-    ? new Date(nextSession.date).toLocaleDateString("en-GB", {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-      })
+    ? dayjs
+        .tz(`${nextSession.date} 00:00`, "YYYY-MM-DD HH:mm", tz)
+        .format("ddd, D MMM")
     : "";
 
   return (

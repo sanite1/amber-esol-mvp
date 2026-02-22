@@ -13,6 +13,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { Lesson } from "../../../data/student/myLessonsData";
+import dayjs from "dayjs";
+import { isLessonInPast, lessonDateTime } from "../../../lib/utils/dateHelpers";
 
 interface Props {
   lesson: Lesson;
@@ -54,23 +56,21 @@ function formatLessonDate(dateStr: string): string {
 
 function isJoinable(lesson: Lesson): boolean {
   if (lesson.status !== "confirmed" || !lesson.meetingUrl) return false;
-  const lessonDate = new Date(lesson.date);
-  const today = new Date();
-  const [h, m] = lesson.startTime.split(":").map(Number);
-  lessonDate.setHours(h, m, 0, 0);
-  const diff = lessonDate.getTime() - today.getTime();
-  // Joinable within 15 min before start to 1 hour after start
-  return diff <= 15 * 60 * 1000 && diff >= -60 * 60 * 1000;
+  const tz = lesson?.timezone || "Europe/London";
+  const start = lessonDateTime(lesson.date, lesson.startTime, tz);
+  const end = lessonDateTime(lesson.date, lesson.endTime, tz);
+  const now = dayjs();
+  return now.isAfter(start.subtract(15, "minute")) && now.isBefore(end);
 }
 
 export default function LessonCard({ lesson, onCancel, onReview }: Props) {
   const [expanded, setExpanded] = useState(false);
   const status = statusConfig[lesson.status];
+
   const upcoming = (() => {
     if (!["confirmed", "pending"].includes(lesson.status)) return false;
-    const now = new Date();
-    const lessonStart = new Date(`${lesson.date}T${lesson.startTime}`);
-    return lessonStart > now;
+    const tz = lesson.timezone || "Europe/London";
+    return !isLessonInPast(lesson.date, lesson.startTime, tz);
   })();
   const joinable = isJoinable(lesson);
 

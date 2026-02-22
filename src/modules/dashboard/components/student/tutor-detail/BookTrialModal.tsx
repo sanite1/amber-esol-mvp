@@ -9,10 +9,15 @@ import {
   CheckCircle2,
   Globe,
 } from "lucide-react";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import type { UserData } from "../../../lib/types/authOnboarding";
 import { useFetchAvailableSlots } from "../../../lib/api/availability";
 import { useCreateBooking } from "../../../lib/api/booking";
 import type { SlotSelection } from "../../../lib/types/booking";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 interface Props {
   tutor: UserData;
@@ -29,20 +34,21 @@ export default function BookTrialModal({ tutor, onClose, onSuccess }: Props) {
   const [weekOffset, setWeekOffset] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
 
+  const tz = tutor.timezone ?? "Europe/London";
+
+  // ── Build the 7-day date picker using dayjs in the tutor's timezone ──
   const dates = useMemo(() => {
-    const result: Date[] = [];
-    const today = new Date();
-    const start = new Date(today);
-    start.setDate(today.getDate() + weekOffset * 7);
+    const today = dayjs().tz(tz).startOf("day");
+    const start = today.add(weekOffset * 7, "day");
+    const result: dayjs.Dayjs[] = [];
     for (let i = 0; i < 7; i++) {
-      const d = new Date(start);
-      d.setDate(start.getDate() + i);
-      if (d >= today) result.push(d);
+      const d = start.add(i, "day");
+      if (!d.isBefore(today)) result.push(d);
     }
     return result;
-  }, [weekOffset]);
+  }, [weekOffset, tz]);
 
-  const toDateStr = (d: Date) => d.toISOString().split("T")[0];
+  const toDateStr = (d: dayjs.Dayjs) => d.format("YYYY-MM-DD");
 
   const slotsQuery = useMemo(
     () => ({ date: selectedDate ?? "", duration: 20 }),
@@ -57,7 +63,7 @@ export default function BookTrialModal({ tutor, onClose, onSuccess }: Props) {
 
   const { mutate: createBooking, isPending: isBooking } = useCreateBooking();
 
-  const handleDateSelect = (d: Date) => {
+  const handleDateSelect = (d: dayjs.Dayjs) => {
     setSelectedDate(toDateStr(d));
     setSelectedSlot(null);
   };
@@ -87,12 +93,15 @@ export default function BookTrialModal({ tutor, onClose, onSuccess }: Props) {
     );
   };
 
-  const formatDayShort = (d: Date) =>
-    d.toLocaleDateString("en-GB", { weekday: "short" });
-  const formatDayNum = (d: Date) => d.getDate();
-  const formatMonth = (d: Date) =>
-    d.toLocaleDateString("en-GB", { month: "short" });
-  const isToday = (d: Date) => d.toDateString() === new Date().toDateString();
+  // ── Timezone-safe date formatters ──
+  const formatDayShort = (d: dayjs.Dayjs) => d.format("ddd");
+  const formatDayNum = (d: dayjs.Dayjs) => d.date();
+  const formatMonth = (d: dayjs.Dayjs) => d.format("MMM");
+  const isTodayInTz = (d: dayjs.Dayjs) => d.isSame(dayjs().tz(tz), "day");
+
+  // Format a YYYY-MM-DD string for display (long form)
+  const formatSelectedDateLong = (dateStr: string) =>
+    dayjs.tz(`${dateStr} 00:00`, "YYYY-MM-DD HH:mm", tz).format("dddd, D MMMM");
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -135,13 +144,9 @@ export default function BookTrialModal({ tutor, onClose, onSuccess }: Props) {
               </h3>
               <p className="text-xs sm:text-[13px] text-[#0B2343]/40 leading-relaxed">
                 Your free trial with {tutor.firstname} on{" "}
-                {selectedDate &&
-                  new Date(selectedDate + "T00:00:00").toLocaleDateString(
-                    "en-GB",
-                    { weekday: "long", day: "numeric", month: "long" }
-                  )}{" "}
-                at {selectedSlot?.startTime} has been confirmed. You'll receive
-                a confirmation email shortly.
+                {selectedDate && formatSelectedDateLong(selectedDate)} at{" "}
+                {selectedSlot?.startTime} has been confirmed. You'll receive a
+                confirmation email shortly.
               </p>
               <button
                 onClick={onClose}
@@ -155,7 +160,7 @@ export default function BookTrialModal({ tutor, onClose, onSuccess }: Props) {
               {/* Timezone */}
               <div className="flex items-center gap-2 text-[11px] sm:text-xs text-[#0B2343]/30">
                 <Globe className="h-3.5 w-3.5" />
-                <span>{tutor.timezone ?? "Europe/London"}</span>
+                <span>{tz}</span>
               </div>
 
               {/* Date picker */}
@@ -202,7 +207,7 @@ export default function BookTrialModal({ tutor, onClose, onSuccess }: Props) {
                           {formatDayNum(d)}
                         </span>
                         <span className="text-[10px] text-[#0B2343]/30">
-                          {isToday(d) ? "Today" : formatMonth(d)}
+                          {isTodayInTz(d) ? "Today" : formatMonth(d)}
                         </span>
                       </button>
                     );
@@ -259,13 +264,7 @@ export default function BookTrialModal({ tutor, onClose, onSuccess }: Props) {
                     <Calendar className="h-5 w-5 text-amber-600 shrink-0" />
                     <div>
                       <p className="text-xs sm:text-[13px] font-medium text-[#0B2343]">
-                        {new Date(
-                          selectedDate + "T00:00:00"
-                        ).toLocaleDateString("en-GB", {
-                          weekday: "long",
-                          day: "numeric",
-                          month: "long",
-                        })}
+                        {formatSelectedDateLong(selectedDate)}
                       </p>
                       <p className="text-[11px] sm:text-xs text-[#0B2343]/40">
                         {selectedSlot.startTime} – {selectedSlot.endTime}
