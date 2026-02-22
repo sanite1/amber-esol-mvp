@@ -57,6 +57,7 @@ export default function ForgotPassword() {
     setErrorMessage(null);
     try {
       const res = await forgotPassword({ email: data.email });
+      console.log("Reset link response:", res);
       setMailSuccess(true);
     } catch (error: any) {
       console.warn(error);
