@@ -8,10 +8,22 @@ import {
   Sparkles,
 } from "lucide-react";
 import heroImg from "../../assets/heroImg.png";
+import { useEffect } from "react";
 
 const APP_URL = process.env.REACT_APP_DASHBOARD_URL || "";
 
 export default function HeroSection() {
+  useEffect(() => {
+    if (true) {
+      // Safari 26 Liquid Glass: tint the toolbar to match the overlay
+      document.body.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+    }
+
+    return () => {
+      // Reset when modal closes or component unmounts
+      document.body.style.backgroundColor = "#ffffff";
+    };
+  }, []);
   return (
     <section className="relative overflow-hidden bg-white">
       {/* Subtle background accents */}
