@@ -86,7 +86,7 @@ export const tutorProfileData: TutorProfileData = {
   ],
   cefrLevels: ["A2", "B1", "B2", "C1", "C2"],
   ageGroups: ["Teens (13-17)", "Adults (18-60)", "Seniors (60+)"],
-  lessonTypes: ["1-on-1", "Conversation Practice", "Exam Prep", "Business"],
+  lessonTypes: ["Individual", "Conversation Practice", "Exam Prep", "Business"],
   languages: [
     { language: "English", level: "Native" },
     { language: "Spanish", level: "Advanced" },

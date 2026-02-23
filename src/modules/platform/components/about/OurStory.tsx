@@ -61,8 +61,8 @@ export default function OurStory() {
               </p>
               <p>
                 That's why we built Amber ESOL, a marketplace that connects
-                learners with verified, certified ESOL tutors through 1-on-1 HD
-                video lessons. We took everything we learned from a decade in
+                learners with verified, certified ESOL tutors through Individual
+                HD video lessons. We took everything we learned from a decade in
                 education and applied it to building something better.
               </p>
             </div>

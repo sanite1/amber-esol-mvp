@@ -115,7 +115,7 @@ export default function HeroSection() {
               data-aos-delay="300"
               className="mt-7 text-lg  text-white/45 leading-relaxed max-w-lg"
             >
-              1-on-1 video lessons with CELTA-certified ESOL tutors.
+              Individual video lessons with CELTA-certified ESOL tutors.
               Personalised learning plans, flexible schedules, and real progress
               , from anywhere.
             </p>
