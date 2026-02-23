@@ -5,21 +5,22 @@ import {
   noticeOptions,
   advanceOptions,
 } from "../../../data/tutor/tutorAvailabilityData";
+import { timezoneOptions } from "../../../data/student/studentProfileData";
 
-const timezoneOptions = [
-  "GMT+0 (London)",
-  "GMT+1 (Paris, Berlin)",
-  "GMT+2 (Cairo, Athens)",
-  "GMT+3 (Moscow, Istanbul)",
-  "GMT+4 (Dubai)",
-  "GMT+5 (Karachi)",
-  "GMT+5:30 (Mumbai)",
-  "GMT+8 (Singapore, Beijing)",
-  "GMT+9 (Tokyo, Seoul)",
-  "GMT-5 (New York)",
-  "GMT-6 (Chicago)",
-  "GMT-8 (Los Angeles)",
-];
+// const timezoneOptions = [
+//   "GMT+0 (London)",
+//   "GMT+1 (Paris, Berlin)",
+//   "GMT+2 (Cairo, Athens)",
+//   "GMT+3 (Moscow, Istanbul)",
+//   "GMT+4 (Dubai)",
+//   "GMT+5 (Karachi)",
+//   "GMT+5:30 (Mumbai)",
+//   "GMT+8 (Singapore, Beijing)",
+//   "GMT+9 (Tokyo, Seoul)",
+//   "GMT-5 (New York)",
+//   "GMT-6 (Chicago)",
+//   "GMT-8 (Los Angeles)",
+// ];
 
 interface Props {
   timezone: string;
@@ -121,9 +122,10 @@ export default function BookingSettingsCard({
             disabled={isSaving}
             className={selectClass}
           >
+            <option value="">Select</option>
             {timezoneOptions.map((tz) => (
-              <option key={tz} value={tz}>
-                {tz}
+              <option key={tz.value} value={tz.value}>
+                {tz.label}
               </option>
             ))}
           </select>

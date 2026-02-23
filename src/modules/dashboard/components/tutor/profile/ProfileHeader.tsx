@@ -433,8 +433,8 @@ export default function ProfileHeader({
               >
                 <option value="">Select</option>
                 {timezoneOptions.map((tz) => (
-                  <option key={tz} value={tz}>
-                    {tz}
+                  <option key={tz.value} value={tz.value}>
+                    {tz.label}
                   </option>
                 ))}
               </select>
