@@ -5,7 +5,6 @@ import StepsSection from "../components/how-it-works/StepsSection";
 import ForStudentsSection from "../components/how-it-works/ForStudentsSection";
 import ForTutorsSection from "../components/how-it-works/ForTutorsSection";
 import PricingPreview from "../components/how-it-works/PricingPreview";
-import HowItWorksCTA from "../components/how-it-works/HowItWorksCTA";
 
 export default function HowItWorks() {
   useEffect(() => {

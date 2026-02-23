@@ -7,7 +7,6 @@ import {
   BookOpen,
   ArrowLeft,
   CheckCircle2,
-  Award,
 } from "lucide-react";
 import { UserData } from "../../../dashboard/lib/types/authOnboarding";
 import { formatDate } from "../../../dashboard/lib/utils/formatDate";
