@@ -39,6 +39,7 @@ code {
 html,
 body {
   overflow-x: hidden; /* prevents horizontal scrollbar pushing layout */
+  background-color: #ffffff;
 }
 
 /* iOS Safari Fixed Element Fix */

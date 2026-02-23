@@ -1,328 +1,221 @@
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
-  Play,
   Star,
   CheckCircle2,
+  Users,
+  BookOpen,
   Sparkles,
-  MessageSquare,
-  Video,
 } from "lucide-react";
+import heroImg from "../../assets/heroImg.png";
+
+const APP_URL = process.env.REACT_APP_DASHBOARD_URL || "";
 
 export default function HeroSection() {
-  const APP_URL = process.env.REACT_APP_DASHBOARD_URL;
-
   return (
-    <section className="relative min-h-[100vh] flex items-center overflow-hidden bg-[#0B2343]">
-      {/* ── Background (no blur, no animations) ── */}
-      <div className="absolute inset-0 pointer-events-none">
-        {/* Radial gradient overlays instead of blur divs */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 600px 600px at 10% 20%, rgba(255,124,34,0.12), transparent), radial-gradient(ellipse 500px 500px at 85% 40%, rgba(255,124,34,0.06), transparent), radial-gradient(ellipse 500px 300px at 40% 90%, rgba(59,130,246,0.03), transparent)",
-          }}
-        />
+    <section className="relative overflow-hidden bg-white">
+      {/* Subtle background accents */}
+      <div className="pointer-events-none absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-[#ff7c22]/[0.04]" />
+      <div className="pointer-events-none absolute -bottom-32 -left-32 w-[400px] h-[400px] rounded-full bg-[#0B2343]/[0.03]" />
 
-        {/* Dot grid pattern via SVG */}
-        <svg
-          className="absolute inset-0 w-full h-full opacity-[0.04]"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <pattern
-              id="heroDots"
-              width="40"
-              height="40"
-              patternUnits="userSpaceOnUse"
-            >
-              <circle cx="20" cy="20" r="1" fill="white" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#heroDots)" />
-        </svg>
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Top mini-stats bar */}
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-b border-gray-100 py-3 text-xs font-medium text-[#0B2343]/50">
+          <span className="flex items-center gap-1.5">
+            <BookOpen size={13} className="text-[#ff7c22]" />
+            2,400+ lessons taught
+          </span>
+          <span className="hidden sm:inline text-[#0B2343]/10">|</span>
+          <span className="flex items-center gap-1.5">
+            <Star size={13} className="text-[#ff7c22]" fill="#ff7c22" />
+            4.9 average rating
+          </span>
+          <span className="hidden sm:inline text-[#0B2343]/10">|</span>
+          <span className="flex items-center gap-1.5">
+            <Users size={13} className="text-[#ff7c22]" />
+            500+ active students
+          </span>
+        </div>
 
-        {/* Diagonal line pattern via SVG */}
-        <svg
-          className="absolute inset-0 w-full h-full opacity-[0.02]"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <pattern
-              id="heroLines"
-              width="80"
-              height="80"
-              patternUnits="userSpaceOnUse"
-            >
-              <path
-                d="M80 0L0 80"
-                stroke="white"
-                strokeWidth="0.5"
-                fill="none"
-              />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#heroLines)" />
-        </svg>
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 lg:py-0 w-full">
-        <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
-          {/* ── Left Column ── */}
-          <div>
+        {/* Main hero content */}
+        <div className="grid items-center gap-10 py-16 sm:py-20 lg:grid-cols-5 lg:gap-12">
+          {/* Left column — text */}
+          <div className="lg:col-span-3">
+            {/* Eyebrow */}
             <div
-              data-aos="fade-down"
-              data-aos-delay="100"
-              className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-[#ff7c22]/20 bg-[#ff7c22]/[0.08] mb-8"
+              data-aos="fade-up"
+              className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#ff7c22]/15 bg-[#ff7c22]/[0.06] px-4 py-1.5 text-xs font-semibold text-[#ff7c22]"
             >
-              <Sparkles size={14} className="text-[#ff7c22]" />
-              <span className="text-sm font-medium text-[#ff7c22]">
-                Free trial lesson, No card needed
-              </span>
-              <ArrowRight size={14} className="text-[#ff7c22]/60" />
+              <Sparkles size={13} />
+              Free trial lesson — no card required
             </div>
 
+            {/* Headline */}
             <h1
               data-aos="fade-up"
-              data-aos-delay="200"
-              className="text-[2.75rem] sm:text-[3.5rem] lg:text-[4rem] font-extrabold text-white leading-[1.05] tracking-tight"
+              data-aos-delay="60"
+              className="text-4xl font-extrabold leading-[1.12] tracking-tight text-[#0B2343] sm:text-5xl lg:text-[3.25rem]"
             >
-              Master English
-              <br />
-              <span className="relative inline-block mt-1">
-                <span className="relative z-10 bg-gradient-to-r from-[#ff7c22] to-[#ffab6e] bg-clip-text text-transparent">
-                  with Confidence
-                </span>
-                <svg
-                  className="absolute -bottom-2 left-0 w-full"
-                  viewBox="0 0 300 12"
-                  fill="none"
-                >
-                  <path
-                    d="M2 8C50 2 100 2 150 6C200 10 250 4 298 8"
-                    stroke="#ff7c22"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    className="opacity-40"
-                  />
-                </svg>
-              </span>
+              Learn English <br />{" "}
+              <span className="text-[#ff7c22]">with a tutor</span> who gets you
             </h1>
 
+            {/* Description */}
             <p
               data-aos="fade-up"
-              data-aos-delay="300"
-              className="mt-7 text-lg  text-white/45 leading-relaxed max-w-lg"
+              data-aos-delay="120"
+              className="mt-5 max-w-md text-base leading-relaxed text-[#0B2343]/55"
             >
-              Individual video lessons with CELTA-certified ESOL tutors.
-              Personalised learning plans, flexible schedules, and real progress
-              , from anywhere.
+              Personal video lessons with certified ESOL tutors. Flexible
+              scheduling, personalised plans, and real conversation practice
+              from anywhere in the world.
             </p>
 
+            {/* Feature pills */}
             <div
               data-aos="fade-up"
-              data-aos-delay="400"
-              className="mt-10 flex flex-wrap items-center gap-4"
+              data-aos-delay="180"
+              className="mt-6 flex flex-wrap gap-2"
             >
-              <Link
-                to={`${APP_URL}/signup`}
-                className="group relative inline-flex items-center gap-2.5 px-8 py-4 text-base font-bold text-white bg-[#ff7c22] rounded-full overflow-hidden hover:shadow-[0_0_40px_rgba(255,124,34,0.4)] transition-all duration-300"
-              >
-                <span className="absolute inset-0 bg-gradient-to-r from-[#ff7c22] to-[#e56a10] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <span className="relative flex items-center gap-2.5">
-                  Start Learning Free
-                  <ArrowRight
-                    size={18}
-                    className="group-hover:translate-x-1 transition-transform duration-300"
-                  />
+              {[
+                "Flexible scheduling",
+                "Individual video lessons",
+                "Certified tutors",
+                "Free trial",
+              ].map((pill) => (
+                <span
+                  key={pill}
+                  className="rounded-full bg-[#0B2343]/[0.04] px-3.5 py-1.5 text-xs font-medium text-[#0B2343]/60"
+                >
+                  {pill}
                 </span>
-              </Link>
-
-              <button className="group inline-flex items-center gap-3 px-6 py-4 text-base font-medium text-white/70 hover:text-white transition-colors duration-200">
-                <span className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors duration-200">
-                  <Play size={18} className="ml-0.5 fill-white text-white" />
-                </span>
-                See how it works
-              </button>
+              ))}
             </div>
 
+            {/* CTAs */}
             <div
               data-aos="fade-up"
-              data-aos-delay="500"
-              className="mt-12 flex items-center gap-5 pt-10 border-t border-white/[0.06]"
+              data-aos-delay="240"
+              className="mt-8 flex flex-wrap items-center gap-4"
             >
-              <div className="flex -space-x-3">
+              <a
+                href={`${APP_URL}/signup`}
+                className="inline-flex items-center gap-2 rounded-full bg-[#0B2343] px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#0B2343]/20 transition hover:bg-[#0B2343]/90"
+              >
+                Start Free Trial
+                <ArrowRight size={15} />
+              </a>
+              <Link
+                to="/tutors"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0B2343]/70 transition hover:text-[#ff7c22]"
+              >
+                Browse Tutors
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            {/* Trust items */}
+            <div
+              data-aos="fade-up"
+              data-aos-delay="300"
+              className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-[#0B2343]/45"
+            >
+              {[
+                "CELTA-certified tutors",
+                "Cancel anytime",
+                "From £20/hour",
+              ].map((item) => (
+                <span key={item} className="flex items-center gap-1.5">
+                  <CheckCircle2
+                    size={14}
+                    className="text-emerald-500 shrink-0"
+                  />
+                  {item}
+                </span>
+              ))}
+            </div>
+
+            {/* Social proof */}
+            <div
+              data-aos="fade-up"
+              data-aos-delay="360"
+              className="mt-8 flex items-center gap-3"
+            >
+              <div className="flex -space-x-2.5">
                 {[
                   "https://randomuser.me/api/portraits/women/44.jpg",
                   "https://randomuser.me/api/portraits/men/32.jpg",
                   "https://randomuser.me/api/portraits/women/68.jpg",
                   "https://randomuser.me/api/portraits/men/75.jpg",
+                  "https://randomuser.me/api/portraits/women/12.jpg",
                 ].map((src, i) => (
                   <img
                     key={i}
                     src={src}
                     alt=""
-                    className="w-10 h-10 rounded-full border-[3px] border-[#0B2343] object-cover"
-                    loading="lazy"
+                    className="h-8 w-8 rounded-full border-2 border-white object-cover"
                   />
                 ))}
-                <div className="w-10 h-10 rounded-full border-[3px] border-[#0B2343] bg-[#ff7c22] flex items-center justify-center text-white text-xs font-bold">
-                  +500
-                </div>
               </div>
-              <div>
-                <div className="flex items-center gap-1">
-                  {[0, 1, 2, 3, 4].map((i) => (
+              <div className="text-xs">
+                <div className="flex items-center gap-1 font-semibold text-[#0B2343]">
+                  {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      size={14}
-                      className="text-[#ff7c22] fill-[#ff7c22]"
+                      size={12}
+                      className="text-[#ff7c22]"
+                      fill="#ff7c22"
                     />
                   ))}
-                  <span className="ml-1.5 text-sm font-bold text-white">
-                    4.9
-                  </span>
+                  <span className="ml-1">4.9</span>
                 </div>
-                <p className="text-sm text-white/35 mt-0.5">
-                  from 500+ happy learners
+                <p className="text-[#0B2343]/40">
+                  Trusted by 500+ learners worldwide
                 </p>
               </div>
             </div>
           </div>
 
-          {/* ── Right Column: Bento Grid ── */}
-          <div className="hidden lg:block relative">
-            <div className="grid grid-cols-2 gap-4">
-              {/* Card 1: Tutor Preview */}
-              <div
-                data-aos="fade-up"
-                data-aos-delay="300"
-                className="col-span-2 bg-white rounded-3xl p-6 shadow-2xl shadow-black/10"
-              >
-                <div className="flex items-start gap-5">
-                  <div className="relative shrink-0">
-                    <img
-                      src="https://randomuser.me/api/portraits/women/44.jpg"
-                      alt="Tutor"
-                      className="w-20 h-20 rounded-2xl object-cover"
-                      loading="lazy"
-                    />
-                    <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#22C55E] border-[3px] border-white flex items-center justify-center">
-                      <CheckCircle2 size={10} className="text-white" />
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-xl font-bold text-[#0B2343]">
-                      Sarah Mitchell
-                    </h3>
-                    <p className="text-sm text-[#0B2343]/45 mt-0.5">
-                      CELTA Certified · 8 years experience
-                    </p>
-                    <div className="flex items-center gap-4 mt-3">
-                      <div className="flex items-center gap-1.5">
-                        <Star
-                          size={14}
-                          className="text-[#ff7c22] fill-[#ff7c22]"
-                        />
-                        <span className="text-sm font-bold text-[#0B2343]">
-                          4.9
-                        </span>
-                        <span className="text-xs text-[#0B2343]/35">(127)</span>
-                      </div>
-                      <span className="w-1 h-1 rounded-full bg-[#0B2343]/15" />
-                      <span className="text-sm text-[#0B2343]/50">
-                        Business English
-                      </span>
-                    </div>
-                    <div className="flex gap-2 mt-3">
-                      {["IELTS", "B2-C2", "Business"].map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2.5 py-1 text-[11px] font-semibold rounded-full bg-[#0B2343]/[0.04] text-[#0B2343]/55"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-2xl font-extrabold text-[#0B2343]">
-                      £25
-                    </p>
-                    <p className="text-xs text-[#0B2343]/35">per hour</p>
-                  </div>
-                </div>
-                <div className="flex gap-3 mt-5">
-                  <button className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-white bg-[#ff7c22] rounded-xl hover:bg-[#e56a10] transition-colors duration-200">
-                    Book Free Trial
-                    <ArrowRight size={15} />
-                  </button>
-                  <button className="px-4 py-3 rounded-xl border border-[#0B2343]/10 text-[#0B2343]/50 hover:border-[#0B2343]/20 hover:text-[#0B2343] transition-colors duration-200">
-                    <MessageSquare size={18} />
-                  </button>
-                </div>
-              </div>
+          {/* Right column — hero image */}
+          <div
+            className="lg:col-span-2"
+            data-aos="fade-left"
+            data-aos-delay="200"
+          >
+            <div className="relative mx-auto max-w-xl lg:max-w-none">
+              {/* Decorative glow behind image */}
+              <div className="pointer-events-none absolute inset-0 -m-6 rounded-3xl bg-gradient-to-br from-[#ff7c22]/10 via-transparent to-[#0B2343]/[0.06] blur-2xl" />
 
-              {/* Card 2: Live Indicator */}
-              <div
-                data-aos="fade-up"
-                data-aos-delay="450"
-                className="bg-gradient-to-br from-[#ff7c22] to-[#e56a10] rounded-2xl p-5 text-white relative overflow-hidden"
-              >
-                <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-white/10" />
-                <div className="relative">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="w-2.5 h-2.5 rounded-full bg-white/80" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-white/80">
-                      Live Now
-                    </span>
-                  </div>
-                  <p className="text-3xl font-extrabold">24</p>
-                  <p className="text-sm text-white/60 mt-1">
-                    Lessons happening right now
+              <img
+                src={heroImg}
+                alt="Student and tutor in an online English lesson"
+                className="relative z-10 w-full rounded-2xl object-cover shadow-xl shadow-[#0B2343]/[0.08]"
+                loading="eager"
+              />
+
+              {/* Floating stat — bottom left */}
+              <div className="absolute -bottom-4 left-4 z-20 flex items-center gap-2.5 rounded-xl bg-white px-4 py-3 shadow-lg shadow-black/[0.06] sm:left-6">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#ff7c22]/10">
+                  <BookOpen size={17} className="text-[#ff7c22]" />
+                </div>
+                <div>
+                  <p className="text-sm font-extrabold text-[#0B2343]">
+                    2,400+
+                  </p>
+                  <p className="text-[11px] text-[#0B2343]/40">
+                    Lessons completed
                   </p>
                 </div>
               </div>
 
-              {/* Card 3: Quick Stats */}
-              <div
-                data-aos="fade-up"
-                data-aos-delay="550"
-                className="bg-white/[0.06] border border-white/[0.08] rounded-2xl p-5 text-white"
-              >
-                <Video size={20} className="text-[#ff7c22] mb-3" />
-                <p className="text-3xl font-extrabold">2,400+</p>
-                <p className="text-sm text-white/40 mt-1">Lessons completed</p>
-              </div>
-
-              {/* Card 4: Next Available */}
-              <div
-                data-aos="fade-up"
-                data-aos-delay="650"
-                className="col-span-2 bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5"
-              >
-                <p className="text-xs font-bold text-[#ff7c22] uppercase tracking-wider mb-3">
-                  Next Available Slots
-                </p>
-                <div className="flex gap-2">
-                  {[
-                    "Today 3:00 PM",
-                    "Today 5:30 PM",
-                    "Tomorrow 10:00 AM",
-                    "Tomorrow 2:00 PM",
-                  ].map((slot, i) => (
-                    <span
-                      key={slot}
-                      className={`px-3.5 py-2 text-xs font-medium rounded-lg border cursor-pointer transition-colors duration-200 ${
-                        i === 0
-                          ? "bg-[#ff7c22] text-white border-[#ff7c22]"
-                          : "text-white/50 border-white/10 hover:border-[#ff7c22]/50 hover:text-white"
-                      }`}
-                    >
-                      {slot}
-                    </span>
-                  ))}
+              {/* Floating stat — top right */}
+              <div className="absolute -top-3 right-4 z-20 flex items-center gap-2.5 rounded-xl bg-white px-4 py-3 shadow-lg shadow-black/[0.06] sm:right-6">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10">
+                  <Users size={17} className="text-emerald-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-extrabold text-[#0B2343]">35+</p>
+                  <p className="text-[11px] text-[#0B2343]/40">Countries</p>
                 </div>
               </div>
             </div>
@@ -330,20 +223,14 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Bottom wave */}
-      {/* <div className="absolute bottom-0 left-0 right-0">
-        <svg
-          viewBox="0 0 1440 80"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full block"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0 40L48 36C96 32 192 24 288 28C384 32 480 48 576 52C672 56 768 48 864 40C960 32 1056 24 1152 28C1248 32 1344 48 1392 56L1440 64V80H1392C1344 80 1248 80 1152 80C1056 80 960 80 864 80C768 80 672 80 576 80C480 80 384 80 288 80C192 80 96 80 48 80H0V40Z"
-            fill="#fafbfc"
-          />
-        </svg>
+      {/* Bottom trust bar */}
+      {/* <div className="border-t border-gray-100 bg-[#fafbfc]">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-4 py-4 text-[11px] font-medium tracking-wide text-[#0B2343]/30 sm:px-6 lg:px-8">
+          <span>CAMBRIDGE CELTA</span>
+          <span>TRINITY CertTESOL</span>
+          <span>BRITISH COUNCIL</span>
+          <span>DELTA</span>
+        </div>
       </div> */}
     </section>
   );
