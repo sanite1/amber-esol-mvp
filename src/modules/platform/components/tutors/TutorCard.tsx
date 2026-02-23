@@ -55,15 +55,15 @@ export default function TutorCard({ tutor }: Props) {
             <p className="text-xs text-[#0B2343]/45 mt-0.5 flex items-center gap-1">
               <Globe size={10} />
               {country || "Unknown"}
-              {tutor.timezone && (
+              {/* {tutor.timezone && (
                 <>
                   <span className="text-[#0B2343]/15">·</span>
                   {tutor.timezone}
                 </>
-              )}
+              )} */}
             </p>
             <div className="flex flex-wrap gap-1.5 mt-2">
-              {tutor.specializations.slice(0, 3).map((b) => (
+              {tutor.specializations.slice(0, 1).map((b) => (
                 <span
                   key={b}
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#ff7c22]/[0.06] text-[10px] font-semibold text-[#ff7c22]"
@@ -72,9 +72,9 @@ export default function TutorCard({ tutor }: Props) {
                   {b}
                 </span>
               ))}
-              {tutor.specializations.length > 3 && (
+              {tutor.specializations.length > 1 && (
                 <span className="text-[10px] text-[#0B2343]/25 self-center">
-                  +{tutor.specializations.length - 3} more
+                  +{tutor.specializations.length - 1} more
                 </span>
               )}
             </div>

@@ -7,6 +7,7 @@ import {
   BookOpen,
   ArrowLeft,
   CheckCircle2,
+  Award,
 } from "lucide-react";
 import { UserData } from "../../../dashboard/lib/types/authOnboarding";
 import { formatDate } from "../../../dashboard/lib/utils/formatDate";
@@ -83,10 +84,29 @@ export default function TutorProfileHeader({ tutor }: Props) {
                 <span className="flex items-center gap-1 text-xs text-white/35">
                   <MapPin size={12} /> {tutor.address?.country}
                 </span>
-                <span className="flex items-center gap-1 text-xs text-white/35">
-                  <BookOpen size={12} /> {tutor.totalLessons} lessons
-                </span>
-                <div className="w-full">
+
+                {/* <div className="flex flex-wrap gap-1.5 ">
+                  {tutor.specializations &&
+                    tutor.specializations.slice(0, 1).map((b) => (
+                      <span
+                        key={b}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#ff7c22]/[0.06] text-[10px] font-semibold text-[#ff7c22]"
+                      >
+                        <Award size={9} />
+                        {b}
+                      </span>
+                    ))}
+                  {tutor.specializations &&
+                    tutor.specializations.length > 1 && (
+                      <span className="text-[10px] text-[#0B2343]/25 self-center">
+                        +{tutor.specializations.length - 1} more
+                      </span>
+                    )}
+                </div> */}
+                <div className="w-full gap-x-4 gap-y-2 flex">
+                  <span className="flex items-center gap-1 text-xs text-white/35">
+                    <BookOpen size={12} /> {tutor.totalLessons} lessons
+                  </span>
                   <span className="flex items-center gap-1 text-xs text-white/35">
                     <Globe size={12} />{" "}
                     {tutor.languages?.map((l) => l.name).join(", ")}

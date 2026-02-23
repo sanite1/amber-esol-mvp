@@ -124,7 +124,7 @@ const stats = [
   },
   {
     icon: <Star size={22} />,
-    target: 49,
+    target: 4.9,
     suffix: "",
     label: "Average Rating",
     sub: "out of 50 reviews",

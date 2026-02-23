@@ -20,7 +20,7 @@ export default function HowItWorks() {
       <ForStudentsSection />
       <ForTutorsSection />
       <PricingPreview />
-      <HowItWorksCTA />
+      {/* <HowItWorksCTA /> */}
     </div>
   );
 }

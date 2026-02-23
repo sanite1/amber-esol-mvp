@@ -311,10 +311,10 @@ export default function Privacy() {
                 <ArrowRight size={14} />
               </a>
               <a
-                href="tel:+442079460958"
+                href="tel:+447763658885"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-white/[0.06] border border-white/[0.08] text-white/70 text-sm font-semibold rounded-xl hover:bg-white/[0.1] transition-colors"
               >
-                <Phone size={16} /> 020 7946 0958
+                <Phone size={16} /> +44 7763 658885
               </a>
             </div>
             <p className="text-[11px] text-white/25 mt-5">

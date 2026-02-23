@@ -36,7 +36,7 @@ const perks = [
   {
     icon: Headphones,
     title: "Support when you need it",
-    desc: "Our team responds within 2 hours via email or live chat.",
+    desc: "Our team responds within 24 hours via email or live chat.",
   },
 ];
 

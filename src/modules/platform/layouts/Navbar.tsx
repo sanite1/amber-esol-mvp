@@ -399,11 +399,11 @@ export default function Header() {
               </p>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  {
-                    icon: <Shield size={16} />,
-                    label: "Trust & Safety",
-                    path: "/trust",
-                  },
+                  // {
+                  //   icon: <Shield size={16} />,
+                  //   label: "Trust & Safety",
+                  //   path: "/trust",
+                  // },
                   {
                     icon: <MessageCircle size={16} />,
                     label: "Support",
@@ -412,13 +412,13 @@ export default function Header() {
                   {
                     icon: <FileText size={16} />,
                     label: "Blog",
-                    path: "/blog",
+                    path: "/blogs",
                   },
-                  {
-                    icon: <GraduationCap size={16} />,
-                    label: "Teach with us",
-                    path: `${APP_URL}/signup`,
-                  },
+                  // {
+                  //   icon: <GraduationCap size={16} />,
+                  //   label: "Teach with us",
+                  //   path: `${APP_URL}/signup`,
+                  // },
                 ].map((item) => (
                   <Link
                     key={item.label}
@@ -449,12 +449,12 @@ export default function Header() {
 
             <div className="mt-auto px-5 py-4 border-t border-[#0B2343]/5 bg-[#0B2343]/[0.02]">
               <a
-                href="tel:+442079460958"
+                href="tel:+447763658885"
                 className="flex items-center gap-2.5 text-sm text-[#0B2343]/50 hover:text-[#ff7c22] transition-colors"
               >
                 <Phone size={14} />
                 Need help?{" "}
-                <strong className="text-[#0B2343]">020 7946 0958</strong>
+                <strong className="text-[#0B2343]">+44 7763 658885</strong>
               </a>
             </div>
           </div>

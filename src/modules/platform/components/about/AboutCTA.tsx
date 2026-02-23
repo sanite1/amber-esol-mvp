@@ -50,7 +50,7 @@ export default function AboutCTA() {
 
             <div className="flex flex-col sm:flex-row gap-4 lg:justify-end">
               <Link
-                to={`${APP_URL}/signup`}
+                to={`${APP_URL}/signup/student`}
                 className="group inline-flex items-center justify-center gap-2.5 px-7 py-4 text-sm font-bold text-white bg-[#ff7c22] rounded-full hover:bg-[#e56a10] transition-colors duration-200"
               >
                 <GraduationCap size={18} />
@@ -61,7 +61,7 @@ export default function AboutCTA() {
                 />
               </Link>
               <Link
-                to={`${APP_URL}/signup`}
+                to={`${APP_URL}/signup/tutor`}
                 className="inline-flex items-center justify-center gap-2.5 px-7 py-4 text-sm font-bold text-white border border-white/15 rounded-full hover:bg-white/[0.05] transition-colors duration-200"
               >
                 <Users size={18} />

@@ -52,7 +52,7 @@ export default function ForTutorsSection() {
               payments, scheduling, and the classroom, you focus on teaching.
             </p>
             <Link
-              to={`${APP_URL}/signup`}
+              to={`${APP_URL}/signup/tutor`}
               className="inline-flex items-center gap-2 px-7 py-3 mt-6 bg-[#0B2343] text-white text-sm font-bold rounded-full hover:bg-[#0B2343]/90 transition-colors"
             >
               Apply as a Tutor <ArrowRight size={14} />

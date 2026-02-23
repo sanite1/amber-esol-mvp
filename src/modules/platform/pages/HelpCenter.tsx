@@ -202,7 +202,7 @@ export default function Help() {
             className="mt-4 text-lg text-white/40 max-w-lg mx-auto"
           >
             Search our FAQs or submit a support ticket, we usually reply within
-            2 hours.
+            24 hours.
           </p>
 
           <div
@@ -224,7 +224,7 @@ export default function Help() {
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0">
+        {/* <div className="absolute bottom-0 left-0 right-0">
           <svg
             viewBox="0 0 1440 50"
             fill="none"
@@ -233,7 +233,7 @@ export default function Help() {
           >
             <path d="M0 25L720 50L1440 25V50H0V25Z" fill="white" />
           </svg>
-        </div>
+        </div> */}
       </section>
 
       {/* ── FAQ Section ── */}
@@ -275,7 +275,7 @@ export default function Help() {
                   />
                 </a>
                 <a
-                  href="tel:+442079460958"
+                  href="tel:+447763658885"
                   className="flex items-center gap-3 p-3.5 rounded-xl bg-[#0B2343]/[0.03] border border-[#0B2343]/[0.05] hover:border-[#ff7c22]/20 transition-colors duration-200 group"
                 >
                   <div className="w-9 h-9 rounded-lg bg-[#ff7c22]/[0.07] flex items-center justify-center text-[#ff7c22]">
@@ -285,7 +285,7 @@ export default function Help() {
                     <p className="text-sm font-semibold text-[#0B2343]">
                       Call Us
                     </p>
-                    <p className="text-xs text-[#0B2343]/35">020 7946 0958</p>
+                    <p className="text-xs text-[#0B2343]/35">+44 7763 658885</p>
                   </div>
                   <ChevronRight
                     size={14}

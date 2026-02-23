@@ -9,22 +9,22 @@ const contactMethods = [
     label: "Email us",
     value: "hello@ambertraining.co.uk",
     href: "mailto:hello@ambertraining.co.uk",
-    response: "We reply within 2 hours",
+    response: "We reply within 24 hours",
   },
   {
     icon: Phone,
     label: "Call us",
     value: "+44 (0)20 7946 0958",
-    href: "tel:+442079460958",
+    href: "tel:+447763658885",
     response: "Mon–Fri, 9am–6pm GMT",
   },
-  {
-    icon: MapPin,
-    label: "Visit us",
-    value: "London, United Kingdom",
-    href: "https://maps.google.com/?q=London,UK",
-    response: "By appointment only",
-  },
+  // {
+  //   icon: MapPin,
+  //   label: "Visit us",
+  //   value: "London, United Kingdom",
+  //   href: "https://maps.google.com/?q=London,UK",
+  //   response: "By appointment only",
+  // },
 ];
 
 export default function Contact() {
@@ -113,7 +113,7 @@ export default function Contact() {
 
       {/* ── Contact Methods ── */}
       <section className="relative -mt-10 mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <div className="grid sm:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 gap-4">
           {contactMethods.map((m, i) => (
             <a
               key={m.label}
@@ -154,7 +154,7 @@ export default function Contact() {
                   Message sent!
                 </h3>
                 <p className="text-sm text-[#0B2343]/50 mt-2 mb-6">
-                  We'll get back to you within 2 hours.
+                  We'll get back to you within 24 hours.
                 </p>
                 <button
                   onClick={resetForm}

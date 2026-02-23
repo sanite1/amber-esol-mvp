@@ -26,7 +26,7 @@ export const ticketCategories: TicketCategory[] = [
       "Problems with scheduling, rescheduling, or cancelling lessons.",
     icon: CalendarX,
     priority: "high",
-    responseTime: "2 hours",
+    responseTime: "24 hours",
   },
   {
     id: "payments",

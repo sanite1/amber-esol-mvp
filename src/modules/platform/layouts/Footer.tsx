@@ -14,14 +14,15 @@ import {
 } from "lucide-react";
 import logo from "../assets/logo.png";
 
+const APP_URL = process.env.REACT_APP_DASHBOARD_URL;
 const footerSections = [
   {
     title: "Platform",
     links: [
       { name: "Find Tutors", path: "/tutors" },
       { name: "How It Works", path: "/how-it-works" },
-      { name: "Pricing", path: "/pricing" },
-      { name: "Become a Tutor", path: "/auth/register?role=tutor" },
+      // { name: "Pricing", path: "/pricing" },
+      { name: "Become a Tutor", path: `${APP_URL}/signup/tutor` },
     ],
   },
   {
@@ -77,7 +78,7 @@ export default function Footer() {
               </div>
               <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
                 <Link
-                  to="/auth/register"
+                  to={`${APP_URL}/signup/student`}
                   className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-white text-[#ff7c22] font-bold text-base rounded-full hover:bg-white/90 transition-colors duration-200"
                 >
                   Start Learning Free
@@ -143,13 +144,13 @@ export default function Footer() {
                 hello@ambertraining.co.uk
               </a>
               <a
-                href="tel:+442079460958"
+                href="tel:+447763658885"
                 className="flex items-center gap-3 text-sm text-white/40 hover:text-[#ff7c22] transition-colors group"
               >
                 <span className="w-8 h-8 rounded-lg bg-white/[0.05] flex items-center justify-center group-hover:bg-[#ff7c22]/10 transition-colors">
                   <Phone size={14} />
                 </span>
-                020 7946 0958
+                +44 7763 658885
               </a>
               <div className="flex items-center gap-3 text-sm text-white/40">
                 <span className="w-8 h-8 rounded-lg bg-white/[0.05] flex items-center justify-center">

@@ -14,12 +14,12 @@ const plans = [
       "No credit card required",
     ],
     cta: "Book a Free Trial",
-    ctaLink: `${APP_URL}/signup`,
+    ctaLink: `${APP_URL}/signup/student`,
     highlighted: false,
   },
   {
     name: "Pay-as-you-go",
-    price: "£20–35",
+    price: "£20–45",
     unit: "/ lesson",
     desc: "Perfect for flexible learners",
     features: [
@@ -29,23 +29,8 @@ const plans = [
       "Cancel up to 12 hrs before",
     ],
     cta: "Get Started",
-    ctaLink: `${APP_URL}/signup`,
+    ctaLink: `${APP_URL}/signup/student`,
     highlighted: true,
-  },
-  {
-    name: "Packages",
-    price: "Save 15%",
-    unit: "",
-    desc: "For committed learners",
-    features: [
-      "Buy 5 or 10 lesson bundles",
-      "Discounted per-lesson rate",
-      "Priority booking",
-      "Progress tracking",
-    ],
-    cta: "View Pricing",
-    ctaLink: "/pricing",
-    highlighted: false,
   },
 ];
 
@@ -70,7 +55,7 @@ export default function PricingPreview() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-5">
+        <div className="grid md:grid-cols-2 gap-5">
           {plans.map((plan, i) => (
             <div
               key={plan.name}

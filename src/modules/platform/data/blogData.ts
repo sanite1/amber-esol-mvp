@@ -43,8 +43,8 @@ export const blogData: BlogPost[] = [
     image: "/images/blog/online-lessons.jpg",
     category: "Language Learning",
     date: "Feb 10, 2026",
-    author: "James Hartwell",
-    authorRole: "Senior Tutor",
+    author: "Amber Training Team",
+    authorRole: "Product Team",
     readTime: "7 min read",
     featured: true,
     content: [
@@ -101,8 +101,8 @@ Remember: it's not about how many lessons you take, it's about how much you put 
     image: "/images/blog/english-mistakes.jpg",
     category: "Language Learning",
     date: "Feb 03, 2026",
-    author: "Sophie Laurent",
-    authorRole: "IELTS Specialist",
+    author: "Amber Training Team",
+    authorRole: "Product Team",
     readTime: "6 min read",
     content: [
       {
@@ -158,8 +158,8 @@ Your English journey is a marathon, not a sprint. Enjoy the process and celebrat
     image: "/images/blog/tutor-guide.jpg",
     category: "Tutor Guides",
     date: "Jan 27, 2026",
-    author: "Emily Watson",
-    authorRole: "Platform Tutor",
+    author: "Amber Training Team",
+    authorRole: "Product Team",
     readTime: "8 min read",
     content: [
       {
@@ -215,8 +215,8 @@ Your reputation is your most powerful growth engine. Invest in every student rel
     image: "/images/blog/ielts-prep.jpg",
     category: "Student Success",
     date: "Jan 20, 2026",
-    author: "Sophie Laurent",
-    authorRole: "IELTS Specialist",
+    author: "Amber Training Team",
+    authorRole: "Product Team",
     readTime: "6 min read",
     content: [
       {
@@ -266,8 +266,8 @@ Your IELTS score can open doors to universities, careers, and countries around t
     image: "/images/blog/adult-learning.jpg",
     category: "Language Learning",
     date: "Jan 14, 2026",
-    author: "James Hartwell",
-    authorRole: "Senior Tutor",
+    author: "Amber Training Team",
+    authorRole: "Product Team",
     readTime: "5 min read",
     content: [
       {

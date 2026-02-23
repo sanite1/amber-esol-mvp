@@ -289,10 +289,10 @@ export default function Terms() {
                             <Mail size={14} /> hello@ambertraining.co.uk
                           </a>
                           <a
-                            href="tel:+442079460958"
+                            href="tel:+447763658885"
                             className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0B2343]/[0.04] rounded-xl text-sm font-semibold text-[#0B2343]/70 hover:text-[#ff7c22] transition-colors"
                           >
-                            <Phone size={14} /> 020 7946 0958
+                            <Phone size={14} /> +44 7763 658885
                           </a>
                         </div>
                       </>

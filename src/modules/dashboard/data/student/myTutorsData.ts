@@ -84,7 +84,7 @@ export const myTutors: MyTutor[] = [
     totalReviews: 203,
     hourlyRate: 28,
     trialRate: 0,
-    responseTime: "< 2 hours",
+    responseTime: "< 24 hours",
     timezone: "GMT+1 (Lagos)",
     totalLessonsWithMe: 8,
     completedLessons: 8,
