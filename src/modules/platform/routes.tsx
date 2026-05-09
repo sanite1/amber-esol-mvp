@@ -14,6 +14,8 @@ import Contact from "./pages/Contact";
 import FindTutors from "./pages/FindTutors";
 import HowItWorks from "./pages/HowItWorks";
 import TutorDetail from "./pages/TutorDetail";
+import EsolLanding from "./pages/EsolLanding";
+import EsolForOrgs from "./pages/EsolForOrgs";
 
 export const PlatformRoutes: React.FC = () => {
   return (
@@ -31,6 +33,8 @@ export const PlatformRoutes: React.FC = () => {
           <Route path="/tutors" element={<FindTutors />} />
           <Route path="/tutors/:id" element={<TutorDetail />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/esol" element={<EsolLanding />} />
+          <Route path="/esol/for-organisations" element={<EsolForOrgs />} />
           <Route path="/blogs" element={<BlogsPage />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
         </Route>

@@ -20,6 +20,9 @@ import {
   MessagesSquare,
   Library,
   Sparkles,
+  ShieldAlert,
+  Receipt,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getDecodedJwt } from "../lib/auth";
@@ -44,6 +47,7 @@ const DashboardLayout = () => {
   const isStudent = user?.role === "student";
   const isOrgAdmin = user?.role === "org_admin";
   const isEsolLearner = isStudent && Boolean(user?.orgId);
+  const isEsolTeacher = isTutor && Boolean(user?.esolTeacherApproved);
   const roleLabel = isAdmin
     ? "Administrator"
     : isOrgAdmin
@@ -96,6 +100,10 @@ const DashboardLayout = () => {
           ],
         },
         {
+          label: "Finance",
+          items: [{ name: "Invoices", icon: Receipt, path: "/org/invoices" }],
+        },
+        {
           label: "Organisation",
           items: [{ name: "Settings", icon: Settings, path: "/org/settings" }],
         },
@@ -123,13 +131,28 @@ const DashboardLayout = () => {
           label: "ESOL",
           items: [
             { name: "Organisations", icon: Building2, path: "/admin/orgs" },
+            {
+              name: "ESOL Teachers",
+              icon: GraduationCap,
+              path: "/admin/esol-teachers",
+            },
+            {
+              name: "Safeguarding",
+              icon: ShieldAlert,
+              path: "/admin/safeguarding",
+            },
           ],
         },
         {
           label: "Finance",
           items: [
             { name: "Payments", icon: CreditCard, path: "/admin/payments" },
+            { name: "Invoices", icon: Receipt, path: "/admin/invoices" },
           ],
+        },
+        {
+          label: "Compliance",
+          items: [{ name: "Reports", icon: FileText, path: "/admin/reports" }],
         },
         // {
         //   label: "System",
@@ -141,7 +164,7 @@ const DashboardLayout = () => {
     }
 
     if (isTutor) {
-      return [
+      const sections: MenuSection[] = [
         {
           label: "Overview",
           items: [
@@ -156,6 +179,18 @@ const DashboardLayout = () => {
             { name: "My Students", icon: Users, path: "/tutor/students" },
           ],
         },
+      ];
+
+      if (isEsolTeacher) {
+        sections.push({
+          label: "ESOL",
+          items: [
+            { name: "ESOL Sessions", icon: Sparkles, path: "/tutor/esol" },
+          ],
+        });
+      }
+
+      sections.push(
         {
           label: "Profile",
           items: [
@@ -175,7 +210,9 @@ const DashboardLayout = () => {
             { name: "Settings", icon: Settings, path: "/tutor/settings" },
           ],
         },
-      ];
+      );
+
+      return sections;
     }
 
     if (isEsolLearner) {

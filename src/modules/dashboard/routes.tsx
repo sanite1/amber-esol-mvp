@@ -42,6 +42,13 @@ import OrgSettings from "./pages/orgAdmin/OrgSettings";
 import EsolLearnerHome from "./pages/student/EsolLearnerHome";
 import EsolSession from "./pages/student/EsolSession";
 import EsolVocab from "./pages/student/EsolVocab";
+import EsolTutorHome from "./pages/tutor/EsolTutorHome";
+import EsolTutorSession from "./pages/tutor/EsolTutorSession";
+import EsolTeacherApproval from "./pages/admin/EsolTeacherApproval";
+import AdminSafeguardingAlerts from "./pages/admin/AdminSafeguardingAlerts";
+import AdminInvoices from "./pages/admin/AdminInvoices";
+import AdminReports from "./pages/admin/AdminReports";
+import OrgInvoices from "./pages/orgAdmin/OrgInvoices";
 import RoleRoute from "./components/routes/RoleRoute";
 
 export const DashboardRoutes: React.FC = () => {
@@ -76,6 +83,7 @@ export const DashboardRoutes: React.FC = () => {
             />
             <Route path="/org/invitations" element={<OrgInvitations />} />
             <Route path="/org/teachers" element={<OrgEsolTeachers />} />
+            <Route path="/org/invoices" element={<OrgInvoices />} />
             <Route path="/org/settings" element={<OrgSettings />} />
           </Route>
 
@@ -90,6 +98,12 @@ export const DashboardRoutes: React.FC = () => {
             <Route path="/tutor/messages" element={<TutorMessages />} />
             <Route path="/tutor/earnings" element={<TutorEarnings />} />
             <Route path="/tutor/settings" element={<TutorSettings />} />
+            {/* ESOL teacher routes */}
+            <Route path="/tutor/esol" element={<EsolTutorHome />} />
+            <Route
+              path="/tutor/esol/:sessionId"
+              element={<EsolTutorSession />}
+            />
           </Route>
 
           {/* ── Admin routes ── */}
@@ -103,6 +117,16 @@ export const DashboardRoutes: React.FC = () => {
             <Route path="/admin/settings" element={<AdminSettings />} />
             <Route path="/admin/tickets" element={<AdminTickets />} />
             <Route path="/admin/orgs" element={<AdminOrgs />} />
+            <Route
+              path="/admin/esol-teachers"
+              element={<EsolTeacherApproval />}
+            />
+            <Route
+              path="/admin/safeguarding"
+              element={<AdminSafeguardingAlerts />}
+            />
+            <Route path="/admin/invoices" element={<AdminInvoices />} />
+            <Route path="/admin/reports" element={<AdminReports />} />
           </Route>
         </Route>
       </Route>

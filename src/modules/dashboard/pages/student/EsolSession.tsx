@@ -9,6 +9,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { useGetSession, useSubmitTurn } from "../../lib/api/esolSession";
+import { useGetSessionFeedback } from "../../lib/api/esolSessionFeedback";
 import { getDecodedJwt } from "../../lib/auth";
 import {
   sessionModeColours,
@@ -16,6 +17,7 @@ import {
   sessionModeDescription,
 } from "../../lib/utils/esolHelpers";
 import SessionTurnBubble from "../../components/student/SessionTurnBubble";
+import SubmitFeedbackModal from "../../components/student/SubmitFeedbackModal";
 
 export default function EsolSession() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -25,12 +27,38 @@ export default function EsolSession() {
 
   const { data, isLoading } = useGetSession(sessionId);
   const { mutateAsync: submitTurn, isPending: isSending } = useSubmitTurn();
+  const { data: feedbackData } = useGetSessionFeedback(sessionId);
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
 
   const session = data?.data;
+  const learnerFeedbackSubmitted = Boolean(feedbackData?.data?.learnerRating);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [session?.turns?.length]);
+
+  // Auto-prompt for feedback once when a session is completed and learner hasn't rated yet
+  useEffect(() => {
+    if (
+      session?.completedAt &&
+      feedbackData &&
+      !learnerFeedbackSubmitted &&
+      !feedbackModalOpen
+    ) {
+      const dismissed = sessionStorage.getItem(`fb-dismissed-${session._id}`);
+      if (!dismissed) {
+        setFeedbackModalOpen(true);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.completedAt, learnerFeedbackSubmitted, feedbackData]);
+
+  const handleCloseFeedback = () => {
+    if (session?._id) {
+      sessionStorage.setItem(`fb-dismissed-${session._id}`, "1");
+    }
+    setFeedbackModalOpen(false);
+  };
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,6 +126,14 @@ export default function EsolSession() {
             <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md">
               <CheckCircle2 size={11} /> Completed
             </span>
+          )}
+          {isCompleted && !learnerFeedbackSubmitted && (
+            <button
+              onClick={() => setFeedbackModalOpen(true)}
+              className="inline-flex items-center gap-1.5 text-[10px] font-bold text-[#ff7c22] bg-[#ff7c22]/10 px-2.5 py-1 rounded-md hover:bg-[#ff7c22]/20 transition-colors"
+            >
+              Rate session
+            </button>
           )}
         </div>
       </div>
@@ -191,6 +227,13 @@ export default function EsolSession() {
           </div>
         )}
       </form>
+
+      <SubmitFeedbackModal
+        open={feedbackModalOpen}
+        onClose={handleCloseFeedback}
+        sessionId={session._id}
+        topic={session.topic}
+      />
     </div>
   );
 }

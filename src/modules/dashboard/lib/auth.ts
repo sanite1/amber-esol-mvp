@@ -9,6 +9,7 @@ export interface DecodedJwt {
   profilePicture: string;
   orgId?: string | null;
   esolLevel?: string | null;
+  esolTeacherApproved?: boolean | null;
   exp: number;
   iat: number;
 }
@@ -98,6 +99,17 @@ export const isEsolLearner = (): boolean => {
   try {
     const decodedToken = getDecodedJwt();
     return Boolean(decodedToken?.role === "student" && decodedToken?.orgId);
+  } catch {
+    return false;
+  }
+};
+
+export const isEsolTeacher = (): boolean => {
+  try {
+    const decodedToken = getDecodedJwt();
+    return Boolean(
+      decodedToken?.role === "tutor" && decodedToken?.esolTeacherApproved,
+    );
   } catch {
     return false;
   }

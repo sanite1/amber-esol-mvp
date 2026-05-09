@@ -13,6 +13,7 @@ import {
   ArrowRight,
   MessageCircle,
   FileText,
+  Building2,
 } from "lucide-react";
 import logo from "../assets/logo.png";
 
@@ -48,6 +49,24 @@ const navLinks: NavItem[] = [
         path: "/how-it-works",
         icon: <BookOpen size={20} />,
         desc: "Simple 3-step booking process",
+      },
+    ],
+  },
+  {
+    name: "ESOL",
+    path: "#",
+    children: [
+      {
+        name: "ESOL Programme",
+        path: "/esol",
+        icon: <Sparkles size={20} />,
+        desc: "AI-supported English for adult learners",
+      },
+      {
+        name: "For Organisations",
+        path: "/esol/for-organisations",
+        icon: <Building2 size={20} />,
+        desc: "Managed ESOL delivery for your team",
       },
     ],
   },
