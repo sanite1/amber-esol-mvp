@@ -8,6 +8,7 @@ import ConfirmEmail from "../../pages/onboarding/ConfirmEmail";
 import SignupChoice from "../../pages/onboarding/SignupChoice";
 import StudentRegister from "../../pages/onboarding/StudentRegister";
 import TutorRegister from "../../pages/onboarding/TutorRegister";
+import EsolJoin from "../../pages/onboarding/EsolJoin";
 
 export const Auth: React.FC = () => {
   return (
@@ -23,6 +24,7 @@ export const Auth: React.FC = () => {
       <Route path="/verify/:id/:token" element={<VerifyEmail />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:id/:token" element={<ResetPassword />} />
+      <Route path="/esol/join" element={<EsolJoin />} />
     </Routes>
   );
 };

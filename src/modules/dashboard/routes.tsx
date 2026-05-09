@@ -32,6 +32,16 @@ import AdminPayments from "./pages/admin/AdminPayments";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminTickets from "./pages/admin/AdminTickets";
+import AdminOrgs from "./pages/admin/AdminOrgs";
+import OrgAdminDashboard from "./pages/orgAdmin/OrgAdminDashboard";
+import OrgLearners from "./pages/orgAdmin/OrgLearners";
+import OrgLearnerDetail from "./pages/orgAdmin/OrgLearnerDetail";
+import OrgInvitations from "./pages/orgAdmin/OrgInvitations";
+import OrgEsolTeachers from "./pages/orgAdmin/OrgEsolTeachers";
+import OrgSettings from "./pages/orgAdmin/OrgSettings";
+import EsolLearnerHome from "./pages/student/EsolLearnerHome";
+import EsolSession from "./pages/student/EsolSession";
+import EsolVocab from "./pages/student/EsolVocab";
 import RoleRoute from "./components/routes/RoleRoute";
 
 export const DashboardRoutes: React.FC = () => {
@@ -50,6 +60,23 @@ export const DashboardRoutes: React.FC = () => {
             <Route path="/payments" element={<Payments />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
+            {/* ESOL learner routes (org-managed students) */}
+            <Route path="/esol/home" element={<EsolLearnerHome />} />
+            <Route path="/esol/sessions/:sessionId" element={<EsolSession />} />
+            <Route path="/esol/vocab" element={<EsolVocab />} />
+          </Route>
+
+          {/* ── Org admin routes ── */}
+          <Route element={<RoleRoute allowed={["org_admin"]} />}>
+            <Route path="/org/home" element={<OrgAdminDashboard />} />
+            <Route path="/org/learners" element={<OrgLearners />} />
+            <Route
+              path="/org/learners/:learnerId"
+              element={<OrgLearnerDetail />}
+            />
+            <Route path="/org/invitations" element={<OrgInvitations />} />
+            <Route path="/org/teachers" element={<OrgEsolTeachers />} />
+            <Route path="/org/settings" element={<OrgSettings />} />
           </Route>
 
           {/* ── Tutor routes ── */}
@@ -75,6 +102,7 @@ export const DashboardRoutes: React.FC = () => {
             <Route path="/admin/reviews" element={<AdminReviews />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
             <Route path="/admin/tickets" element={<AdminTickets />} />
+            <Route path="/admin/orgs" element={<AdminOrgs />} />
           </Route>
         </Route>
       </Route>

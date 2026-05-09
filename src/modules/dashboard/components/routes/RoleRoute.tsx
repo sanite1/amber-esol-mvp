@@ -16,7 +16,11 @@ const RoleRoute: React.FC<RoleRouteProps> = ({ allowed }) => {
         ? "/tutor/home"
         : user?.role === "admin"
           ? "/admin/home"
-          : "/";
+          : user?.role === "org_admin"
+            ? "/org/home"
+            : user?.orgId
+              ? "/esol/home"
+              : "/";
 
     return <Navigate to={home} replace />;
   }

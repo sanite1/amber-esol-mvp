@@ -5,8 +5,10 @@ export interface DecodedJwt {
   firstname: string;
   lastname: string;
   email: string;
-  role: "admin" | "tutor" | "student";
+  role: "admin" | "tutor" | "student" | "org_admin";
   profilePicture: string;
+  orgId?: string | null;
+  esolLevel?: string | null;
   exp: number;
   iat: number;
 }
@@ -78,6 +80,24 @@ export const isStudent = (): boolean => {
   try {
     const decodedToken = getDecodedJwt();
     return decodedToken?.role === "student" || false;
+  } catch {
+    return false;
+  }
+};
+
+export const isOrgAdmin = (): boolean => {
+  try {
+    const decodedToken = getDecodedJwt();
+    return decodedToken?.role === "org_admin" || false;
+  } catch {
+    return false;
+  }
+};
+
+export const isEsolLearner = (): boolean => {
+  try {
+    const decodedToken = getDecodedJwt();
+    return Boolean(decodedToken?.role === "student" && decodedToken?.orgId);
   } catch {
     return false;
   }

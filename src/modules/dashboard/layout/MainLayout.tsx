@@ -15,6 +15,11 @@ import {
   CreditCard,
   Clock,
   Briefcase,
+  Building2,
+  Mail,
+  MessagesSquare,
+  Library,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getDecodedJwt } from "../lib/auth";
@@ -37,7 +42,15 @@ const DashboardLayout = () => {
   const isAdmin = user?.role === "admin";
   const isTutor = user?.role === "tutor";
   const isStudent = user?.role === "student";
-  const roleLabel = isAdmin ? "Administrator" : isTutor ? "Tutor" : "Student";
+  const isOrgAdmin = user?.role === "org_admin";
+  const isEsolLearner = isStudent && Boolean(user?.orgId);
+  const roleLabel = isAdmin
+    ? "Administrator"
+    : isOrgAdmin
+      ? "Organisation Admin"
+      : isTutor
+        ? "Tutor"
+        : "Student";
   const showProfileCompletion = (isStudent || isTutor) && percentage < 100;
 
   const FRONTEND_URL = process.env.REACT_APP_FRONTEND_URL;
@@ -62,6 +75,33 @@ const DashboardLayout = () => {
 
   // ── Role-based navigation ──
   const getMenuSections = (): MenuSection[] => {
+    if (isOrgAdmin) {
+      return [
+        {
+          label: "Overview",
+          items: [
+            { name: "Dashboard", icon: LayoutDashboard, path: "/org/home" },
+          ],
+        },
+        {
+          label: "ESOL",
+          items: [
+            { name: "Learners", icon: Users, path: "/org/learners" },
+            { name: "Invitations", icon: Mail, path: "/org/invitations" },
+            {
+              name: "ESOL Teachers",
+              icon: GraduationCap,
+              path: "/org/teachers",
+            },
+          ],
+        },
+        {
+          label: "Organisation",
+          items: [{ name: "Settings", icon: Settings, path: "/org/settings" }],
+        },
+      ];
+    }
+
     if (isAdmin) {
       return [
         {
@@ -77,6 +117,12 @@ const DashboardLayout = () => {
             { name: "All Tutors", icon: GraduationCap, path: "/admin/tutors" },
             { name: "Lessons", icon: Calendar, path: "/admin/lessons" },
             { name: "Reviews", icon: MessageSquare, path: "/admin/reviews" },
+          ],
+        },
+        {
+          label: "ESOL",
+          items: [
+            { name: "Organisations", icon: Building2, path: "/admin/orgs" },
           ],
         },
         {
@@ -127,6 +173,33 @@ const DashboardLayout = () => {
             },
             { name: "Earnings", icon: Wallet, path: "/tutor/earnings" },
             { name: "Settings", icon: Settings, path: "/tutor/settings" },
+          ],
+        },
+      ];
+    }
+
+    if (isEsolLearner) {
+      return [
+        {
+          label: "Overview",
+          items: [
+            { name: "Dashboard", icon: LayoutDashboard, path: "/esol/home" },
+          ],
+        },
+        {
+          label: "Learning",
+          items: [
+            { name: "AI Tutor", icon: Sparkles, path: "/esol/home" },
+            { name: "Vocabulary", icon: Library, path: "/esol/vocab" },
+            { name: "My Lessons", icon: BookOpen, path: "/lessons" },
+          ],
+        },
+        {
+          label: "Account",
+          items: [
+            { name: "Messages", icon: MessagesSquare, path: "/messages" },
+            { name: "Profile", icon: User, path: "/profile" },
+            { name: "Settings", icon: Settings, path: "/settings" },
           ],
         },
       ];
