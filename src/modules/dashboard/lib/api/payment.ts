@@ -31,7 +31,7 @@ import {
 
 const getErrorMessage = (
   error: ApiError,
-  fallback = "Something went wrong. Please try again."
+  fallback = "Something went wrong. Please try again.",
 ): string => {
   return (
     error.response?.data?.fields?.[0]?.message ||
@@ -46,11 +46,11 @@ const getErrorMessage = (
    ═══════════════════════════════════════════════ */
 
 export const createPaymentIntent = async (
-  payload: CreatePaymentIntentPayload
+  payload: CreatePaymentIntentPayload,
 ): Promise<ApiResponse<CreatePaymentIntentResponse>> => {
   const res = await api.post<ApiResponse<CreatePaymentIntentResponse>>(
     "/payments/create-intent",
-    payload
+    payload,
   );
   return res;
 };
@@ -76,7 +76,7 @@ export const useCreatePaymentIntent = () => {
    ═══════════════════════════════════════════════ */
 
 export const fetchTransactions = async (
-  filters: TransactionFilters
+  filters: TransactionFilters,
 ): Promise<ApiResponse<ListTransactionsResponse>> => {
   const params = new URLSearchParams();
   if (filters.page) params.append("page", String(filters.page));
@@ -89,7 +89,7 @@ export const fetchTransactions = async (
   if (filters.sort) params.append("sort", filters.sort);
 
   const res = await api.get<ApiResponse<ListTransactionsResponse>>(
-    `/payments/transactions?${params.toString()}`
+    `/payments/transactions?${params.toString()}`,
   );
   return res;
 };
@@ -108,10 +108,10 @@ export const useFetchTransactions = (filters: TransactionFilters) => {
    ═══════════════════════════════════════════════ */
 
 export const fetchTransactionById = async (
-  id: string
+  id: string,
 ): Promise<ApiResponse<Transaction>> => {
   const res = await api.get<ApiResponse<Transaction>>(
-    `/payments/transactions/${id}`
+    `/payments/transactions/${id}`,
   );
   return res;
 };
@@ -167,7 +167,7 @@ export const useFetchWallet = () => {
    ═══════════════════════════════════════════════ */
 
 export const requestPayout = async (
-  payload: RequestPayoutPayload
+  payload: RequestPayoutPayload,
 ): Promise<ApiResponse<Payout>> => {
   const res = await api.post<ApiResponse<Payout>>("/payments/payouts", payload);
   return res;
@@ -192,7 +192,7 @@ export const useRequestPayout = () => {
       toast.error("Payout Request Failed", {
         description: getErrorMessage(
           error,
-          "Failed to request payout. Please try again."
+          "Failed to request payout. Please try again.",
         ),
       });
     },
@@ -205,7 +205,7 @@ export const useRequestPayout = () => {
    ═══════════════════════════════════════════════ */
 
 export const fetchPayouts = async (
-  filters: PayoutFilters
+  filters: PayoutFilters,
 ): Promise<ApiResponse<ListPayoutsResponse>> => {
   const params = new URLSearchParams();
   if (filters.page) params.append("page", String(filters.page));
@@ -214,7 +214,7 @@ export const fetchPayouts = async (
   if (filters.sort) params.append("sort", filters.sort);
 
   const res = await api.get<ApiResponse<ListPayoutsResponse>>(
-    `/payments/payouts?${params.toString()}`
+    `/payments/payouts?${params.toString()}`,
   );
   return res;
 };
@@ -234,11 +234,11 @@ export const useFetchPayouts = (filters: PayoutFilters) => {
 
 export const approvePayout = async (
   id: string,
-  payload: ApprovePayoutPayload
+  payload: ApprovePayoutPayload,
 ): Promise<ApiResponse<Payout>> => {
   const res = await api.patch<ApiResponse<Payout>>(
     `/payments/payouts/${id}/approve`,
-    payload
+    payload,
   );
   return res;
 };
@@ -273,11 +273,11 @@ export const useApprovePayout = () => {
 
 export const rejectPayout = async (
   id: string,
-  payload: RejectPayoutPayload
+  payload: RejectPayoutPayload,
 ): Promise<ApiResponse<Payout>> => {
   const res = await api.patch<ApiResponse<Payout>>(
     `/payments/payouts/${id}/reject`,
-    payload
+    payload,
   );
   return res;
 };
@@ -314,11 +314,11 @@ export const useRejectPayout = () => {
 
 export const completePayout = async (
   id: string,
-  payload: CompletePayoutPayload
+  payload: CompletePayoutPayload,
 ): Promise<ApiResponse<Payout>> => {
   const res = await api.patch<ApiResponse<Payout>>(
     `/payments/payouts/${id}/complete`,
-    payload
+    payload,
   );
   return res;
 };
@@ -353,11 +353,11 @@ export const useCompletePayout = () => {
 
 export const refundTransaction = async (
   transactionId: string,
-  payload: RefundPayload
+  payload: RefundPayload,
 ): Promise<ApiResponse<Transaction>> => {
   const res = await api.post<ApiResponse<Transaction>>(
     `/payments/refund/${transactionId}`,
-    payload
+    payload,
   );
   return res;
 };
@@ -397,11 +397,11 @@ export const useRefundTransaction = () => {
 
 export const flagTransaction = async (
   id: string,
-  payload: FlagTransactionPayload
+  payload: FlagTransactionPayload,
 ): Promise<ApiResponse<Transaction>> => {
   const res = await api.patch<ApiResponse<Transaction>>(
     `/payments/transactions/${id}/flag`,
-    payload
+    payload,
   );
   return res;
 };
@@ -450,11 +450,11 @@ export const useFetchPaymentMethods = () => {
 };
 
 export const addPaymentMethod = async (
-  payload: AddPaymentMethodPayload
+  payload: AddPaymentMethodPayload,
 ): Promise<ApiResponse<PaymentMethod>> => {
   const res = await api.post<ApiResponse<PaymentMethod>>(
     "/payments/methods",
-    payload
+    payload,
   );
   return res;
 };
@@ -483,7 +483,7 @@ export const useAddPaymentMethod = () => {
 };
 
 export const removePaymentMethod = async (
-  id: string
+  id: string,
 ): Promise<ApiResponse<void>> => {
   const res = await api.delete<ApiResponse<void>>(`/payments/methods/${id}`);
   return res;
@@ -507,10 +507,10 @@ export const useRemovePaymentMethod = () => {
 };
 
 export const setDefaultPaymentMethod = async (
-  id: string
+  id: string,
 ): Promise<ApiResponse<PaymentMethod>> => {
   const res = await api.patch<ApiResponse<PaymentMethod>>(
-    `/payments/methods/${id}/default`
+    `/payments/methods/${id}/default`,
   );
   return res;
 };
@@ -538,14 +538,14 @@ export const useSetDefaultPaymentMethod = () => {
    ═══════════════════════════════════════════════ */
 
 export const fetchMonthlyChart = async (
-  query?: MonthlyChartQuery
+  query?: MonthlyChartQuery,
 ): Promise<ApiResponse<MonthlyChartResponse>> => {
   const params = new URLSearchParams();
   if (query?.year) params.append("year", String(query.year));
   if (query?.months) params.append("months", String(query.months));
 
   const res = await api.get<ApiResponse<MonthlyChartResponse>>(
-    `/payments/chart/monthly?${params.toString()}`
+    `/payments/chart/monthly?${params.toString()}`,
   );
   return res;
 };

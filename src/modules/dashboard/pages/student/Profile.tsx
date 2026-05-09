@@ -141,7 +141,7 @@ export default function StudentProfile() {
   const handleChangePassword = async (
     currentPassword: string,
     newPassword: string,
-    confirmNewPassword: string
+    confirmNewPassword: string,
   ) => {
     try {
       await updatePassword({

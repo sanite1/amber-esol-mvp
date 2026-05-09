@@ -100,7 +100,7 @@ export default function TutorLessonCard({
   const [showDeclineInput, setShowDeclineInput] = useState(false);
   const [editingMeetingUrl, setEditingMeetingUrl] = useState(false);
   const [meetingUrlInput, setMeetingUrlInput] = useState(
-    lesson.meetingUrl || ""
+    lesson.meetingUrl || "",
   );
   const updateMeetingUrlMutation = useUpdateMeetingUrl();
   const completeBooking = useCompleteBooking();
@@ -175,7 +175,7 @@ export default function TutorLessonCard({
         onSuccess: () => {
           setEditingMeetingUrl(false);
         },
-      }
+      },
     );
   };
 
@@ -596,7 +596,7 @@ export default function TutorLessonCard({
                                 />
                                 {time}
                               </span>
-                            )
+                            ),
                           )}
                         </div>
                       </div>

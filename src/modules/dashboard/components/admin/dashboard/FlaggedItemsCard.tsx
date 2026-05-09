@@ -82,7 +82,7 @@ export default function FlaggedItemsCard({ items }: Props) {
           const tc = typeConfig[item.type];
           const Icon = tc.icon;
           const diffHrs = Math.floor(
-            (Date.now() - new Date(item.date).getTime()) / 3600000
+            (Date.now() - new Date(item.date).getTime()) / 3600000,
           );
           const timeLabel =
             diffHrs < 1

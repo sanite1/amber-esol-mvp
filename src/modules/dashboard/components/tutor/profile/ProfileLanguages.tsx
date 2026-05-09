@@ -93,7 +93,7 @@ export default function ProfileLanguages({
 
   const updateFluency = (i: number, fluency: LanguageFluency) => {
     setFormLanguages((prev) =>
-      prev.map((l, idx) => (idx === i ? { ...l, fluency } : l))
+      prev.map((l, idx) => (idx === i ? { ...l, fluency } : l)),
     );
   };
 
@@ -115,7 +115,7 @@ export default function ProfileLanguages({
       const finalLanguages = formLanguages.map((l) =>
         l.name === formNative
           ? { ...l, fluency: "native" as LanguageFluency }
-          : l
+          : l,
       );
       await onUpdate({
         languages: finalLanguages,

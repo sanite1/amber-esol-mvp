@@ -46,7 +46,7 @@ export default function EarningEntryCard({ entry, onViewDetails }: Props) {
   createdDay.setHours(0, 0, 0, 0);
 
   const diffDays = Math.round(
-    (createdDay.getTime() - today.getTime()) / 86400000
+    (createdDay.getTime() - today.getTime()) / 86400000,
   );
 
   const dateLabel =

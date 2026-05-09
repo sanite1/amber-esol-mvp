@@ -16,7 +16,7 @@ import {
 
 const getErrorMessage = (
   error: ApiError,
-  fallback = "Something went wrong. Please try again."
+  fallback = "Something went wrong. Please try again.",
 ): string => {
   return (
     error.response?.data?.fields?.[0]?.message ||
@@ -31,7 +31,7 @@ const getErrorMessage = (
    ═══════════════════════════════════════════════ */
 
 export const fetchMyTutors = async (
-  query?: MyTutorsQuery
+  query?: MyTutorsQuery,
 ): Promise<ApiResponse<ListMyTutorsResponse>> => {
   const params = new URLSearchParams();
 
@@ -65,7 +65,7 @@ export const useFetchMyTutors = (query: MyTutorsQuery) => {
    ═══════════════════════════════════════════════ */
 
 export const fetchMyTutorDetail = async (
-  tutorId: string
+  tutorId: string,
 ): Promise<ApiResponse<MyTutor>> => {
   const res = await api.get<ApiResponse<MyTutor>>(`/my-tutors/${tutorId}`);
   return res;
@@ -85,11 +85,11 @@ export const useFetchMyTutorDetail = (tutorId: string) => {
    ═══════════════════════════════════════════════ */
 
 export const toggleFavouriteTutor = async (
-  tutorId: string
+  tutorId: string,
 ): Promise<ApiResponse<ToggleFavouriteResponse>> => {
   const res = await api.post<ApiResponse<ToggleFavouriteResponse>>(
     `/my-tutors/${tutorId}/favourite`,
-    {}
+    {},
   );
   return res;
 };
@@ -114,7 +114,7 @@ export const useToggleFavouriteTutor = () => {
       toast.error("Action Failed", {
         description: getErrorMessage(
           error,
-          "Could not update favourite status. Please try again."
+          "Could not update favourite status. Please try again.",
         ),
       });
     },

@@ -37,7 +37,7 @@ import {
    Mapper: API → component shape (TutorDashboardLesson)
    ────────────────────────────────────────────── */
 function toTutorDashboardLesson(
-  l: DashboardUpcomingLesson
+  l: DashboardUpcomingLesson,
 ): TutorDashboardLesson {
   return {
     id: l.id,
@@ -59,7 +59,7 @@ function toTutorDashboardLesson(
    Mapper: API → component shape (BookingPendingBooking)
    ────────────────────────────────────────────── */
 function toBookingPendingBooking(
-  b: DashboardPendingBooking
+  b: DashboardPendingBooking,
 ): BookingPendingBooking {
   return {
     id: b.id,
@@ -97,12 +97,12 @@ export default function TutorDashboard() {
      ──────────────────────────────────────────── */
   const upcomingLessons: TutorDashboardLesson[] = useMemo(
     () => (dashboard?.upcomingLessons ?? []).map(toTutorDashboardLesson),
-    [dashboard?.upcomingLessons]
+    [dashboard?.upcomingLessons],
   );
 
   const pendingBookings: BookingPendingBooking[] = useMemo(
     () => (dashboard?.pendingBookings ?? []).map(toBookingPendingBooking),
-    [dashboard?.pendingBookings]
+    [dashboard?.pendingBookings],
   );
 
   /* ────────────────────────────────────────────
@@ -129,7 +129,7 @@ export default function TutorDashboard() {
   const todayLessons = useMemo(() => {
     const todayStr = new Date().toDateString();
     return upcomingLessons.filter(
-      (l) => new Date(l.date + "T00:00:00").toDateString() === todayStr
+      (l) => new Date(l.date + "T00:00:00").toDateString() === todayStr,
     );
   }, [upcomingLessons]);
 

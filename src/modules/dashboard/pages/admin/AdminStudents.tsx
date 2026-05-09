@@ -40,7 +40,7 @@ export default function AdminStudents() {
   const [sort, setSort] = useState<SortOption>("newest");
   const [page, setPage] = useState(1);
   const [selectedStudent, setSelectedStudent] = useState<AdminStudent | null>(
-    null
+    null,
   );
 
   // Debounce search
@@ -89,10 +89,10 @@ export default function AdminStudents() {
         onSuccess: () => {
           // Update the selected student in modal
           setSelectedStudent((prev) =>
-            prev && prev.id === id ? { ...prev, status } : prev
+            prev && prev.id === id ? { ...prev, status } : prev,
           );
         },
-      }
+      },
     );
   };
 
@@ -185,7 +185,7 @@ export default function AdminStudents() {
                   >
                     {tab}
                   </button>
-                )
+                ),
               )}
             </div>
           </div>

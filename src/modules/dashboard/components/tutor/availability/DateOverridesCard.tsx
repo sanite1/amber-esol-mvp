@@ -33,7 +33,7 @@ export default function DateOverridesCard({
 }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [formType, setFormType] = useState<"unavailable" | "extra">(
-    "unavailable"
+    "unavailable",
   );
   const [formDate, setFormDate] = useState("");
   const [formReason, setFormReason] = useState("");

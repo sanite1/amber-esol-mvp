@@ -26,10 +26,10 @@ export default function ProfileRatesInfo({
   const [editing, setEditing] = useState(false);
   const [formRate, setFormRate] = useState(String(user.hourlyRate ?? 0));
   const [formTrial, setFormTrial] = useState(
-    String(user.trialLessonPrice ?? 0)
+    String(user.trialLessonPrice ?? 0),
   );
   const [formTrialOffered, setFormTrialOffered] = useState(
-    user.trialLessonOffered ?? false
+    user.trialLessonOffered ?? false,
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
 

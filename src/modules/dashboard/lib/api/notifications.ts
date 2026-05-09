@@ -17,7 +17,7 @@ import {
 
 const getErrorMessage = (
   error: ApiError,
-  fallback = "Something went wrong. Please try again."
+  fallback = "Something went wrong. Please try again.",
 ): string => {
   return (
     error.response?.data?.fields?.[0]?.message ||
@@ -32,7 +32,7 @@ const getErrorMessage = (
    ═══════════════════════════════════════════════ */
 
 export const fetchNotifications = async (
-  query?: NotificationQuery
+  query?: NotificationQuery,
 ): Promise<ApiResponse<ListNotificationsResponse>> => {
   const params = new URLSearchParams();
 
@@ -67,7 +67,7 @@ export const fetchUnreadCount = async (): Promise<
   ApiResponse<UnreadCountResponse>
 > => {
   const res = await api.get<ApiResponse<UnreadCountResponse>>(
-    "/notifications/unread-count"
+    "/notifications/unread-count",
   );
   return res;
 };
@@ -86,10 +86,10 @@ export const useFetchUnreadCount = () => {
    ═══════════════════════════════════════════════ */
 
 export const markNotificationRead = async (
-  id: string
+  id: string,
 ): Promise<ApiResponse<MarkReadResponse>> => {
   const res = await api.patch<ApiResponse<MarkReadResponse>>(
-    `/notifications/${id}/read`
+    `/notifications/${id}/read`,
   );
   return res;
 };
@@ -107,7 +107,7 @@ export const useMarkNotificationRead = () => {
       toast.error("Failed to mark as read", {
         description: getErrorMessage(
           error,
-          "Could not mark notification as read. Please try again."
+          "Could not mark notification as read. Please try again.",
         ),
       });
     },
@@ -123,7 +123,7 @@ export const markAllNotificationsRead = async (): Promise<
   ApiResponse<MarkAllReadResponse>
 > => {
   const res = await api.patch<ApiResponse<MarkAllReadResponse>>(
-    "/notifications/read-all"
+    "/notifications/read-all",
   );
   return res;
 };
@@ -145,7 +145,7 @@ export const useMarkAllNotificationsRead = () => {
       toast.error("Failed", {
         description: getErrorMessage(
           error,
-          "Could not mark all notifications as read. Please try again."
+          "Could not mark all notifications as read. Please try again.",
         ),
       });
     },
@@ -178,7 +178,7 @@ export const useDeleteNotification = () => {
       toast.error("Delete Failed", {
         description: getErrorMessage(
           error,
-          "Could not delete notification. Please try again."
+          "Could not delete notification. Please try again.",
         ),
       });
     },

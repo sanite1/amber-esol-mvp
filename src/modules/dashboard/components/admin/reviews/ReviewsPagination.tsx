@@ -59,7 +59,7 @@ export default function ReviewsPagination({
           >
             {page}
           </button>
-        )
+        ),
       )}
       <button
         onClick={() => onPageChange(currentPage + 1)}

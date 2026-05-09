@@ -35,7 +35,7 @@ const studentSchema = z
       .min(8, "Password must be at least 8 characters")
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Must contain uppercase, lowercase, and a number"
+        "Must contain uppercase, lowercase, and a number",
       ),
     confirmPassword: z.string(),
     nativeLanguage: z.string().min(1, "Please select your native language"),
@@ -665,7 +665,7 @@ export default function StudentRegister() {
                   >
                     <CheckCircle2 size={10} /> {t}
                   </span>
-                )
+                ),
               )}
             </div>
           </div>

@@ -6,7 +6,7 @@ interface Props {
   onSubmit?: (
     currentPassword: string,
     newPassword: string,
-    confirmPassword: string
+    confirmPassword: string,
   ) => Promise<void>;
   isPending?: boolean;
 }

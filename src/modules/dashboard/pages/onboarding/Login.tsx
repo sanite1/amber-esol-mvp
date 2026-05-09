@@ -363,7 +363,7 @@ export default function Login() {
                   >
                     <CheckCircle2 size={10} /> {t}
                   </span>
-                )
+                ),
               )}
             </div>
           </div>

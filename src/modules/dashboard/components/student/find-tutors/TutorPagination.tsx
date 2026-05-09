@@ -75,7 +75,7 @@ export default function TutorPagination({
             >
               {p}
             </button>
-          )
+          ),
         )}
 
         <button

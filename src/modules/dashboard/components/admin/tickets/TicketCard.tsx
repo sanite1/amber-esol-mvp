@@ -48,7 +48,7 @@ export default function TicketCard({ ticket, onClick }: Props) {
   const category = categoryLabels[ticket.category] || ticket.category;
   const lastMessage = ticket.messages[ticket.messages.length - 1];
   const hasAttachments = ticket.messages.some(
-    (m) => m.attachments && m.attachments.length > 0
+    (m) => m.attachments && m.attachments.length > 0,
   );
   const unrespondedByAdmin =
     ticket.status !== "resolved" &&

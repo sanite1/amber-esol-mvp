@@ -114,10 +114,10 @@ export default function AdminTutors() {
       {
         onSuccess: () => {
           setSelectedTutor((prev) =>
-            prev && prev.id === id ? { ...prev, status } : prev
+            prev && prev.id === id ? { ...prev, status } : prev,
           );
         },
-      }
+      },
     );
   };
 

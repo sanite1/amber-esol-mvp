@@ -23,7 +23,7 @@ import {
 
 const getErrorMessage = (
   error: ApiError,
-  fallback = "Something went wrong. Please try again."
+  fallback = "Something went wrong. Please try again.",
 ): string => {
   return (
     error.response?.data?.fields?.[0]?.message ||
@@ -38,7 +38,7 @@ const getErrorMessage = (
    ═══════════════════════════════════════════════ */
 
 export const createReview = async (
-  payload: CreateReviewPayload
+  payload: CreateReviewPayload,
 ): Promise<ApiResponse<Review>> => {
   const res = await api.post<ApiResponse<Review>>("/reviews", payload);
   return res;
@@ -74,7 +74,7 @@ export const useCreateReview = () => {
 
 export const fetchTutorReviews = async (
   tutorId: string,
-  filters: ReviewFilters
+  filters: ReviewFilters,
 ): Promise<ApiResponse<ListReviewsResponse>> => {
   const params = new URLSearchParams();
   if (filters.page) params.append("page", String(filters.page));
@@ -83,14 +83,14 @@ export const fetchTutorReviews = async (
   if (filters.sort) params.append("sort", filters.sort);
 
   const res = await api.get<ApiResponse<ListReviewsResponse>>(
-    `/reviews/tutor/${tutorId}?${params.toString()}`
+    `/reviews/tutor/${tutorId}?${params.toString()}`,
   );
   return res;
 };
 
 export const useFetchTutorReviews = (
   tutorId: string,
-  filters: ReviewFilters
+  filters: ReviewFilters,
 ) => {
   return useQuery<ApiResponse<ListReviewsResponse>, ApiError>({
     queryKey: ["reviews", "tutor", tutorId, filters],
@@ -106,7 +106,7 @@ export const useFetchTutorReviews = (
    ═══════════════════════════════════════════════ */
 
 export const fetchMyReviews = async (
-  filters: ReviewFilters
+  filters: ReviewFilters,
 ): Promise<ApiResponse<ListReviewsResponse>> => {
   const params = new URLSearchParams();
   if (filters.page) params.append("page", String(filters.page));
@@ -114,7 +114,7 @@ export const fetchMyReviews = async (
   if (filters.sort) params.append("sort", filters.sort);
 
   const res = await api.get<ApiResponse<ListReviewsResponse>>(
-    `/reviews/me?${params.toString()}`
+    `/reviews/me?${params.toString()}`,
   );
   return res;
 };
@@ -134,7 +134,7 @@ export const useFetchMyReviews = (filters: ReviewFilters) => {
 
 export const updateReview = async (
   id: string,
-  payload: UpdateReviewPayload
+  payload: UpdateReviewPayload,
 ): Promise<ApiResponse<Review>> => {
   const res = await api.patch<ApiResponse<Review>>(`/reviews/${id}`, payload);
   return res;
@@ -203,11 +203,11 @@ export const useDeleteReview = () => {
 
 export const addReply = async (
   id: string,
-  payload: ReplyPayload
+  payload: ReplyPayload,
 ): Promise<ApiResponse<Review>> => {
   const res = await api.post<ApiResponse<Review>>(
     `/reviews/${id}/reply`,
-    payload
+    payload,
   );
   return res;
 };
@@ -243,11 +243,11 @@ export const useAddReply = () => {
 
 export const updateReply = async (
   id: string,
-  payload: ReplyPayload
+  payload: ReplyPayload,
 ): Promise<ApiResponse<Review>> => {
   const res = await api.patch<ApiResponse<Review>>(
     `/reviews/${id}/reply`,
-    payload
+    payload,
   );
   return res;
 };
@@ -311,11 +311,11 @@ export const useDeleteReply = () => {
 
 export const reportReview = async (
   id: string,
-  payload: ReportReviewPayload
+  payload: ReportReviewPayload,
 ): Promise<ApiResponse<void>> => {
   const res = await api.post<ApiResponse<void>>(
     `/reviews/${id}/report`,
-    payload
+    payload,
   );
   return res;
 };
@@ -351,11 +351,11 @@ export const useReportReview = () => {
    ═══════════════════════════════════════════════ */
 
 export const toggleHelpful = async (
-  id: string
+  id: string,
 ): Promise<ApiResponse<ToggleHelpfulResponse>> => {
   const res = await api.post<ApiResponse<ToggleHelpfulResponse>>(
     `/reviews/${id}/helpful`,
-    {}
+    {},
   );
   return res;
 };
@@ -382,10 +382,10 @@ export const useToggleHelpful = () => {
    ═══════════════════════════════════════════════ */
 
 export const fetchReviewStats = async (
-  tutorId: string
+  tutorId: string,
 ): Promise<ApiResponse<ReviewStatsResponse>> => {
   const res = await api.get<ApiResponse<ReviewStatsResponse>>(
-    `/reviews/stats/${tutorId}`
+    `/reviews/stats/${tutorId}`,
   );
   return res;
 };
@@ -404,7 +404,7 @@ export const useFetchReviewStats = (tutorId: string) => {
    ═══════════════════════════════════════════════ */
 
 export const fetchAdminReviews = async (
-  filters: AdminReviewFilters
+  filters: AdminReviewFilters,
 ): Promise<ApiResponse<ListReviewsResponse>> => {
   const params = new URLSearchParams();
   if (filters.page) params.append("page", String(filters.page));
@@ -416,7 +416,7 @@ export const fetchAdminReviews = async (
   if (filters.search) params.append("search", filters.search);
 
   const res = await api.get<ApiResponse<ListReviewsResponse>>(
-    `/reviews/admin?${params.toString()}`
+    `/reviews/admin?${params.toString()}`,
   );
   return res;
 };
@@ -436,11 +436,11 @@ export const useFetchAdminReviews = (filters: AdminReviewFilters) => {
 
 export const hideReview = async (
   id: string,
-  payload: AdminReviewActionPayload
+  payload: AdminReviewActionPayload,
 ): Promise<ApiResponse<Review>> => {
   const res = await api.patch<ApiResponse<Review>>(
     `/reviews/${id}/hide`,
-    payload
+    payload,
   );
   return res;
 };
@@ -477,11 +477,11 @@ export const useHideReview = () => {
 
 export const unhideReview = async (
   id: string,
-  payload: AdminReviewActionPayload
+  payload: AdminReviewActionPayload,
 ): Promise<ApiResponse<Review>> => {
   const res = await api.patch<ApiResponse<Review>>(
     `/reviews/${id}/unhide`,
-    payload
+    payload,
   );
   return res;
 };
@@ -518,11 +518,11 @@ export const useUnhideReview = () => {
 
 export const removeReview = async (
   id: string,
-  payload: AdminReviewActionPayload
+  payload: AdminReviewActionPayload,
 ): Promise<ApiResponse<Review>> => {
   const res = await api.patch<ApiResponse<Review>>(
     `/reviews/${id}/remove`,
-    payload
+    payload,
   );
   return res;
 };
@@ -559,11 +559,11 @@ export const useRemoveReview = () => {
 
 export const restoreReview = async (
   id: string,
-  payload: AdminReviewActionPayload
+  payload: AdminReviewActionPayload,
 ): Promise<ApiResponse<Review>> => {
   const res = await api.patch<ApiResponse<Review>>(
     `/reviews/${id}/restore`,
-    payload
+    payload,
   );
   return res;
 };
@@ -601,11 +601,11 @@ export const useRestoreReview = () => {
 export const handleReport = async (
   reviewId: string,
   reportId: string,
-  payload: AdminReportActionPayload
+  payload: AdminReportActionPayload,
 ): Promise<ApiResponse<Review>> => {
   const res = await api.patch<ApiResponse<Review>>(
     `/reviews/${reviewId}/reports/${reportId}`,
-    payload
+    payload,
   );
   return res;
 };

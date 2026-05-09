@@ -11,7 +11,7 @@ import type { Booking } from "../types/booking";
 
 const getErrorMessage = (
   error: ApiError,
-  fallback = "Something went wrong. Please try again."
+  fallback = "Something went wrong. Please try again.",
 ): string => {
   return (
     error.response?.data?.fields?.[0]?.message ||
@@ -29,7 +29,7 @@ export const fetchAdminLessonStats = async (): Promise<
   ApiResponse<AdminLessonsStats>
 > => {
   const res = await api.get<ApiResponse<AdminLessonsStats>>(
-    "/bookings/admin/stats"
+    "/bookings/admin/stats",
   );
   return res;
 };
@@ -53,11 +53,11 @@ interface FlagBookingPayload {
 
 export const flagBooking = async (
   id: string,
-  payload: FlagBookingPayload
+  payload: FlagBookingPayload,
 ): Promise<ApiResponse<Booking>> => {
   const res = await api.patch<ApiResponse<Booking>>(
     `/bookings/${id}/flag`,
-    payload
+    payload,
   );
   return res;
 };

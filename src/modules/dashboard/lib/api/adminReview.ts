@@ -12,7 +12,7 @@ export const fetchAdminReviewStats = async (): Promise<
   ApiResponse<AdminReviewsStats>
 > => {
   const res = await api.get<ApiResponse<AdminReviewsStats>>(
-    "/reviews/admin/stats"
+    "/reviews/admin/stats",
   );
   return res;
 };

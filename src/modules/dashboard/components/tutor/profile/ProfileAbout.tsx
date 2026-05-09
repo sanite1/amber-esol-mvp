@@ -124,10 +124,10 @@ export default function ProfileAbout({ user, onUpdate, isUpdating }: Props) {
   const toggleItem = (
     value: string,
     list: string[],
-    setList: (v: string[]) => void
+    setList: (v: string[]) => void,
   ) => {
     setList(
-      list.includes(value) ? list.filter((x) => x !== value) : [...list, value]
+      list.includes(value) ? list.filter((x) => x !== value) : [...list, value],
     );
   };
 
@@ -135,7 +135,7 @@ export default function ProfileAbout({ user, onUpdate, isUpdating }: Props) {
     value: string,
     list: string[],
     setList: (v: string[]) => void,
-    setInput: (v: string) => void
+    setInput: (v: string) => void,
   ) => {
     const trimmed = value.trim();
     if (trimmed && !list.includes(trimmed)) {
@@ -147,7 +147,7 @@ export default function ProfileAbout({ user, onUpdate, isUpdating }: Props) {
   const removeChip = (
     value: string,
     list: string[],
-    setList: (v: string[]) => void
+    setList: (v: string[]) => void,
   ) => {
     setList(list.filter((i) => i !== value));
   };
@@ -307,7 +307,7 @@ export default function ProfileAbout({ user, onUpdate, isUpdating }: Props) {
                       newSpecialty,
                       formSpecializations,
                       setFormSpecializations,
-                      setNewSpecialty
+                      setNewSpecialty,
                     );
                   }
                 }}
@@ -320,7 +320,7 @@ export default function ProfileAbout({ user, onUpdate, isUpdating }: Props) {
                     newSpecialty,
                     formSpecializations,
                     setFormSpecializations,
-                    setNewSpecialty
+                    setNewSpecialty,
                   )
                 }
                 className="shrink-0 p-1.5 rounded-lg bg-[#0B2343]/[0.04] hover:bg-[#0B2343]/[0.08] transition-colors"

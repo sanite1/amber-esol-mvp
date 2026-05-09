@@ -22,7 +22,7 @@ import {
 
 const getErrorMessage = (
   error: ApiError,
-  fallback = "Something went wrong. Please try again."
+  fallback = "Something went wrong. Please try again.",
 ): string => {
   return (
     error.response?.data?.fields?.[0]?.message ||
@@ -37,11 +37,11 @@ const getErrorMessage = (
    ═══════════════════════════════════════════════ */
 
 export const createBooking = async (
-  payload: CreateBookingPayload
+  payload: CreateBookingPayload,
 ): Promise<ApiResponse<CreateBookingResponse>> => {
   const res = await api.post<ApiResponse<CreateBookingResponse>>(
     "/bookings",
-    payload
+    payload,
   );
   return res;
 };
@@ -74,7 +74,7 @@ export const useCreateBooking = () => {
       toast.error("Booking Failed", {
         description: getErrorMessage(
           error,
-          "Failed to create booking. Please try again."
+          "Failed to create booking. Please try again.",
         ),
       });
     },
@@ -87,7 +87,7 @@ export const useCreateBooking = () => {
    ═══════════════════════════════════════════════ */
 
 export const fetchBookings = async (
-  filters: BookingFilters
+  filters: BookingFilters,
 ): Promise<ApiResponse<ListBookingsResponse>> => {
   const params = new URLSearchParams();
 
@@ -101,7 +101,7 @@ export const fetchBookings = async (
   if (filters.sort) params.append("sort", filters.sort);
 
   const res = await api.get<ApiResponse<ListBookingsResponse>>(
-    `/bookings?${params.toString()}`
+    `/bookings?${params.toString()}`,
   );
   return res;
 };
@@ -120,7 +120,7 @@ export const useFetchBookings = (filters: BookingFilters) => {
    ═══════════════════════════════════════════════ */
 
 export const fetchBookingById = async (
-  id: string
+  id: string,
 ): Promise<ApiResponse<Booking>> => {
   const res = await api.get<ApiResponse<Booking>>(`/bookings/${id}`);
   return res;
@@ -140,13 +140,13 @@ export const useFetchBookingById = (id: string) => {
    ═══════════════════════════════════════════════ */
 
 export const fetchUpcomingBookings = async (
-  query?: UpcomingQuery
+  query?: UpcomingQuery,
 ): Promise<ApiResponse<UpcomingBookingsResponse>> => {
   const params = new URLSearchParams();
   if (query?.limit) params.append("limit", String(query.limit));
 
   const res = await api.get<ApiResponse<UpcomingBookingsResponse>>(
-    `/bookings/upcoming?${params.toString()}`
+    `/bookings/upcoming?${params.toString()}`,
   );
   return res;
 };
@@ -184,7 +184,7 @@ export const useFetchBookingStats = () => {
    ═══════════════════════════════════════════════ */
 
 export const confirmBooking = async (
-  id: string
+  id: string,
 ): Promise<ApiResponse<Booking>> => {
   const res = await api.patch<ApiResponse<Booking>>(`/bookings/${id}/confirm`);
   return res;
@@ -210,7 +210,7 @@ export const useConfirmBooking = () => {
       toast.error("Confirmation Failed", {
         description: getErrorMessage(
           error,
-          "Failed to confirm booking. Please try again."
+          "Failed to confirm booking. Please try again.",
         ),
       });
     },
@@ -224,11 +224,11 @@ export const useConfirmBooking = () => {
 
 export const declineBooking = async (
   id: string,
-  payload: DeclineBookingPayload
+  payload: DeclineBookingPayload,
 ): Promise<ApiResponse<Booking>> => {
   const res = await api.patch<ApiResponse<Booking>>(
     `/bookings/${id}/decline`,
-    payload
+    payload,
   );
   return res;
 };
@@ -258,7 +258,7 @@ export const useDeclineBooking = () => {
       toast.error("Decline Failed", {
         description: getErrorMessage(
           error,
-          "Failed to decline booking. Please try again."
+          "Failed to decline booking. Please try again.",
         ),
       });
     },
@@ -272,11 +272,11 @@ export const useDeclineBooking = () => {
 
 export const cancelBooking = async (
   id: string,
-  payload: CancelBookingPayload
+  payload: CancelBookingPayload,
 ): Promise<ApiResponse<Booking>> => {
   const res = await api.patch<ApiResponse<Booking>>(
     `/bookings/${id}/cancel`,
-    payload
+    payload,
   );
   return res;
 };
@@ -305,7 +305,7 @@ export const useCancelBooking = () => {
       toast.error("Cancellation Failed", {
         description: getErrorMessage(
           error,
-          "Failed to cancel booking. Please try again."
+          "Failed to cancel booking. Please try again.",
         ),
       });
     },
@@ -318,7 +318,7 @@ export const useCancelBooking = () => {
    ═══════════════════════════════════════════════ */
 
 export const completeBooking = async (
-  id: string
+  id: string,
 ): Promise<ApiResponse<Booking>> => {
   const res = await api.patch<ApiResponse<Booking>>(`/bookings/${id}/complete`);
   return res;
@@ -344,7 +344,7 @@ export const useCompleteBooking = () => {
       toast.error("Action Failed", {
         description: getErrorMessage(
           error,
-          "Failed to mark lesson as completed. Please try again."
+          "Failed to mark lesson as completed. Please try again.",
         ),
       });
     },
@@ -357,7 +357,7 @@ export const useCompleteBooking = () => {
    ═══════════════════════════════════════════════ */
 
 export const noShowBooking = async (
-  id: string
+  id: string,
 ): Promise<ApiResponse<Booking>> => {
   const res = await api.patch<ApiResponse<Booking>>(`/bookings/${id}/no-show`);
   return res;
@@ -383,7 +383,7 @@ export const useNoShowBooking = () => {
       toast.error("Action Failed", {
         description: getErrorMessage(
           error,
-          "Failed to mark as no-show. Please try again."
+          "Failed to mark as no-show. Please try again.",
         ),
       });
     },
@@ -397,11 +397,11 @@ export const useNoShowBooking = () => {
 
 export const updateMeetingUrl = async (
   id: string,
-  meetingUrl: string
+  meetingUrl: string,
 ): Promise<ApiResponse<Booking>> => {
   const res = await api.patch<ApiResponse<Booking>>(
     `/bookings/${id}/meeting-url`,
-    { meetingUrl }
+    { meetingUrl },
   );
   return res;
 };
@@ -430,7 +430,7 @@ export const useUpdateMeetingUrl = () => {
       toast.error("Update Failed", {
         description: getErrorMessage(
           error,
-          "Failed to update meeting link. Please check the URL and try again."
+          "Failed to update meeting link. Please check the URL and try again.",
         ),
       });
     },

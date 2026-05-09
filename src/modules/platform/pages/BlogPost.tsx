@@ -142,7 +142,7 @@ function renderInline(text: string): React.ReactNode {
       </strong>
     ) : (
       <React.Fragment key={k}>{chunk}</React.Fragment>
-    )
+    ),
   );
 }
 

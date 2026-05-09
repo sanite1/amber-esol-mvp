@@ -31,7 +31,7 @@ export default function TutorFiltersPanel({
 }: Props) {
   const toggleArrayFilter = (
     key: "specialties" | "levels" | "languages",
-    value: string
+    value: string,
   ) => {
     const current = filters[key];
     const updated = current.includes(value)

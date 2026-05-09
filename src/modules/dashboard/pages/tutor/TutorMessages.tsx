@@ -58,13 +58,13 @@ export default function TutorMessages() {
     isLoading: conversationsLoading,
     isError: conversationsError,
   } = useFetchConversations(
-    debouncedSearch ? { search: debouncedSearch } : undefined
+    debouncedSearch ? { search: debouncedSearch } : undefined,
   );
 
   // ── Fetch messages for active conversation ──
   const { data: messagesRes, isLoading: messagesLoading } = useFetchMessages(
     activeConversationId,
-    { limit: 100 }
+    { limit: 100 },
   );
 
   // ── Mutations ──
@@ -80,7 +80,7 @@ export default function TutorMessages() {
     if (!conversationsRes?.data?.conversations) return [];
     return mapTutorConversations(
       conversationsRes.data.conversations,
-      currentUserId
+      currentUserId,
     );
   }, [conversationsRes, currentUserId]);
 
@@ -91,7 +91,7 @@ export default function TutorMessages() {
 
   const activeMessages: TutorChatMessage[] = useMemo(() => {
     const pending = optimisticMessages.filter(
-      (m) => m.conversationId === activeConversationId
+      (m) => m.conversationId === activeConversationId,
     );
     return [...serverMessages, ...pending];
   }, [serverMessages, optimisticMessages, activeConversationId]);
@@ -102,8 +102,8 @@ export default function TutorMessages() {
       setOptimisticMessages((prev) =>
         prev.filter(
           (m) =>
-            m.conversationId !== activeConversationId || m.status === "pending"
-        )
+            m.conversationId !== activeConversationId || m.status === "pending",
+        ),
       );
     }
   }, [serverMessages, activeConversationId]);
@@ -144,7 +144,7 @@ export default function TutorMessages() {
       markReadMutation.mutate(id);
       setOptimisticMessages([]);
     },
-    [setSearchParams, markReadMutation]
+    [setSearchParams, markReadMutation],
   );
 
   const handleSendMessage = useCallback(
@@ -173,20 +173,20 @@ export default function TutorMessages() {
         {
           onSuccess: () => {
             setOptimisticMessages((prev) =>
-              prev.filter((m) => m.id !== tempId)
+              prev.filter((m) => m.id !== tempId),
             );
           },
           onError: () => {
             setOptimisticMessages((prev) =>
               prev.map((m) =>
-                m.id === tempId ? { ...m, status: "failed" as const } : m
-              )
+                m.id === tempId ? { ...m, status: "failed" as const } : m,
+              ),
             );
           },
-        }
+        },
       );
     },
-    [currentUserId, sendMessageMutation]
+    [currentUserId, sendMessageMutation],
   );
 
   const handleSendFile = useCallback(
@@ -221,36 +221,36 @@ export default function TutorMessages() {
           onSuccess: () => {
             if (previewUrl) URL.revokeObjectURL(previewUrl);
             setOptimisticMessages((prev) =>
-              prev.filter((m) => m.id !== tempId)
+              prev.filter((m) => m.id !== tempId),
             );
           },
           onError: () => {
             if (previewUrl) URL.revokeObjectURL(previewUrl);
             setOptimisticMessages((prev) =>
               prev.map((m) =>
-                m.id === tempId ? { ...m, status: "failed" as const } : m
-              )
+                m.id === tempId ? { ...m, status: "failed" as const } : m,
+              ),
             );
           },
-        }
+        },
       );
     },
-    [currentUserId, sendFileMutation]
+    [currentUserId, sendFileMutation],
   );
 
   const handlePin = useCallback(
     (id: string) => togglePinMutation.mutate(id),
-    [togglePinMutation]
+    [togglePinMutation],
   );
 
   const handleMute = useCallback(
     (id: string) => toggleMuteMutation.mutate(id),
-    [toggleMuteMutation]
+    [toggleMuteMutation],
   );
 
   const handleArchive = useCallback(
     (id: string) => toggleArchiveMutation.mutate(id),
-    [toggleArchiveMutation]
+    [toggleArchiveMutation],
   );
 
   const handleBack = useCallback(() => {
@@ -259,7 +259,7 @@ export default function TutorMessages() {
   }, [setSearchParams]);
 
   const activeConversation = conversations.find(
-    (c) => c.id === activeConversationId
+    (c) => c.id === activeConversationId,
   );
 
   const totalUnread = conversations

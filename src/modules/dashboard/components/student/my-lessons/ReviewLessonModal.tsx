@@ -48,7 +48,7 @@ export default function ReviewLessonModal({
           setShowSuccess(true);
           onSubmit?.(lesson.id, rating, comment);
         },
-      }
+      },
     );
   };
 

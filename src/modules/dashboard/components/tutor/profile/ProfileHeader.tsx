@@ -52,7 +52,7 @@ export default function ProfileHeader({
   const [formEmail, setFormEmail] = useState(profile.email);
   const [formPhone, setFormPhone] = useState(profile.phoneNumber ?? "");
   const [formCountry, setFormCountry] = useState(
-    profile.address?.country ?? ""
+    profile.address?.country ?? "",
   );
   const [formTimezone, setFormTimezone] = useState(profile.timezone ?? "");
   const [formShortBio, setFormShortBio] = useState(profile.bio ?? "");

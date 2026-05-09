@@ -68,7 +68,7 @@ export default function StudentCard({ student }: Props) {
     .join("");
 
   const daysSinceLastLesson = Math.floor(
-    (Date.now() - new Date(student.lastLessonDate).getTime()) / 86400000
+    (Date.now() - new Date(student.lastLessonDate).getTime()) / 86400000,
   );
 
   const lastLessonLabel =
@@ -92,7 +92,7 @@ export default function StudentCard({ student }: Props) {
         onSuccess: () => {
           setEditingNotes(false);
         },
-      }
+      },
     );
   };
 

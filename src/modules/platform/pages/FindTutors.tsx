@@ -115,12 +115,12 @@ export default function FindTutors() {
 
   function toggleSpecialty(s: string) {
     setSelectedSpecialties((prev) =>
-      prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]
+      prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s],
     );
   }
   function toggleLevel(l: string) {
     setSelectedLevels((prev) =>
-      prev.includes(l) ? prev.filter((x) => x !== l) : [...prev, l]
+      prev.includes(l) ? prev.filter((x) => x !== l) : [...prev, l],
     );
   }
   function clearAll() {
@@ -137,7 +137,7 @@ export default function FindTutors() {
         ...selectedPrice,
         label:
           priceRanges.find(
-            (p) => p.min === selectedPrice.min && p.max === selectedPrice.max
+            (p) => p.min === selectedPrice.min && p.max === selectedPrice.max,
           )?.label ?? "",
       }
     : null;

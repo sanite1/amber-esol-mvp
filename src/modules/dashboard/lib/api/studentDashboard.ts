@@ -13,7 +13,7 @@ import type {
    ═══════════════════════════════════════════════ */
 
 export const fetchStudentDashboard = async (
-  query?: StudentDashboardQuery
+  query?: StudentDashboardQuery,
 ): Promise<ApiResponse<StudentDashboardResponse>> => {
   const params = new URLSearchParams();
   if (query?.upcomingLimit)
@@ -24,7 +24,7 @@ export const fetchStudentDashboard = async (
     params.append("recommendedLimit", String(query.recommendedLimit));
 
   const res = await api.get<ApiResponse<StudentDashboardResponse>>(
-    `/student-dashboard?${params.toString()}`
+    `/student-dashboard?${params.toString()}`,
   );
   return res;
 };

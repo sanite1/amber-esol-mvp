@@ -47,12 +47,12 @@ export default function TransactionList({ transactions }: Props) {
     switch (sort) {
       case "newest":
         result.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
         );
         break;
       case "oldest":
         result.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
         );
         break;
       case "highest":

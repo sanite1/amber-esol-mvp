@@ -148,13 +148,13 @@ export default function UpcomingLessons({ lessons }: Props) {
                       {formatLessonTime(
                         lesson.date,
                         lesson.startTime,
-                        lesson.timezone || "Europe/London"
+                        lesson.timezone || "Europe/London",
                       )}{" "}
                       –{" "}
                       {formatLessonTime(
                         lesson.date,
                         lesson.endTime,
-                        lesson.timezone || "Europe/London"
+                        lesson.timezone || "Europe/London",
                       )}
                       {/* {lesson.startTime} – {lesson.endTime} */}
                     </div>

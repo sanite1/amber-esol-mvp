@@ -112,12 +112,12 @@ export default function StudentDashboard() {
      ──────────────────────────────────────────── */
   const upcomingLessons: DashboardUpcomingLesson[] = useMemo(
     () => (dashboard?.upcomingLessons ?? []).map(toUpcomingLesson),
-    [dashboard?.upcomingLessons]
+    [dashboard?.upcomingLessons],
   );
 
   const recentMessages: RecentMessage[] = useMemo(
     () => (dashboard?.recentMessages ?? []).map(toRecentMessage),
-    [dashboard?.recentMessages]
+    [dashboard?.recentMessages],
   );
 
   const spendingSummary: SpendingSummary | null =

@@ -229,7 +229,7 @@ export default function Header() {
                       <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#ff7c22]" />
                     )}
                   </Link>
-                )
+                ),
               )}
             </div>
 
@@ -316,7 +316,7 @@ export default function Header() {
                       <button
                         onClick={() =>
                           setDropdownOpen(
-                            dropdownOpen === link.name ? null : link.name
+                            dropdownOpen === link.name ? null : link.name,
                           )
                         }
                         className={`flex items-center justify-between w-full px-3 py-3 text-[15px] font-medium rounded-xl transition-colors ${
@@ -385,7 +385,7 @@ export default function Header() {
                     >
                       {link.name}
                     </Link>
-                  )
+                  ),
                 )}
               </div>
             </div>

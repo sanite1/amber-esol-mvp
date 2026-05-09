@@ -146,7 +146,7 @@ export default function Terms() {
         const visible = entries.find((e) => e.isIntersecting);
         if (visible) setActiveSection(visible.target.id);
       },
-      { rootMargin: "-30% 0px -60% 0px" }
+      { rootMargin: "-30% 0px -60% 0px" },
     );
 
     sections.forEach((s) => {
@@ -335,7 +335,7 @@ export default function Terms() {
                             </div>
                           ) : (
                             <p key={j}>{p}</p>
-                          )
+                          ),
                         )
                     )}
                   </div>

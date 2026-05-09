@@ -52,7 +52,7 @@ export default function BookTrialModal({ tutor, onClose, onSuccess }: Props) {
 
   const slotsQuery = useMemo(
     () => ({ date: selectedDate ?? "", duration: 20 }),
-    [selectedDate]
+    [selectedDate],
   );
 
   const { data: slotsResponse, isLoading: slotsLoading } =
@@ -89,7 +89,7 @@ export default function BookTrialModal({ tutor, onClose, onSuccess }: Props) {
           setIsComplete(true);
           onSuccess();
         },
-      }
+      },
     );
   };
 

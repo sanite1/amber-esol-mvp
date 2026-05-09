@@ -36,7 +36,7 @@ export default function TransactionCard({ transaction: txn }: Props) {
   const paymentDate = new Date(txn.date);
   const now = new Date();
   const diffDays = Math.floor(
-    (now.getTime() - paymentDate.getTime()) / (1000 * 60 * 60 * 24)
+    (now.getTime() - paymentDate.getTime()) / (1000 * 60 * 60 * 24),
   );
 
   const dateLabel =

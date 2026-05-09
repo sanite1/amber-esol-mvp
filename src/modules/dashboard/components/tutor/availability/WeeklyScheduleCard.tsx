@@ -76,14 +76,14 @@ export default function WeeklyScheduleCard({
     day: DayOfWeek,
     blockIndex: number,
     field: "startTime" | "endTime",
-    value: string
+    value: string,
   ) => {
     const updated = localSchedule.map((d) => {
       if (d.day !== day) return d;
       return {
         ...d,
         blocks: d.blocks.map((b, i) =>
-          i === blockIndex ? { ...b, [field]: value } : b
+          i === blockIndex ? { ...b, [field]: value } : b,
         ),
       };
     });
@@ -210,7 +210,7 @@ export default function WeeklyScheduleCard({
                                 daySchedule.day,
                                 blockIndex,
                                 "startTime",
-                                e.target.value
+                                e.target.value,
                               )
                             }
                             disabled={isSaving}
@@ -232,7 +232,7 @@ export default function WeeklyScheduleCard({
                                 daySchedule.day,
                                 blockIndex,
                                 "endTime",
-                                e.target.value
+                                e.target.value,
                               )
                             }
                             disabled={isSaving}
@@ -332,7 +332,7 @@ export default function WeeklyScheduleCard({
                               daySchedule.day,
                               blockIndex,
                               "startTime",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           disabled={isSaving}
@@ -352,7 +352,7 @@ export default function WeeklyScheduleCard({
                               daySchedule.day,
                               blockIndex,
                               "endTime",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           disabled={isSaving}

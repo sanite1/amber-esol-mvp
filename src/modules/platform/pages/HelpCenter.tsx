@@ -70,7 +70,7 @@ export default function Help() {
     ? helpFaqs.filter(
         (faq) =>
           faq.q.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          faq.a.toLowerCase().includes(searchQuery.toLowerCase())
+          faq.a.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : helpFaqs;
 
@@ -101,7 +101,7 @@ export default function Help() {
     if (!files) return;
     const newFiles = Array.from(files).slice(
       0,
-      3 - formData.attachments.length
+      3 - formData.attachments.length,
     );
     setFormData((prev) => ({
       ...prev,

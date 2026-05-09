@@ -277,7 +277,7 @@ export default function ResetPassword() {
                       >
                         <CheckCircle2 size={10} /> {t}
                       </span>
-                    )
+                    ),
                   )}
                 </div>
               </div>
@@ -478,7 +478,7 @@ export default function ResetPassword() {
                       >
                         <CheckCircle2 size={10} /> {t}
                       </span>
-                    )
+                    ),
                   )}
                 </div>
               </div>

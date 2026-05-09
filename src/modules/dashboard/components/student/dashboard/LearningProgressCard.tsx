@@ -7,7 +7,7 @@ interface Props {
 
 export default function LearningProgressCard({ progress }: Props) {
   const progressPercent = Math.round(
-    (progress.lessonsCompleted / progress.totalLessonsNeeded) * 100
+    (progress.lessonsCompleted / progress.totalLessonsNeeded) * 100,
   );
 
   return (

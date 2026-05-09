@@ -20,7 +20,7 @@ export default function MyTutors() {
   const [sortBy, setSortBy] = useState<TutorSort>("recent");
   const [searchQuery, setSearchQuery] = useState("");
   const [favouriteLoadingId, setFavouriteLoadingId] = useState<string | null>(
-    null
+    null,
   );
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function MyTutors() {
       (t) =>
         t.name.toLowerCase().includes(q) ||
         t.specialty.toLowerCase().includes(q) ||
-        t.headline.toLowerCase().includes(q)
+        t.headline.toLowerCase().includes(q),
     );
   }, [data, searchQuery]);
 

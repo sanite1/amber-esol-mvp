@@ -224,7 +224,7 @@ export default function SignupChoice() {
                   >
                     <CheckCircle2 size={10} /> {t}
                   </span>
-                )
+                ),
               )}
             </div>
           </div>

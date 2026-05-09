@@ -54,7 +54,7 @@ export default function EarningsPagination({
           >
             {p}
           </button>
-        )
+        ),
       )}
       <button
         onClick={() => onPageChange(page + 1)}

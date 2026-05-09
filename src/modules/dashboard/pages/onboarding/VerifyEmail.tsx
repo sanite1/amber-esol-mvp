@@ -267,7 +267,7 @@ export default function VerifyEmailSuccess() {
                       >
                         <CheckCircle2 size={10} /> {t}
                       </span>
-                    )
+                    ),
                   )}
                 </div>
               </>

@@ -109,7 +109,7 @@ const NotificationsDropdown = () => {
 
       setOpen(false);
     },
-    [markRead, navigate]
+    [markRead, navigate],
   );
 
   const handleMarkAllRead = useCallback(() => {

@@ -16,7 +16,7 @@ import {
 
 const getErrorMessage = (
   error: ApiError,
-  fallback = "Something went wrong. Please try again."
+  fallback = "Something went wrong. Please try again.",
 ): string => {
   return (
     error.response?.data?.fields?.[0]?.message ||
@@ -31,7 +31,7 @@ const getErrorMessage = (
    ═══════════════════════════════════════════════ */
 
 export const fetchMyStudents = async (
-  query?: MyStudentsQuery
+  query?: MyStudentsQuery,
 ): Promise<ApiResponse<ListMyStudentsResponse>> => {
   const params = new URLSearchParams();
 
@@ -65,10 +65,10 @@ export const useFetchMyStudents = (query: MyStudentsQuery) => {
    ═══════════════════════════════════════════════ */
 
 export const fetchMyStudentDetail = async (
-  studentId: string
+  studentId: string,
 ): Promise<ApiResponse<TutorStudent>> => {
   const res = await api.get<ApiResponse<TutorStudent>>(
-    `/my-students/${studentId}`
+    `/my-students/${studentId}`,
   );
   return res;
 };
@@ -88,11 +88,11 @@ export const useFetchMyStudentDetail = (studentId: string) => {
 
 export const updateStudentNotes = async (
   studentId: string,
-  notes: string
+  notes: string,
 ): Promise<ApiResponse<UpdateNotesResponse>> => {
   const res = await api.patch<ApiResponse<UpdateNotesResponse>>(
     `/my-students/${studentId}/notes`,
-    { notes }
+    { notes },
   );
   return res;
 };
@@ -117,7 +117,7 @@ export const useUpdateStudentNotes = () => {
       toast.error("Update Failed", {
         description: getErrorMessage(
           error,
-          "Could not save notes. Please try again."
+          "Could not save notes. Please try again.",
         ),
       });
     },

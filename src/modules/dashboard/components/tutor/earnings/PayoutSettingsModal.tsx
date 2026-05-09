@@ -22,7 +22,7 @@ export default function PayoutSettingsModal({
   const [minPayout, setMinPayout] = useState(String(settings.minPayout));
   const [autoPayout, setAutoPayout] = useState(settings.autoPayout);
   const [autoPayoutDay, setAutoPayoutDay] = useState(
-    String(settings.autoPayoutDay)
+    String(settings.autoPayoutDay),
   );
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -158,7 +158,7 @@ export default function PayoutSettingsModal({
                   value={accountLast4}
                   onChange={(e) =>
                     setAccountLast4(
-                      e.target.value.replace(/\D/g, "").slice(0, 4)
+                      e.target.value.replace(/\D/g, "").slice(0, 4),
                     )
                   }
                   placeholder="7842"

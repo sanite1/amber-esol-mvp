@@ -53,7 +53,7 @@ export default function LessonPagination({
           >
             {page}
           </button>
-        )
+        ),
       )}
 
       <button

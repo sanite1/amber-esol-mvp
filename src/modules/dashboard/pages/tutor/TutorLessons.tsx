@@ -129,7 +129,7 @@ function statsResponseToTutorStats(s: BookingStatsResponse): TutorLessonStats {
    Map UI filter → API status param
    ────────────────────────────────────────────── */
 function mapFilterToApiStatus(
-  filter: FilterType
+  filter: FilterType,
 ): BookingFilters["status"] | undefined {
   switch (filter) {
     case "pending":
@@ -216,7 +216,7 @@ export default function TutorLessons() {
      ──────────────────────────────────────────── */
   const lessons: TutorLesson[] = useMemo(
     () => (bookingsResponse?.data?.bookings ?? []).map(bookingToTutorLesson),
-    [bookingsResponse]
+    [bookingsResponse],
   );
 
   const stats: TutorLessonStats = useMemo(
@@ -232,7 +232,7 @@ export default function TutorLessons() {
             hoursThisMonth: 0,
             earningsThisMonth: 0,
           },
-    [statsResponse]
+    [statsResponse],
   );
 
   const totalPages = bookingsResponse?.data?.pagination?.totalPages ?? 1;

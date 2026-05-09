@@ -34,7 +34,7 @@ export default function AdminTickets() {
   const [sort, setSort] = useState<TicketSort>("newest");
   const [page, setPage] = useState(1);
   const [selectedTicket, setSelectedTicket] = useState<AdminTicket | null>(
-    null
+    null,
   );
 
   // Debounce search
@@ -125,13 +125,13 @@ export default function AdminTickets() {
             });
           }
         },
-      }
+      },
     );
   }
 
   function handleChangeStatus(
     ticketId: string,
-    newStatus: AdminTicket["status"]
+    newStatus: AdminTicket["status"],
   ) {
     statusMutation.mutate(
       { ticketId, status: newStatus },
@@ -147,13 +147,13 @@ export default function AdminTickets() {
             };
           });
         },
-      }
+      },
     );
   }
 
   function handleChangePriority(
     ticketId: string,
-    newPriority: AdminTicket["priority"]
+    newPriority: AdminTicket["priority"],
   ) {
     priorityMutation.mutate(
       { ticketId, priority: newPriority },
@@ -168,7 +168,7 @@ export default function AdminTickets() {
             };
           });
         },
-      }
+      },
     );
   }
 

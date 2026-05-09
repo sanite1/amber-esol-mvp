@@ -50,7 +50,7 @@ export default function ProfileQualifications({
         name: c.name,
         issuedBy: c.issuedBy,
         year: c.year,
-      }))
+      })),
     );
     setEduList(
       (user.education ?? []).map((e, i) => ({
@@ -58,7 +58,7 @@ export default function ProfileQualifications({
         degree: e.degree,
         institution: e.institution,
         year: e.year,
-      }))
+      })),
     );
     setErrors({});
     setEditing(true);
@@ -72,7 +72,7 @@ export default function ProfileQualifications({
   /* ── Cert helpers ── */
   const updateCert = (key: string, field: keyof CertForm, value: string) => {
     setCertList((prev) =>
-      prev.map((c) => (c._key === key ? { ...c, [field]: value } : c))
+      prev.map((c) => (c._key === key ? { ...c, [field]: value } : c)),
     );
   };
 
@@ -95,7 +95,7 @@ export default function ProfileQualifications({
   /* ── Edu helpers ── */
   const updateEdu = (key: string, field: keyof EduForm, value: string) => {
     setEduList((prev) =>
-      prev.map((e) => (e._key === key ? { ...e, [field]: value } : e))
+      prev.map((e) => (e._key === key ? { ...e, [field]: value } : e)),
     );
   };
 

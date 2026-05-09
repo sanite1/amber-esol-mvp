@@ -59,7 +59,7 @@ export default function TutorSettings() {
 
   const handleNotificationChange = (
     key: keyof NotificationPreferences,
-    value: boolean
+    value: boolean,
   ) => {
     setNotifications((prev) => (prev ? { ...prev, [key]: value } : prev));
     setNotifDirty(true);
@@ -85,7 +85,7 @@ export default function TutorSettings() {
   const handleChangePassword = async (
     currentPassword: string,
     newPassword: string,
-    confirmNewPassword: string
+    confirmNewPassword: string,
   ) => {
     await updatePassword({
       oldPassword: currentPassword,
@@ -97,7 +97,7 @@ export default function TutorSettings() {
 
   const handleDeleteAccount = async (
     reason: string,
-    feedback: string
+    feedback: string,
   ): Promise<boolean> => {
     try {
       await deleteAccountMut({

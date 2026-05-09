@@ -24,7 +24,7 @@ import {
 
 const getErrorMessage = (
   error: ApiError,
-  fallback = "Something went wrong. Please try again."
+  fallback = "Something went wrong. Please try again.",
 ): string => {
   return (
     error.response?.data?.fields?.[0]?.message ||
@@ -39,13 +39,13 @@ const getErrorMessage = (
    ═══════════════════════════════════════════════ */
 
 export const fetchConversations = async (
-  filters?: ConversationFilters
+  filters?: ConversationFilters,
 ): Promise<ApiResponse<ListConversationsResponse>> => {
   const params = new URLSearchParams();
   if (filters?.search) params.append("search", filters.search);
 
   const res = await api.get<ApiResponse<ListConversationsResponse>>(
-    `/conversations?${params.toString()}`
+    `/conversations?${params.toString()}`,
   );
   return res;
 };
@@ -64,11 +64,11 @@ export const useFetchConversations = (filters?: ConversationFilters) => {
    ═══════════════════════════════════════════════ */
 
 export const startConversation = async (
-  payload: StartConversationPayload
+  payload: StartConversationPayload,
 ): Promise<ApiResponse<Conversation>> => {
   const res = await api.post<ApiResponse<Conversation>>(
     "/conversations",
-    payload
+    payload,
   );
   return res;
 };
@@ -89,7 +89,7 @@ export const useStartConversation = () => {
       toast.error("Failed to Start Conversation", {
         description: getErrorMessage(
           error,
-          "Could not start conversation. Please try again."
+          "Could not start conversation. Please try again.",
         ),
       });
     },
@@ -103,21 +103,21 @@ export const useStartConversation = () => {
 
 export const fetchMessages = async (
   conversationId: string,
-  filters?: MessageFilters
+  filters?: MessageFilters,
 ): Promise<ApiResponse<ListMessagesResponse>> => {
   const params = new URLSearchParams();
   if (filters?.page) params.append("page", String(filters.page));
   if (filters?.limit) params.append("limit", String(filters.limit));
 
   const res = await api.get<ApiResponse<ListMessagesResponse>>(
-    `/conversations/${conversationId}/messages?${params.toString()}`
+    `/conversations/${conversationId}/messages?${params.toString()}`,
   );
   return res;
 };
 
 export const useFetchMessages = (
   conversationId: string | null,
-  filters?: MessageFilters
+  filters?: MessageFilters,
 ) => {
   return useQuery<ApiResponse<ListMessagesResponse>, ApiError>({
     queryKey: ["messages", conversationId, filters],
@@ -134,7 +134,7 @@ export const useFetchMessages = (
 
 export const useFetchMessagesInfinite = (
   conversationId: string | null,
-  limit = 50
+  limit = 50,
 ) => {
   return useInfiniteQuery<ApiResponse<ListMessagesResponse>, ApiError>({
     queryKey: ["messagesInfinite", conversationId],
@@ -156,11 +156,11 @@ export const useFetchMessagesInfinite = (
 
 export const sendMessage = async (
   conversationId: string,
-  payload: SendMessagePayload
+  payload: SendMessagePayload,
 ): Promise<ApiResponse<SendMessageResponse>> => {
   const res = await api.post<ApiResponse<SendMessageResponse>>(
     `/conversations/${conversationId}/messages`,
-    payload
+    payload,
   );
   return res;
 };
@@ -199,7 +199,7 @@ export const useSendMessage = () => {
 
 export const sendFileMessage = async (
   conversationId: string,
-  file: File
+  file: File,
 ): Promise<ApiResponse<SendMessageResponse>> => {
   const formData = new FormData();
   formData.append("file", file);
@@ -211,7 +211,7 @@ export const sendFileMessage = async (
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
   );
   return res;
 };
@@ -249,10 +249,10 @@ export const useSendFileMessage = () => {
    ═══════════════════════════════════════════════ */
 
 export const markConversationRead = async (
-  conversationId: string
+  conversationId: string,
 ): Promise<ApiResponse<void>> => {
   const res = await api.patch<ApiResponse<void>>(
-    `/conversations/${conversationId}/read`
+    `/conversations/${conversationId}/read`,
   );
   return res;
 };
@@ -277,10 +277,10 @@ export const useMarkConversationRead = () => {
    ═══════════════════════════════════════════════ */
 
 export const togglePin = async (
-  conversationId: string
+  conversationId: string,
 ): Promise<ApiResponse<Conversation>> => {
   const res = await api.patch<ApiResponse<Conversation>>(
-    `/conversations/${conversationId}/pin`
+    `/conversations/${conversationId}/pin`,
   );
   return res;
 };
@@ -307,10 +307,10 @@ export const useTogglePin = () => {
    ═══════════════════════════════════════════════ */
 
 export const toggleMute = async (
-  conversationId: string
+  conversationId: string,
 ): Promise<ApiResponse<Conversation>> => {
   const res = await api.patch<ApiResponse<Conversation>>(
-    `/conversations/${conversationId}/mute`
+    `/conversations/${conversationId}/mute`,
   );
   return res;
 };
@@ -337,10 +337,10 @@ export const useToggleMute = () => {
    ═══════════════════════════════════════════════ */
 
 export const toggleArchive = async (
-  conversationId: string
+  conversationId: string,
 ): Promise<ApiResponse<Conversation>> => {
   const res = await api.patch<ApiResponse<Conversation>>(
-    `/conversations/${conversationId}/archive`
+    `/conversations/${conversationId}/archive`,
   );
   return res;
 };

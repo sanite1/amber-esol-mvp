@@ -21,7 +21,7 @@ import {
 
 const getErrorMessage = (
   error: ApiError,
-  fallback = "Something went wrong. Please try again."
+  fallback = "Something went wrong. Please try again.",
 ): string => {
   return (
     error.response?.data?.fields?.[0]?.message ||
@@ -36,10 +36,10 @@ const getErrorMessage = (
    ═══════════════════════════════════════════════ */
 
 export const fetchAvailability = async (
-  tutorId: string
+  tutorId: string,
 ): Promise<ApiResponse<GetAvailabilityResponse>> => {
   const res = await api.get<ApiResponse<GetAvailabilityResponse>>(
-    `/availability/${tutorId}`
+    `/availability/${tutorId}`,
   );
   return res;
 };
@@ -58,11 +58,11 @@ export const useFetchAvailability = (tutorId: string) => {
    ═══════════════════════════════════════════════ */
 
 export const setSchedule = async (
-  payload: SetSchedulePayload
+  payload: SetSchedulePayload,
 ): Promise<ApiResponse<SetScheduleResponse>> => {
   const res = await api.put<ApiResponse<SetScheduleResponse>>(
     "/availability",
-    payload
+    payload,
   );
   return res;
 };
@@ -88,7 +88,7 @@ export const useSetSchedule = () => {
       toast.error("Schedule Update Failed", {
         description: getErrorMessage(
           error,
-          "Failed to update schedule. Please try again."
+          "Failed to update schedule. Please try again.",
         ),
       });
     },
@@ -101,11 +101,11 @@ export const useSetSchedule = () => {
    ═══════════════════════════════════════════════ */
 
 export const updateAvailabilitySettings = async (
-  payload: UpdateSettingsPayload
+  payload: UpdateSettingsPayload,
 ): Promise<ApiResponse<UpdateSettingsResponse>> => {
   const res = await api.patch<ApiResponse<UpdateSettingsResponse>>(
     "/availability/settings",
-    payload
+    payload,
   );
   return res;
 };
@@ -131,7 +131,7 @@ export const useUpdateAvailabilitySettings = () => {
       toast.error("Settings Update Failed", {
         description: getErrorMessage(
           error,
-          "Failed to update settings. Please try again."
+          "Failed to update settings. Please try again.",
         ),
       });
     },
@@ -144,11 +144,11 @@ export const useUpdateAvailabilitySettings = () => {
    ═══════════════════════════════════════════════ */
 
 export const createOverride = async (
-  payload: CreateOverridePayload
+  payload: CreateOverridePayload,
 ): Promise<ApiResponse<DateOverride>> => {
   const res = await api.post<ApiResponse<DateOverride>>(
     "/availability/overrides",
-    payload
+    payload,
   );
   return res;
 };
@@ -173,7 +173,7 @@ export const useCreateOverride = () => {
       toast.error("Override Failed", {
         description: getErrorMessage(
           error,
-          "Failed to create date override. Please try again."
+          "Failed to create date override. Please try again.",
         ),
       });
     },
@@ -206,7 +206,7 @@ export const useDeleteOverride = () => {
       toast.error("Remove Failed", {
         description: getErrorMessage(
           error,
-          "Failed to remove date override. Please try again."
+          "Failed to remove date override. Please try again.",
         ),
       });
     },
@@ -220,21 +220,21 @@ export const useDeleteOverride = () => {
 
 export const fetchAvailableSlots = async (
   tutorId: string,
-  query: AvailableSlotsQuery
+  query: AvailableSlotsQuery,
 ): Promise<ApiResponse<GetAvailableSlotsResponse>> => {
   const params = new URLSearchParams();
   params.append("date", query.date);
   if (query.duration) params.append("duration", String(query.duration));
 
   const res = await api.get<ApiResponse<GetAvailableSlotsResponse>>(
-    `/availability/${tutorId}/slots?${params.toString()}`
+    `/availability/${tutorId}/slots?${params.toString()}`,
   );
   return res;
 };
 
 export const useFetchAvailableSlots = (
   tutorId: string,
-  query: AvailableSlotsQuery
+  query: AvailableSlotsQuery,
 ) => {
   return useQuery<ApiResponse<GetAvailableSlotsResponse>, ApiError>({
     queryKey: ["availableSlots", tutorId, query.date, query.duration],

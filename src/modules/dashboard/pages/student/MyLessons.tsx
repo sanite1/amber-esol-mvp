@@ -152,10 +152,10 @@ export default function MyLessons() {
 
   // ── Modal state (unchanged) ──
   const [cancelModalLesson, setCancelModalLesson] = useState<Lesson | null>(
-    null
+    null,
   );
   const [reviewModalLesson, setReviewModalLesson] = useState<Lesson | null>(
-    null
+    null,
   );
 
   // ── Scroll to top on mount ──
@@ -220,7 +220,7 @@ export default function MyLessons() {
      ──────────────────────────────────────────── */
   const lessons = useMemo(
     () => (bookingsResponse?.data?.bookings ?? []).map(bookingToLesson),
-    [bookingsResponse]
+    [bookingsResponse],
   );
 
   const stats: LessonStats = useMemo(
@@ -235,7 +235,7 @@ export default function MyLessons() {
             totalHours: 0,
             totalSpent: 0,
           },
-    [statsResponse]
+    [statsResponse],
   );
 
   const totalPages = bookingsResponse?.data?.pagination?.totalPages ?? 1;
@@ -277,7 +277,7 @@ export default function MyLessons() {
           setCancelModalLesson(null);
           // React Query will auto‑refetch bookings & stats
         },
-      }
+      },
     );
   };
 
@@ -289,7 +289,7 @@ export default function MyLessons() {
   const handleSubmitReview = (
     _id: string,
     _rating: number,
-    _comment: string
+    _comment: string,
   ) => {
     // TODO: wire up when review API endpoint is built
     setReviewModalLesson(null);

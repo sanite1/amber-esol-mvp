@@ -29,7 +29,7 @@ export default function AdminSecurityCard({
           <p className="text-[10px] sm:text-[11px] text-[#0B2343]/40">
             {lastPasswordChange
               ? `Last changed: ${new Date(
-                  lastPasswordChange
+                  lastPasswordChange,
                 ).toLocaleDateString("en-GB", {
                   day: "numeric",
                   month: "long",

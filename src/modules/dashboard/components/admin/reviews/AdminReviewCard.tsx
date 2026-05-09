@@ -52,7 +52,7 @@ function Initials({ name }: { name: string }) {
 export default function AdminReviewCard({ review, onClick }: Props) {
   const status = statusConfig[review.status] || statusConfig.published;
   const pendingReports = review.reports.filter(
-    (r) => r.status === "pending"
+    (r) => r.status === "pending",
   ).length;
 
   return (

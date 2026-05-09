@@ -55,7 +55,7 @@ export default function TutorDetail() {
           console.log("Error:", error);
           navigate(`/messages`);
         },
-      }
+      },
     );
   };
 

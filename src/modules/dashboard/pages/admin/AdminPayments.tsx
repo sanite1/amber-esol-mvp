@@ -60,11 +60,11 @@ const PER_PAGE = 8;
    ═══════════════════════════════════════════════ */
 
 const isPopulatedUser = (
-  val: string | TransactionUser
+  val: string | TransactionUser,
 ): val is TransactionUser => typeof val === "object" && val !== null;
 
 const isPopulatedBooking = (
-  val: string | TransactionBooking
+  val: string | TransactionBooking,
 ): val is TransactionBooking => typeof val === "object" && val !== null;
 
 const isPopulatedTutor = (val: string | PayoutTutor): val is PayoutTutor =>
@@ -166,7 +166,7 @@ function apiPayoutToAdmin(po: Payout): AdminPayout {
 
 function buildStats(
   summary: PaymentSummaryResponse | undefined,
-  payoutsRaw: AdminPayout[]
+  payoutsRaw: AdminPayout[],
 ): AdminPaymentsStats {
   const pendingPayouts = payoutsRaw.filter((p) => p.status === "pending");
   const processingPayouts = payoutsRaw.filter((p) => p.status === "processing");
@@ -178,7 +178,7 @@ function buildStats(
           ((summary.thisMonthAmount - summary.lastMonthAmount) /
             summary.lastMonthAmount) *
             100 *
-            10
+            10,
         ) / 10
       : 0;
 
@@ -189,7 +189,7 @@ function buildStats(
     totalCommission: summary?.totalCommission ?? 0,
     commissionThisMonth: summary?.thisMonthEarnings
       ? Math.round(
-          (summary.thisMonthAmount - summary.thisMonthEarnings) * 100
+          (summary.thisMonthAmount - summary.thisMonthEarnings) * 100,
         ) / 100
       : 0,
     totalRefunds: 0, // summary doesn't break out refund amounts; leave 0
@@ -226,7 +226,7 @@ export default function AdminPayments() {
   // Modals
   const [selectedTxn, setSelectedTxn] = useState<AdminTransaction | null>(null);
   const [selectedPayout, setSelectedPayout] = useState<AdminPayout | null>(
-    null
+    null,
   );
 
   // ── API queries ──
@@ -254,12 +254,12 @@ export default function AdminPayments() {
   // ── Unwrap responses (memoized to stabilize references) ──
   const transactionsRaw: Transaction[] = useMemo(
     () => txRes?.data?.transactions ?? [],
-    [txRes]
+    [txRes],
   );
 
   const payoutsRawApi: Payout[] = useMemo(
     () => payoutsRes?.data?.payouts ?? [],
-    [payoutsRes]
+    [payoutsRes],
   );
 
   const summary: PaymentSummaryResponse | undefined = summaryRes?.data;
@@ -269,19 +269,19 @@ export default function AdminPayments() {
   // ── Map to local shapes ──
   const transactions: AdminTransaction[] = useMemo(
     () => transactionsRaw.map(apiTxnToAdmin),
-    [transactionsRaw]
+    [transactionsRaw],
   );
 
   const payouts: AdminPayout[] = useMemo(
     () => payoutsRawApi.map(apiPayoutToAdmin),
-    [payoutsRawApi]
+    [payoutsRawApi],
   );
 
   const stats: AdminPaymentsStats = useMemo(() => {
     const base = buildStats(summary, payouts);
     // Augment with transaction-derived counts
     const failedCount = transactions.filter(
-      (t) => t.status === "failed"
+      (t) => t.status === "failed",
     ).length;
     const flaggedTxns = transactions.filter((t) => t.flagged).length;
     const refundedSum = transactions
@@ -336,7 +336,7 @@ export default function AdminPayments() {
           t.studentName.toLowerCase().includes(q) ||
           t.tutorName.toLowerCase().includes(q) ||
           (t.lessonTopic?.toLowerCase().includes(q) ?? false) ||
-          t.id.toLowerCase().includes(q)
+          t.id.toLowerCase().includes(q),
       );
     }
 
@@ -354,13 +354,13 @@ export default function AdminPayments() {
       case "newest":
         result.sort(
           (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
         );
         break;
       case "oldest":
         result.sort(
           (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
         );
         break;
       case "amount_high":
@@ -377,7 +377,7 @@ export default function AdminPayments() {
   const txnTotalPages = Math.ceil(processedTxns.length / PER_PAGE);
   const paginatedTxns = processedTxns.slice(
     (txnPage - 1) * PER_PAGE,
-    txnPage * PER_PAGE
+    txnPage * PER_PAGE,
   );
 
   // ── Process payouts ──
@@ -389,7 +389,7 @@ export default function AdminPayments() {
       result = result.filter(
         (p) =>
           p.tutorName.toLowerCase().includes(q) ||
-          p.id.toLowerCase().includes(q)
+          p.id.toLowerCase().includes(q),
       );
     }
 
@@ -404,14 +404,14 @@ export default function AdminPayments() {
         result.sort(
           (a, b) =>
             new Date(b.requestedAt).getTime() -
-            new Date(a.requestedAt).getTime()
+            new Date(a.requestedAt).getTime(),
         );
         break;
       case "oldest":
         result.sort(
           (a, b) =>
             new Date(a.requestedAt).getTime() -
-            new Date(b.requestedAt).getTime()
+            new Date(b.requestedAt).getTime(),
         );
         break;
       case "amount_high":
@@ -428,14 +428,14 @@ export default function AdminPayments() {
   const payoutTotalPages = Math.ceil(processedPayouts.length / PER_PAGE);
   const paginatedPayouts = processedPayouts.slice(
     (payoutPage - 1) * PER_PAGE,
-    payoutPage * PER_PAGE
+    payoutPage * PER_PAGE,
   );
 
   // ── Transaction actions ──
   function handleTxnRefund(txnId: string, reason: string) {
     refundMutation.mutate(
       { transactionId: txnId, payload: { reason } },
-      { onSuccess: () => setSelectedTxn(null) }
+      { onSuccess: () => setSelectedTxn(null) },
     );
   }
 
@@ -448,10 +448,10 @@ export default function AdminPayments() {
           setSelectedTxn((prev) =>
             prev && prev.id === txnId
               ? { ...prev, flagged: true, flagReason: reason }
-              : prev
+              : prev,
           );
         },
-      }
+      },
     );
   }
 
@@ -463,10 +463,10 @@ export default function AdminPayments() {
           setSelectedTxn((prev) =>
             prev && prev.id === txnId
               ? { ...prev, flagged: false, flagReason: undefined }
-              : prev
+              : prev,
           );
         },
-      }
+      },
     );
   }
 
@@ -474,21 +474,21 @@ export default function AdminPayments() {
   function handlePayoutApprove(payoutId: string) {
     approveMutation.mutate(
       { id: payoutId, payload: {} },
-      { onSuccess: () => setSelectedPayout(null) }
+      { onSuccess: () => setSelectedPayout(null) },
     );
   }
 
   function handlePayoutReject(payoutId: string, reason: string) {
     rejectMutation.mutate(
       { id: payoutId, payload: { reason } },
-      { onSuccess: () => setSelectedPayout(null) }
+      { onSuccess: () => setSelectedPayout(null) },
     );
   }
 
   function handlePayoutMarkCompleted(payoutId: string) {
     completeMutation.mutate(
       { id: payoutId, payload: {} },
-      { onSuccess: () => setSelectedPayout(null) }
+      { onSuccess: () => setSelectedPayout(null) },
     );
   }
 
@@ -503,10 +503,10 @@ export default function AdminPayments() {
           setSelectedPayout((prev) =>
             prev && prev.id === payoutId
               ? { ...prev, status: "flagged" as const, flagReason: reason }
-              : prev
+              : prev,
           );
         },
-      }
+      },
     );
   }
 
@@ -519,10 +519,10 @@ export default function AdminPayments() {
           setSelectedPayout((prev) =>
             prev && prev.id === payoutId
               ? { ...prev, status: "pending" as const, flagReason: undefined }
-              : prev
+              : prev,
           );
         },
-      }
+      },
     );
   }
 

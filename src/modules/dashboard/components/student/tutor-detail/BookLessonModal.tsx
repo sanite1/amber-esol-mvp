@@ -55,7 +55,7 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
 
   const slotsQuery = useMemo(
     () => ({ date: viewDate ?? "", duration: 50 }),
-    [viewDate]
+    [viewDate],
   );
 
   const { data: slotsResponse, isLoading: slotsLoading } =
@@ -72,7 +72,7 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
   const toggleSlot = (date: string, startTime: string, endTime: string) => {
     if (isSlotSelected(date, startTime)) {
       setSelectedSlots((prev) =>
-        prev.filter((s) => !(s.date === date && s.startTime === startTime))
+        prev.filter((s) => !(s.date === date && s.startTime === startTime)),
       );
     } else if (selectedSlots.length < hours) {
       setSelectedSlots((prev) => [...prev, { date, startTime, endTime }]);
@@ -82,7 +82,7 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
   const sortedSelectedSlots = [...selectedSlots].sort((a, b) =>
     a.date === b.date
       ? a.startTime.localeCompare(b.startTime)
-      : a.date.localeCompare(b.date)
+      : a.date.localeCompare(b.date),
   );
 
   const handlePayment = () => {
@@ -114,7 +114,7 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
         onError: () => {
           setIsProcessing(false);
         },
-      }
+      },
     );
   };
 
@@ -284,7 +284,7 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
                   const str = toDateStr(d);
                   const active = viewDate === str;
                   const hasSelection = selectedSlots.some(
-                    (s) => s.date === str
+                    (s) => s.date === str,
                   );
                   return (
                     <button
@@ -332,7 +332,7 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
                       {availableSlots.map((slot) => {
                         const selected = isSlotSelected(
                           viewDate,
-                          slot.startTime
+                          slot.startTime,
                         );
                         const disabled =
                           !selected && selectedSlots.length >= hours;
@@ -384,8 +384,8 @@ export default function BookLessonModal({ tutor, onClose, onSuccess }: Props) {
                                   !(
                                     x.date === s.date &&
                                     x.startTime === s.startTime
-                                  )
-                              )
+                                  ),
+                              ),
                             )
                           }
                           className="text-[10px] text-red-500 hover:underline"

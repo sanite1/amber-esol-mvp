@@ -15,7 +15,7 @@ import {
    ────────────────────────────────────────────── */
 
 const isPopulatedParticipant = (
-  p: string | ConversationParticipant
+  p: string | ConversationParticipant,
 ): p is ConversationParticipant => {
   return typeof p === "object" && p !== null && "_id" in p;
 };
@@ -36,7 +36,7 @@ export const getCurrentUserId = (): string => {
 export const mapConversation = (
   conv: Conversation,
   currentUserId: string,
-  onlineUserIds?: Set<string>
+  onlineUserIds?: Set<string>,
 ): UIConversation => {
   const otherParticipant = conv.participants.find((p) => {
     if (isPopulatedParticipant(p)) return p._id !== currentUserId;
@@ -117,10 +117,10 @@ export const mapMessage = (msg: Message): UIMessage => {
 export const mapConversations = (
   conversations: Conversation[],
   currentUserId: string,
-  onlineUserIds?: Set<string>
+  onlineUserIds?: Set<string>,
 ): UIConversation[] => {
   return conversations.map((c) =>
-    mapConversation(c, currentUserId, onlineUserIds)
+    mapConversation(c, currentUserId, onlineUserIds),
   );
 };
 
@@ -209,7 +209,7 @@ const levelToShort = (level?: string): string => {
 
 /** Determine student status based on onlineStatus or a heuristic */
 const deriveStudentStatus = (
-  participant: ConversationParticipant
+  participant: ConversationParticipant,
 ): "active" | "trial" | "inactive" => {
   // The backend user model doesn't have a direct "trial/active/inactive" per-student field
   // for messaging. We derive it: if the user status field exists, use it. Otherwise, default to "active".
@@ -226,7 +226,7 @@ const deriveStudentStatus = (
 export const mapTutorConversation = (
   conv: Conversation,
   currentUserId: string,
-  onlineUserIds?: Set<string>
+  onlineUserIds?: Set<string>,
 ): TutorUIConversation => {
   const otherParticipant = conv.participants.find((p) => {
     if (isPopulatedParticipant(p)) return p._id !== currentUserId;
@@ -310,10 +310,10 @@ export const mapTutorMessage = (msg: Message): TutorChatMessage => {
 export const mapTutorConversations = (
   conversations: Conversation[],
   currentUserId: string,
-  onlineUserIds?: Set<string>
+  onlineUserIds?: Set<string>,
 ): TutorUIConversation[] => {
   return conversations.map((c) =>
-    mapTutorConversation(c, currentUserId, onlineUserIds)
+    mapTutorConversation(c, currentUserId, onlineUserIds),
   );
 };
 

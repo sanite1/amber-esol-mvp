@@ -13,7 +13,7 @@ import type {
    ═══════════════════════════════════════════════ */
 
 export const fetchAdminDashboard = async (
-  query?: AdminDashboardQuery
+  query?: AdminDashboardQuery,
 ): Promise<ApiResponse<AdminDashboardResponse>> => {
   const params = new URLSearchParams();
   if (query?.signupsLimit)
@@ -26,7 +26,7 @@ export const fetchAdminDashboard = async (
     params.append("chartMonths", String(query.chartMonths));
 
   const res = await api.get<ApiResponse<AdminDashboardResponse>>(
-    `/admin-dashboard?${params.toString()}`
+    `/admin-dashboard?${params.toString()}`,
   );
   return res;
 };

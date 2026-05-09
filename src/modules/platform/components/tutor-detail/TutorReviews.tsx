@@ -20,7 +20,7 @@ export default function TutorReviews({ tutor }: Props) {
     star,
     count: reviews.filter((r) => r.rating === star).length,
     pct: Math.round(
-      (reviews.filter((r) => r.rating === star).length / reviews.length) * 100
+      (reviews.filter((r) => r.rating === star).length / reviews.length) * 100,
     ),
   }));
 

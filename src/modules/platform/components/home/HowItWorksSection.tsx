@@ -215,7 +215,7 @@ export default function HowItWorksSection() {
                       >
                         {time}
                       </span>
-                    )
+                    ),
                   )}
                 </div>
               </div>

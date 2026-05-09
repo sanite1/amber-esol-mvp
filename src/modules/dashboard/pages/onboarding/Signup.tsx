@@ -34,7 +34,7 @@ const registerSchema = z
       .min(8, "Password must be at least 8 characters")
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Must contain uppercase, lowercase, and a number"
+        "Must contain uppercase, lowercase, and a number",
       ),
     confirmPassword: z.string(),
     role: z.string(),
@@ -728,7 +728,7 @@ export default function Register() {
                   >
                     <CheckCircle2 size={10} /> {t}
                   </span>
-                )
+                ),
               )}
             </div>
           </div>

@@ -26,7 +26,7 @@ interface Props {
   onChangeStatus: (ticketId: string, status: AdminTicket["status"]) => void;
   onChangePriority: (
     ticketId: string,
-    priority: AdminTicket["priority"]
+    priority: AdminTicket["priority"],
   ) => void;
 }
 
@@ -220,7 +220,7 @@ export default function TicketDetailModal({
               onChange={(e) =>
                 onChangePriority(
                   ticket.id,
-                  e.target.value as AdminTicket["priority"]
+                  e.target.value as AdminTicket["priority"],
                 )
               }
               className={`px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-medium border-0 cursor-pointer focus:outline-none ${priority.bg} ${priority.text}`}
@@ -238,7 +238,7 @@ export default function TicketDetailModal({
               onChange={(e) =>
                 onChangeStatus(
                   ticket.id,
-                  e.target.value as AdminTicket["status"]
+                  e.target.value as AdminTicket["status"],
                 )
               }
               className={`px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-medium border-0 cursor-pointer focus:outline-none ${status.bg} ${status.text}`}
@@ -304,7 +304,7 @@ export default function TicketDetailModal({
                             <span className="text-[9px] sm:text-[10px] text-[#0B2343]/30">
                               {new Date(msg.createdAt).toLocaleTimeString(
                                 "en-GB",
-                                { hour: "2-digit", minute: "2-digit" }
+                                { hour: "2-digit", minute: "2-digit" },
                               )}
                             </span>
                           </div>

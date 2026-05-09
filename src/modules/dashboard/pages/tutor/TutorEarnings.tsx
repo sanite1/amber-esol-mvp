@@ -56,11 +56,11 @@ const PER_PAGE = 8;
    ═══════════════════════════════════════════════ */
 
 const isPopulatedUser = (
-  val: string | TransactionUser
+  val: string | TransactionUser,
 ): val is TransactionUser => typeof val === "object" && val !== null;
 
 const isPopulatedBooking = (
-  val: string | TransactionBooking
+  val: string | TransactionBooking,
 ): val is TransactionBooking => typeof val === "object" && val !== null;
 
 /* ═══════════════════════════════════════════════
@@ -146,7 +146,7 @@ function apiPayoutToRecord(po: Payout): PayoutRecord {
 function buildStats(
   wallet: Wallet | undefined,
   summary: PaymentSummaryResponse | undefined,
-  chart: MonthlyChartDataPoint[]
+  chart: MonthlyChartDataPoint[],
 ): EarningsStats {
   const thisMonth = chart[chart.length - 1]?.earnings ?? 0;
   const lastMonth = chart[chart.length - 2]?.earnings ?? 0;
@@ -203,7 +203,7 @@ export default function TutorEarnings() {
   // Modals
   const [selectedEntry, setSelectedEntry] = useState<EarningEntry | null>(null);
   const [selectedPayout, setSelectedPayout] = useState<PayoutRecord | null>(
-    null
+    null,
   );
   const [showPayoutRequest, setShowPayoutRequest] = useState(false);
   const [showPayoutSettings, setShowPayoutSettings] = useState(false);
@@ -247,17 +247,17 @@ export default function TutorEarnings() {
 
   const transactions: Transaction[] = useMemo(
     () => txRes?.data?.transactions ?? [],
-    [txRes]
+    [txRes],
   );
 
   const payoutsRaw: Payout[] = useMemo(
     () => payoutsRes?.data?.payouts ?? [],
-    [payoutsRes]
+    [payoutsRes],
   );
 
   const chartRaw: MonthlyChartDataPoint[] = useMemo(
     () => chartRes?.data?.chartData ?? [],
-    [chartRes]
+    [chartRes],
   );
 
   const isLoading =
@@ -270,22 +270,22 @@ export default function TutorEarnings() {
   // ── Map to local shapes ──
   const stats: EarningsStats = useMemo(
     () => buildStats(wallet, summary, chartRaw),
-    [wallet, summary, chartRaw]
+    [wallet, summary, chartRaw],
   );
 
   const monthlyChart: MonthlyEarning[] = useMemo(
     () => apiChartToMonthly(chartRaw),
-    [chartRaw]
+    [chartRaw],
   );
 
   const allEarnings: EarningEntry[] = useMemo(
     () => transactions.map(apiTransactionToEarning),
-    [transactions]
+    [transactions],
   );
 
   const payouts: PayoutRecord[] = useMemo(
     () => payoutsRaw.map(apiPayoutToRecord),
-    [payoutsRaw]
+    [payoutsRaw],
   );
 
   // ── Reset page on filter change ──
@@ -330,7 +330,7 @@ export default function TutorEarnings() {
         (e) =>
           e.studentName.toLowerCase().includes(q) ||
           e.lessonTopic?.toLowerCase().includes(q) ||
-          e.payoutId?.toLowerCase().includes(q)
+          e.payoutId?.toLowerCase().includes(q),
       );
     }
 

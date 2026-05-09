@@ -136,7 +136,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     if (timeToExpiry > 60) {
       const timeout = setTimeout(
         refreshAccessToken,
-        (timeToExpiry - 60) * 1000
+        (timeToExpiry - 60) * 1000,
       );
       return () => clearTimeout(timeout);
     }

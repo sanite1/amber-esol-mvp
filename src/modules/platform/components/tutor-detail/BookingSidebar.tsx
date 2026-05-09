@@ -73,7 +73,7 @@ export default function BookingSidebar({ tutor }: Props) {
               promptAuth(
                 lessonType === "trial"
                   ? "book a free trial lesson"
-                  : "book a lesson"
+                  : "book a lesson",
               )
             }
             className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#ff7c22] text-white text-sm font-bold rounded-xl hover:bg-[#e56a10] transition-colors"

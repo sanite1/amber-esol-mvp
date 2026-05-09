@@ -53,7 +53,7 @@ const persistAuth = (accessToken: string, refreshToken?: string) => {
 
 const getErrorMessage = (
   error: ApiError,
-  fallback = "Something went wrong. Please try again."
+  fallback = "Something went wrong. Please try again.",
 ): string => {
   return (
     error.response?.data?.fields?.[0]?.message ||
@@ -67,11 +67,11 @@ const getErrorMessage = (
    ═══════════════════════════════════════════════ */
 
 export const login = async (
-  payload: LoginPayload
+  payload: LoginPayload,
 ): Promise<ApiResponse<LoginResponse>> => {
   const res = await api.post<ApiResponse<LoginResponse>>(
     "/users/login",
-    payload
+    payload,
   );
   persistAuth(res.data.accessToken, res.data.refreshToken);
   return res;
@@ -98,7 +98,7 @@ export const useLogin = () => {
    ═══════════════════════════════════════════════ */
 
 export const registerStudent = async (
-  payload: RegisterStudentPayload | FormData
+  payload: RegisterStudentPayload | FormData,
 ): Promise<ApiResponse<RegisterResponse>> => {
   const isFormData = payload instanceof FormData;
   const res = await api.post<ApiResponse<RegisterResponse>>(
@@ -106,7 +106,7 @@ export const registerStudent = async (
     payload,
     isFormData
       ? { headers: { "Content-Type": "multipart/form-data" } }
-      : undefined
+      : undefined,
   );
   return res;
 };
@@ -136,7 +136,7 @@ export const useRegisterStudent = () => {
    ═══════════════════════════════════════════════ */
 
 export const registerTutor = async (
-  payload: RegisterTutorPayload | FormData
+  payload: RegisterTutorPayload | FormData,
 ): Promise<ApiResponse<RegisterResponse>> => {
   const isFormData = payload instanceof FormData;
   const res = await api.post<ApiResponse<RegisterResponse>>(
@@ -144,7 +144,7 @@ export const registerTutor = async (
     payload,
     isFormData
       ? { headers: { "Content-Type": "multipart/form-data" } }
-      : undefined
+      : undefined,
   );
   return res;
 };
@@ -174,7 +174,7 @@ export const useRegisterTutor = () => {
    ═══════════════════════════════════════════════ */
 
 export const registerAdmin = async (
-  payload: RegisterAdminPayload | FormData
+  payload: RegisterAdminPayload | FormData,
 ): Promise<ApiResponse<RegisterResponse>> => {
   const isFormData = payload instanceof FormData;
   const res = await api.post<ApiResponse<RegisterResponse>>(
@@ -182,7 +182,7 @@ export const registerAdmin = async (
     payload,
     isFormData
       ? { headers: { "Content-Type": "multipart/form-data" } }
-      : undefined
+      : undefined,
   );
   return res;
 };
@@ -236,7 +236,7 @@ export const useRefresh = () => {
 
 export const verifyEmail = async (
   id: string,
-  token: string
+  token: string,
 ): Promise<ApiResponse> => {
   const res = await api.get<ApiResponse>(`/users/verify/${id}/${token}`);
   return res;
@@ -254,7 +254,7 @@ export const useVerifyEmail = () => {
       toast.error("Verification Failed", {
         description: getErrorMessage(
           error,
-          "Verification failed. Please try again."
+          "Verification failed. Please try again.",
         ),
       });
     },
@@ -266,7 +266,7 @@ export const useVerifyEmail = () => {
    ═══════════════════════════════════════════════ */
 
 export const forgotPassword = async (
-  payload: ForgotPasswordPayload
+  payload: ForgotPasswordPayload,
 ): Promise<ApiResponse> => {
   const res = await api.post<ApiResponse>("/users/forgot-password", payload);
   return res;
@@ -296,11 +296,11 @@ export const useForgotPassword = () => {
 export const resetPassword = async (
   id: string,
   token: string,
-  payload: ResetPasswordPayload
+  payload: ResetPasswordPayload,
 ): Promise<ApiResponse> => {
   const res = await api.patch<ApiResponse>(
     `/users/reset-password/${id}/${token}`,
-    payload
+    payload,
   );
   return res;
 };
@@ -331,7 +331,7 @@ export const useResetPassword = () => {
    ═══════════════════════════════════════════════ */
 
 export const updatePassword = async (
-  payload: UpdatePasswordPayload
+  payload: UpdatePasswordPayload,
 ): Promise<ApiResponse> => {
   const res = await api.patch<ApiResponse>(`/users/update-password`, payload);
   return res;
@@ -384,7 +384,7 @@ export const useFetchUserById = (id: string) => {
 
 export const updateUser = async (
   id: string,
-  payload: UpdateUserPayload | FormData
+  payload: UpdateUserPayload | FormData,
 ): Promise<ApiResponse<UpdateUserResponse>> => {
   const isFormData = payload instanceof FormData;
   const res = await api.patch<ApiResponse<UpdateUserResponse>>(
@@ -392,7 +392,7 @@ export const updateUser = async (
     payload,
     isFormData
       ? { headers: { "Content-Type": "multipart/form-data" } }
-      : undefined
+      : undefined,
   );
 
   // Persist new tokens from the response
@@ -425,7 +425,7 @@ export const useUpdateUser = () => {
       toast.error("Update Failed", {
         description: getErrorMessage(
           error,
-          "Failed to update profile. Try again."
+          "Failed to update profile. Try again.",
         ),
       });
     },
@@ -437,7 +437,7 @@ export const useUpdateUser = () => {
    ═══════════════════════════════════════════════ */
 
 export const fetchTutors = async (
-  filters: TutorFilters
+  filters: TutorFilters,
 ): Promise<ApiResponse<TutorListResponse>> => {
   const params = new URLSearchParams();
 
@@ -473,7 +473,7 @@ export const useFetchTutors = (filters: TutorFilters) => {
 
 export const deleteAccount = async (
   id: string,
-  payload: DeleteAccountPayload
+  payload: DeleteAccountPayload,
 ): Promise<ApiResponse> => {
   const res = await api.delete<ApiResponse>(`/users/${id}`, {
     data: payload,

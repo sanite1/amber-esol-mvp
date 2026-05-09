@@ -29,13 +29,13 @@ export default function ActiveFilterTags({
   //   tags.push({ label: "Free trial", key: "trialOnly" });
   // }
   filters.specialties.forEach((s) =>
-    tags.push({ label: s, key: "specialties", value: s })
+    tags.push({ label: s, key: "specialties", value: s }),
   );
   filters.levels.forEach((l) =>
-    tags.push({ label: l, key: "levels", value: l })
+    tags.push({ label: l, key: "levels", value: l }),
   );
   filters.languages.forEach((l) =>
-    tags.push({ label: l, key: "languages", value: l })
+    tags.push({ label: l, key: "languages", value: l }),
   );
   if (filters.priceRange) {
     const label = filters.priceRange.max

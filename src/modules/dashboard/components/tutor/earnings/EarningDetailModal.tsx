@@ -120,7 +120,7 @@ export default function EarningDetailModal({ entry, onClose }: Props) {
                 })}
                 {" – "}
                 {new Date(
-                  lessonDate.getTime() + entry.duration * 60000
+                  lessonDate.getTime() + entry.duration * 60000,
                 ).toLocaleTimeString("en-GB", {
                   hour: "2-digit",
                   minute: "2-digit",

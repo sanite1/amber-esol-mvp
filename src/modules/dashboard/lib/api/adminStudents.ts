@@ -16,7 +16,7 @@ import type {
    ═══════════════════════════════════════════════ */
 
 export const fetchAdminStudents = async (
-  query?: AdminStudentsQuery
+  query?: AdminStudentsQuery,
 ): Promise<ApiResponse<AdminStudentsResponse>> => {
   const params = new URLSearchParams();
   if (query?.page) params.append("page", String(query.page));
@@ -28,7 +28,7 @@ export const fetchAdminStudents = async (
 
   const qs = params.toString();
   const res = await api.get<ApiResponse<AdminStudentsResponse>>(
-    `/admin-students${qs ? `?${qs}` : ""}`
+    `/admin-students${qs ? `?${qs}` : ""}`,
   );
   return res;
 };
@@ -56,11 +56,11 @@ export const useFetchAdminStudents = (query?: AdminStudentsQuery) => {
 
 export const updateStudentStatus = async (
   studentId: string,
-  data: AdminUpdateStudentStatusRequest
+  data: AdminUpdateStudentStatusRequest,
 ): Promise<ApiResponse<AdminUpdateStudentStatusResponse>> => {
   const res = await api.patch<ApiResponse<AdminUpdateStudentStatusResponse>>(
     `/admin-students/${studentId}/status`,
-    data
+    data,
   );
   return res;
 };

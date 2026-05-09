@@ -47,18 +47,18 @@ const PER_PAGE = 8;
    ═══════════════════════════════════════════════ */
 
 const isPopulatedStudent = (
-  val: string | ReviewStudent
+  val: string | ReviewStudent,
 ): val is ReviewStudent => typeof val === "object" && val !== null;
 
 const isPopulatedTutor = (val: string | ReviewTutor): val is ReviewTutor =>
   typeof val === "object" && val !== null;
 
 const isPopulatedBooking = (
-  val: string | ReviewBooking
+  val: string | ReviewBooking,
 ): val is ReviewBooking => typeof val === "object" && val !== null;
 
 const isPopulatedReporter = (
-  val: string | ReviewReporter
+  val: string | ReviewReporter,
 ): val is ReviewReporter => typeof val === "object" && val !== null;
 
 /* ═══════════════════════════════════════════════
@@ -136,7 +136,7 @@ export default function AdminReviews() {
 
   // Modal
   const [selectedReview, setSelectedReview] = useState<AdminReview | null>(
-    null
+    null,
   );
 
   // ── Build API filter params ──
@@ -182,7 +182,7 @@ export default function AdminReviews() {
   // ── Unwrap responses ──
   const reviewsRaw: Review[] = useMemo(
     () => reviewsRes?.data?.reviews ?? [],
-    [reviewsRes]
+    [reviewsRes],
   );
 
   const pagination = reviewsRes?.data?.pagination;
@@ -207,7 +207,7 @@ export default function AdminReviews() {
   // ── Map to local shapes ──
   const reviews: AdminReview[] = useMemo(
     () => reviewsRaw.map(apiReviewToAdmin),
-    [reviewsRaw]
+    [reviewsRaw],
   );
 
   // ── Client-side rating filter (API doesn't support ?rating for admin) ──
@@ -245,10 +245,10 @@ export default function AdminReviews() {
         onSuccess: () => {
           // Update selected review in modal
           setSelectedReview((prev) =>
-            prev && prev.id === reviewId ? { ...prev, status: "hidden" } : prev
+            prev && prev.id === reviewId ? { ...prev, status: "hidden" } : prev,
           );
         },
-      }
+      },
     );
   }
 
@@ -260,10 +260,10 @@ export default function AdminReviews() {
           setSelectedReview((prev) =>
             prev && prev.id === reviewId
               ? { ...prev, status: "published" }
-              : prev
+              : prev,
           );
         },
-      }
+      },
     );
   }
 
@@ -273,10 +273,12 @@ export default function AdminReviews() {
       {
         onSuccess: () => {
           setSelectedReview((prev) =>
-            prev && prev.id === reviewId ? { ...prev, status: "removed" } : prev
+            prev && prev.id === reviewId
+              ? { ...prev, status: "removed" }
+              : prev,
           );
         },
-      }
+      },
     );
   }
 
@@ -288,10 +290,10 @@ export default function AdminReviews() {
           setSelectedReview((prev) =>
             prev && prev.id === reviewId
               ? { ...prev, status: "published" }
-              : prev
+              : prev,
           );
         },
-      }
+      },
     );
   }
 
@@ -307,16 +309,16 @@ export default function AdminReviews() {
               reports: prev.reports.map((rep) =>
                 rep.id === reportId
                   ? { ...rep, status: "dismissed" as const }
-                  : rep
+                  : rep,
               ),
               reported:
                 prev.reports.filter(
-                  (rep) => rep.id !== reportId && rep.status === "pending"
+                  (rep) => rep.id !== reportId && rep.status === "pending",
                 ).length > 0,
             };
           });
         },
-      }
+      },
     );
   }
 
@@ -332,16 +334,16 @@ export default function AdminReviews() {
               reports: prev.reports.map((rep) =>
                 rep.id === reportId
                   ? { ...rep, status: "action_taken" as const }
-                  : rep
+                  : rep,
               ),
               reported:
                 prev.reports.filter(
-                  (rep) => rep.id !== reportId && rep.status === "pending"
+                  (rep) => rep.id !== reportId && rep.status === "pending",
                 ).length > 0,
             };
           });
         },
-      }
+      },
     );
   }
 

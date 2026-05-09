@@ -15,7 +15,7 @@ import type {
    ═══════════════════════════════════════════════ */
 
 export const fetchAdminTickets = async (
-  query?: AdminTicketsQuery
+  query?: AdminTicketsQuery,
 ): Promise<ApiResponse<AdminTicketsResponse>> => {
   const params = new URLSearchParams();
   if (query?.page) params.append("page", String(query.page));
@@ -33,7 +33,7 @@ export const fetchAdminTickets = async (
 
   const qs = params.toString();
   const res = await api.get<ApiResponse<AdminTicketsResponse>>(
-    `/tickets/admin${qs ? `?${qs}` : ""}`
+    `/tickets/admin${qs ? `?${qs}` : ""}`,
   );
   return res;
 };
@@ -63,11 +63,11 @@ export const useFetchAdminTickets = (query?: AdminTicketsQuery) => {
 
 export const adminReplyTicket = async (
   ticketId: string,
-  message: string
+  message: string,
 ): Promise<ApiResponse<AdminTicket>> => {
   const res = await api.post<ApiResponse<AdminTicket>>(
     `/tickets/admin/${ticketId}/reply`,
-    { message }
+    { message },
   );
   return res;
 };
@@ -97,7 +97,7 @@ export const useAdminReplyTicket = () => {
 
 export const updateTicketStatus = async (
   ticketId: string,
-  status: AdminTicket["status"]
+  status: AdminTicket["status"],
 ): Promise<
   ApiResponse<{ id: string; status: string; resolvedAt?: string }>
 > => {
@@ -132,11 +132,11 @@ export const useUpdateTicketStatus = () => {
 
 export const updateTicketPriority = async (
   ticketId: string,
-  priority: AdminTicket["priority"]
+  priority: AdminTicket["priority"],
 ): Promise<ApiResponse<{ id: string; priority: string }>> => {
   const res = await api.patch<ApiResponse<{ id: string; priority: string }>>(
     `/tickets/admin/${ticketId}/priority`,
-    { priority }
+    { priority },
   );
   return res;
 };

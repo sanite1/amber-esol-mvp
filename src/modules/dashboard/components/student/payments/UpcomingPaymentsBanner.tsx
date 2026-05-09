@@ -22,19 +22,19 @@ export default function UpcomingPaymentsBanner({ transactions }: Props) {
       t.type === "lesson_booking" &&
       t.status !== "refunded" &&
       t.status !== "failed" &&
-      t.sessions.some((s) => new Date(s.date) >= now)
+      t.sessions.some((s) => new Date(s.date) >= now),
   );
 
   if (activeBookings.length === 0) return null;
 
   const totalUpcomingSessions = activeBookings.reduce(
     (sum, t) => sum + t.sessions.filter((s) => new Date(s.date) >= now).length,
-    0
+    0,
   );
 
   const totalUpcomingValue = activeBookings.reduce((sum, t) => {
     const upcomingHours = t.sessions.filter(
-      (s) => new Date(s.date) >= now
+      (s) => new Date(s.date) >= now,
     ).length;
     return sum + upcomingHours * t.hourlyRate;
   }, 0);
@@ -44,7 +44,7 @@ export default function UpcomingPaymentsBanner({ transactions }: Props) {
     .flatMap((t) =>
       t.sessions
         .filter((s) => new Date(s.date) >= now)
-        .map((s) => ({ ...s, tutorName: t.tutorName }))
+        .map((s) => ({ ...s, tutorName: t.tutorName })),
     )
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 

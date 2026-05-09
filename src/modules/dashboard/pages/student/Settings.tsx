@@ -75,7 +75,7 @@ export default function StudentSettings() {
       setHasChanges(true);
       setSaved(false);
     },
-    []
+    [],
   );
 
   /* ── Save: sends notification prefs to backend ── */
@@ -100,7 +100,7 @@ export default function StudentSettings() {
   /* ── Delete account ── */
   const handleDeleteAccount = async (
     reason: string,
-    feedback: string
+    feedback: string,
   ): Promise<boolean> => {
     try {
       await deleteAccountMut({

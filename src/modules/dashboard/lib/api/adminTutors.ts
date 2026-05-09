@@ -16,7 +16,7 @@ import type {
    ═══════════════════════════════════════════════ */
 
 export const fetchAdminTutors = async (
-  query?: AdminTutorsQuery
+  query?: AdminTutorsQuery,
 ): Promise<ApiResponse<AdminTutorsResponse>> => {
   const params = new URLSearchParams();
   if (query?.page) params.append("page", String(query.page));
@@ -28,7 +28,7 @@ export const fetchAdminTutors = async (
 
   const qs = params.toString();
   const res = await api.get<ApiResponse<AdminTutorsResponse>>(
-    `/admin-tutors${qs ? `?${qs}` : ""}`
+    `/admin-tutors${qs ? `?${qs}` : ""}`,
   );
   return res;
 };
@@ -55,11 +55,11 @@ export const useFetchAdminTutors = (query?: AdminTutorsQuery) => {
 
 export const updateTutorStatus = async (
   tutorId: string,
-  data: AdminUpdateTutorStatusRequest
+  data: AdminUpdateTutorStatusRequest,
 ): Promise<ApiResponse<AdminUpdateTutorStatusResponse>> => {
   const res = await api.patch<ApiResponse<AdminUpdateTutorStatusResponse>>(
     `/admin-tutors/${tutorId}/status`,
-    data
+    data,
   );
   return res;
 };

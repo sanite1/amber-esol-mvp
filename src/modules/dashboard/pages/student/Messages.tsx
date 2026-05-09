@@ -49,13 +49,13 @@ export default function Messages() {
     isLoading: conversationsLoading,
     isError: conversationsError,
   } = useFetchConversations(
-    debouncedSearch ? { search: debouncedSearch } : undefined
+    debouncedSearch ? { search: debouncedSearch } : undefined,
   );
 
   // ── Fetch messages for active conversation ──
   const { data: messagesRes, isLoading: messagesLoading } = useFetchMessages(
     activeConversationId,
-    { limit: 100 }
+    { limit: 100 },
   );
 
   // ── Mutations ──
@@ -76,7 +76,7 @@ export default function Messages() {
 
   const activeMessages: UIMessage[] = useMemo(() => {
     const pending = optimisticMessages.filter(
-      (m) => m.conversationId === activeConversationId
+      (m) => m.conversationId === activeConversationId,
     );
     return [...serverMessages, ...pending];
   }, [serverMessages, optimisticMessages, activeConversationId]);
@@ -86,8 +86,8 @@ export default function Messages() {
       setOptimisticMessages((prev) =>
         prev.filter(
           (m) =>
-            m.conversationId !== activeConversationId || m.status === "pending"
-        )
+            m.conversationId !== activeConversationId || m.status === "pending",
+        ),
       );
     }
   }, [serverMessages, activeConversationId]);
@@ -127,7 +127,7 @@ export default function Messages() {
       setSearchParams({ chat: id }, { replace: true });
       markReadMutation.mutate(id);
     },
-    [setSearchParams, markReadMutation]
+    [setSearchParams, markReadMutation],
   );
 
   const handleSendMessage = useCallback(
@@ -158,20 +158,20 @@ export default function Messages() {
         {
           onSuccess: () => {
             setOptimisticMessages((prev) =>
-              prev.filter((m) => m.id !== tempId)
+              prev.filter((m) => m.id !== tempId),
             );
           },
           onError: () => {
             setOptimisticMessages((prev) =>
               prev.map((m) =>
-                m.id === tempId ? { ...m, status: "failed" as const } : m
-              )
+                m.id === tempId ? { ...m, status: "failed" as const } : m,
+              ),
             );
           },
-        }
+        },
       );
     },
-    [activeConversationId, currentUserId, sendMessageMutation]
+    [activeConversationId, currentUserId, sendMessageMutation],
   );
 
   const handleSendFile = useCallback(
@@ -208,21 +208,21 @@ export default function Messages() {
           onSuccess: () => {
             if (previewUrl) URL.revokeObjectURL(previewUrl);
             setOptimisticMessages((prev) =>
-              prev.filter((m) => m.id !== tempId)
+              prev.filter((m) => m.id !== tempId),
             );
           },
           onError: () => {
             if (previewUrl) URL.revokeObjectURL(previewUrl);
             setOptimisticMessages((prev) =>
               prev.map((m) =>
-                m.id === tempId ? { ...m, status: "failed" as const } : m
-              )
+                m.id === tempId ? { ...m, status: "failed" as const } : m,
+              ),
             );
           },
-        }
+        },
       );
     },
-    [activeConversationId, currentUserId, sendFileMutation]
+    [activeConversationId, currentUserId, sendFileMutation],
   );
 
   const handleBack = useCallback(() => {
@@ -231,7 +231,7 @@ export default function Messages() {
   }, [setSearchParams]);
 
   const activeConversation = conversations.find(
-    (c) => c.id === activeConversationId
+    (c) => c.id === activeConversationId,
   );
 
   const totalUnread = conversations.reduce((sum, c) => sum + c.unreadCount, 0);

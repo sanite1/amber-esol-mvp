@@ -57,7 +57,7 @@ export default function ReviewCard({
     .join("");
 
   const daysSince = Math.floor(
-    (Date.now() - new Date(review.date).getTime()) / 86400000
+    (Date.now() - new Date(review.date).getTime()) / 86400000,
   );
   const dateLabel =
     daysSince === 0
@@ -347,7 +347,7 @@ export default function ReviewCard({
                           const d = Math.floor(
                             (Date.now() -
                               new Date(review.reply!.date).getTime()) /
-                              86400000
+                              86400000,
                           );
                           return d === 0
                             ? "Today"
@@ -356,7 +356,7 @@ export default function ReviewCard({
                               : d < 7
                                 ? `${d}d ago`
                                 : new Date(
-                                    review.reply!.date
+                                    review.reply!.date,
                                   ).toLocaleDateString("en-GB", {
                                     day: "numeric",
                                     month: "short",

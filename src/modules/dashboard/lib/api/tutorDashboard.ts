@@ -13,7 +13,7 @@ import type {
    ═══════════════════════════════════════════════ */
 
 export const fetchTutorDashboard = async (
-  query?: TutorDashboardQuery
+  query?: TutorDashboardQuery,
 ): Promise<ApiResponse<TutorDashboardResponse>> => {
   const params = new URLSearchParams();
   if (query?.upcomingLimit)
@@ -22,7 +22,7 @@ export const fetchTutorDashboard = async (
     params.append("messagesLimit", String(query.messagesLimit));
 
   const res = await api.get<ApiResponse<TutorDashboardResponse>>(
-    `/tutor-dashboard?${params.toString()}`
+    `/tutor-dashboard?${params.toString()}`,
   );
   return res;
 };

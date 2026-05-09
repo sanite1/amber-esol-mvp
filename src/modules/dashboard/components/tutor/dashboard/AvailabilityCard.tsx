@@ -11,7 +11,7 @@ export default function AvailabilityCard({ availability }: Props) {
     availability.totalSlotsThisWeek > 0
       ? Math.round(
           (availability.bookedSlotsThisWeek / availability.totalSlotsThisWeek) *
-            100
+            100,
         )
       : 0;
 

@@ -48,7 +48,7 @@ export default function TicketFormModal({
     if (!files) return;
     const newFiles = Array.from(files).slice(
       0,
-      3 - formData.attachments.length
+      3 - formData.attachments.length,
     );
     setFormData((prev) => ({
       ...prev,

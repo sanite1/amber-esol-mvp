@@ -42,7 +42,7 @@ const languageSchema = z.object({
         (
           ["native", "fluent", "advanced", "intermediate", "basic"] as const
         ).includes(val as any),
-      { message: "Select a fluency level" }
+      { message: "Select a fluency level" },
     ),
 });
 
@@ -70,7 +70,7 @@ const tutorSchema = z
       .min(8, "Password must be at least 8 characters")
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Must contain uppercase, lowercase, and a number"
+        "Must contain uppercase, lowercase, and a number",
       ),
     confirmPassword: z.string(),
 
@@ -976,7 +976,7 @@ export default function TutorRegister() {
                             {...register(`certifications.${index}.name`)}
                             placeholder="e.g. CELTA, TEFL, TESOL"
                             className={inputClassNoPad(
-                              !!errors.certifications?.[index]?.name
+                              !!errors.certifications?.[index]?.name,
                             )}
                           />
                           <div className="grid grid-cols-2 gap-2">
@@ -984,14 +984,14 @@ export default function TutorRegister() {
                               {...register(`certifications.${index}.issuedBy`)}
                               placeholder="Issued by"
                               className={inputClassNoPad(
-                                !!errors.certifications?.[index]?.issuedBy
+                                !!errors.certifications?.[index]?.issuedBy,
                               )}
                             />
                             <input
                               {...register(`certifications.${index}.year`)}
                               placeholder="Year (e.g. 2020)"
                               className={inputClassNoPad(
-                                !!errors.certifications?.[index]?.year
+                                !!errors.certifications?.[index]?.year,
                               )}
                             />
                           </div>
@@ -1057,7 +1057,7 @@ export default function TutorRegister() {
                             {...register(`education.${index}.degree`)}
                             placeholder="e.g. BA in English Literature"
                             className={inputClassNoPad(
-                              !!errors.education?.[index]?.degree
+                              !!errors.education?.[index]?.degree,
                             )}
                           />
                           <div className="grid grid-cols-2 gap-2">
@@ -1065,14 +1065,14 @@ export default function TutorRegister() {
                               {...register(`education.${index}.institution`)}
                               placeholder="University / College"
                               className={inputClassNoPad(
-                                !!errors.education?.[index]?.institution
+                                !!errors.education?.[index]?.institution,
                               )}
                             />
                             <input
                               {...register(`education.${index}.year`)}
                               placeholder="Year (e.g. 2018)"
                               className={inputClassNoPad(
-                                !!errors.education?.[index]?.year
+                                !!errors.education?.[index]?.year,
                               )}
                             />
                           </div>
@@ -1201,7 +1201,7 @@ export default function TutorRegister() {
                   >
                     <CheckCircle2 size={10} /> {t}
                   </span>
-                )
+                ),
               )}
             </div>
           </div>

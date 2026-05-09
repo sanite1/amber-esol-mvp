@@ -63,7 +63,7 @@ function useInView(threshold = 0.3) {
           observer.disconnect();
         }
       },
-      { threshold }
+      { threshold },
     );
 
     observer.observe(el);

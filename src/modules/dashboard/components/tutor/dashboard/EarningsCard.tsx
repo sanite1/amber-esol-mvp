@@ -26,7 +26,7 @@ export default function EarningsCard({ earnings }: Props) {
 
   const payoutDate = new Date(earnings.nextPayoutDate).toLocaleDateString(
     "en-GB",
-    { day: "numeric", month: "short" }
+    { day: "numeric", month: "short" },
   );
 
   return (

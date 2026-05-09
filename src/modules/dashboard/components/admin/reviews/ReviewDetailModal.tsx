@@ -102,7 +102,7 @@ export default function ReviewDetailModal({
 }: Props) {
   const [processing, setProcessing] = useState(false);
   const [processingReportId, setProcessingReportId] = useState<string | null>(
-    null
+    null,
   );
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
 

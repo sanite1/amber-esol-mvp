@@ -49,7 +49,7 @@ const PLATFORM_COMMISSION_RATE = 0.15;
    ═══════════════════════════════════════════════ */
 
 const isPopulatedStudent = (
-  val: string | BookingStudent
+  val: string | BookingStudent,
 ): val is BookingStudent => typeof val === "object" && val !== null;
 
 const isPopulatedTutor = (val: string | BookingTutor): val is BookingTutor =>
@@ -92,7 +92,7 @@ function deriveDisplayStatus(booking: Booking): AdminLesson["status"] {
 
 function apiBookingToAdminLesson(
   b: Booking,
-  txnMap: Map<string, Transaction>
+  txnMap: Map<string, Transaction>,
 ): AdminLesson {
   const student = isPopulatedStudent(b.studentId) ? b.studentId : null;
   const tutor = isPopulatedTutor(b.tutorId) ? b.tutorId : null;
@@ -151,7 +151,7 @@ export default function AdminLessons() {
 
   // Modal
   const [selectedLesson, setSelectedLesson] = useState<AdminLesson | null>(
-    null
+    null,
   );
 
   // ── Build API filter params ──
@@ -219,7 +219,7 @@ export default function AdminLessons() {
   // ── Unwrap responses ──
   const bookingsRaw: Booking[] = useMemo(
     () => bookingsRes?.data?.bookings ?? [],
-    [bookingsRes]
+    [bookingsRes],
   );
 
   const pagination = bookingsRes?.data?.pagination;
@@ -259,7 +259,7 @@ export default function AdminLessons() {
   // ── Map to local shapes ──
   const lessons: AdminLesson[] = useMemo(
     () => bookingsRaw.map((b) => apiBookingToAdminLesson(b, txnMap)),
-    [bookingsRaw, txnMap]
+    [bookingsRaw, txnMap],
   );
 
   // ── Client-side filtering for statuses the API can't handle ──
@@ -307,10 +307,10 @@ export default function AdminLessons() {
           setSelectedLesson((prev) =>
             prev && prev.id === lessonId
               ? { ...prev, flagged: true, flagReason: reason }
-              : prev
+              : prev,
           );
         },
-      }
+      },
     );
   }
 
@@ -322,10 +322,10 @@ export default function AdminLessons() {
           setSelectedLesson((prev) =>
             prev && prev.id === lessonId
               ? { ...prev, flagged: false, flagReason: undefined }
-              : prev
+              : prev,
           );
         },
-      }
+      },
     );
   }
 
@@ -336,7 +336,7 @@ export default function AdminLessons() {
         onSuccess: () => {
           setSelectedLesson(null);
         },
-      }
+      },
     );
   }
 
@@ -363,10 +363,10 @@ export default function AdminLessons() {
                   tutorEarnings: 0,
                   commission: 0,
                 }
-              : prev
+              : prev,
           );
         },
-      }
+      },
     );
   }
 

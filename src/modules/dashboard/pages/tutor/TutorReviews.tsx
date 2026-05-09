@@ -99,7 +99,7 @@ const buildStats = (
         ratingDistribution: Record<number, number>;
       }
     | undefined,
-  reviews: TutorReview[]
+  reviews: TutorReview[],
 ): ReviewStats => {
   const dist = apiStats?.ratingDistribution ?? {};
   const repliedCount = reviews.filter((r) => !!r.reply).length;
@@ -108,7 +108,7 @@ const buildStats = (
   const now = Date.now();
   const thirtyDays = 30 * 86400000;
   const recent = reviews.filter(
-    (r) => now - new Date(r.date).getTime() < thirtyDays
+    (r) => now - new Date(r.date).getTime() < thirtyDays,
   );
   const previous = reviews.filter((r) => {
     const age = now - new Date(r.date).getTime();
@@ -182,13 +182,13 @@ export default function TutorReviews() {
       rating: ratingFilter !== "all" ? ratingFilter : undefined,
       sort: sortMap[sort],
     }),
-    [page, ratingFilter, sort]
+    [page, ratingFilter, sort],
   );
 
   /* ── Queries ── */
   const { data: reviewsRes, isLoading: reviewsLoading } = useFetchTutorReviews(
     userId,
-    apiFilters
+    apiFilters,
   );
   const { data: statsRes, isLoading: statsLoading } =
     useFetchReviewStats(userId);
@@ -205,7 +205,7 @@ export default function TutorReviews() {
   /* ── Unwrap responses ── */
   const reviewsRaw: Review[] = useMemo(
     () => reviewsRes?.data?.reviews ?? [],
-    [reviewsRes]
+    [reviewsRes],
   );
   const pagination = reviewsRes?.data?.pagination;
   const apiStats = statsRes?.data;
@@ -213,7 +213,7 @@ export default function TutorReviews() {
   /* ── Map to local types ── */
   const allReviews: TutorReview[] = useMemo(
     () => reviewsRaw.map(apiReviewToLocal),
-    [reviewsRaw]
+    [reviewsRaw],
   );
 
   /* ── Client-side filters (lessonType, replied, search) ── */
@@ -241,7 +241,7 @@ export default function TutorReviews() {
           r.studentName.toLowerCase().includes(q) ||
           r.text.toLowerCase().includes(q) ||
           r.lessonTopic?.toLowerCase().includes(q) ||
-          r.reply?.text.toLowerCase().includes(q)
+          r.reply?.text.toLowerCase().includes(q),
       );
     }
 
@@ -251,7 +251,7 @@ export default function TutorReviews() {
   /* ── Build stats ── */
   const stats: ReviewStats = useMemo(
     () => buildStats(apiStats, allReviews),
-    [apiStats, allReviews]
+    [apiStats, allReviews],
   );
 
   /* ── Pagination ── */
@@ -302,7 +302,7 @@ export default function TutorReviews() {
   const handleEditReply = (
     reviewId: string,
     _replyId: string,
-    text: string
+    text: string,
   ) => {
     updateReplyMutation.mutate({ id: reviewId, payload: { text } });
   };

@@ -34,7 +34,7 @@ const formatDateSeparator = (dateStr: string): string => {
 
 const shouldShowDate = (
   msg: UIMessage,
-  prevMsg: UIMessage | undefined
+  prevMsg: UIMessage | undefined,
 ): boolean => {
   if (!prevMsg) return true;
   return (
@@ -45,7 +45,7 @@ const shouldShowDate = (
 
 const shouldShowAvatar = (
   msg: UIMessage,
-  nextMsg: UIMessage | undefined
+  nextMsg: UIMessage | undefined,
 ): boolean => {
   if (!nextMsg) return true;
   return (

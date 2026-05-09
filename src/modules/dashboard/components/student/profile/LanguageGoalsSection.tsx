@@ -81,10 +81,10 @@ export default function LanguageGoalsSection({ profile, onSave }: Props) {
 
   // Progress calc
   const levelIndex = languageLevels.findIndex(
-    (l) => l.value === profile.currentLevel
+    (l) => l.value === profile.currentLevel,
   );
   const targetIndex = languageLevels.findIndex(
-    (l) => l.value === profile.targetLevel
+    (l) => l.value === profile.targetLevel,
   );
   const progressPercent =
     targetIndex > 0 ? Math.round((levelIndex / targetIndex) * 100) : 0;

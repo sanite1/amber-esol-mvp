@@ -64,7 +64,7 @@ export default function ForgotPassword() {
       setErrorMessage(
         error?.response?.data?.message ||
           error?.message ||
-          "Failed to send reset link. Please try again."
+          "Failed to send reset link. Please try again.",
       );
     }
   };

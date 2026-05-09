@@ -212,7 +212,7 @@ export default function PayoutDetailModal({
                 icon={Calendar}
                 label="Period"
                 value={`${formatDate(payout.periodStart)} – ${formatDate(
-                  payout.periodEnd
+                  payout.periodEnd,
                 )}`}
               />
             )}

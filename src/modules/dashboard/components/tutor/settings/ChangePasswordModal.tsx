@@ -14,7 +14,7 @@ interface Props {
   onSubmit: (
     currentPassword: string,
     newPassword: string,
-    confirmNewPassword: string
+    confirmNewPassword: string,
   ) => Promise<void>;
   isPending: boolean;
 }
@@ -46,7 +46,7 @@ export default function ChangePasswordModal({
       setError(
         err?.response?.data?.message ||
           err?.message ||
-          "Failed to change password"
+          "Failed to change password",
       );
     }
   };

@@ -140,7 +140,7 @@ export interface UpdateTicketStatusPayload {
 
 // User: Submit a new ticket
 export const submitTicket = async (
-  payload: TicketPayload
+  payload: TicketPayload,
 ): Promise<ApiResponse<TicketSubmitResponse>> => {
   const formData = new FormData();
 
@@ -161,7 +161,7 @@ export const submitTicket = async (
     formData,
     {
       headers: { "Content-Type": "multipart/form-data" },
-    }
+    },
   );
 
   return res;
@@ -169,7 +169,7 @@ export const submitTicket = async (
 
 // Admin: Get all tickets with filters
 export const getAdminTickets = async (
-  params: TicketQueryParams
+  params: TicketQueryParams,
 ): Promise<ApiResponse<TicketListResponse>> => {
   const res = await api.get<ApiResponse<TicketListResponse>>("/tickets/admin", {
     ...params,
@@ -179,7 +179,7 @@ export const getAdminTickets = async (
 
 // Admin: Get single ticket by ID
 export const getTicketById = async (
-  ticketId: string
+  ticketId: string,
 ): Promise<ApiResponse<Ticket>> => {
   const res = await api.get<ApiResponse<Ticket>>(`/tickets/admin/${ticketId}`);
   return res;
@@ -190,14 +190,14 @@ export const getTicketStats = async (): Promise<
   ApiResponse<TicketStatsResponse>
 > => {
   const res = await api.get<ApiResponse<TicketStatsResponse>>(
-    "/tickets/admin/stats"
+    "/tickets/admin/stats",
   );
   return res;
 };
 
 // Admin: Respond to a ticket
 export const respondToTicket = async (
-  payload: RespondToTicketPayload
+  payload: RespondToTicketPayload,
 ): Promise<ApiResponse<Ticket>> => {
   const formData = new FormData();
 
@@ -217,7 +217,7 @@ export const respondToTicket = async (
     formData,
     {
       headers: { "Content-Type": "multipart/form-data" },
-    }
+    },
   );
 
   return res;
@@ -225,35 +225,35 @@ export const respondToTicket = async (
 
 // Admin: Update ticket status
 export const updateTicketStatus = async (
-  payload: UpdateTicketStatusPayload
+  payload: UpdateTicketStatusPayload,
 ): Promise<ApiResponse<Ticket>> => {
   const res = await api.patch<ApiResponse<Ticket>>(
     `/tickets/admin/${payload.ticketId}/status`,
     {
       status: payload.status,
       assignedTo: payload.assignedTo,
-    }
+    },
   );
   return res;
 };
 
 // User: Track ticket by number
 export const trackTicket = async (
-  ticketNumber: string
+  ticketNumber: string,
 ): Promise<ApiResponse<Ticket>> => {
   const res = await api.get<ApiResponse<Ticket>>(
-    `/tickets/track/${ticketNumber}`
+    `/tickets/track/${ticketNumber}`,
   );
   return res;
 };
 
 // User: Get my tickets
 export const getMyTickets = async (
-  params: TicketQueryParams
+  params: TicketQueryParams,
 ): Promise<ApiResponse<TicketListResponse>> => {
   const res = await api.get<ApiResponse<TicketListResponse>>(
     "/tickets/my-tickets",
-    { ...params }
+    { ...params },
   );
   return res;
 };
