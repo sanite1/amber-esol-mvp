@@ -7,7 +7,6 @@ import ResetPassword from "../../pages/onboarding/ResetPassword";
 import ConfirmEmail from "../../pages/onboarding/ConfirmEmail";
 import SignupChoice from "../../pages/onboarding/SignupChoice";
 import StudentRegister from "../../pages/onboarding/StudentRegister";
-import TutorRegister from "../../pages/onboarding/TutorRegister";
 import EsolJoin from "../../pages/onboarding/EsolJoin";
 
 export const Auth: React.FC = () => {
@@ -19,7 +18,7 @@ export const Auth: React.FC = () => {
 
       <Route path="/signup" element={<SignupChoice />} />
       <Route path="/signup/student" element={<StudentRegister />} />
-      <Route path="/signup/tutor" element={<TutorRegister />} />
+      {/* /signup/tutor removed in v2 pivot — tutor applications via /contact */}
       <Route path="/confirm-email" element={<ConfirmEmail />} />
       <Route path="/verify/:id/:token" element={<VerifyEmail />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />

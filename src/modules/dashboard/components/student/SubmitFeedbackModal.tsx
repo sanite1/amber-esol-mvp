@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Star, Loader2, AlertCircle, MessageSquare } from "lucide-react";
+import { X, Loader2, AlertCircle, MessageSquare } from "lucide-react";
 import { useSubmitLearnerFeedback } from "../../lib/api/esolSessionFeedback";
 
 interface Props {
@@ -9,6 +9,20 @@ interface Props {
   topic?: string | null;
 }
 
+type EmojiRating = "struggling" | "okay" | "confident";
+
+const OPTIONS: {
+  value: EmojiRating;
+  emoji: string;
+  label: string;
+  bg: string;
+  border: string;
+}[] = [
+  { value: "struggling", emoji: "😣", label: "Struggling", bg: "bg-red-50", border: "border-red-200" },
+  { value: "okay", emoji: "🙂", label: "Okay", bg: "bg-amber-50", border: "border-amber-200" },
+  { value: "confident", emoji: "😊", label: "Confident", bg: "bg-emerald-50", border: "border-emerald-200" },
+];
+
 export default function SubmitFeedbackModal({
   open,
   onClose,
@@ -16,15 +30,14 @@ export default function SubmitFeedbackModal({
   topic,
 }: Props) {
   const { mutateAsync: submit, isPending } = useSubmitLearnerFeedback();
-  const [rating, setRating] = useState<number>(0);
-  const [hoverRating, setHoverRating] = useState<number>(0);
+  const [rating, setRating] = useState<EmojiRating | null>(null);
   const [comment, setComment] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   if (!open) return null;
 
   const handleClose = () => {
-    setRating(0);
+    setRating(null);
     setComment("");
     setError(null);
     onClose();
@@ -33,15 +46,15 @@ export default function SubmitFeedbackModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (rating < 1) {
-      setError("Please choose a rating from 1 to 5");
+    if (!rating) {
+      setError("Please choose how you felt about the session");
       return;
     }
     try {
       await submit({
         sessionId,
         data: {
-          rating,
+          emojiRating: rating,
           comment: comment.trim() || undefined,
         },
       });
@@ -64,9 +77,7 @@ export default function SubmitFeedbackModal({
                 How was your session?
               </h2>
               {topic && (
-                <p className="text-xs text-[#0B2343]/40 mt-0.5">
-                  Topic: {topic}
-                </p>
+                <p className="text-xs text-[#0B2343]/40 mt-0.5">{topic}</p>
               )}
             </div>
           </div>
@@ -86,50 +97,39 @@ export default function SubmitFeedbackModal({
             </div>
           )}
 
-          <div>
-            <label className="block text-xs font-semibold text-[#0B2343]/60 mb-3">
-              Rating
-            </label>
-            <div className="flex items-center gap-1.5 justify-center">
-              {[1, 2, 3, 4, 5].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => setRating(n)}
-                  onMouseEnter={() => setHoverRating(n)}
-                  onMouseLeave={() => setHoverRating(0)}
-                  className="p-2 transition-transform hover:scale-110"
-                >
-                  <Star
-                    size={36}
-                    className={
-                      n <= (hoverRating || rating)
-                        ? "fill-amber-400 text-amber-400"
-                        : "text-[#0B2343]/15"
-                    }
-                  />
-                </button>
-              ))}
-            </div>
-            {rating > 0 && (
-              <p className="text-xs text-[#0B2343]/50 text-center mt-2">
-                {ratingLabel(rating)}
-              </p>
-            )}
+          <div className="grid grid-cols-3 gap-2">
+            {OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setRating(opt.value)}
+                className={`p-5 rounded-2xl border-2 transition-colors text-center ${
+                  rating === opt.value
+                    ? `${opt.border} ${opt.bg} scale-105`
+                    : "border-[#0B2343]/[0.06] bg-white hover:border-[#0B2343]/20"
+                }`}
+              >
+                <div className="text-4xl mb-2">{opt.emoji}</div>
+                <p className="text-xs font-bold text-[#0B2343]">{opt.label}</p>
+              </button>
+            ))}
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
-              Tell us more (optional)
+              Anything you want to tell Amber? (optional)
             </label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              rows={4}
-              maxLength={2000}
-              placeholder="What went well? What could be better?"
+              rows={3}
+              maxLength={200}
+              placeholder="In your own language is fine."
               className="w-full px-4 py-3 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none resize-none focus:border-[#ff7c22]/40 focus:bg-white transition-colors"
             />
+            <p className="text-[11px] text-[#0B2343]/35 mt-1.5 text-right">
+              {comment.length}/200
+            </p>
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#0B2343]/[0.06]">
@@ -142,7 +142,7 @@ export default function SubmitFeedbackModal({
             </button>
             <button
               type="submit"
-              disabled={isPending || rating < 1}
+              disabled={isPending || !rating}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#ff7c22] text-white text-sm font-bold rounded-xl hover:bg-[#e56a10] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               {isPending ? (
@@ -150,7 +150,7 @@ export default function SubmitFeedbackModal({
                   <Loader2 size={14} className="animate-spin" /> Sending…
                 </>
               ) : (
-                "Submit feedback"
+                "Submit"
               )}
             </button>
           </div>
@@ -158,21 +158,4 @@ export default function SubmitFeedbackModal({
       </div>
     </div>
   );
-}
-
-function ratingLabel(n: number): string {
-  switch (n) {
-    case 1:
-      return "Poor";
-    case 2:
-      return "Could be better";
-    case 3:
-      return "Okay";
-    case 4:
-      return "Good";
-    case 5:
-      return "Excellent";
-    default:
-      return "";
-  }
 }

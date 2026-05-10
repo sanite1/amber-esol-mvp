@@ -638,15 +638,6 @@ export default function StudentRegister() {
             </button>
 
             <p className="text-center text-sm text-[#0B2343]/40 mt-8">
-              Want to teach instead?{" "}
-              <Link
-                to="/signup/tutor"
-                className="text-[#ff7c22] font-bold hover:underline"
-              >
-                Register as a tutor
-              </Link>
-            </p>
-            <p className="text-center text-sm text-[#0B2343]/40 mt-2">
               Already have an account?{" "}
               <Link
                 to="/login"

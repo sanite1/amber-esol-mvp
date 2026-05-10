@@ -59,7 +59,7 @@ export default function HeroSection() {
               className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#ff7c22]/15 bg-[#ff7c22]/[0.06] px-4 py-1.5 text-xs font-semibold text-[#ff7c22]"
             >
               <Sparkles size={13} />
-              Free trial lesson — no card required
+              The Amber Bridge Method™ — English in your own language
             </div>
 
             {/* Headline */}
@@ -68,8 +68,8 @@ export default function HeroSection() {
               data-aos-delay="60"
               className="text-4xl font-extrabold leading-[1.12] tracking-tight text-[#0B2343] sm:text-5xl lg:text-[3.25rem]"
             >
-              Learn English <br />{" "}
-              <span className="text-[#ff7c22]">with a tutor</span> who gets you
+              English for life, <br />{" "}
+              <span className="text-[#ff7c22]">in your language</span> first
             </h1>
 
             {/* Description */}
@@ -78,9 +78,10 @@ export default function HeroSection() {
               data-aos-delay="120"
               className="mt-5 max-w-md text-base leading-relaxed text-[#0B2343]/55"
             >
-              Personal video lessons with certified ESOL tutors. Flexible
-              scheduling, personalised plans, and real conversation practice
-              from anywhere in the world.
+              An AI-powered ESOL tutor that teaches in your first language —
+              progressively bridging you into English. Built for adult learners
+              navigating UK life. Plus a marketplace of 1-to-1 tutors when you
+              want a real human.
             </p>
 
             {/* Feature pills */}
@@ -90,10 +91,10 @@ export default function HeroSection() {
               className="mt-6 flex flex-wrap gap-2"
             >
               {[
-                "Flexible scheduling",
-                "Individual video lessons",
-                "Certified tutors",
-                "Free trial",
+                "Bilingual AI tutor",
+                "Real-life UK scenarios",
+                "EU-hosted, GDPR-safe",
+                "Available 24/7",
               ].map((pill) => (
                 <span
                   key={pill}
@@ -110,18 +111,25 @@ export default function HeroSection() {
               data-aos-delay="240"
               className="mt-8 flex flex-wrap items-center gap-4"
             >
+              <Link
+                to="/esol"
+                className="inline-flex items-center gap-2 rounded-full bg-[#ff7c22] px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#ff7c22]/20 transition hover:bg-[#e56a10]"
+              >
+                Discover the AI tutor
+                <ArrowRight size={15} />
+              </Link>
               <a
                 href={`${APP_URL}/signup`}
-                className="inline-flex items-center gap-2 rounded-full bg-[#0B2343] px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#0B2343]/20 transition hover:bg-[#0B2343]/90"
+                className="inline-flex items-center gap-2 rounded-full border border-[#0B2343]/15 px-7 py-3.5 text-sm font-bold text-[#0B2343] transition hover:bg-[#0B2343]/[0.04]"
               >
-                Start Free Trial
+                Get started
                 <ArrowRight size={15} />
               </a>
               <Link
                 to="/tutors"
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0B2343]/70 transition hover:text-[#ff7c22]"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0B2343]/60 transition hover:text-[#ff7c22]"
               >
-                Browse Tutors
+                Browse 1-to-1 tutors
                 <ArrowRight size={14} />
               </Link>
             </div>
@@ -133,9 +141,9 @@ export default function HeroSection() {
               className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-[#0B2343]/45"
             >
               {[
-                "CELTA-certified tutors",
-                "Cancel anytime",
-                "From £20/hour",
+                "20+ first languages",
+                "WCAG 2.1 AA accessible",
+                "EU-hosted, UK GDPR",
               ].map((item) => (
                 <span key={item} className="flex items-center gap-1.5">
                   <CheckCircle2

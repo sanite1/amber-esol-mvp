@@ -21,7 +21,8 @@ export interface SessionFeedback {
 }
 
 export interface SubmitLearnerFeedbackRequest {
-  rating: number;
+  emojiRating?: "struggling" | "okay" | "confident";
+  rating?: number;
   comment?: string;
   topicsWorkedOn?: string[];
 }

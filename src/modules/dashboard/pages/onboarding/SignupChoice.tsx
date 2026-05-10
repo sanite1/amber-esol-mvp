@@ -1,24 +1,16 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  BookOpen,
-  GraduationCap,
   ArrowRight,
-  Star,
-  CheckCircle2,
+  Sparkles,
   Globe,
+  ShieldCheck,
+  BookOpen,
+  Mail,
 } from "lucide-react";
 import logo from "../../assets/logo.png";
 
 const FRONTEND_URL = process.env.REACT_APP_FRONTEND_URL;
-
-const testimonial = {
-  quote:
-    "I went from barely understanding conversations to passing my B2 exam in just three months. The tutors here truly care about your progress.",
-  author: "Ahmed Hassan",
-  role: "B2 Student",
-  avatar: "https://randomuser.me/api/portraits/men/18.jpg",
-};
 
 export default function SignupChoice() {
   useEffect(() => {
@@ -27,59 +19,46 @@ export default function SignupChoice() {
 
   return (
     <div className="min-h-screen">
-      {/* ─── Left panel ─── */}
+      {/* Left panel */}
       <div className="hidden lg:flex fixed top-0 left-0 w-[42%] h-screen bg-[#0B2343] z-10">
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse at 20% 80%, rgba(255,124,34,0.1) 0%, transparent 50%)",
+              "radial-gradient(ellipse at 20% 80%, rgba(255,124,34,0.12) 0%, transparent 50%)",
           }}
         />
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.03]"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <pattern
-              id="choice-grid"
-              x="0"
-              y="0"
-              width="32"
-              height="32"
-              patternUnits="userSpaceOnUse"
-            >
-              <circle cx="2" cy="2" r="1" fill="white" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#choice-grid)" />
-        </svg>
-
         <div className="relative flex flex-col justify-between p-12 xl:p-16 w-full">
           <Link to={FRONTEND_URL || "/"}>
             <img
               src={logo}
-              alt="Amber ESOL"
+              alt="Amber Training"
               className="h-10 w-auto brightness-0 invert"
             />
           </Link>
 
           <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] mb-5">
+              <Sparkles size={12} className="text-[#ff7c22]" />
+              <span className="text-[11px] font-semibold text-white/60 uppercase tracking-wider">
+                The Amber Bridge Method™
+              </span>
+            </div>
             <h2 className="text-3xl xl:text-[38px] font-extrabold text-white leading-tight tracking-tight">
-              Join the Amber
+              English in your
               <br />
-              community
+              own language
               <span className="text-[#ff7c22]">.</span>
             </h2>
-            <p className="text-sm text-white/35 mt-4 leading-relaxed max-w-sm">
-              Whether you want to learn English or teach it, we have the perfect
-              platform for you.
+            <p className="text-sm text-white/45 mt-4 leading-relaxed max-w-sm">
+              The only ESOL platform in the UK that teaches in your first
+              language — bridging into English at your pace.
             </p>
             <div className="mt-6 space-y-2.5">
               {[
-                { icon: GraduationCap, text: "Free 30-minute trial lesson" },
-                { icon: BookOpen, text: "CELTA/TEFL verified tutors" },
-                { icon: Globe, text: "Learn from anywhere, any device" },
+                { icon: Globe, text: "Bilingual AI tutor — 20+ languages" },
+                { icon: BookOpen, text: "Practical UK scenarios — GP, work, housing" },
+                { icon: ShieldCheck, text: "Safe, GDPR-compliant, EU-hosted" },
               ].map((item) => (
                 <div
                   key={item.text}
@@ -94,43 +73,17 @@ export default function SignupChoice() {
             </div>
           </div>
 
-          <div className="max-w-sm">
-            <div className="flex items-center gap-0.5 mb-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  size={12}
-                  className="text-[#ff7c22]"
-                  fill="#ff7c22"
-                />
-              ))}
-            </div>
-            <p className="text-sm text-white/45 leading-relaxed">
-              "{testimonial.quote}"
-            </p>
-            <div className="flex items-center gap-3 mt-4">
-              <img
-                src={testimonial.avatar}
-                alt={testimonial.author}
-                loading="lazy"
-                className="w-8 h-8 rounded-full object-cover"
-              />
-              <div>
-                <p className="text-xs font-semibold text-white/60">
-                  {testimonial.author}
-                </p>
-                <p className="text-[10px] text-white/25">{testimonial.role}</p>
-              </div>
-            </div>
-          </div>
+          <p className="text-[11px] text-white/25">
+            &copy; {new Date().getFullYear()} Amber Training Ltd
+          </p>
         </div>
       </div>
 
-      {/* ─── Right panel ─── */}
+      {/* Right panel */}
       <div className="min-h-screen bg-white lg:ml-[42%]">
         <div className="lg:hidden fixed top-0 inset-x-0 z-20 flex items-center justify-between p-5 bg-white border-b border-[#0B2343]/[0.05]">
           <Link to={FRONTEND_URL || "/"}>
-            <img src={logo} alt="Amber ESOL" className="h-8 w-auto" />
+            <img src={logo} alt="Amber Training" className="h-8 w-auto" />
           </Link>
           <Link
             to="/login"
@@ -141,71 +94,65 @@ export default function SignupChoice() {
         </div>
         <div className="lg:hidden h-16" />
 
-        <div className="flex items-center justify-center min-h-screen px-6 sm:px-10 xl:px-16 py-12 lg:py-0">
+        <div className="flex justify-center px-6 sm:px-10 xl:px-16 py-12 lg:py-16">
           <div className="w-full max-w-[480px]">
-            <div className="mb-10">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B2343] tracking-tight">
-                How would you like to join?
-              </h1>
-              <p className="text-sm text-[#0B2343]/40 mt-2">
-                Choose your path to get started with Amber ESOL
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B2343] tracking-tight">
+              Get started
+            </h1>
+            <p className="text-sm text-[#0B2343]/40 mt-2">
+              How would you like to begin?
+            </p>
+
+            {/* Primary CTA — ESOL learner with invitation */}
+            <div className="mt-8 p-6 rounded-2xl bg-gradient-to-br from-[#fef3c7]/40 to-[#fafbfc] border-2 border-[#ff7c22]/30">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff7c22] text-white text-[10px] font-bold uppercase tracking-wider mb-3">
+                <Sparkles size={11} /> Recommended
+              </div>
+              <h2 className="text-lg font-extrabold text-[#0B2343]">
+                I have an invitation from an organisation
+              </h2>
+              <p className="text-xs text-[#0B2343]/55 mt-2 leading-relaxed">
+                If a college, charity, council, or employer has invited you to
+                learn English with Amber, please open the invitation email and
+                click the link inside to begin your placement.
+              </p>
+              <p className="text-[11px] text-[#0B2343]/40 mt-3">
+                Lost your invitation? Ask your case worker or contact us.
               </p>
             </div>
 
-            <div className="space-y-4">
-              {/* Student option */}
+            {/* Secondary — self-paid student via marketplace */}
+            <div className="mt-6 p-6 rounded-2xl bg-white border border-[#0B2343]/[0.08]">
+              <h2 className="text-base font-extrabold text-[#0B2343]">
+                I want a 1-to-1 tutor
+              </h2>
+              <p className="text-xs text-[#0B2343]/55 mt-2 leading-relaxed">
+                Browse our marketplace of qualified tutors for private
+                lessons. Pay-per-lesson, book around your schedule.
+              </p>
               <Link
                 to="/signup/student"
-                className="group flex items-center gap-5 p-6 rounded-2xl border-2 border-[#0B2343]/[0.06] hover:border-[#ff7c22]/40 hover:bg-[#ff7c22]/[0.02] transition-all"
+                className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 bg-[#0B2343] text-white text-xs font-bold rounded-xl hover:bg-[#1a3865] transition-colors"
               >
-                <div className="w-14 h-14 rounded-2xl bg-[#ff7c22]/10 flex items-center justify-center shrink-0 group-hover:bg-[#ff7c22] transition-colors">
-                  <BookOpen
-                    size={24}
-                    className="text-[#ff7c22] group-hover:text-white transition-colors"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-bold text-[#0B2343]">
-                    I want to learn English
-                  </h3>
-                  <p className="text-xs text-[#0B2343]/40 mt-0.5">
-                    Find a tutor, book lessons, and improve your English skills
-                  </p>
-                </div>
-                <ArrowRight
-                  size={20}
-                  className="text-[#0B2343]/15 group-hover:text-[#ff7c22] transition-colors shrink-0"
-                />
-              </Link>
-
-              {/* Tutor option */}
-              <Link
-                to="/signup/tutor"
-                className="group flex items-center gap-5 p-6 rounded-2xl border-2 border-[#0B2343]/[0.06] hover:border-[#0B2343]/20 hover:bg-[#0B2343]/[0.01] transition-all"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-[#0B2343]/[0.06] flex items-center justify-center shrink-0 group-hover:bg-[#0B2343] transition-colors">
-                  <GraduationCap
-                    size={24}
-                    className="text-[#0B2343]/50 group-hover:text-white transition-colors"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-bold text-[#0B2343]">
-                    I want to teach English
-                  </h3>
-                  <p className="text-xs text-[#0B2343]/40 mt-0.5">
-                    Share your expertise, set your schedule, and earn on your
-                    terms
-                  </p>
-                </div>
-                <ArrowRight
-                  size={20}
-                  className="text-[#0B2343]/15 group-hover:text-[#0B2343]/50 transition-colors shrink-0"
-                />
+                Create student account <ArrowRight size={12} />
               </Link>
             </div>
 
-            <p className="text-center text-sm text-[#0B2343]/40 mt-10">
+            {/* Tutor application — small text link only */}
+            <div className="mt-6 pt-6 border-t border-[#0B2343]/[0.04]">
+              <p className="text-xs text-[#0B2343]/40 text-center">
+                Are you a qualified ESOL or English tutor?{" "}
+                <Link
+                  to="/contact"
+                  className="text-[#ff7c22] font-bold hover:underline inline-flex items-center gap-1"
+                >
+                  <Mail size={11} />
+                  Get in touch
+                </Link>
+              </p>
+            </div>
+
+            <p className="text-center text-sm text-[#0B2343]/40 mt-8">
               Already have an account?{" "}
               <Link
                 to="/login"
@@ -214,19 +161,6 @@ export default function SignupChoice() {
                 Sign in
               </Link>
             </p>
-
-            <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-[#0B2343]/[0.04]">
-              {["256-bit SSL", "UK GDPR compliant", "Stripe secured"].map(
-                (t) => (
-                  <span
-                    key={t}
-                    className="flex items-center gap-1 text-[10px] text-[#0B2343]/25"
-                  >
-                    <CheckCircle2 size={10} /> {t}
-                  </span>
-                ),
-              )}
-            </div>
           </div>
         </div>
       </div>

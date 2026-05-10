@@ -31,7 +31,33 @@ export default function EsolSession() {
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
 
   const session = data?.data;
-  const learnerFeedbackSubmitted = Boolean(feedbackData?.data?.learnerRating);
+  const learnerFeedbackSubmitted = Boolean(
+    feedbackData?.data?.learnerRating || (feedbackData?.data as any)?.emojiRating,
+  );
+
+  // TTS — defaults ON for Entry 1 learners (low literacy support)
+  const isEntry1 = session?.esolLevel === "Entry 1";
+  const [ttsEnabled, setTtsEnabled] = useState(false);
+  useEffect(() => {
+    if (isEntry1) setTtsEnabled(true);
+  }, [isEntry1]);
+
+  // Speak the most recent tutor turn when TTS is on
+  const lastTutorTextRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!ttsEnabled || !session) return;
+    const last = session.turns?.[session.turns.length - 1];
+    if (!last || last.deepSeekResponse === lastTutorTextRef.current) return;
+    lastTutorTextRef.current = last.deepSeekResponse;
+    if ("speechSynthesis" in window) {
+      const utter = new SpeechSynthesisUtterance(last.deepSeekResponse);
+      utter.rate = 0.9;
+      utter.lang = "en-GB";
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utter);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ttsEnabled, session?.turns?.length]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -135,6 +161,23 @@ export default function EsolSession() {
               Rate session
             </button>
           )}
+          <button
+            onClick={() => {
+              const next = !ttsEnabled;
+              setTtsEnabled(next);
+              if (!next && "speechSynthesis" in window) {
+                window.speechSynthesis.cancel();
+              }
+            }}
+            title={ttsEnabled ? "Mute read-aloud" : "Read replies aloud"}
+            className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-md transition-colors ${
+              ttsEnabled
+                ? "bg-blue-100 text-blue-700"
+                : "bg-[#0B2343]/[0.04] text-[#0B2343]/60 hover:bg-[#0B2343]/[0.08]"
+            }`}
+          >
+            🔊 {ttsEnabled ? "On" : "Off"}
+          </button>
         </div>
       </div>
 

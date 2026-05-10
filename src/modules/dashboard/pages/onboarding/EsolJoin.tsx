@@ -9,7 +9,7 @@ import {
   Globe,
 } from "lucide-react";
 import { useValidateReferral } from "../../lib/api/esolReferral";
-import EsolJoinForm from "../../components/onboarding/EsolJoinForm";
+import EsolOnboardingWizard from "../../components/onboarding/EsolOnboardingWizard";
 import logo from "../../assets/logo.png";
 
 const FRONTEND_URL = process.env.REACT_APP_FRONTEND_URL;
@@ -28,9 +28,14 @@ export default function EsolJoin() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const handleSuccess = (email: string) => {
+  const handleSuccess = (result: { user: { email: string }; placement: { nqfLevel: string }; fundingStatus: string }) => {
     navigate("/confirm-email", {
-      state: { email, type: "verification" },
+      state: {
+        email: result.user.email,
+        type: "verification",
+        placementLevel: result.placement.nqfLevel,
+        fundingStatus: result.fundingStatus,
+      },
     });
   };
 
@@ -233,7 +238,7 @@ function ValidInvitation({
   orgName: string;
   esolLevel: string | null;
   prefilledEmail: string | null;
-  onSuccess: (email: string) => void;
+  onSuccess: (result: any) => void;
 }) {
   return (
     <>
@@ -263,7 +268,7 @@ function ValidInvitation({
         </div>
       </div>
 
-      <EsolJoinForm
+      <EsolOnboardingWizard
         token={token}
         prefilledEmail={prefilledEmail}
         onSuccess={onSuccess}
