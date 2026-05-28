@@ -23,3 +23,10 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Google Cloud service account keys — never commit (defensive; frontend
+# should never hold these, but block by default)
+service-account.json
+service-account*.json
+*-service-account.json
+gcp-key*.json

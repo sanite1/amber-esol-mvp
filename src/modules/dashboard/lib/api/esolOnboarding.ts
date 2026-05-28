@@ -26,11 +26,19 @@ export interface OnboardingPayload {
   phoneNumber: string;
   password: string;
   dateOfBirth?: string;
+  // Home postcode BEFORE joining the programme — ILR SOF routing field.
+  // Required at server level; the wizard enforces it client-side too.
+  postcode_prior: string;
   nationality?: string;
   ethnicity?: string;
   l1Language: string;
   lldd_health_prob?: 1 | 2 | 9;
-  employment_status?: "unemployed" | "employed" | "in_training";
+  // Brief-mandated 4-value enum.
+  employment_status?:
+    | "unemployed"
+    | "employed"
+    | "self_employed"
+    | "not_in_labour_market";
   uln?: string;
   assessmentResponses: PlacementAnswer[];
 }

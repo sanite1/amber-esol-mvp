@@ -17,6 +17,9 @@ import {
   type OnboardingResult,
 } from "../../lib/api/esolOnboarding";
 
+// Tigrinya is excluded from MVP per the Project Silk brief —
+// no frontier LLM has confirmed reliable Tigrinya support yet.
+// Re-add in v1.1 after Tigrinya-speaking ESOL professional evaluation.
 const LANGUAGES = [
   "Arabic",
   "Bengali",
@@ -36,7 +39,6 @@ const LANGUAGES = [
   "Somali",
   "Spanish",
   "Tamil",
-  "Tigrinya",
   "Turkish",
   "Urdu",
   "Vietnamese",
@@ -103,10 +105,17 @@ export default function EsolOnboardingWizard({
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
+  // Home postcode BEFORE joining the programme — the ILR SOF routing
+  // field. Required so the export can derive the funding authority.
+  const [postcodePrior, setPostcodePrior] = useState("");
   const [nationality, setNationality] = useState("");
   const [ethnicity, setEthnicity] = useState("");
   const [lldd, setLldd] = useState<1 | 2 | 9>(2);
-  const [employment, setEmployment] = useState<"unemployed" | "employed" | "in_training">("unemployed");
+  // Brief-mandated 4-value enum; replaces the prior 3-value version
+  // ("in_training" was not a valid brief value).
+  const [employment, setEmployment] = useState<
+    "unemployed" | "employed" | "self_employed" | "not_in_labour_market"
+  >("unemployed");
   const [file, setFile] = useState<File | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [uln, setUln] = useState("");
@@ -152,6 +161,11 @@ export default function EsolOnboardingWizard({
       ([questionId, answer]) => ({ questionId, answer }),
     );
 
+    if (!postcodePrior.trim()) {
+      setError("Please enter your home postcode before joining this programme");
+      return;
+    }
+
     const payload: OnboardingPayload = {
       token,
       firstname,
@@ -160,6 +174,10 @@ export default function EsolOnboardingWizard({
       phoneNumber,
       password,
       dateOfBirth: dateOfBirth || undefined,
+      // Sent in the brief's canonical snake_case name. The wizard collects
+      // ONE postcode and labels it explicitly so learners aren't confused
+      // between past and current home postcode.
+      postcode_prior: postcodePrior.trim().toUpperCase(),
       nationality: nationality || undefined,
       ethnicity: ethnicity || undefined,
       l1Language,
@@ -219,6 +237,7 @@ export default function EsolOnboardingWizard({
           password={password}
           confirmPassword={confirmPassword}
           dateOfBirth={dateOfBirth}
+          postcodePrior={postcodePrior}
           emailDisabled={Boolean(prefilledEmail)}
           onChange={(field: string, value: string) => {
             const setters: Record<string, (v: string) => void> = {
@@ -229,13 +248,21 @@ export default function EsolOnboardingWizard({
               password: setPassword,
               confirmPassword: setConfirmPassword,
               dateOfBirth: setDateOfBirth,
+              postcodePrior: setPostcodePrior,
             };
             setters[field]?.(value);
           }}
           onBack={goBack}
           onNext={() => {
-            if (!firstname || !lastname || !email || !phoneNumber || !password) {
-              setError("Please complete all required fields");
+            if (
+              !firstname ||
+              !lastname ||
+              !email ||
+              !phoneNumber ||
+              !password ||
+              !postcodePrior.trim()
+            ) {
+              setError("Please complete all required fields, including your home postcode");
               return;
             }
             goNext("background");
@@ -362,6 +389,7 @@ function StepPersonal({
   password,
   confirmPassword,
   dateOfBirth,
+  postcodePrior,
   emailDisabled,
   onChange,
   onBack,
@@ -417,6 +445,33 @@ function StepPersonal({
             onChange={(e) => onChange("dateOfBirth", e.target.value)}
             className={inputCls}
           />
+        </Field>
+        {/*
+          Postcode field label is explicit ("before joining this programme")
+          per brief Function 2 — learners are likely to misread "home
+          postcode" as their current address. The value is auto-uppercased
+          on submit; we don't pattern-validate client-side so unusual UK
+          formats (e.g. crown dependencies) aren't blocked.
+        */}
+        <Field
+          label="Your home postcode before joining this programme"
+          required
+        >
+          <input
+            type="text"
+            value={postcodePrior}
+            onChange={(e) =>
+              onChange("postcodePrior", e.target.value.toUpperCase())
+            }
+            placeholder="e.g. M1 1AE"
+            autoComplete="postal-code"
+            className={inputCls}
+          />
+          <p className="text-xs text-[#0B2343]/50 mt-1.5">
+            We use this to record your funding region. If you have moved
+            since, enter the postcode where you lived when you joined
+            this programme.
+          </p>
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Password" required>
@@ -509,17 +564,27 @@ function StepBackground({
           </div>
         </Field>
         <Field label="Employment status">
-          <div className="grid grid-cols-3 gap-2">
+          {/*
+            Four values per brief Function 3 column spec — the ILR export
+            and ASF earnings-threshold logic depend on this exact enum.
+            UI labels are learner-friendly; the value stays the brief's
+            snake_case enum value.
+          */}
+          <div className="grid grid-cols-2 gap-2">
             {[
               { v: "unemployed", label: "Not working" },
-              { v: "employed", label: "Working" },
-              { v: "in_training", label: "In training" },
+              { v: "employed", label: "Working (employed)" },
+              { v: "self_employed", label: "Self-employed" },
+              {
+                v: "not_in_labour_market",
+                label: "Not looking for work right now",
+              },
             ].map((opt) => (
               <button
                 key={opt.v}
                 type="button"
                 onClick={() => onChange.employment(opt.v)}
-                className={`px-4 py-3 rounded-xl border-2 text-sm font-bold transition-colors ${
+                className={`px-4 py-3 rounded-xl border-2 text-sm font-bold transition-colors text-left ${
                   employment === opt.v
                     ? "border-[#ff7c22] bg-[#ff7c22]/5"
                     : "border-[#0B2343]/[0.08] bg-white"

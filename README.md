@@ -39,6 +39,46 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
+## Accessibility
+
+The platform serves adult ESOL learners — many on older devices, with visual / motor / literacy challenges. Accessibility is non-negotiable and gated on WCAG 2.1 AA.
+
+The full agreed standard lives in [`docs/WCAG_REQUIREMENTS.md`](../amber-esol-backend/docs/WCAG_REQUIREMENTS.md) in the backend repo — colour contrast ratios, ARIA patterns, keyboard navigation, 44×44 touch targets, font-size toggle, dynamic `<html lang>`, RTL support for Arabic / Dari / Pashto.
+
+### In-app development checks — `@axe-core/react`
+
+The frontend is wired with [`@axe-core/react`](https://github.com/dequelabs/axe-core-npm/tree/develop/packages/react) which runs an automated WCAG audit against the live DOM after every render and prints any violations to the browser console.
+
+- **Active only when `NODE_ENV === "development"`.** Production bundles never ship the analyser.
+- Wired in [`src/index.tsx`](src/index.tsx) via a dynamic `import("@axe-core/react")` so the analyser doesn't enter the production chunk graph at all.
+- 1-second debounce — router transitions don't fire a scan per render.
+
+When you run `npm start` and open DevTools, accessibility violations appear as grouped console messages with:
+
+- The offending DOM node (clickable in the Elements panel)
+- The WCAG rule (e.g. `color-contrast`, `label`, `button-name`)
+- A direct deque.com link explaining how to fix it
+
+### Required browser extension — axe DevTools
+
+The in-app check is fast-feedback; it is **not** a substitute for the full audit. Install the browser extension before working on any learner-facing screen:
+
+- Chrome / Edge: <https://chromewebstore.google.com/detail/axe-devtools-web-accessib/lhdoppojpmngadmnindnejefpokejbdd>
+- Firefox: <https://addons.mozilla.org/en-GB/firefox/addon/axe-devtools/>
+
+Run the extension on the rendered screen, copy the report, attach it to the PR.
+
+### Definition of Done — every learner-facing PR
+
+A PR that introduces or significantly changes a learner-facing screen MUST include in the description:
+
+- [ ] Screenshot of axe DevTools showing **zero critical** and **zero serious** violations on the new/changed screen
+- [ ] Confirmation that the screen was navigated with keyboard only (Tab / Shift+Tab / Enter / Space / Escape)
+- [ ] Confirmation that touch targets are ≥ 44×44 px
+- [ ] For screens that render in `ar` / `fa-AF` / `ps`: confirmation that RTL layout was verified (toggle `document.documentElement.dir = "rtl"` in the console)
+
+Reviewers should reject PRs that don't include the axe screenshot. The checklist isn't bureaucratic — retrofitting accessibility is significantly more expensive than catching it at review.
+
 ## Learn More
 
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
