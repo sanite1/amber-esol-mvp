@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  F19.4 — sitemap for the public marketing surface only.
+
+  Authed shells (/admin, /org-admin, /teacher, /tutor, /esol) are
+  deliberately excluded — they're not indexable, just gated.
+
+  Update the lastmod dates when a page substantively changes, and
+  re-submit to Google Search Console + Bing Webmaster Tools.
+
+  Blog posts are intentionally NOT listed individually here — they
+  live under /blog/:slug and the count varies. Either:
+    (a) regenerate this file at build time from the blog index, or
+    (b) maintain a separate /blog-sitemap.xml.
+  Until either lands, the /blogs landing page is indexed and crawlers
+  will follow internal links from there.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://esol.ambertraining.co.uk/</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://esol.ambertraining.co.uk/for-organisations</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://esol.ambertraining.co.uk/bridge-method</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://esol.ambertraining.co.uk/roi-calculator</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://esol.ambertraining.co.uk/about</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://esol.ambertraining.co.uk/how-it-works</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://esol.ambertraining.co.uk/contact</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://esol.ambertraining.co.uk/help</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://esol.ambertraining.co.uk/tutors</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://esol.ambertraining.co.uk/blogs</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://esol.ambertraining.co.uk/privacy</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://esol.ambertraining.co.uk/terms</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+</urlset>

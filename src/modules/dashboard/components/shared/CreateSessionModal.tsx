@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, Loader2, Sparkles, AlertCircle } from "lucide-react";
+import { Loader2, Sparkles, AlertCircle } from "lucide-react";
+import Modal from "../../../../components/Modal";
 import { useCreateSession } from "../../lib/api/esolSession";
 import { useListEsolTeachers } from "../../lib/api/esolLearner";
 import {
@@ -32,8 +33,6 @@ export default function CreateSessionModal({
   const [sessionMode, setSessionMode] = useState<AISessionMode>("BRIDGE");
   const [topic, setTopic] = useState("");
   const [error, setError] = useState<string | null>(null);
-
-  if (!open) return null;
 
   const teachers = teachersData?.data?.teachers ?? [];
 
@@ -72,43 +71,49 @@ export default function CreateSessionModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-5 border-b border-[#0B2343]/[0.06]">
-          <div>
-            <h2 className="text-lg font-extrabold text-[#0B2343]">
-              Start AI session
-            </h2>
-            <p className="text-xs text-[#0B2343]/40 mt-0.5">
-              For {learnerName}
-            </p>
-          </div>
-          <button
-            onClick={handleClose}
-            className="p-1.5 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors"
-          >
-            <X size={18} className="text-[#0B2343]/50" />
-          </button>
-        </div>
+    <Modal
+      open={open}
+      onClose={handleClose}
+      title="Start AI session"
+      titleId="create-session-title"
+      size="md"
+      disableEscapeKey={isPending}
+      disableBackdropClick={isPending}
+    >
+      <Modal.Body>
+        <p className="text-sm text-[#0B2343]/70 leading-relaxed mb-4">
+          For {learnerName}
+        </p>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form
+          id="create-session-form"
+          onSubmit={handleSubmit}
+          className="space-y-5"
+        >
           {error && (
-            <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-100 rounded-xl">
-              <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
-              <p className="text-sm text-red-600">{error}</p>
+            <div
+              role="alert"
+              className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-3"
+            >
+              <AlertCircle
+                size={18}
+                aria-hidden="true"
+                className="text-red-600 shrink-0 mt-0.5"
+              />
+              <p className="text-sm text-red-900">{error}</p>
             </div>
           )}
 
-          <div>
-            <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
+          <label className="block">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55">
               Assign ESOL teacher
-            </label>
+            </span>
             {teachersLoading ? (
-              <div className="px-4 py-2.5 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343]/40">
+              <div className="mt-1 px-3 py-2 min-h-[44px] flex items-center rounded-xl border border-[#0B2343]/[0.12] bg-[#fafbfc] text-sm text-[#0B2343]/40">
                 Loading teachers…
               </div>
             ) : teachers.length === 0 ? (
-              <div className="px-4 py-3 rounded-xl border border-amber-200 bg-amber-50 text-xs text-amber-800">
+              <div className="mt-1 px-4 py-3 rounded-xl border border-amber-200 bg-amber-50 text-xs text-amber-800">
                 No ESOL-approved teachers yet. A platform admin must approve
                 teachers before sessions can be created.
               </div>
@@ -117,7 +122,7 @@ export default function CreateSessionModal({
                 value={teacherId}
                 onChange={(e) => setTeacherId(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] outline-none cursor-pointer focus:border-[#ff7c22]/40 focus:bg-white transition-colors"
+                className="mt-1 block w-full rounded-xl border border-[#0B2343]/[0.12] bg-white px-3 py-2 min-h-[44px] text-sm text-[#0B2343] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22] focus-visible:border-[#ff7c22]"
               >
                 <option value="">Select a teacher…</option>
                 {teachers.map((t) => (
@@ -130,19 +135,20 @@ export default function CreateSessionModal({
                 ))}
               </select>
             )}
-          </div>
+          </label>
 
           <div>
-            <label className="block text-xs font-semibold text-[#0B2343]/60 mb-2">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55 mb-2">
               Session mode
-            </label>
+            </span>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {SESSION_MODES.map((mode) => (
                 <button
                   key={mode}
                   type="button"
                   onClick={() => setSessionMode(mode)}
-                  className={`text-left p-3 rounded-xl border-2 transition-colors ${
+                  aria-pressed={sessionMode === mode}
+                  className={`text-left p-3 rounded-xl border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22] ${
                     sessionMode === mode
                       ? "border-[#ff7c22] bg-[#ff7c22]/5"
                       : "border-[#0B2343]/[0.06] hover:border-[#0B2343]/20 bg-white"
@@ -159,50 +165,52 @@ export default function CreateSessionModal({
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
+          <label className="block">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55">
               Topic (optional)
-            </label>
+            </span>
             <input
               type="text"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               placeholder="e.g. Going to the GP"
               maxLength={200}
-              className="w-full px-4 py-2.5 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/40 focus:bg-white transition-colors"
+              className="mt-1 block w-full rounded-xl border border-[#0B2343]/[0.12] bg-white px-3 py-2 min-h-[44px] text-sm text-[#0B2343] placeholder:text-[#0B2343]/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22] focus-visible:border-[#ff7c22]"
             />
-            <p className="text-[11px] text-[#0B2343]/35 mt-1.5">
+            <p className="text-[11px] text-[#0B2343]/55 mt-1.5">
               Helps the AI tutor stay on-topic. Leave blank for general
               practice.
             </p>
-          </div>
-
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#0B2343]/[0.06]">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="px-5 py-2.5 border border-[#0B2343]/[0.08] text-sm font-bold text-[#0B2343]/60 rounded-xl hover:bg-[#0B2343]/[0.02] transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isPending || teachers.length === 0}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#ff7c22] text-white text-sm font-bold rounded-xl hover:bg-[#e56a10] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            >
-              {isPending ? (
-                <>
-                  <Loader2 size={14} className="animate-spin" /> Creating…
-                </>
-              ) : (
-                <>
-                  <Sparkles size={14} /> Start session
-                </>
-              )}
-            </button>
-          </div>
+          </label>
         </form>
-      </div>
-    </div>
+      </Modal.Body>
+      <Modal.Actions>
+        <button
+          type="submit"
+          form="create-session-form"
+          disabled={isPending || teachers.length === 0}
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-[#ff7c22] text-white text-sm font-bold hover:bg-[#e56a10] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22]/40 transition-colors"
+        >
+          {isPending ? (
+            <>
+              <Loader2 size={14} aria-hidden="true" className="animate-spin" />{" "}
+              Creating…
+            </>
+          ) : (
+            <>
+              <Sparkles size={14} aria-hidden="true" /> Start session
+            </>
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={handleClose}
+          disabled={isPending}
+          className="inline-flex items-center justify-center px-4 py-2.5 min-h-[44px] rounded-xl bg-white border border-[#0B2343]/[0.12] text-[#0B2343] text-sm font-bold hover:bg-[#fafbfc] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22] focus-visible:ring-offset-2 transition-colors"
+        >
+          Cancel
+        </button>
+      </Modal.Actions>
+    </Modal>
   );
 }

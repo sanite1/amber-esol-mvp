@@ -72,6 +72,9 @@ export interface ReferralToken {
   usedAt?: string | null;
   expiresAt: string;
   isActive: boolean;
+  /** Stamped when the org admin re-sends the invite email. */
+  lastRemindedAt?: string | null;
+  reminder_count?: number;
   createdAt: string;
   updatedAt: string;
 }

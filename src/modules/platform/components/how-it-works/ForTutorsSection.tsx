@@ -31,8 +31,6 @@ const tutorSteps = [
 ];
 
 export default function ForTutorsSection() {
-  const APP_URL = process.env.REACT_APP_DASHBOARD_URL;
-
   return (
     <section className="py-16 lg:py-24 bg-white">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -52,7 +50,7 @@ export default function ForTutorsSection() {
               payments, scheduling, and the classroom, you focus on teaching.
             </p>
             <Link
-              to={`${APP_URL}/signup/tutor`}
+              to={`/signup/tutor`}
               className="inline-flex items-center gap-2 px-7 py-3 mt-6 bg-[#0B2343] text-white text-sm font-bold rounded-full hover:bg-[#0B2343]/90 transition-colors"
             >
               Apply as a Tutor <ArrowRight size={14} />

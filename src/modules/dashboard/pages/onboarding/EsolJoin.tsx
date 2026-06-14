@@ -8,7 +8,7 @@ import {
   BookOpen,
   Globe,
 } from "lucide-react";
-import { useValidateReferral } from "../../lib/api/esolReferral";
+import { useVerifyReferralToken } from "../../lib/api/esolReferral";
 import EsolOnboardingWizard from "../../components/onboarding/EsolOnboardingWizard";
 import logo from "../../assets/logo.png";
 
@@ -22,18 +22,26 @@ export default function EsolJoin() {
     [searchParams],
   );
 
-  const { data, isLoading, isError, error } = useValidateReferral(token);
+  // Brief Function 2 To-Do 1 — POST /api/esol/verify-token.
+  // Returns { org_id, org_name, org_type } and increments usage_count
+  // on each call. Replaces the legacy GET /api/esol/referrals/validate.
+  const { data, isLoading, isError, error } = useVerifyReferralToken(token);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const handleSuccess = (result: { user: { email: string }; placement: { nqfLevel: string }; fundingStatus: string }) => {
+  const handleSuccess = (result: {
+    user: { email: string };
+    placement: { nqfLevel: string; rationale?: string };
+    fundingStatus: string;
+  }) => {
     navigate("/confirm-email", {
       state: {
         email: result.user.email,
         type: "verification",
         placementLevel: result.placement.nqfLevel,
+        placementRationale: result.placement.rationale ?? null,
         fundingStatus: result.fundingStatus,
       },
     });
@@ -160,9 +168,9 @@ export default function EsolJoin() {
             ) : data?.data ? (
               <ValidInvitation
                 token={token}
-                orgName={data.data.orgName}
-                esolLevel={data.data.esolLevel}
-                prefilledEmail={data.data.email}
+                orgName={data.data.org_name}
+                orgType={data.data.org_type}
+                invitedEmail={data.data.invited_email ?? null}
                 onSuccess={handleSuccess}
               />
             ) : null}
@@ -227,17 +235,26 @@ function ErrorState({ message }: { message: string }) {
   );
 }
 
+// Pretty labels for the org type values from the brief's enum
+// (college / council / charity / employer).
+const ORG_TYPE_LABEL: Record<string, string> = {
+  college: "Further Education College",
+  council: "Local Council",
+  charity: "Charity",
+  employer: "Employer",
+};
+
 function ValidInvitation({
   token,
   orgName,
-  esolLevel,
-  prefilledEmail,
+  orgType,
+  invitedEmail,
   onSuccess,
 }: {
   token: string;
   orgName: string;
-  esolLevel: string | null;
-  prefilledEmail: string | null;
+  orgType: string | null;
+  invitedEmail: string | null;
   onSuccess: (result: any) => void;
 }) {
   return (
@@ -255,22 +272,24 @@ function ValidInvitation({
             Invitation from
           </p>
           <p className="text-lg font-extrabold text-[#0B2343]">{orgName}</p>
-          {esolLevel && (
+          {orgType && ORG_TYPE_LABEL[orgType] && (
             <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff7c22]/10">
-              <span className="text-[11px] font-semibold text-[#ff7c22] uppercase tracking-wider">
-                Assigned level
-              </span>
               <span className="text-xs font-bold text-[#0B2343]">
-                {esolLevel}
+                {ORG_TYPE_LABEL[orgType]}
               </span>
             </div>
           )}
         </div>
       </div>
 
+      {/* Per-email invites return invited_email from verify-token —
+          the wizard prefills + locks the email field so the learner
+          can't register under a different address and hit the
+          "issued for a different email" 400 at the final step.
+          Generic links return null → email stays editable. */}
       <EsolOnboardingWizard
         token={token}
-        prefilledEmail={prefilledEmail}
+        prefilledEmail={invitedEmail}
         onSuccess={onSuccess}
       />
 

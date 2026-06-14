@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Amber — Join</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- ============================================================
+     PREVIEW CHROME: step + variant switcher
+     ============================================================ -->
+    <div class="step-switcher" role="group" aria-label="Preview controls">
+      <div class="group">
+        <span class="lbl">Step</span>
+        <button data-step="1" aria-pressed="true">01</button>
+        <button data-step="2" aria-pressed="false">02</button>
+        <button data-step="3" aria-pressed="false">03</button>
+        <button data-step="4" aria-pressed="false">04</button>
+        <button data-step="5" aria-pressed="false">05</button>
+      </div>
+      <div class="group">
+        <span class="lbl">Variant</span>
+        <button data-variant="default" aria-pressed="true">Default</button>
+        <button data-variant="offline" aria-pressed="false">Offline</button>
+        <button data-variant="toast" aria-pressed="false">API fail</button>
+        <button data-variant="token" aria-pressed="false">Bad token</button>
+        <button data-variant="rtl" aria-pressed="false">RTL</button>
+      </div>
+    </div>
+
+    <!-- Offline banner (variant=offline) -->
+    <div class="offline-banner" id="offline-banner" hidden>
+      <span class="dot"></span>
+      <strong>You're offline.</strong> Your answers are saved locally. Finish
+      when you're back online.
+    </div>
+
+    <!-- Sonner toast (variant=toast) -->
+    <div class="toast" id="toast" hidden role="alert">
+      <span class="ic">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="15" x2="9" y1="9" y2="15" />
+          <line x1="9" x2="15" y1="9" y2="15" />
+        </svg>
+      </span>
+      <div>
+        <strong>Couldn't save right now.</strong>
+        Your answers are still here. Try again, or check your connection.
+      </div>
+    </div>
+
+    <!-- ============================================================
+     TOKEN ERROR — full page replacement (variant=token)
+     ============================================================ -->
+    <main id="token-error-view" class="wizard" hidden>
+      <header class="wizard-header">
+        <div class="container wizard-header-inner">
+          <a href="index.html" class="brand"
+            ><span class="mark"></span>Amber<span class="esol">ESOL</span></a
+          >
+        </div>
+      </header>
+      <div class="wizard-body">
+        <div class="token-error">
+          <span class="glyph">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" x2="9" y1="9" y2="15" />
+              <line x1="9" x2="15" y1="9" y2="15" />
+            </svg>
+          </span>
+          <h1>This referral link isn't valid.</h1>
+          <p class="lead-t">
+            Three possible reasons. Pick the one that fits, or contact support.
+          </p>
+
+          <ul>
+            <li>
+              <span class="ix">01</span
+              ><span
+                ><strong>Expired.</strong> Referral links work for 30 days from
+                the day your provider sent them.</span
+              >
+            </li>
+            <li>
+              <span class="ix">02</span
+              ><span
+                ><strong>Already used.</strong> Each link works once. If you're
+                already registered, just sign in.</span
+              >
+            </li>
+            <li>
+              <span class="ix">03</span
+              ><span
+                ><strong>Mistyped.</strong> Letters and numbers swapped, or part
+                of the URL truncated by an email client.</span
+              >
+            </li>
+          </ul>
+
+          <div class="cta-row">
+            <a href="index.html" class="btn btn-primary">Go to homepage</a>
+            <a href="contact.html" class="btn btn-ghost">Contact support</a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ============================================================
+     MAIN WIZARD
+     ============================================================ -->
+    <main id="wizard-view" class="wizard">
+      <!-- HEADER -->
+      <header class="wizard-header">
+        <div class="container wizard-header-inner">
+          <a href="index.html" class="brand"
+            ><span class="mark"></span>Amber<span class="esol">ESOL</span></a
+          >
+
+          <!-- LANGUAGE PICKER -->
+          <div class="lang-picker" id="lang-picker">
+            <button
+              class="lang-picker-btn"
+              type="button"
+              onclick="document.getElementById('lang-picker').classList.toggle('open')"
+            >
+              <span class="icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m5 8 6 6" />
+                  <path d="m4 14 6-6 2-3" />
+                  <path d="M2 5h12" />
+                  <path d="m22 22-5-10-5 10" />
+                  <path d="M14 18h6" />
+                </svg>
+              </span>
+              <span id="lang-label">English</span>
+              <span class="caret"
+                ><svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m6 9 6 6 6-6" /></svg
+              ></span>
+            </button>
+            <div class="lang-picker-menu">
+              <button type="button" class="item active">
+                <span>English</span><span class="meta">EN</span>
+              </button>
+              <button type="button" class="item">
+                <span>العربية</span><span class="meta">AR</span>
+              </button>
+              <button type="button" class="item">
+                <span>اردو</span><span class="meta">UR</span>
+              </button>
+              <button type="button" class="item">
+                <span>پښتو</span><span class="meta">PS</span>
+              </button>
+              <button type="button" class="item">
+                <span>فارسی</span><span class="meta">FA</span>
+              </button>
+              <button type="button" class="item">
+                <span>ትግርኛ</span><span class="meta">TI</span>
+              </button>
+              <button type="button" class="item">
+                <span>Polski</span><span class="meta">PL</span>
+              </button>
+              <button type="button" class="item">
+                <span>Română</span><span class="meta">RO</span>
+              </button>
+              <button type="button" class="item">
+                <span>Português</span><span class="meta">PT</span>
+              </button>
+              <button type="button" class="item">
+                <span>বাংলা</span><span class="meta">BN</span>
+              </button>
+              <button type="button" class="item">
+                <span>हिन्दी</span><span class="meta">HI</span>
+              </button>
+              <button type="button" class="item">
+                <span>Soomaali</span><span class="meta">SO</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="container">
+          <div class="wizard-progress" id="progress">
+            <div class="seg active" data-i="1">
+              <div class="bar"></div>
+              <div class="label">
+                <span class="n">01</span><span class="name">Welcome</span>
+              </div>
+            </div>
+            <div class="seg" data-i="2">
+              <div class="bar"></div>
+              <div class="label">
+                <span class="n">02</span><span class="name">Details</span>
+              </div>
+            </div>
+            <div class="seg" data-i="3">
+              <div class="bar"></div>
+              <div class="label">
+                <span class="n">03</span><span class="name">Eligibility</span>
+              </div>
+            </div>
+            <div class="seg" data-i="4">
+              <div class="bar"></div>
+              <div class="label">
+                <span class="n">04</span><span class="name">ULN</span>
+              </div>
+            </div>
+            <div class="seg" data-i="5">
+              <div class="bar"></div>
+              <div class="label">
+                <span class="n">05</span><span class="name">Done</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ===========================================================
+       STEPS
+       =========================================================== -->
+      <div class="wizard-body">
+        <!-- STEP 01 — Welcome -->
+        <section class="wizard-card" data-step-view="1">
+          <div class="from">From <strong>Birmingham City Council</strong></div>
+          <h1>Welcome to Amber, <span class="italic-orange">Amina.</span></h1>
+          <p class="subhead-w lg" id="step1-subhead">
+            We'll take four short steps to register you. About five minutes. You
+            can change your language at the top of the page at any time.
+          </p>
+
+          <div class="wizard-trust">
+            <div class="tick">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              Your data stays in the UK.
+            </div>
+            <div class="tick">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              Your provider will see your progress, not your private answers.
+            </div>
+            <div class="tick">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              Press Back any time. Nothing saves until you press Continue.
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 02 — Personal details -->
+        <section class="wizard-card" data-step-view="2" hidden>
+          <div class="step-num">Step 2 of 4 · About you</div>
+          <h1>Tell us about yourself.</h1>
+          <p class="subhead-w">
+            All fields with an asterisk are required. We use these to set up
+            your account and confirm your eligibility for funded provision.
+          </p>
+
+          <div style="margin-top: 36px">
+            <div class="field-row">
+              <div class="field">
+                <label for="j-first"
+                  >First name <span class="req">*</span></label
+                >
+                <input
+                  id="j-first"
+                  type="text"
+                  autocomplete="given-name"
+                  required
+                  value="Amina"
+                />
+              </div>
+              <div class="field">
+                <label for="j-last">Last name <span class="req">*</span></label>
+                <input
+                  id="j-last"
+                  type="text"
+                  autocomplete="family-name"
+                  required
+                  value="Rashid"
+                />
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Date of birth <span class="req">*</span></label>
+              <div class="dob">
+                <input
+                  type="text"
+                  placeholder="DD"
+                  maxlength="2"
+                  inputmode="numeric"
+                  aria-label="Day"
+                />
+                <input
+                  type="text"
+                  placeholder="MM"
+                  maxlength="2"
+                  inputmode="numeric"
+                  aria-label="Month"
+                />
+                <input
+                  type="text"
+                  placeholder="YYYY"
+                  maxlength="4"
+                  inputmode="numeric"
+                  aria-label="Year"
+                />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="j-email">Email <span class="req">*</span></label>
+              <input id="j-email" type="email" autocomplete="email" required />
+            </div>
+
+            <div class="field">
+              <label for="j-phone"
+                >Phone
+                <span style="color: var(--ink-56); font-weight: 500"
+                  >optional</span
+                ></label
+              >
+              <div class="phone">
+                <select aria-label="Country code">
+                  <option>+44</option>
+                  <option>+1</option>
+                  <option>+33</option>
+                  <option>+49</option>
+                  <option>+92</option>
+                  <option>+93</option>
+                  <option>+98</option>
+                </select>
+                <input id="j-phone" type="tel" autocomplete="tel" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="j-postcode"
+                >Home postcode <span class="req">*</span></label
+              >
+              <input
+                id="j-postcode"
+                type="text"
+                autocomplete="postal-code"
+                placeholder="e.g. B1 1AA"
+                style="
+                  text-transform: uppercase;
+                  font-family: var(--font-mono);
+                  letter-spacing: 0.06em;
+                "
+                required
+              />
+              <button
+                type="button"
+                class="info-link"
+                onclick="alert('Your postcode is used to confirm your eligibility for funded ESOL provision. It is only shared with your provider.')"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 16v-4" />
+                  <path d="M12 8h.01" />
+                </svg>
+                Why we ask for postcode
+              </button>
+            </div>
+
+            <div class="field">
+              <label for="j-pw">Password <span class="req">*</span></label>
+              <input
+                id="j-pw"
+                type="password"
+                autocomplete="new-password"
+                required
+                oninput="updateMeter(this)"
+              />
+              <div class="pw-meter" data-strength="0" aria-hidden="true">
+                <span></span><span></span><span></span><span></span>
+              </div>
+              <div class="pw-meter-label">
+                <span
+                  ><strong>Pick one.</strong> 8+ chars, a number and a
+                  symbol.</span
+                >
+                <span>min 8</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 03 — Eligibility -->
+        <section class="wizard-card" data-step-view="3" hidden>
+          <div class="step-num">Step 3 of 4 · Eligibility</div>
+          <h1>
+            A few quick questions
+            <span class="italic-orange">for funding.</span>
+          </h1>
+          <p class="subhead-w">
+            Your provider needs to confirm you qualify for funded ESOL
+            provision. Answer honestly — these answers are stored as evidence
+            and seen only by your provider.
+          </p>
+
+          <div style="margin-top: 36px">
+            <div class="field">
+              <label for="el-residency"
+                >Residency status <span class="req">*</span></label
+              >
+              <select id="el-residency" required>
+                <option value="">Select…</option>
+                <option>Settled in the UK</option>
+                <option>Pre settled status</option>
+                <option>Refugee or asylum seeker</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="el-employment"
+                >Employment status <span class="req">*</span></label
+              >
+              <select id="el-employment" required>
+                <option value="">Select…</option>
+                <option>Employed</option>
+                <option>Self employed</option>
+                <option>Unemployed</option>
+                <option>Not seeking work</option>
+                <option>Retired</option>
+                <option>Student</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="el-qual"
+                >Highest qualification <span class="req">*</span></label
+              >
+              <select id="el-qual" required>
+                <option value="">Select…</option>
+                <option>None</option>
+                <option>GCSEs / Level 1</option>
+                <option>A Levels / Level 3</option>
+                <option>Degree</option>
+                <option>Postgraduate</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Has prior ESOL learning? <span class="req">*</span></label>
+              <div class="radio-row">
+                <label
+                  ><input type="radio" name="prior" value="yes" />Yes</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="prior"
+                    value="no"
+                    checked
+                  />No</label
+                >
+              </div>
+            </div>
+
+            <div class="field">
+              <label
+                >Health conditions or disabilities affecting study?
+                <span class="req">*</span></label
+              >
+              <div class="radio-row">
+                <label
+                  ><input
+                    type="radio"
+                    name="health"
+                    value="yes"
+                    onchange="document.getElementById('health-details').hidden = false"
+                  />Yes</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="health"
+                    value="no"
+                    checked
+                    onchange="document.getElementById('health-details').hidden = true"
+                  />No</label
+                >
+              </div>
+            </div>
+
+            <div class="field" id="health-details" hidden>
+              <label for="el-health-detail"
+                >Tell us briefly so your provider can support you.
+                <span style="color: var(--ink-56); font-weight: 500"
+                  >optional</span
+                ></label
+              >
+              <textarea
+                id="el-health-detail"
+                placeholder="What we should know."
+              ></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 04 — ULN -->
+        <section class="wizard-card" data-step-view="4" hidden>
+          <div class="step-num">Step 4 of 4 · Your ULN</div>
+          <h1>Do you have a <span class="italic-orange">ULN?</span></h1>
+          <p class="subhead-w">
+            A ULN is a 10 digit Unique Learner Number every UK learner is given.
+            If you've studied in the UK before, you have one. If not, we'll
+            request one for you.
+          </p>
+
+          <div class="uln-choice">
+            <div class="uln-card">
+              <div class="h">I have a ULN</div>
+              <div class="p">
+                Enter the 10 digit number from your previous studies. Find it on
+                a college letter, a previous certificate, or your learner
+                record.
+              </div>
+              <div class="field">
+                <input
+                  type="text"
+                  maxlength="10"
+                  inputmode="numeric"
+                  placeholder="0000000000"
+                  aria-label="ULN"
+                />
+              </div>
+              <button type="button" class="btn btn-primary" style="width: 100%">
+                Continue
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="uln-card">
+              <div class="h">I don't have a ULN</div>
+              <div class="p">
+                No problem. We'll request one for you from the Learning Records
+                Service. You don't need to do anything else — your provider
+                handles it.
+              </div>
+              <button
+                type="button"
+                class="btn btn-ghost"
+                style="width: 100%; margin-top: auto"
+              >
+                Skip — request one for me
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="info-link"
+            style="margin-top: 24px"
+            onclick="alert('A ULN is a 10 digit number, e.g. 1234567890. Find it on a previous learner record, a college letter, or any past qualification certificate.')"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4" />
+              <path d="M12 8h.01" />
+            </svg>
+            What does a ULN look like?
+          </button>
+        </section>
+
+        <!-- STEP 05 — Complete -->
+        <section
+          class="wizard-card"
+          data-step-view="5"
+          hidden
+          style="text-align: center"
+        >
+          <div
+            style="
+              display: inline-grid;
+              place-items: center;
+              width: 72px;
+              height: 72px;
+              border-radius: 50%;
+              background: rgba(34, 160, 107, 0.1);
+              color: var(--green);
+              margin: 0 auto 24px;
+            "
+          >
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          </div>
+          <div class="step-num" style="display: inline-block">All done</div>
+          <h1>You're <span class="italic-orange">registered.</span></h1>
+          <p class="subhead-w lg" style="margin-left: auto; margin-right: auto">
+            Next, we'll take 10 minutes to find your English level. You can do
+            this now or come back later — your progress is saved.
+          </p>
+
+          <div
+            style="
+              display: flex;
+              gap: 12px;
+              justify-content: center;
+              flex-wrap: wrap;
+              margin-top: 36px;
+            "
+          >
+            <button type="button" class="btn btn-primary">
+              Start placement assessment
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </button>
+            <button type="button" class="btn btn-ghost">
+              I'll come back later
+            </button>
+          </div>
+
+          <div class="confirm-panel" style="text-align: left">
+            <div class="row">
+              <div class="l">
+                <span class="k">Email used</span>
+                <span class="v">amina.rashid@example.co.uk</span>
+              </div>
+              <a href="#">Change →</a>
+            </div>
+            <div class="row">
+              <div class="l">
+                <span class="k">Eligibility status</span>
+                <span class="v">Settled · Employed · Confirmed</span>
+              </div>
+              <a href="#">Change →</a>
+            </div>
+            <div class="row">
+              <div class="l">
+                <span class="k">ULN</span>
+                <span class="v">Requesting on your behalf</span>
+              </div>
+              <a href="#">Change →</a>
+            </div>
+            <div class="row">
+              <div class="l">
+                <span class="k">Provider</span>
+                <span class="v">Birmingham City Council · Adult Learning</span>
+              </div>
+              <a href="#">Change →</a>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- FOOTER -->
+      <footer class="wizard-foot">
+        <div class="wizard-foot-inner">
+          <button
+            type="button"
+            class="btn btn-ghost"
+            id="back-btn"
+            disabled
+            style="opacity: 0.5"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M19 12H5" />
+              <path d="m12 19-7-7 7-7" />
+            </svg>
+            Back
+          </button>
+
+          <span class="stuck"
+            >Got stuck?
+            <a href="contact.html?subject=Join%20support"
+              >Contact support →</a
+            ></span
+          >
+
+          <button type="button" class="btn btn-primary" id="continue-btn">
+            <span id="continue-label">Start</span>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </footer>
+    </main>
+
+    <script>
+      // ============== STEP SWITCHER ==============
+      const stepBtns = document.querySelectorAll(".step-switcher [data-step]");
+      const stepViews = document.querySelectorAll("[data-step-view]");
+      const segs = document.querySelectorAll(".wizard-progress .seg");
+      const backBtn = document.getElementById("back-btn");
+      const continueBtn = document.getElementById("continue-btn");
+      const continueLabel = document.getElementById("continue-label");
+
+      function setStep(n) {
+        n = parseInt(n);
+        stepBtns.forEach((b) =>
+          b.setAttribute(
+            "aria-pressed",
+            b.dataset.step === String(n) ? "true" : "false",
+          ),
+        );
+        stepViews.forEach((v) => (v.hidden = v.dataset.stepView !== String(n)));
+        segs.forEach((s, i) => {
+          s.classList.remove("active", "done");
+          const idx = parseInt(s.dataset.i);
+          if (idx < n) s.classList.add("done");
+          else if (idx === n) s.classList.add("active");
+        });
+        backBtn.disabled = n === 1;
+        backBtn.style.opacity = n === 1 ? "0.5" : "1";
+        if (n === 1) continueLabel.textContent = "Start";
+        else if (n === 5) {
+          continueLabel.textContent = "Finish";
+          continueBtn.style.display = "none";
+        } else continueLabel.textContent = "Continue";
+        if (n !== 5) continueBtn.style.display = "";
+        scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      stepBtns.forEach((b) =>
+        b.addEventListener("click", () => setStep(b.dataset.step)),
+      );
+      backBtn.addEventListener("click", () => {
+        const cur = parseInt(
+          document.querySelector(
+            '.step-switcher [data-step][aria-pressed="true"]',
+          ).dataset.step,
+        );
+        if (cur > 1) setStep(cur - 1);
+      });
+      continueBtn.addEventListener("click", () => {
+        const cur = parseInt(
+          document.querySelector(
+            '.step-switcher [data-step][aria-pressed="true"]',
+          ).dataset.step,
+        );
+        if (cur < 5) setStep(cur + 1);
+      });
+
+      // ============== VARIANT SWITCHER ==============
+      const variantBtns = document.querySelectorAll(
+        ".step-switcher [data-variant]",
+      );
+      const offlineBanner = document.getElementById("offline-banner");
+      const toast = document.getElementById("toast");
+      const tokenView = document.getElementById("token-error-view");
+      const wizardView = document.getElementById("wizard-view");
+      const wizardCard = document.querySelectorAll("[data-step-view]");
+
+      function setVariant(v) {
+        variantBtns.forEach((b) =>
+          b.setAttribute(
+            "aria-pressed",
+            b.dataset.variant === v ? "true" : "false",
+          ),
+        );
+        offlineBanner.hidden = v !== "offline";
+        toast.hidden = v !== "toast";
+        tokenView.hidden = v !== "token";
+        wizardView.hidden = v === "token";
+
+        if (v === "rtl") {
+          wizardView.dir = "rtl";
+          wizardView.lang = "ar";
+          document.getElementById("lang-label").textContent = "العربية";
+          // Swap step 1 subhead to Arabic to demonstrate L1 rendering
+          document.getElementById("step1-subhead").textContent =
+            "سنرشدك خلال أربع خطوات قصيرة لتسجيلك. حوالي خمس دقائق. يمكنك تغيير اللغة من أعلى الصفحة في أي وقت.";
+        } else {
+          wizardView.removeAttribute("dir");
+          wizardView.removeAttribute("lang");
+          document.getElementById("lang-label").textContent = "English";
+          document.getElementById("step1-subhead").textContent =
+            "We'll take four short steps to register you. About five minutes. You can change your language at the top of the page at any time.";
+        }
+      }
+
+      variantBtns.forEach((b) =>
+        b.addEventListener("click", () => setVariant(b.dataset.variant)),
+      );
+
+      // ============== LANGUAGE PICKER ITEMS ==============
+      document.querySelectorAll(".lang-picker-menu .item").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".lang-picker-menu .item")
+            .forEach((i) => i.classList.remove("active"));
+          btn.classList.add("active");
+          document.getElementById("lang-label").textContent =
+            btn.querySelector("span").textContent;
+          document.getElementById("lang-picker").classList.remove("open");
+          // Toggle RTL for RTL languages
+          const rtlLangs = ["العربية", "اردو", "پښتو", "فارسی"];
+          if (rtlLangs.includes(btn.querySelector("span").textContent)) {
+            wizardView.dir = "rtl";
+          } else {
+            wizardView.removeAttribute("dir");
+          }
+        });
+      });
+
+      // ============== PW METER ==============
+      function updateMeter(input) {
+        const v = input.value;
+        let s = 0;
+        if (v.length >= 8) s++;
+        if (/[0-9]/.test(v)) s++;
+        if (/[A-Z]/.test(v)) s++;
+        if (/[^A-Za-z0-9]/.test(v)) s++;
+        const meter = input.parentElement.querySelector(".pw-meter");
+        if (meter) meter.setAttribute("data-strength", s);
+        const label = input.parentElement.querySelector(
+          ".pw-meter-label strong",
+        );
+        if (label) {
+          const words = ["Pick one", "Weak", "Medium", "Good", "Strong"];
+          label.textContent = (words[s] || "Weak") + ".";
+        }
+      }
+    </script>
+  </body>
+</html>

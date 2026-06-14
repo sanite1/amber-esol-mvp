@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ShieldAlert,
   Loader2,
@@ -10,6 +10,7 @@ import {
   useListAlerts,
   type SafeguardingAlert,
   type SafeguardingAlertStatus,
+  type SafeguardingTriggerCategory,
 } from "../../lib/api/esolSafeguarding";
 import {
   formatDateTime,
@@ -19,6 +20,38 @@ import type { SafeguardingLevel } from "../../lib/types/esol";
 import ReviewAlertModal from "../../components/admin/orgs/ReviewAlertModal";
 
 const PER_PAGE = 20;
+
+/**
+ * Short, triage-friendly label for each backend trigger category.
+ * Mirrors amber-esol-backend/src/models/SafeguardingAlert.ts enum.
+ */
+const CATEGORY_LABEL: Record<SafeguardingTriggerCategory, string> = {
+  self_harm: "Self-harm",
+  domestic_abuse: "DV",
+  radicalisation: "Radicalisation",
+  child_concern: "Child concern",
+  child_protection: "Child concern", // legacy alias from Gemini
+  exploitation: "Exploitation",
+  mental_health_crisis: "Mental health",
+};
+
+/**
+ * SLA windows for OPEN alerts, in minutes. Past warningMin, the row
+ * shows an amber left border + dot. Past breachMin, red + pulsing.
+ * Resolved / reviewed / dismissed alerts are untouched.
+ */
+const SLA_WARNING_MIN = 5;
+const SLA_BREACH_MIN = 15;
+
+type SlaState = "ok" | "warning" | "breach";
+
+const slaState = (alert: SafeguardingAlert): SlaState => {
+  if (alert.status !== "open") return "ok";
+  const ageMin = (Date.now() - new Date(alert.createdAt).getTime()) / 60_000;
+  if (ageMin >= SLA_BREACH_MIN) return "breach";
+  if (ageMin >= SLA_WARNING_MIN) return "warning";
+  return "ok";
+};
 
 export default function AdminSafeguardingAlerts() {
   const [page, setPage] = useState(1);
@@ -41,18 +74,58 @@ export default function AdminSafeguardingAlerts() {
     alertLevel: levelFilter === "all" ? undefined : levelFilter,
   });
 
-  const alerts = data?.data?.alerts ?? [];
+  // Separate fetch for the open-count pill so the count is consistent
+  // across filter changes — the main `data` is filtered, this isn't.
+  const { data: openCountData } = useListAlerts({
+    status: "open",
+    page: 1,
+    limit: 1,
+  });
+  const openCount = openCountData?.data?.pagination?.total ?? 0;
+
+  const alerts = useMemo(() => data?.data?.alerts ?? [], [data]);
   const pagination = data?.data?.pagination;
+
+  // Tick the SLA cue once a minute so amber rings turn red without
+  // requiring a refetch. The dependency is the tick counter — pure
+  // visual state, no network.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const openAlertCountInList = useMemo(
+    () => alerts.filter((a) => a.status === "open").length,
+    [alerts],
+  );
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-extrabold text-[#0B2343] tracking-tight">
-          Safeguarding alerts
-        </h1>
-        <p className="text-sm text-[#0B2343]/50 mt-1">
-          Welfare concerns flagged automatically during AI sessions.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold text-[#0B2343] tracking-tight flex items-center gap-3">
+            Safeguarding alerts
+            {openCount > 0 && (
+              <span
+                className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200"
+                aria-label={`${openCount} open alerts`}
+              >
+                {openCount} open
+              </span>
+            )}
+          </h1>
+          <p className="text-sm text-[#0B2343]/50 mt-1">
+            Welfare concerns flagged automatically during AI sessions.
+            {openAlertCountInList > 0 && (
+              <>
+                {" "}
+                Open rows breach SLA after {SLA_BREACH_MIN} minutes — amber
+                indicator at {SLA_WARNING_MIN}, red after {SLA_BREACH_MIN}.
+              </>
+            )}
+          </p>
+        </div>
       </div>
 
       {/* Filters */}
@@ -118,16 +191,47 @@ export default function AdminSafeguardingAlerts() {
                 typeof alert.learnerId === "object" ? alert.learnerId : null;
               const org = typeof alert.orgId === "object" ? alert.orgId : null;
               const levelColours = safeguardingLevelColours(alert.alertLevel);
+              const sla = slaState(alert);
+              const categoryLabel = alert.triggerCategory
+                ? (CATEGORY_LABEL[alert.triggerCategory] ?? null)
+                : null;
+
+              // SLA left-border: marks open alerts past the SLA windows.
+              // Reviewed/resolved/escalated/dismissed get no decoration.
+              const slaBorder =
+                sla === "breach"
+                  ? "border-l-4 border-l-red-500"
+                  : sla === "warning"
+                    ? "border-l-4 border-l-amber-400"
+                    : "border-l-4 border-l-transparent";
+
               return (
                 <button
                   key={alert._id}
                   onClick={() => setSelected(alert)}
-                  className="w-full text-left px-6 py-4 hover:bg-[#0B2343]/[0.02] transition-colors flex items-start gap-4"
+                  className={`w-full text-left px-6 py-4 hover:bg-[#0B2343]/[0.02] transition-colors flex items-start gap-4 ${slaBorder}`}
+                  aria-label={
+                    sla === "breach"
+                      ? `Open alert past ${SLA_BREACH_MIN}-minute SLA — needs immediate action`
+                      : sla === "warning"
+                        ? `Open alert past ${SLA_WARNING_MIN} minutes`
+                        : undefined
+                  }
                 >
                   <div
-                    className={`w-10 h-10 rounded-xl ${levelColours.bg} flex items-center justify-center shrink-0`}
+                    className={`w-10 h-10 rounded-xl ${levelColours.bg} flex items-center justify-center shrink-0 relative`}
                   >
                     <ShieldAlert size={16} className={levelColours.text} />
+                    {sla !== "ok" && (
+                      <span
+                        aria-hidden="true"
+                        className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${
+                          sla === "breach"
+                            ? "bg-red-500 animate-pulse"
+                            : "bg-amber-400"
+                        }`}
+                      />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -136,6 +240,14 @@ export default function AdminSafeguardingAlerts() {
                       >
                         {alert.alertLevel}
                       </span>
+                      {categoryLabel && (
+                        <span
+                          className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md bg-[#0B2343]/[0.06] text-[#0B2343]/70"
+                          title={alert.triggerCategory ?? undefined}
+                        >
+                          {categoryLabel}
+                        </span>
+                      )}
                       <StatusBadge status={alert.status} />
                       <span className="text-[11px] text-[#0B2343]/40">
                         {formatDateTime(alert.createdAt)}

@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Amber ESOL platform design system (scoped to .amber-platform) */
+@import "./styles/amber-design-system.css";
+
 body {
   margin: 0;
   font-family:
@@ -38,7 +41,16 @@ code {
 
 html,
 body {
-  overflow-x: hidden; /* prevents horizontal scrollbar pushing layout */
+  /* Prevent a horizontal scrollbar pushing the layout — but with
+     `clip`, not `hidden`. `overflow-x: hidden` turns the element into
+     a scroll container, which silently DISABLES every
+     `position: sticky` descendant (e.g. the pinned navy auth panel,
+     sticky table headers). `clip` clips without creating a scroll
+     container, so sticky keeps working. The duplicate declaration is
+     a graceful fallback: engines without `clip` support ignore the
+     second line and keep `hidden`. */
+  overflow-x: hidden;
+  overflow-x: clip;
   background-color: #ffffff;
 }
 
@@ -81,4 +93,29 @@ body {
     top: 0;
     top: env(safe-area-inset-top, 0);
   }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Modal-open page-header neutraliser
+ *
+ * When a Modal (src/components/Modal.tsx) opens, it adds
+ * `modal-open` to <body>. The MainLayout page header
+ * (Header.tsx) normally has `bg-white/80 backdrop-blur-md` —
+ * Chromium's per-element backdrop-filter isolation means the
+ * modal's own backdrop-filter CANNOT blur through that header,
+ * leaving a crisp white strip at the top of the viewport even
+ * with a full-screen modal overlay.
+ *
+ * While a modal is open, we flatten the header's bg + drop its
+ * backdrop-filter so the modal's overlay (50% navy + 4px blur)
+ * reaches the very top edge of the screen with no light gap.
+ * The header content (logo, icons) stays in the DOM for a11y,
+ * but is rendered atop the modal's tinted overlay — which the
+ * 50% navy hides naturally.
+ * ────────────────────────────────────────────────────────────── */
+body.modal-open header.fixed.top-0 {
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom-color: transparent !important;
 }

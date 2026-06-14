@@ -2,8 +2,6 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
 export default function AboutHero() {
-  const APP_URL = process.env.REACT_APP_DASHBOARD_URL;
-
   return (
     <section className="relative py-20 lg:py-28 overflow-hidden bg-[#0B2343]">
       <div className="absolute inset-0 pointer-events-none">
@@ -65,7 +63,7 @@ export default function AboutHero() {
             className="mt-8 flex flex-wrap items-center gap-4"
           >
             <Link
-              to={`${APP_URL}/signup`}
+              to={`/signup`}
               className="group inline-flex items-center gap-2.5 px-7 py-3.5 text-sm font-bold text-white bg-[#ff7c22] rounded-full hover:bg-[#e56a10] transition-colors duration-200"
             >
               Join Our Community

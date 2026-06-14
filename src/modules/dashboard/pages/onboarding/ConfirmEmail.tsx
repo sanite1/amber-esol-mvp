@@ -1,191 +1,263 @@
 import { useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { ArrowRight, CheckCircle2, Mail, Star } from "lucide-react";
-import logo from "../../assets/logo.png";
+import { Link, useLocation } from "react-router-dom";
+import { ArrowLeft, Mail } from "lucide-react";
 
-const FRONTEND_URL = process.env.REACT_APP_FRONTEND_URL;
+/**
+ * Resend-verification endpoint hasn't shipped on the backend yet
+ * (see authOnboarding.ts — section "RESEND VERIFICATION EMAIL"
+ * has the rationale). The button below is rendered as disabled
+ * with an explanatory tooltip until the endpoint exists.
+ */
 
-const testimonial = {
-  quote:
-    "The sign-up process was so simple. Within minutes I had my account set up and was browsing tutors. Highly recommend!",
-  author: "Yuki Tanaka",
-  role: "A2 Student",
-  avatar: "https://randomuser.me/api/portraits/women/63.jpg",
-};
-
+/**
+ * /confirm-email — "check your inbox" holding pattern.
+ *
+ * Visual port of design-refs/site/confirm-email.html. Reads the
+ * email from location.state (set by Signup / StudentRegister) and
+ * exposes a resend button with a 60-second cooldown.
+ *
+ * The resend endpoint will be wired in F2 (auth audit). For now
+ * the cooldown UX is in place; the click is a no-op until then.
+ */
 export default function ConfirmEmail() {
-  const navigate = useNavigate();
+  const location = useLocation();
+  const navState = location.state as {
+    email?: string;
+    placementLevel?: string;
+    placementRationale?: string | null;
+    fundingStatus?: string;
+  } | null;
+  const stateEmail = navState?.email ?? "";
+  // Set by the ESOL onboarding flow — show the learner their placement
+  // immediately so they know their level before they even log in.
+  const placementLevel = navState?.placementLevel ?? null;
+  const placementRationale = navState?.placementRationale ?? null;
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  // const handleResend = () => {
-  //   // TODO: Replace with actual resend API call
-  //   console.log("Resend confirmation email");
-  // };
+  // Resend is disabled until the backend exposes a resend-verification
+  // endpoint. The button stays visible for UX continuity but explains
+  // why on hover/focus.
+  const RESEND_TOOLTIP =
+    "Resend isn't available yet — please use the original verification email we sent when you signed up. If you can't find it, contact support.";
 
   return (
-    <div className="min-h-screen">
-      {/* ─── Left panel, fixed, never scrolls ─── */}
-      <div className="hidden lg:flex fixed top-0 left-0 w-[48%] h-screen bg-[#0B2343] z-10">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(ellipse at 20% 80%, rgba(255,124,34,0.1) 0%, transparent 50%)",
-          }}
-        />
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.03]"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <pattern
-              id="confirm-grid"
-              x="0"
-              y="0"
-              width="32"
-              height="32"
-              patternUnits="userSpaceOnUse"
-            >
-              <circle cx="2" cy="2" r="1" fill="white" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#confirm-grid)" />
-        </svg>
-
-        <div className="relative flex flex-col justify-between p-12 xl:p-16 w-full">
-          {/* Logo */}
-          <Link to={FRONTEND_URL || "/"}>
-            <img
-              src={logo}
-              alt="Amber ESOL"
-              className="h-10 w-auto brightness-0 invert"
-            />
+    <div className="amber-platform">
+      <main className="auth">
+        {/* LEFT — navy panel */}
+        <aside className="auth-panel" aria-hidden="true">
+          <Link to="/" className="auth-brand">
+            <span className="mark" />
+            Amber
+            <span className="esol">ESOL</span>
           </Link>
 
-          {/* Headline */}
-          <div>
-            <h2 className="text-4xl xl:text-[42px] font-extrabold text-white leading-tight tracking-tight">
-              You're almost
-              <br />
-              there
-              <span className="text-[#ff7c22]">.</span>
-            </h2>
-            <p className="text-sm text-white/35 mt-4 leading-relaxed max-w-sm">
-              Just one more step to start your English learning journey with
-              Amber ESOL.
+          <div className="auth-panel-body">
+            <p className="auth-quote">
+              Open it on <em>the same device</em> you signed up on for smoothest
+              verification.
             </p>
-          </div>
-
-          {/* Testimonial */}
-          <div className="max-w-sm">
-            <div className="flex items-center gap-0.5 mb-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  size={12}
-                  className="text-[#ff7c22]"
-                  fill="#ff7c22"
-                />
-              ))}
-            </div>
-            <p className="text-sm text-white/45 leading-relaxed">
-              "{testimonial.quote}"
-            </p>
-            <div className="flex items-center gap-3 mt-4">
-              <img
-                src={testimonial.avatar}
-                alt={testimonial.author}
-                loading="lazy"
-                className="w-8 h-8 rounded-full object-cover"
-              />
-              <div>
-                <p className="text-xs font-semibold text-white/60">
-                  {testimonial.author}
-                </p>
-                <p className="text-[10px] text-white/25">{testimonial.role}</p>
-              </div>
+            <div className="auth-cite">
+              Why? It keeps the session continuous
             </div>
           </div>
-        </div>
-      </div>
+        </aside>
 
-      {/* ─── Right panel ─── */}
-      <div className="min-h-screen bg-white lg:ml-[48%]">
-        {/* Mobile header, fixed */}
-        <div className="lg:hidden fixed top-0 inset-x-0 z-20 flex items-center justify-between p-5 bg-white border-b border-[#0B2343]/[0.05]">
-          <Link to={FRONTEND_URL || "/"}>
-            <img src={logo} alt="Amber ESOL" className="h-8 w-auto" />
-          </Link>
-          <Link
-            to="/login"
-            className="text-xs font-bold text-[#ff7c22] hover:underline"
-          >
-            Sign in
-          </Link>
-        </div>
-
-        {/* Spacer for mobile header */}
-        <div className="lg:hidden h-16" />
-
-        {/* Content area */}
-        <div className="flex items-center justify-center min-h-screen px-6 sm:px-12 xl:px-20 py-10 lg:py-0">
-          <div className="w-full max-w-[380px] text-center">
-            {/* Success icon */}
-            <div className="relative w-20 h-20 mx-auto mb-8">
-              <div className="absolute inset-0 rounded-full bg-[#22C55E]/10" />
-              <div className="relative w-full h-full rounded-full bg-[#22C55E] flex items-center justify-center">
-                <CheckCircle2 size={36} className="text-white" />
+        {/* RIGHT */}
+        <div className="auth-card-wrap">
+          <div className="auth-card" role="region" aria-labelledby="ci-h1">
+            <div className="auth-head">
+              <div className="kicker">
+                <span className="dot" />
+                Almost there
               </div>
-            </div>
-
-            {/* Heading */}
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B2343] tracking-tight">
-              Check your email
-            </h1>
-            {/* <p className="text-sm text-[#0B2343]/40 mt-3 leading-relaxed max-w-[320px] mx-auto">
-              We've sent a confirmation link to your email address. Please check
-              your inbox and spam folder to verify your account.
-            </p> */}
-
-            {/* Email hint card */}
-            <div className="mt-8 p-5 bg-[#fafbfc] rounded-2xl border border-[#0B2343]/[0.05]">
-              <div className="w-12 h-12 mx-auto rounded-xl bg-[#ff7c22]/[0.08] flex items-center justify-center text-[#ff7c22] mb-3">
-                <Mail size={22} />
-              </div>
-              <p className="text-xs text-[#0B2343]/50 leading-relaxed">
-                Click the link in the email to activate your account. The link
-                will expire in 24 hours.
+              <h1 id="ci-h1">Check your inbox.</h1>
+              <p>
+                We've sent a confirmation email
+                {stateEmail ? (
+                  <>
+                    {" to "}
+                    <strong style={{ color: "var(--ink)" }}>
+                      {stateEmail}
+                    </strong>
+                  </>
+                ) : null}
+                . Click the link inside to activate your account. The link works
+                for 24 hours.
               </p>
             </div>
 
-            {/* Actions */}
-            <div className="mt-8 space-y-3">
-              <button
-                onClick={() => navigate("/login")}
-                className="w-full py-3.5 bg-[#ff7c22] text-white text-sm font-bold rounded-xl hover:bg-[#e56a10] transition-colors flex items-center justify-center gap-2"
+            {/* Placement result — ESOL onboarding passes the level via
+                navigation state so the learner sees where they placed
+                immediately, before they've even verified or logged in. */}
+            {placementLevel && (
+              <div
+                role="status"
+                style={{
+                  background: "var(--cream)",
+                  border: "1px solid rgba(255,124,34,0.25)",
+                  borderRadius: "var(--r-lg)",
+                  padding: "18px 20px",
+                  marginBottom: 16,
+                }}
               >
-                Go to Sign In
-                <ArrowRight size={16} />
-              </button>
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    color: "var(--orange)",
+                    marginBottom: 6,
+                  }}
+                >
+                  Your placement result
+                </div>
+                <div
+                  style={{
+                    fontSize: 26,
+                    fontWeight: 800,
+                    color: "var(--ink)",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  {placementLevel}
+                </div>
+                {placementRationale && (
+                  <div
+                    style={{
+                      fontSize: 13.5,
+                      color: "var(--ink-72)",
+                      lineHeight: 1.55,
+                      marginTop: 8,
+                      fontStyle: "italic",
+                    }}
+                  >
+                    "{placementRationale}"
+                  </div>
+                )}
+                <div
+                  style={{
+                    fontSize: 13.5,
+                    color: "var(--ink-72)",
+                    lineHeight: 1.55,
+                    marginTop: 6,
+                  }}
+                >
+                  Your lessons and practice scenarios will be matched to this
+                  level. Your teacher reviews every placement, so it can be
+                  adjusted if needed.
+                </div>
+              </div>
+            )}
+
+            {/* Inbox illustration block */}
+            <div
+              style={{
+                background: "var(--bg-soft)",
+                border: "1px solid var(--ink-08)",
+                borderRadius: "var(--r-lg)",
+                padding: 32,
+                textAlign: "center",
+                marginBottom: 24,
+              }}
+            >
+              <div
+                style={{
+                  display: "inline-grid",
+                  placeItems: "center",
+                  width: 64,
+                  height: 64,
+                  borderRadius: "50%",
+                  background: "var(--cream)",
+                  color: "var(--orange)",
+                  marginBottom: 18,
+                }}
+              >
+                <Mail size={28} />
+              </div>
+              <div
+                style={{
+                  fontSize: 14.5,
+                  color: "var(--ink-72)",
+                  lineHeight: 1.55,
+                  maxWidth: "32ch",
+                  margin: "0 auto",
+                }}
+              >
+                Open the email on the same device you signed up on for the
+                smoothest verification.
+              </div>
             </div>
 
-            {/* Help text */}
-            <p className="text-xs text-[#0B2343]/30 mt-8 leading-relaxed">
-              Didn't receive the email? Check your spam folder or{" "}
-              <Link
-                to={`${FRONTEND_URL}/help`}
-                className="text-[#ff7c22] font-semibold hover:underline"
+            <div
+              style={{
+                fontSize: 14,
+                color: "var(--ink-72)",
+                lineHeight: 1.6,
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+              }}
+            >
+              <div>
+                Wrong email?{" "}
+                <Link
+                  to="/signup"
+                  style={{
+                    color: "var(--orange)",
+                    fontWeight: 600,
+                    borderBottom: "1px solid currentColor",
+                  }}
+                >
+                  Go back and update it →
+                </Link>
+              </div>
+              <div>
+                Didn't receive it?{" "}
+                <button
+                  type="button"
+                  disabled
+                  title={RESEND_TOOLTIP}
+                  aria-label={RESEND_TOOLTIP}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "var(--ink-56)",
+                    fontWeight: 600,
+                    cursor: "not-allowed",
+                    padding: 0,
+                    borderBottom: "1px dashed var(--ink-24)",
+                    font: "inherit",
+                  }}
+                >
+                  Resend not available yet
+                </button>
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "var(--ink-56)",
+                  marginTop: 2,
+                  lineHeight: 1.5,
+                }}
               >
-                contact support
-              </Link>{" "}
-              for help.
-            </p>
+                Check your spam folder — the original email is the only
+                verification link until the resend endpoint ships.
+              </div>
+            </div>
+
+            <div className="auth-bottom">
+              <Link to="/login" className="back">
+                <ArrowLeft />
+                Back to login
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

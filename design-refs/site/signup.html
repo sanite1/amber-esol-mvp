@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Amber — Sign up</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="auth">
+      <!-- LEFT: navy panel -->
+      <aside class="auth-panel" aria-hidden="true">
+        <a href="index.html" class="auth-brand">
+          <span class="mark"></span>
+          Amber
+          <span class="esol">ESOL</span>
+        </a>
+
+        <div class="auth-panel-body">
+          <p class="auth-quote">
+            Learn English in the language <em>you already think in.</em>
+          </p>
+          <div class="auth-cite">Amber Bridge Method™ · UK adult ESOL</div>
+
+          <div class="auth-panel-foot">
+            <span>20+ first languages</span>
+            <span>Your data stays in the UK</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- RIGHT: form -->
+      <div class="auth-card-wrap">
+        <form
+          class="auth-card"
+          onsubmit="event.preventDefault();"
+          aria-label="Sign up"
+        >
+          <div class="auth-head">
+            <div class="kicker">
+              <span class="dot"></span>Sign up · referral
+            </div>
+            <h1>Set up your account.</h1>
+            <p>
+              Welcome. We'll walk you through three quick steps to get you onto
+              the platform.
+            </p>
+          </div>
+
+          <div class="steps-explainer" aria-label="Signup steps">
+            <div class="step">
+              <span class="n">1</span
+              ><span class="l"
+                >Enter your referral code from your provider</span
+              >
+            </div>
+            <div class="step">
+              <span class="n">2</span><span class="l">Verify your details</span>
+            </div>
+            <div class="step">
+              <span class="n">3</span
+              ><span class="l">Take your placement test</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="s-code">Referral code <span class="req">*</span></label>
+            <input
+              id="s-code"
+              type="text"
+              placeholder="e.g. BHM-COUNCIL-2026"
+              required
+            />
+            <span class="hint"
+              >Find this in the invitation email from your provider.</span
+            >
+          </div>
+
+          <div class="field">
+            <label for="s-email">Email <span class="req">*</span></label>
+            <input id="s-email" type="email" autocomplete="email" required />
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            style="width: 100%; margin-top: 8px"
+          >
+            Continue
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </button>
+
+          <div
+            style="
+              margin-top: 18px;
+              font-size: 13px;
+              color: var(--ink-56);
+              text-align: center;
+            "
+          >
+            Need this in another language? Look for the translate button bottom
+            right.
+          </div>
+
+          <div class="auth-bottom">
+            <span
+              ><span class="label">Already have an account?</span>
+              <a href="login.html">Sign in</a></span
+            >
+          </div>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>

@@ -5,6 +5,26 @@ import { axios } from "../../../../lib/network/axios";
 import type { ApiError, ApiResponse } from "../../../../lib/network/axios";
 import type { PaginatedResponse } from "../types/esol";
 
+/**
+ * Status enum from amber-esol-backend/src/models/OrgInvoice.ts.
+ *
+ * Important — F9.2 audit note: the backend has NO frontend-callable
+ * "issue" endpoint (no POST /esol/invoices/:id/issue and no PATCH
+ * with status: "issued"). The draft → issued transition happens
+ * server-side, driven by `autoGenerateInvoicesCronService` which
+ * runs the periodic billing job (see
+ *   amber-esol-backend/src/services/esolInvoice.service.ts
+ * ). The only client-callable status transitions are:
+ *
+ *   - useGenerateInvoice → creates a new invoice (initial: "draft")
+ *   - useMarkInvoicePaid → moves any non-paid / non-cancelled
+ *                          status straight to "paid"
+ *
+ * If the product ever needs a manual "issue" affordance, add the
+ * backend endpoint first. The `"issued"` value stays in the enum
+ * so the existing list/filter/badge UI handles backend-issued
+ * invoices correctly today.
+ */
 export type OrgInvoiceStatus =
   | "draft"
   | "issued"

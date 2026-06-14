@@ -7,6 +7,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
+  Download,
+  Upload,
 } from "lucide-react";
 import { useListLearners } from "../../lib/api/esolLearner";
 import {
@@ -57,12 +59,33 @@ export default function OrgLearners() {
             Manage your organisation's ESOL learners.
           </p>
         </div>
-        <Link
-          to="/org/invitations"
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#ff7c22] text-white text-sm font-bold rounded-xl hover:bg-[#e56a10] transition-colors"
-        >
-          <Plus size={16} /> Invite learner
-        </Link>
+        <div className="flex items-center gap-2">
+          {/* Bulk-import affordances — Phase 13 stub (brief Function 3).
+              The CSV template ships from /public so the link works today;
+              the upload button is disabled until POST /api/org-admin/import/learners
+              is wired into the UI in Phase 13. */}
+          <a
+            href="/templates/learner-import-template.csv"
+            download="learner-import-template.csv"
+            data-testid="download-csv-template"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-[#0B2343]/[0.12] text-[#0B2343] text-sm font-semibold rounded-xl hover:border-[#ff7c22]/40 transition-colors"
+          >
+            <Download size={16} aria-hidden="true" /> CSV template
+          </a>
+          <Link
+            to="/org/import-learners"
+            data-testid="bulk-import-button"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-[#0B2343]/[0.12] text-[#0B2343] text-sm font-semibold rounded-xl hover:border-[#ff7c22]/40 transition-colors"
+          >
+            <Upload size={16} aria-hidden="true" /> Bulk import
+          </Link>
+          <Link
+            to="/org/invitations"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#ff7c22] text-white text-sm font-bold rounded-xl hover:bg-[#e56a10] transition-colors"
+          >
+            <Plus size={16} aria-hidden="true" /> Invite learner
+          </Link>
+        </div>
       </div>
 
       {/* Filter bar */}

@@ -1,13 +1,6 @@
 import { useState } from "react";
-import {
-  X,
-  Lock,
-  Eye,
-  EyeOff,
-  Loader2,
-  AlertCircle,
-  Check,
-} from "lucide-react";
+import { Lock, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import Modal from "../../../../../components/Modal";
 
 interface Props {
   onClose: () => void;
@@ -52,49 +45,47 @@ export default function ChangePasswordModal({
   };
 
   const inputClass =
-    "w-full pl-10 pr-10 py-2.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/40 focus:bg-white transition-colors";
+    "block w-full rounded-xl border border-[#0B2343]/[0.12] bg-white pl-10 pr-11 py-2 min-h-[44px] text-sm text-[#0B2343] placeholder:text-[#0B2343]/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22] focus-visible:border-[#ff7c22]";
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
-      {/* ── Backdrop ── */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* ── Modal shell ── */}
-      <div className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[70vh] flex flex-col">
-        {/* ── Fixed header ── */}
-        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] shrink-0">
-          <h3 className="text-sm sm:text-[15px] font-semibold text-[#0B2343] flex items-center gap-2">
-            <Lock size={15} className="text-[#0B2343]/30" />
-            Change Password
-          </h3>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors"
-          >
-            <X size={16} className="text-[#0B2343]/30" />
-          </button>
-        </div>
-
-        {/* ── Scrollable body ── */}
-        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5 space-y-4">
+    <Modal
+      open
+      onClose={onClose}
+      title="Change Password"
+      titleId="tutor-change-password-title"
+      size="sm"
+      disableEscapeKey={isPending}
+      disableBackdropClick={isPending}
+    >
+      <Modal.Body>
+        <form
+          id="tutor-change-password-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+          className="space-y-4"
+        >
           {error && (
-            <div className="flex items-start gap-2.5 p-3 bg-red-50 border border-red-100 rounded-xl">
-              <AlertCircle size={14} className="text-red-500 shrink-0 mt-0.5" />
-              <p className="text-xs text-red-600">{error}</p>
+            <div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+              <AlertCircle
+                size={14}
+                aria-hidden="true"
+                className="text-red-500 shrink-0 mt-0.5"
+              />
+              <p>{error}</p>
             </div>
           )}
 
           {/* Current password */}
           <div>
-            <label className="text-[10px] font-medium text-[#0B2343]/40 mb-1.5 block">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55 mb-1.5 block">
               Current Password
             </label>
             <div className="relative">
               <Lock
                 size={14}
+                aria-hidden="true"
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25"
               />
               <input
@@ -107,6 +98,8 @@ export default function ChangePasswordModal({
               <button
                 type="button"
                 onClick={() => setShowCurrent(!showCurrent)}
+                aria-label={showCurrent ? "Hide password" : "Show password"}
+                aria-pressed={showCurrent}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25 hover:text-[#0B2343]/50"
               >
                 {showCurrent ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -116,12 +109,13 @@ export default function ChangePasswordModal({
 
           {/* New password */}
           <div>
-            <label className="text-[10px] font-medium text-[#0B2343]/40 mb-1.5 block">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55 mb-1.5 block">
               New Password
             </label>
             <div className="relative">
               <Lock
                 size={14}
+                aria-hidden="true"
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25"
               />
               <input
@@ -134,6 +128,8 @@ export default function ChangePasswordModal({
               <button
                 type="button"
                 onClick={() => setShowNew(!showNew)}
+                aria-label={showNew ? "Hide password" : "Show password"}
+                aria-pressed={showNew}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25 hover:text-[#0B2343]/50"
               >
                 {showNew ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -148,12 +144,13 @@ export default function ChangePasswordModal({
 
           {/* Confirm password */}
           <div>
-            <label className="text-[10px] font-medium text-[#0B2343]/40 mb-1.5 block">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55 mb-1.5 block">
               Confirm New Password
             </label>
             <div className="relative">
               <Lock
                 size={14}
+                aria-hidden="true"
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25"
               />
               <input
@@ -166,6 +163,8 @@ export default function ChangePasswordModal({
               <button
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
+                aria-label={showConfirm ? "Hide password" : "Show password"}
+                aria-pressed={showConfirm}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25 hover:text-[#0B2343]/50"
               >
                 {showConfirm ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -177,31 +176,29 @@ export default function ChangePasswordModal({
               </p>
             )}
           </div>
-        </div>
-
-        {/* ── Fixed footer ── */}
-        <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] flex items-center gap-2 shrink-0">
-          <button
-            onClick={onClose}
-            disabled={isPending}
-            className="flex-1 py-2.5 rounded-xl bg-[#0B2343]/[0.04] text-xs sm:text-[13px] font-medium text-[#0B2343]/50 hover:bg-[#0B2343]/[0.08] transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={!valid || isPending}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#0B2343] text-white text-xs sm:text-[13px] font-medium hover:bg-[#0B2343]/90 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-          >
-            {isPending ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : (
-              <Check size={14} />
-            )}
-            {isPending ? "Updating" : "Update Password"}
-          </button>
-        </div>
-      </div>
-    </div>
+        </form>
+      </Modal.Body>
+      <Modal.Actions>
+        <button
+          type="submit"
+          form="tutor-change-password-form"
+          disabled={!valid || isPending}
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-[#ff7c22] text-white text-sm font-bold hover:bg-[#e56a10] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22]/40 transition-colors"
+        >
+          {isPending && (
+            <Loader2 size={14} aria-hidden="true" className="animate-spin" />
+          )}
+          {isPending ? "Updating" : "Update Password"}
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={isPending}
+          className="inline-flex items-center justify-center px-4 py-2.5 min-h-[44px] rounded-xl bg-white border border-[#0B2343]/[0.12] text-[#0B2343] text-sm font-bold hover:bg-[#fafbfc] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22] focus-visible:ring-offset-2 transition-colors"
+        >
+          Cancel
+        </button>
+      </Modal.Actions>
+    </Modal>
   );
 }

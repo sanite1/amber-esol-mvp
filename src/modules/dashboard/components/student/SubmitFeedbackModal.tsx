@@ -18,9 +18,27 @@ const OPTIONS: {
   bg: string;
   border: string;
 }[] = [
-  { value: "struggling", emoji: "😣", label: "Struggling", bg: "bg-red-50", border: "border-red-200" },
-  { value: "okay", emoji: "🙂", label: "Okay", bg: "bg-amber-50", border: "border-amber-200" },
-  { value: "confident", emoji: "😊", label: "Confident", bg: "bg-emerald-50", border: "border-emerald-200" },
+  {
+    value: "struggling",
+    emoji: "😣",
+    label: "Struggling",
+    bg: "bg-red-50",
+    border: "border-red-200",
+  },
+  {
+    value: "okay",
+    emoji: "🙂",
+    label: "Okay",
+    bg: "bg-amber-50",
+    border: "border-amber-200",
+  },
+  {
+    value: "confident",
+    emoji: "😊",
+    label: "Confident",
+    bg: "bg-emerald-50",
+    border: "border-emerald-200",
+  },
 ];
 
 export default function SubmitFeedbackModal({

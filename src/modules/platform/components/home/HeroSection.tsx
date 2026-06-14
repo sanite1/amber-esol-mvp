@@ -10,8 +10,6 @@ import {
 import heroImg from "../../assets/heroImg.png";
 import { useEffect } from "react";
 
-const APP_URL = process.env.REACT_APP_DASHBOARD_URL || "";
-
 export default function HeroSection() {
   useEffect(() => {
     if (true) {
@@ -119,7 +117,7 @@ export default function HeroSection() {
                 <ArrowRight size={15} />
               </Link>
               <a
-                href={`${APP_URL}/signup`}
+                href={`/signup`}
                 className="inline-flex items-center gap-2 rounded-full border border-[#0B2343]/15 px-7 py-3.5 text-sm font-bold text-[#0B2343] transition hover:bg-[#0B2343]/[0.04]"
               >
                 Get started

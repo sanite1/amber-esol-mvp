@@ -7,22 +7,36 @@ import type { PaginatedResponse } from "../types/esol";
 export interface VocabItem {
   _id: string;
   learnerId: string;
-  orgId: string;
-  sessionId: string;
+  orgId: string | null;
+  sessionId: string | null;
   word: string;
   definition?: string;
   contextSentence?: string;
-  esolLevel: string;
-  topic?: string;
+  esolLevel: string | null;
+  topic?: string | null;
   introducedAt: string;
   revisedAt?: string;
   masteryScore?: number;
+  /** Total encounters across all sessions (spaced-repetition rollup). */
+  times_encountered?: number;
+  /** Auto-retention: ≥5 encounters AND a ≥0.7-scored turn. Sticky. */
+  retained?: boolean;
+  last_seen_at?: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
+/** Learner-wide counts — ignore the current search/filter view. */
+export interface VocabStats {
+  total: number;
+  mastered: number;
+  retained: number;
+  needs_practice: number;
+}
+
 export interface VocabListResponse extends PaginatedResponse<VocabItem> {
   vocab: VocabItem[];
+  stats?: VocabStats;
 }
 
 export interface ListVocabQuery {

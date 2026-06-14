@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { X, Lock, Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react";
+import { Lock, Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react";
+import Modal from "../../../../../components/Modal";
 
 interface Props {
   onClose: () => void;
@@ -63,39 +64,28 @@ export default function ChangePasswordModal({
   };
 
   const inputClass =
-    "w-full pl-10 pr-10 py-2.5 rounded-lg border border-[#0B2343]/[0.08] bg-[#fafbfc] text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none focus:border-[#ff7c22]/40 focus:bg-white transition-colors";
+    "block w-full rounded-xl border border-[#0B2343]/[0.12] bg-white pl-10 pr-11 py-2 min-h-[44px] text-sm text-[#0B2343] placeholder:text-[#0B2343]/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22] focus-visible:border-[#ff7c22]";
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm"
-        onClick={!isBusy ? onClose : undefined}
-      />
-
-      {/* Drawer / Modal */}
-      <div className="relative z-[10000] w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] overflow-y-auto">
-        {/* Header — sticky */}
-        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] sticky top-0 bg-white rounded-t-2xl">
-          <h3 className="text-sm sm:text-[15px] font-semibold text-[#0B2343] flex items-center gap-2">
-            <Lock size={15} className="text-[#0B2343]/30" />
-            Change Password
-          </h3>
-          {!isBusy && (
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors"
-            >
-              <X size={16} className="text-[#0B2343]/30" />
-            </button>
-          )}
-        </div>
-
+    <Modal
+      open
+      onClose={onClose}
+      title="Change Password"
+      titleId="student-change-password-title"
+      size="sm"
+      disableEscapeKey={isBusy}
+      disableBackdropClick={isBusy}
+    >
+      <Modal.Body>
         {success ? (
           /* Success view */
-          <div className="px-4 py-8 sm:px-5 text-center">
+          <div className="py-4 text-center" role="status">
             <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-3">
-              <CheckCircle2 size={24} className="text-green-500" />
+              <CheckCircle2
+                size={24}
+                aria-hidden="true"
+                className="text-green-500"
+              />
             </div>
             <p className="text-sm font-semibold text-[#0B2343] mb-1">
               Password Updated
@@ -105,160 +95,172 @@ export default function ChangePasswordModal({
             </p>
           </div>
         ) : (
-          <>
-            {/* Body */}
-            <div className="px-4 py-4 sm:px-5 sm:py-5 space-y-4">
-              {error && (
-                <div className="flex items-start gap-2.5 p-3 bg-red-50 border border-red-100 rounded-xl">
-                  <p className="text-xs text-red-600">{error}</p>
-                </div>
-              )}
-
-              {/* Current password */}
-              <div>
-                <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 mb-1.5 block">
-                  Current Password
-                </label>
-                <div className="relative">
-                  <Lock
-                    size={14}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25"
-                  />
-                  <input
-                    type={showCurrent ? "text" : "password"}
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="Enter current password"
-                    className={inputClass}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowCurrent(!showCurrent)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25 hover:text-[#0B2343]/50"
-                  >
-                    {showCurrent ? <EyeOff size={14} /> : <Eye size={14} />}
-                  </button>
-                </div>
+          <form
+            id="student-change-password-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+            className="space-y-4"
+          >
+            {error && (
+              <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                {error}
               </div>
+            )}
 
-              {/* New password */}
-              <div>
-                <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 mb-1.5 block">
-                  New Password
-                </label>
-                <div className="relative">
-                  <Lock
-                    size={14}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25"
-                  />
-                  <input
-                    type={showNew ? "text" : "password"}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Min. 8 characters"
-                    className={inputClass}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNew(!showNew)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25 hover:text-[#0B2343]/50"
-                  >
-                    {showNew ? <EyeOff size={14} /> : <Eye size={14} />}
-                  </button>
-                </div>
-                {newPassword.length > 0 && newPassword.length < 8 && (
-                  <p className="text-[10px] text-amber-500 mt-1">
-                    Must be at least 8 characters
+            {/* Current password */}
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55 mb-1.5 block">
+                Current Password
+              </label>
+              <div className="relative">
+                <Lock
+                  size={14}
+                  aria-hidden="true"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25"
+                />
+                <input
+                  type={showCurrent ? "text" : "password"}
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="Enter current password"
+                  className={inputClass}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrent(!showCurrent)}
+                  aria-label={showCurrent ? "Hide password" : "Show password"}
+                  aria-pressed={showCurrent}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25 hover:text-[#0B2343]/50"
+                >
+                  {showCurrent ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+              </div>
+            </div>
+
+            {/* New password */}
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55 mb-1.5 block">
+                New Password
+              </label>
+              <div className="relative">
+                <Lock
+                  size={14}
+                  aria-hidden="true"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25"
+                />
+                <input
+                  type={showNew ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Min. 8 characters"
+                  className={inputClass}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNew(!showNew)}
+                  aria-label={showNew ? "Hide password" : "Show password"}
+                  aria-pressed={showNew}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25 hover:text-[#0B2343]/50"
+                >
+                  {showNew ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+              </div>
+              {newPassword.length > 0 && newPassword.length < 8 && (
+                <p className="text-[10px] text-amber-500 mt-1">
+                  Must be at least 8 characters
+                </p>
+              )}
+            </div>
+
+            {/* Confirm password */}
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55 mb-1.5 block">
+                Confirm New Password
+              </label>
+              <div className="relative">
+                <Lock
+                  size={14}
+                  aria-hidden="true"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25"
+                />
+                <input
+                  type={showConfirm ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter new password"
+                  className={inputClass}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(!showConfirm)}
+                  aria-label={showConfirm ? "Hide password" : "Show password"}
+                  aria-pressed={showConfirm}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25 hover:text-[#0B2343]/50"
+                >
+                  {showConfirm ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+              </div>
+              {confirmPassword.length > 0 &&
+                confirmPassword !== newPassword && (
+                  <p className="text-[10px] text-red-500 mt-1">
+                    Passwords do not match
                   </p>
                 )}
-              </div>
+            </div>
 
-              {/* Confirm password */}
-              <div>
-                <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 mb-1.5 block">
-                  Confirm New Password
-                </label>
-                <div className="relative">
-                  <Lock
-                    size={14}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25"
-                  />
-                  <input
-                    type={showConfirm ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Re-enter new password"
-                    className={inputClass}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirm(!showConfirm)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B2343]/25 hover:text-[#0B2343]/50"
+            {/* Password requirements */}
+            {newPassword.length > 0 && (
+              <div className="p-2.5 rounded-xl bg-[#0B2343]/[0.02] space-y-1">
+                {[
+                  { met: isLongEnough, label: "At least 8 characters" },
+                  { met: hasUppercase, label: "One uppercase letter" },
+                  { met: hasNumber, label: "One number" },
+                  { met: passwordsMatch, label: "Passwords match" },
+                ].map((req) => (
+                  <div
+                    key={req.label}
+                    className={`flex items-center gap-1.5 text-[10px] sm:text-[11px] ${
+                      req.met ? "text-green-500" : "text-[#0B2343]/25"
+                    }`}
                   >
-                    {showConfirm ? <EyeOff size={14} /> : <Eye size={14} />}
-                  </button>
-                </div>
-                {confirmPassword.length > 0 &&
-                  confirmPassword !== newPassword && (
-                    <p className="text-[10px] text-red-500 mt-1">
-                      Passwords do not match
-                    </p>
-                  )}
+                    <CheckCircle2
+                      size={10}
+                      aria-hidden="true"
+                      fill={req.met ? "currentColor" : "none"}
+                    />
+                    {req.label}
+                  </div>
+                ))}
               </div>
-
-              {/* Password requirements */}
-              {newPassword.length > 0 && (
-                <div className="p-2.5 rounded-xl bg-[#0B2343]/[0.02] space-y-1">
-                  {[
-                    { met: isLongEnough, label: "At least 8 characters" },
-                    { met: hasUppercase, label: "One uppercase letter" },
-                    { met: hasNumber, label: "One number" },
-                    { met: passwordsMatch, label: "Passwords match" },
-                  ].map((req) => (
-                    <div
-                      key={req.label}
-                      className={`flex items-center gap-1.5 text-[10px] sm:text-[11px] ${
-                        req.met ? "text-green-500" : "text-[#0B2343]/25"
-                      }`}
-                    >
-                      <CheckCircle2
-                        size={10}
-                        fill={req.met ? "currentColor" : "none"}
-                      />
-                      {req.label}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] flex items-center gap-2">
-              <button
-                onClick={onClose}
-                disabled={isBusy}
-                className="flex-1 py-2.5 rounded-xl bg-[#0B2343]/[0.04] text-xs sm:text-[13px] font-medium text-[#0B2343]/50 hover:bg-[#0B2343]/[0.08] transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={!isValid || isBusy}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#ff7c22] text-white text-xs sm:text-[13px] font-medium hover:bg-[#e56a10] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                {isBusy ? (
-                  <>
-                    <Loader2 size={14} className="animate-spin" />
-                    Updating
-                  </>
-                ) : (
-                  "Update Password"
-                )}
-              </button>
-            </div>
-          </>
+            )}
+          </form>
         )}
-      </div>
-    </div>
+      </Modal.Body>
+      {!success && (
+        <Modal.Actions>
+          <button
+            type="submit"
+            form="student-change-password-form"
+            disabled={!isValid || isBusy}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-[#ff7c22] text-white text-sm font-bold hover:bg-[#e56a10] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22]/40 transition-colors"
+          >
+            {isBusy && (
+              <Loader2 size={14} aria-hidden="true" className="animate-spin" />
+            )}
+            {isBusy ? "Updating" : "Update Password"}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isBusy}
+            className="inline-flex items-center justify-center px-4 py-2.5 min-h-[44px] rounded-xl bg-white border border-[#0B2343]/[0.12] text-[#0B2343] text-sm font-bold hover:bg-[#fafbfc] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22] focus-visible:ring-offset-2 transition-colors"
+          >
+            Cancel
+          </button>
+        </Modal.Actions>
+      )}
+    </Modal>
   );
 }

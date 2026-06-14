@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Amber — Log in</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="auth">
+      <!-- LEFT: navy panel -->
+      <aside class="auth-panel" aria-hidden="true">
+        <a href="index.html" class="auth-brand">
+          <span class="mark"></span>
+          Amber
+          <span class="esol">ESOL</span>
+        </a>
+
+        <div class="auth-panel-body">
+          <p class="auth-quote">
+            ESOL provision that <em>writes its own evidence,</em> so teachers
+            can teach.
+          </p>
+          <div class="auth-cite">
+            Amber Bridge Method™ · UK funded provision
+          </div>
+
+          <div class="auth-panel-foot">
+            <span>20+ first languages</span>
+            <span>EU hosted · UK GDPR</span>
+            <span>WCAG 2.1 AA</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- RIGHT: form -->
+      <div class="auth-card-wrap">
+        <form
+          class="auth-card"
+          onsubmit="event.preventDefault();"
+          aria-label="Log in"
+        >
+          <div class="auth-head">
+            <div class="kicker"><span class="dot"></span>Sign in</div>
+            <h1>Welcome back.</h1>
+            <p>
+              Sign in to your Amber account. New here? Your provider should have
+              sent you a referral link.
+            </p>
+          </div>
+
+          <div class="field">
+            <label for="l-email">Email</label>
+            <input id="l-email" type="email" autocomplete="email" required />
+          </div>
+
+          <div class="field">
+            <label
+              for="l-pw"
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+              "
+            >
+              <span>Password</span>
+              <a
+                href="forgot-password.html"
+                style="font-size: 13px; color: var(--ink-56); font-weight: 500"
+                >Forgot password?</a
+              >
+            </label>
+            <input
+              id="l-pw"
+              type="password"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            style="width: 100%; margin-top: 8px"
+          >
+            Sign in
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </button>
+
+          <div class="auth-bottom">
+            <span
+              ><span class="label">Don't have an account?</span>
+              <a href="signup.html">Sign up</a></span
+            >
+            <span
+              ><span class="label">Got a referral code?</span>
+              <a href="signup.html">Use it here →</a></span
+            >
+          </div>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>

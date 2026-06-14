@@ -6,7 +6,6 @@ import {
   LogIn,
   GraduationCap,
   ChevronDown,
-  BookOpen,
   Users,
   Phone,
   Sparkles,
@@ -17,7 +16,9 @@ import {
 } from "lucide-react";
 import logo from "../assets/logo.png";
 
-const APP_URL = process.env.REACT_APP_DASHBOARD_URL;
+// Single-host model: /login, /signup, /contact etc. live in this
+// same React app (Auth catch-all router in routes.tsx). The legacy
+// REACT_APP_DASHBOARD_URL indirection has been removed.
 
 interface DropdownChild {
   name: string;
@@ -33,46 +34,35 @@ interface NavItem {
 }
 
 const navLinks: NavItem[] = [
-  { name: "Home", path: "/" },
   {
-    name: "Explore",
+    name: "Platform",
     path: "#",
     children: [
       {
-        name: "Find Tutors",
-        path: "/tutors",
+        name: "For Learners",
+        path: "/login",
+        icon: <GraduationCap size={20} />,
+        desc: "AI tutor in 20+ first languages",
+      },
+      {
+        name: "For Teachers",
+        path: "/login",
         icon: <Users size={20} />,
-        desc: "Browse qualified ESOL tutors",
+        desc: "Priority queue, evidence on rails",
       },
       {
-        name: "How It Works",
-        path: "/how-it-works",
-        icon: <BookOpen size={20} />,
-        desc: "Simple 3-step booking process",
-      },
-    ],
-  },
-  {
-    name: "ESOL",
-    path: "#",
-    children: [
-      {
-        name: "ESOL Programme",
-        path: "/esol",
-        icon: <Sparkles size={20} />,
-        desc: "AI-supported English for adult learners",
-      },
-      {
-        name: "For Organisations",
-        path: "/esol/for-organisations",
+        name: "For Org Admins",
+        path: "/for-organisations",
         icon: <Building2 size={20} />,
-        desc: "Managed ESOL delivery for your team",
+        desc: "ILR, RARPA and ASF evidence ready",
       },
     ],
   },
+  { name: "For Providers", path: "/for-organisations" },
+  { name: "Bridge Method", path: "/bridge-method" },
+  { name: "ROI Calculator", path: "/roi-calculator" },
   { name: "About", path: "/about" },
   { name: "Help", path: "/help" },
-  { name: "Contact", path: "/contact" },
 ];
 
 export default function Header() {
@@ -143,9 +133,16 @@ export default function Header() {
             <div className="hidden lg:flex items-center">
               {navLinks.map((link) =>
                 link.children ? (
+                  // Wrapper is presentational — the interactive surface
+                  // is the inner <button>. Mouse hover-intent is a
+                  // progressive enhancement; keyboard users open the
+                  // dropdown by tabbing to and pressing Enter on the
+                  // button, which is handled below.
+                  // eslint-disable-next-line jsx-a11y/no-static-element-interactions
                   <div
                     key={link.name}
                     className="relative"
+                    role="presentation"
                     onMouseEnter={() => handleDropdownEnter(link.name)}
                     onMouseLeave={handleDropdownLeave}
                   >
@@ -254,13 +251,13 @@ export default function Header() {
 
             {/* ─── Desktop CTAs ─── */}
             <div className="hidden lg:flex items-center gap-2">
-              <Link to={`${APP_URL}/login`}>
+              <Link to={"/login"}>
                 <button className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-[#0B2343]/70 hover:text-[#ff7c22] hover:bg-[#ff7c22]/5 rounded-lg transition-colors duration-200">
                   <LogIn size={16} />
                   Sign In
                 </button>
               </Link>
-              <Link to={`${APP_URL}/signup`}>
+              <Link to={"/signup"}>
                 <button className="inline-flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-[#ff7c22] rounded-full hover:bg-[#e56a10] transition-colors duration-200">
                   <GraduationCap size={16} />
                   Start Learning
@@ -298,9 +295,13 @@ export default function Header() {
       {/* ─── Mobile Menu ─── */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-[#0B2343]/50"
+          {/* Backdrop — real <button> so keyboard users can dismiss
+              with Enter/Space. Screen reader announces "Close menu". */}
+          <button
+            type="button"
+            className="absolute inset-0 bg-[#0B2343]/50 w-full h-full"
             onClick={() => setMobileOpen(false)}
+            aria-label="Close menu"
           />
           <div className="absolute top-0 right-0 w-full max-w-sm h-full bg-white shadow-2xl overflow-y-auto">
             <div className="flex items-center justify-between px-5 h-16 border-b border-[#0B2343]/5">
@@ -435,7 +436,7 @@ export default function Header() {
                   // {
                   //   icon: <GraduationCap size={16} />,
                   //   label: "Teach with us",
-                  //   path: `${APP_URL}/signup`,
+                  //   path: "/signup",
                   // },
                 ].map((item) => (
                   <Link
@@ -451,13 +452,13 @@ export default function Header() {
             </div>
 
             <div className="px-5 py-4 space-y-2.5">
-              <Link to={`${APP_URL}/signup`} className="block">
+              <Link to={"/signup"} className="block">
                 <button className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 text-base font-semibold text-white bg-[#ff7c22] rounded-xl hover:bg-[#e56a10] transition-colors duration-200">
                   <GraduationCap size={18} />
                   Start Learning Free
                 </button>
               </Link>
-              <Link to={`${APP_URL}/login`} className="block">
+              <Link to={"/login"} className="block">
                 <button className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 text-base font-semibold text-[#0B2343] border border-[#0B2343]/15 rounded-xl hover:border-[#ff7c22] hover:text-[#ff7c22] transition-colors duration-200">
                   <LogIn size={18} />
                   Sign In

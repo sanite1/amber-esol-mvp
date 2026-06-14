@@ -8,6 +8,7 @@ import {
   FileText,
   AlertCircle,
   Sparkles,
+  Lock,
 } from "lucide-react";
 import {
   useGetPlacementQuestions,
@@ -16,57 +17,26 @@ import {
   type OnboardingPayload,
   type OnboardingResult,
 } from "../../lib/api/esolOnboarding";
+import PasswordInput from "../../../../components/PasswordInput";
+import {
+  NATIONALITIES,
+  UK_ETHNICITY_GROUPS,
+} from "../../../../lib/data/demographics";
+import { ESOL_L1_LANGUAGES } from "../../../../lib/data/languages";
 
 // Tigrinya is excluded from MVP per the Project Silk brief —
 // no frontier LLM has confirmed reliable Tigrinya support yet.
 // Re-add in v1.1 after Tigrinya-speaking ESOL professional evaluation.
-const LANGUAGES = [
-  "Arabic",
-  "Bengali",
-  "Cantonese",
-  "Dari",
-  "Farsi",
-  "French",
-  "Gujarati",
-  "Hindi",
-  "Mandarin",
-  "Pashto",
-  "Polish",
-  "Portuguese",
-  "Punjabi",
-  "Romanian",
-  "Russian",
-  "Somali",
-  "Spanish",
-  "Tamil",
-  "Turkish",
-  "Urdu",
-  "Vietnamese",
-  "Other",
-];
+//
+// Shared with the teacher teaching-profile editor — matching compares
+// learner L1 and teacher languages verbatim, so both pickers must use
+// the same list. See src/lib/data/languages.ts.
+const LANGUAGES = ESOL_L1_LANGUAGES;
 
-const NATIONALITIES = [
-  "Afghan",
-  "Albanian",
-  "Bangladeshi",
-  "British",
-  "Chinese",
-  "Eritrean",
-  "Ethiopian",
-  "Iranian",
-  "Iraqi",
-  "Pakistani",
-  "Polish",
-  "Romanian",
-  "Somali",
-  "Sudanese",
-  "Syrian",
-  "Turkish",
-  "Ukrainian",
-  "Vietnamese",
-  "Yemeni",
-  "Other",
-];
+// NATIONALITIES + UK_ETHNICITY_GROUPS come from the shared
+// src/lib/data/demographics.ts module — the previous inline
+// 19-entry nationality shortlist forced most learners into
+// "Other", which defeats equality monitoring.
 
 interface Props {
   token: string;
@@ -225,7 +195,11 @@ export default function EsolOnboardingWizard({
       )}
 
       {step === "language" && (
-        <StepLanguage value={l1Language} onChange={setL1Language} onNext={() => l1Language && goNext("personal")} />
+        <StepLanguage
+          value={l1Language}
+          onChange={setL1Language}
+          onNext={() => l1Language && goNext("personal")}
+        />
       )}
 
       {step === "personal" && (
@@ -262,7 +236,9 @@ export default function EsolOnboardingWizard({
               !password ||
               !postcodePrior.trim()
             ) {
-              setError("Please complete all required fields, including your home postcode");
+              setError(
+                "Please complete all required fields, including your home postcode",
+              );
               return;
             }
             goNext("background");
@@ -310,7 +286,12 @@ export default function EsolOnboardingWizard({
       )}
 
       {step === "uln" && (
-        <StepUln value={uln} onChange={setUln} onBack={goBack} onNext={() => goNext("review")} />
+        <StepUln
+          value={uln}
+          onChange={setUln}
+          onBack={goBack}
+          onNext={() => goNext("review")}
+        />
       )}
 
       {step === "review" && (
@@ -426,8 +407,20 @@ function StepPersonal({
             value={email}
             disabled={emailDisabled}
             onChange={(e) => onChange("email", e.target.value)}
-            className={`${inputCls} disabled:opacity-70`}
+            aria-describedby={emailDisabled ? "email-locked-hint" : undefined}
+            className={`${inputCls} disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-[#0B2343]/[0.03]`}
           />
+          {emailDisabled && (
+            <p
+              id="email-locked-hint"
+              className="text-[11px] text-[#0B2343]/55 mt-1.5 flex items-center gap-1"
+            >
+              <Lock size={11} aria-hidden="true" />
+              This invitation was sent to this email address — it can't be
+              changed. Need a different address? Ask your organisation to send a
+              new invitation.
+            </p>
+          )}
         </Field>
         <Field label="Phone number" required>
           <input
@@ -468,27 +461,26 @@ function StepPersonal({
             className={inputCls}
           />
           <p className="text-xs text-[#0B2343]/50 mt-1.5">
-            We use this to record your funding region. If you have moved
-            since, enter the postcode where you lived when you joined
-            this programme.
+            We use this to record your funding region. If you have moved since,
+            enter the postcode where you lived when you joined this programme.
           </p>
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Password" required>
-            <input
-              type="password"
+            <PasswordInput
               value={password}
               onChange={(e) => onChange("password", e.target.value)}
               placeholder="Min. 8 characters"
               className={inputCls}
+              revealButtonTabbable
             />
           </Field>
           <Field label="Confirm password" required>
-            <input
-              type="password"
+            <PasswordInput
               value={confirmPassword}
               onChange={(e) => onChange("confirmPassword", e.target.value)}
               className={inputCls}
+              revealButtonTabbable
             />
           </Field>
         </div>
@@ -533,13 +525,24 @@ function StepBackground({
           </select>
         </Field>
         <Field label="Ethnicity (optional)">
-          <input
-            type="text"
+          {/* Grouped UK ONS categories (Census 2021) — free text
+              can't be aggregated for ILR equality monitoring. */}
+          <select
             value={ethnicity}
             onChange={(e) => onChange.ethnicity(e.target.value)}
-            placeholder="e.g. Asian British, Black African, White European"
             className={inputCls}
-          />
+          >
+            <option value="">Prefer not to say</option>
+            {UK_ETHNICITY_GROUPS.map((g) => (
+              <optgroup key={g.group} label={g.group}>
+                {g.options.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
         </Field>
         <Field label="Do you have any learning difficulties or disabilities you would like us to know about?">
           <div className="grid grid-cols-3 gap-2">
@@ -619,8 +622,8 @@ function StepDocument({
         Upload your status document
       </h2>
       <p className="text-sm text-[#0B2343]/50 mt-2">
-        Please upload a photo or PDF of your Home Office status document.
-        This helps us check your eligibility for funded learning.
+        Please upload a photo or PDF of your Home Office status document. This
+        helps us check your eligibility for funded learning.
       </p>
       <div className="mt-6">
         <label className="block">
@@ -658,7 +661,11 @@ function StepDocument({
         your eligibility. You can skip this step if you do not have your
         document with you — your account will be flagged for manual review.
       </p>
-      <NavButtons onBack={onBack} onNext={onNext} nextLabel={file ? "Continue" : "Skip & continue"} />
+      <NavButtons
+        onBack={onBack}
+        onNext={onNext}
+        nextLabel={file ? "Continue" : "Skip & continue"}
+      />
     </div>
   );
 }
@@ -694,8 +701,8 @@ function StepAssessment({
         Let's find your level
       </h2>
       <p className="text-sm text-[#0B2343]/50 mt-2">
-        Answer these questions as best you can. Don't worry if you don't know
-        an answer — you can guess or leave it blank.
+        Answer these questions as best you can. Don't worry if you don't know an
+        answer — you can guess or leave it blank.
       </p>
       <div className="mt-6 space-y-6">
         {questions.map((q: any, i: number) => (
@@ -777,8 +784,8 @@ function StepUln({
           />
         </Field>
         <p className="text-[11px] text-[#0B2343]/40 mt-2">
-          Don't have one? Visit gov.uk/education/unique-learner-number after
-          you finish onboarding.
+          Don't have one? Visit gov.uk/education/unique-learner-number after you
+          finish onboarding.
         </p>
       </div>
       <NavButtons
@@ -810,11 +817,24 @@ function StepReview({
         account and place you at the right English level.
       </p>
       <div className="mt-6 space-y-3">
-        <ReviewRow label="Name" value={`${summary.firstname} ${summary.lastname}`} />
+        <ReviewRow
+          label="Name"
+          value={`${summary.firstname} ${summary.lastname}`}
+        />
         <ReviewRow label="Email" value={summary.email} />
         <ReviewRow label="First language" value={summary.l1Language} />
-        <ReviewRow label="Status document" value={summary.documentUploaded ? "Uploaded" : "Skipped — will be flagged for manual review"} />
-        <ReviewRow label="Assessment" value={`${summary.assessmentCount} questions answered`} />
+        <ReviewRow
+          label="Status document"
+          value={
+            summary.documentUploaded
+              ? "Uploaded"
+              : "Skipped — will be flagged for manual review"
+          }
+        />
+        <ReviewRow
+          label="Assessment"
+          value={`${summary.assessmentCount} questions answered`}
+        />
       </div>
       <div className="mt-6 p-4 rounded-xl bg-blue-50/60 border border-blue-100 text-xs text-blue-900 leading-relaxed">
         By creating your account you agree to our Terms of Service and Privacy

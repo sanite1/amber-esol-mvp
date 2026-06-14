@@ -1,8 +1,20 @@
+/**
+ * Invite-a-learner modal — built on the Modal primitive so it
+ * follows the platform dialog design (portal z-100000, blur navy
+ * backdrop, mobile bottom-sheet, header divider, side-by-side
+ * actions).
+ *
+ * Two states:
+ *   1. Form — email (optional), level (optional), expiry days.
+ *   2. Success — the generated invite URL with a copy button.
+ */
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, Mail, Loader2, Copy, CheckCheck, AlertCircle } from "lucide-react";
+import { Mail, Loader2, Copy, CheckCheck, AlertCircle } from "lucide-react";
+import Modal from "../../../../components/Modal";
 import { useCreateReferral } from "../../lib/api/esolReferral";
 import { ESOL_LEVELS } from "../../lib/utils/esolHelpers";
 
@@ -34,8 +46,6 @@ export default function SendInviteModal({ open, onClose }: Props) {
     defaultValues: { expiresInDays: 30 },
   });
 
-  if (!open) return null;
-
   const onSubmit = async (data: FormData) => {
     try {
       const res = await createReferral({
@@ -45,7 +55,7 @@ export default function SendInviteModal({ open, onClose }: Props) {
       });
       setInviteUrl(res.data.inviteUrl);
     } catch {
-      // Toast handled in hook
+      // Toast handled in hook (incl. the 409 "already invited" message)
     }
   };
 
@@ -64,161 +74,176 @@ export default function SendInviteModal({ open, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-5 border-b border-[#0B2343]/[0.06]">
-          <div>
-            <h2 className="text-lg font-extrabold text-[#0B2343]">
-              Invite a learner
-            </h2>
-            <p className="text-xs text-[#0B2343]/40 mt-0.5">
-              Generate an invitation link
-            </p>
-          </div>
-          <button
-            onClick={handleClose}
-            className="p-1.5 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors"
-          >
-            <X size={18} className="text-[#0B2343]/50" />
-          </button>
-        </div>
-
-        <div className="p-6">
-          {inviteUrl ? (
-            <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-100">
-                <div className="flex items-start gap-3">
-                  <CheckCheck
-                    size={18}
-                    className="text-emerald-600 shrink-0 mt-0.5"
-                  />
-                  <div className="text-sm text-emerald-800">
-                    <p className="font-semibold">Invitation created</p>
-                    <p className="text-xs mt-1">
-                      The link below is unique to this invitation. Share it with
-                      your learner.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
-                  Invitation link
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={inviteUrl}
-                    className="flex-1 px-4 py-3 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-xs text-[#0B2343] outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleCopy}
-                    className="px-4 py-3 bg-[#ff7c22] text-white text-xs font-bold rounded-xl hover:bg-[#e56a10] transition-colors flex items-center gap-2"
-                  >
-                    {copied ? (
-                      <>
-                        <CheckCheck size={14} /> Copied
-                      </>
-                    ) : (
-                      <>
-                        <Copy size={14} /> Copy
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleClose}
-                className="w-full py-3 border border-[#0B2343]/[0.08] text-sm font-bold text-[#0B2343]/60 rounded-xl hover:bg-[#0B2343]/[0.02] transition-colors"
-              >
-                Done
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
-                  Learner email (optional)
-                </label>
-                <div className="relative">
-                  <Mail
-                    size={16}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0B2343]/25"
-                  />
-                  <input
-                    type="email"
-                    {...register("email")}
-                    placeholder="learner@example.com"
-                    className={`w-full pl-11 pr-4 py-3 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
-                      errors.email
-                        ? "border-red-300"
-                        : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
-                    }`}
-                  />
-                </div>
-                {errors.email && (
-                  <p className="text-xs text-red-500 mt-1.5 flex items-center gap-1">
-                    <AlertCircle size={12} /> {errors.email.message}
-                  </p>
-                )}
-                <p className="text-[11px] text-[#0B2343]/35 mt-1.5">
-                  If provided, the invitation email is sent automatically.
+    <Modal
+      open={open}
+      onClose={handleClose}
+      title="Invite a learner"
+      titleId="send-invite-title"
+      size="sm"
+      disableEscapeKey={isPending}
+      disableBackdropClick={isPending}
+    >
+      <Modal.Body>
+        {inviteUrl ? (
+          /* ── Success state ── */
+          <div className="space-y-4">
+            <div
+              role="status"
+              className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3"
+            >
+              <CheckCheck
+                size={18}
+                aria-hidden="true"
+                className="text-emerald-600 shrink-0 mt-0.5"
+              />
+              <div className="text-sm text-emerald-900">
+                <p className="font-bold">Invitation created</p>
+                <p className="text-xs mt-1 leading-relaxed">
+                  The link below is unique to this invitation. Share it with
+                  your learner.
                 </p>
               </div>
+            </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
-                  Assigned ESOL level (optional)
-                </label>
-                <select
-                  {...register("esolLevel")}
-                  className="w-full px-4 py-3 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] outline-none appearance-none cursor-pointer focus:border-[#ff7c22]/40 focus:bg-white transition-colors"
-                >
-                  <option value="">Set later</option>
-                  {ESOL_LEVELS.map((level) => (
-                    <option key={level} value={level}>
-                      {level}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
-                  Expires in (days)
-                </label>
+            <label className="block">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55">
+                Invitation link
+              </span>
+              <div className="flex flex-col sm:flex-row gap-2 mt-1">
                 <input
-                  type="number"
-                  {...register("expiresInDays")}
-                  min={1}
-                  max={365}
-                  className="w-full px-4 py-3 rounded-xl border border-[#0B2343]/[0.08] bg-[#fafbfc] text-sm text-[#0B2343] outline-none focus:border-[#ff7c22]/40 focus:bg-white transition-colors"
+                  type="text"
+                  readOnly
+                  value={inviteUrl}
+                  onFocus={(e) => e.target.select()}
+                  className="flex-1 min-w-0 rounded-xl border border-[#0B2343]/[0.12] bg-[#fafbfc] px-3 py-2 min-h-[44px] text-xs text-[#0B2343] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22]"
+                />
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-[#ff7c22] text-white text-xs font-bold hover:bg-[#e56a10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22]/40 transition-colors whitespace-nowrap"
+                >
+                  {copied ? (
+                    <>
+                      <CheckCheck size={14} aria-hidden="true" /> Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={14} aria-hidden="true" /> Copy
+                    </>
+                  )}
+                </button>
+              </div>
+            </label>
+          </div>
+        ) : (
+          /* ── Form state ── */
+          <form
+            id="send-invite-form"
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-4"
+          >
+            <label className="block">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55">
+                Learner email (optional)
+              </span>
+              <div className="relative mt-1">
+                <Mail
+                  size={16}
+                  aria-hidden="true"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0B2343]/30"
+                />
+                <input
+                  type="email"
+                  {...register("email")}
+                  placeholder="learner@example.com"
+                  aria-invalid={Boolean(errors.email)}
+                  className={`block w-full rounded-xl bg-white pl-10 pr-3 py-2 min-h-[44px] text-sm text-[#0B2343] placeholder:text-[#0B2343]/45 focus-visible:outline-none focus-visible:ring-2 ${
+                    errors.email
+                      ? "border border-red-300 focus-visible:ring-red-500 focus-visible:border-red-500"
+                      : "border border-[#0B2343]/[0.12] focus-visible:ring-[#ff7c22] focus-visible:border-[#ff7c22]"
+                  }`}
                 />
               </div>
+              {errors.email && (
+                <p className="text-xs text-red-600 mt-1.5 flex items-center gap-1">
+                  <AlertCircle size={12} aria-hidden="true" />{" "}
+                  {errors.email.message}
+                </p>
+              )}
+              <p className="text-[11px] text-[#0B2343]/55 mt-1.5">
+                If provided, the invitation email is sent automatically.
+              </p>
+            </label>
 
-              <button
-                type="submit"
-                disabled={isPending}
-                className="w-full py-3.5 bg-[#ff7c22] text-white text-sm font-bold rounded-xl hover:bg-[#e56a10] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+            <label className="block">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55">
+                Assigned ESOL level (optional)
+              </span>
+              <select
+                {...register("esolLevel")}
+                className="mt-1 block w-full rounded-xl border border-[#0B2343]/[0.12] bg-white px-3 py-2 min-h-[44px] text-sm text-[#0B2343] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22] focus-visible:border-[#ff7c22]"
               >
-                {isPending ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" />
-                    Generating…
-                  </>
-                ) : (
-                  "Generate invitation"
-                )}
-              </button>
-            </form>
-          )}
-        </div>
-      </div>
-    </div>
+                <option value="">Set later</option>
+                {ESOL_LEVELS.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55">
+                Expires in (days)
+              </span>
+              <input
+                type="number"
+                {...register("expiresInDays")}
+                min={1}
+                max={365}
+                className="mt-1 block w-full rounded-xl border border-[#0B2343]/[0.12] bg-white px-3 py-2 min-h-[44px] text-sm text-[#0B2343] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22] focus-visible:border-[#ff7c22]"
+              />
+            </label>
+          </form>
+        )}
+      </Modal.Body>
+      <Modal.Actions>
+        {inviteUrl ? (
+          <button
+            type="button"
+            onClick={handleClose}
+            className="inline-flex items-center justify-center px-4 py-2.5 min-h-[44px] rounded-xl bg-[#ff7c22] text-white text-sm font-bold hover:bg-[#e56a10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22]/40 transition-colors"
+          >
+            Done
+          </button>
+        ) : (
+          <>
+            <button
+              type="submit"
+              form="send-invite-form"
+              disabled={isPending}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-[#ff7c22] text-white text-sm font-bold hover:bg-[#e56a10] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22]/40 transition-colors"
+            >
+              {isPending && (
+                <Loader2
+                  size={14}
+                  aria-hidden="true"
+                  className="animate-spin"
+                />
+              )}
+              {isPending ? "Generating…" : "Generate invitation"}
+            </button>
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={isPending}
+              className="inline-flex items-center justify-center px-4 py-2.5 min-h-[44px] rounded-xl bg-white border border-[#0B2343]/[0.12] text-[#0B2343] text-sm font-bold hover:bg-[#fafbfc] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22] focus-visible:ring-offset-2 transition-colors"
+            >
+              Cancel
+            </button>
+          </>
+        )}
+      </Modal.Actions>
+    </Modal>
   );
 }

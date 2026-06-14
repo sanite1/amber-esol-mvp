@@ -1,25 +1,18 @@
-import { useEffect } from "react";
-import AOS from "aos";
-import HowItWorksHero from "../components/how-it-works/HowItWorksHero";
-import StepsSection from "../components/how-it-works/StepsSection";
-import ForStudentsSection from "../components/how-it-works/ForStudentsSection";
-import ForTutorsSection from "../components/how-it-works/ForTutorsSection";
-import PricingPreview from "../components/how-it-works/PricingPreview";
+import React from "react";
+import { Navigate } from "react-router-dom";
 
-export default function HowItWorks() {
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    AOS.refresh();
-  }, []);
+/**
+ * /how-it-works — redirect to /bridge-method.
+ *
+ * The legacy "How it works" page (marketplace booking flow) has
+ * been retired. The closest replacement is the pedagogy explainer
+ * at /bridge-method, so this route silently bounces there.
+ *
+ * Mirrors design-refs/site/how-it-works.html, which uses a
+ * meta-refresh + JS replace to send visitors to bridge-method.html.
+ */
+const HowItWorks: React.FC = () => {
+  return <Navigate to="/bridge-method" replace />;
+};
 
-  return (
-    <div>
-      <HowItWorksHero />
-      <StepsSection />
-      <ForStudentsSection />
-      <ForTutorsSection />
-      <PricingPreview />
-      {/* <HowItWorksCTA /> */}
-    </div>
-  );
-}
+export default HowItWorks;

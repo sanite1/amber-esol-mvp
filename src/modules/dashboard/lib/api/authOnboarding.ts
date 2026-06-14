@@ -35,9 +35,58 @@ import {
    Helper: persist tokens & decoded user
    ────────────────────────────────────────────── */
 
+/**
+ * Cookie scope — M0.4 (path-prefix routing model).
+ *
+ * Now that the whole ESOL platform serves from a single host
+ * (`esol.ambertraining.co.uk` in prod, `localhost:3000` in dev),
+ * we never need a cross-subdomain cookie. The default `js-cookie`
+ * behaviour — host-scoped cookies — is exactly right:
+ *
+ *   • Same browser session works across `/learner/*`, `/teacher/*`
+ *     and `/admin/*` automatically (all same-origin).
+ *   • The firstaid apex (`ambertraining.co.uk`) cannot read this
+ *     cookie — different origin, no document.cookie access.
+ *   • Local dev needs no special-casing.
+ *
+ * The `REACT_APP_COOKIE_DOMAIN` env var remains as an escape hatch
+ * for unusual staging setups (e.g. a reverse-proxy that serves two
+ * hosts) — but it is intentionally left empty in every real env.
+ */
+const cookieDomain = process.env.REACT_APP_COOKIE_DOMAIN?.trim() || undefined;
+
+/**
+ * Centralised authToken cookie removal. Cookies set with a `domain=`
+ * attribute can ONLY be removed by passing the same attribute back —
+ * a bare `Cookies.remove("authToken")` against a parent-zone cookie
+ * silently no-ops, leaving stale tokens on the user's browser. All
+ * logout paths route through this helper.
+ *
+ * Exported for use by the axios interceptor and any other auth-clearing
+ * code path outside this module.
+ */
+export const clearAuthCookie = (): void => {
+  Cookies.remove("authToken", {
+    path: "/",
+    ...(cookieDomain ? { domain: cookieDomain } : {}),
+  });
+};
+
 const persistAuth = (accessToken: string, refreshToken?: string) => {
   setAuthToken(accessToken);
-  Cookies.set("authToken", accessToken, { expires: 7, path: "/" });
+  Cookies.set("authToken", accessToken, {
+    expires: 7,
+    path: "/",
+    ...(cookieDomain ? { domain: cookieDomain } : {}),
+    // `sameSite: "lax"` keeps top-level navigations from e.g. an
+    // email link working while still blocking the cookie from
+    // cross-site POSTs. `secure` is keyed off the page's own
+    // protocol: localhost http would refuse the cookie if we set
+    // `secure: true`, while every real deploy (https) gets it.
+    sameSite: "lax",
+    secure:
+      typeof window !== "undefined" && window.location.protocol === "https:",
+  });
 
   if (refreshToken) {
     setRefreshToken(refreshToken);
@@ -260,6 +309,33 @@ export const useVerifyEmail = () => {
     },
   });
 };
+
+/* ═══════════════════════════════════════════════
+   RESEND VERIFICATION EMAIL — NOT YET AVAILABLE
+   ═══════════════════════════════════════════════
+
+   The backend does NOT currently expose a resend-verification
+   endpoint. Verified against:
+
+     amber-esol-backend/src/routes/user.routes.ts
+       — only verify endpoint is GET /users/verify/:id/:token
+     amber-esol-backend/src/services/user.service.ts
+       — no resend service exists
+
+   The original verification email is sent once by /register and
+   that's the only place. If a learner needs a new link they
+   currently have to re-register.
+
+   Backend follow-up: add POST /users/verify/resend that:
+     1. Looks up user by email (404-safe — same response either way)
+     2. Generates a new verificationToken + resets verificationToken
+        on the User doc
+     3. Re-sends the welcome mail with the new link
+     4. Returns 202 with a generic "If account exists, sent" message
+
+   Until that ships, the ConfirmEmail page's "Resend confirmation"
+   button is disabled with a tooltip explaining why.
+   */
 
 /* ═══════════════════════════════════════════════
    FORGOT PASSWORD
@@ -492,7 +568,7 @@ export const useDeleteAccount = () => {
     onSuccess: (response) => {
       // Clear all auth data
       removeAuthToken();
-      Cookies.remove("authToken");
+      clearAuthCookie();
       localStorage.removeItem("user");
 
       toast.success("Account Deleted", {
@@ -513,6 +589,6 @@ export const useDeleteAccount = () => {
 
 export const logout = () => {
   removeAuthToken();
-  Cookies.remove("authToken");
+  clearAuthCookie();
   localStorage.removeItem("user");
 };

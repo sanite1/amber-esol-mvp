@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Amber — Verifying email</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="state-switcher" role="group" aria-label="Preview states">
+      <span class="lbl">State</span>
+      <button data-state="loading" aria-pressed="true">Loading</button>
+      <button data-state="success" aria-pressed="false">Success</button>
+      <button data-state="failure" aria-pressed="false">Failure</button>
+    </div>
+
+    <main class="auth">
+      <aside class="auth-panel" aria-hidden="true">
+        <a href="index.html" class="auth-brand"
+          ><span class="mark"></span>Amber<span class="esol">ESOL</span></a
+        >
+        <div class="auth-panel-body">
+          <p class="auth-quote">Almost in. <em>Hold tight.</em></p>
+          <div class="auth-cite">Email verification · usually under 3 sec</div>
+        </div>
+      </aside>
+
+      <div class="auth-card-wrap">
+        <!-- STATE: LOADING -->
+        <div class="auth-card" data-view="loading" style="text-align: center">
+          <div class="spinner" aria-hidden="true"></div>
+          <h2 style="font-size: 24px; margin-bottom: 10px">
+            Verifying your email…
+          </h2>
+          <p style="color: var(--ink-72); font-size: 14.5px">
+            This usually takes under three seconds.
+          </p>
+        </div>
+
+        <!-- STATE: SUCCESS -->
+        <div
+          class="auth-card"
+          data-view="success"
+          hidden
+          style="text-align: center"
+        >
+          <div
+            style="
+              display: inline-grid;
+              place-items: center;
+              width: 72px;
+              height: 72px;
+              border-radius: 50%;
+              background: rgba(34, 160, 107, 0.1);
+              color: var(--green);
+              margin: 0 auto 24px;
+            "
+          >
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          </div>
+          <div
+            class="kicker"
+            style="justify-content: center; margin-bottom: 14px"
+          >
+            <span class="dot"></span>Verified
+          </div>
+          <h1 style="font-size: 38px; letter-spacing: -0.03em">You're in.</h1>
+          <p
+            style="
+              color: var(--ink-72);
+              font-size: 15.5px;
+              margin-top: 14px;
+              max-width: 32ch;
+              margin-left: auto;
+              margin-right: auto;
+            "
+          >
+            Your email is verified. We're sending you to your home now…
+          </p>
+
+          <div style="margin-top: 32px">
+            <a href="login.html" class="btn btn-primary">
+              Go to home
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </a>
+          </div>
+
+          <div
+            style="
+              margin-top: 20px;
+              font-family: var(--font-mono);
+              font-size: 11px;
+              letter-spacing: 0.1em;
+              text-transform: uppercase;
+              color: var(--ink-56);
+            "
+          >
+            Auto redirecting in 2s…
+          </div>
+        </div>
+
+        <!-- STATE: FAILURE -->
+        <div class="auth-card" data-view="failure" hidden>
+          <div class="auth-status error" role="status">
+            <span class="ic">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" x2="9" y1="9" y2="15" />
+                <line x1="9" x2="15" y1="9" y2="15" />
+              </svg>
+            </span>
+            <div class="text">
+              <strong>We couldn't verify that link.</strong>
+              Three possible reasons:
+            </div>
+          </div>
+
+          <ul
+            style="
+              list-style: none;
+              padding: 0;
+              margin: 0 0 28px;
+              font-size: 14.5px;
+              color: var(--ink-72);
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+            "
+          >
+            <li style="display: flex; gap: 12px; align-items: flex-start">
+              <span
+                style="
+                  font-family: var(--font-mono);
+                  font-size: 11px;
+                  color: var(--orange);
+                  font-weight: 600;
+                  padding: 2px 8px;
+                  background: rgba(255, 124, 34, 0.1);
+                  border-radius: 4px;
+                "
+                >01</span
+              >
+              <span
+                ><strong style="color: var(--ink)">Expired.</strong>
+                Verification links work for 24 hours.</span
+              >
+            </li>
+            <li style="display: flex; gap: 12px; align-items: flex-start">
+              <span
+                style="
+                  font-family: var(--font-mono);
+                  font-size: 11px;
+                  color: var(--orange);
+                  font-weight: 600;
+                  padding: 2px 8px;
+                  background: rgba(255, 124, 34, 0.1);
+                  border-radius: 4px;
+                "
+                >02</span
+              >
+              <span
+                ><strong style="color: var(--ink)">Already used.</strong> Each
+                link works once.</span
+              >
+            </li>
+            <li style="display: flex; gap: 12px; align-items: flex-start">
+              <span
+                style="
+                  font-family: var(--font-mono);
+                  font-size: 11px;
+                  color: var(--orange);
+                  font-weight: 600;
+                  padding: 2px 8px;
+                  background: rgba(255, 124, 34, 0.1);
+                  border-radius: 4px;
+                "
+                >03</span
+              >
+              <span
+                ><strong style="color: var(--ink)">Malformed.</strong> The link
+                may have been broken in your email client.</span
+              >
+            </li>
+          </ul>
+
+          <button type="button" class="btn btn-primary" style="width: 100%">
+            Send a new verification email
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </button>
+
+          <div class="auth-bottom">
+            <a href="login.html" class="back">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M19 12H5" />
+                <path d="m12 19-7-7 7-7" />
+              </svg>
+              Back to login
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const btns = document.querySelectorAll(".state-switcher button");
+      const views = document.querySelectorAll("[data-view]");
+      btns.forEach((b) =>
+        b.addEventListener("click", () => {
+          btns.forEach((x) =>
+            x.setAttribute("aria-pressed", x === b ? "true" : "false"),
+          );
+          views.forEach((v) => (v.hidden = v.dataset.view !== b.dataset.state));
+        }),
+      );
+    </script>
+  </body>
+</html>

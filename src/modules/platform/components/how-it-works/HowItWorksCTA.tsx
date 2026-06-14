@@ -2,8 +2,6 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
 export default function HowItWorksCTA() {
-  const APP_URL = process.env.REACT_APP_DASHBOARD_URL;
-
   return (
     <section className="py-16 lg:py-20 bg-white">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
@@ -47,13 +45,13 @@ export default function HowItWorksCTA() {
             </p>
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
-                to={`${APP_URL}/signup`}
+                to={`/signup`}
                 className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#ff7c22] text-white text-sm font-bold rounded-full hover:bg-[#e56a10] transition-colors"
               >
                 Start Learning Free <ArrowRight size={16} />
               </Link>
               <Link
-                to={`${APP_URL}/signup`}
+                to={`/signup`}
                 className="inline-flex items-center gap-2 px-6 py-3.5 text-white/60 text-sm font-medium border border-white/15 rounded-full hover:bg-white/[0.06] transition-colors"
               >
                 Apply as a Tutor

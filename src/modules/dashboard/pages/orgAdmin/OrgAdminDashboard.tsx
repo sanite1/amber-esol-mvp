@@ -6,10 +6,12 @@ import {
   GraduationCap,
   ArrowRight,
   TrendingUp,
+  ShieldAlert,
 } from "lucide-react";
 import { useListLearners } from "../../lib/api/esolLearner";
 import { useListReferrals } from "../../lib/api/esolReferral";
 import { useListSessions } from "../../lib/api/esolSession";
+import { useOrgAdminSafeguardingCount } from "../../lib/api/esolSafeguarding";
 import { getDecodedJwt } from "../../lib/auth";
 
 export default function OrgAdminDashboard() {
@@ -28,6 +30,13 @@ export default function OrgAdminDashboard() {
   const learnerCount = learnersData?.data?.pagination?.total ?? 0;
   const activeInviteCount = referralsData?.data?.pagination?.total ?? 0;
   const sessionCount = sessionsData?.data?.pagination?.total ?? 0;
+
+  // Org admins are intentionally blind to per-alert detail — they
+  // get a single number from /api/org-admin/safeguarding/count and
+  // escalate through Amber when it's non-zero. See the API hook
+  // file for the privacy rationale.
+  const { data: safeguardingData } = useOrgAdminSafeguardingCount();
+  const openSafeguardingCount = safeguardingData?.data?.open ?? 0;
 
   const cards = [
     {
@@ -67,6 +76,41 @@ export default function OrgAdminDashboard() {
           Here's what's happening with your ESOL programme today.
         </p>
       </div>
+
+      {/* F5.3 — Safeguarding count banner.
+          Renders only when there are open alerts. Org admins see ONLY
+          the count by design (backend withholds learner names,
+          categories, and per-alert detail) — escalation routes through
+          Amber's DSL via the email we pre-cache on every flagged turn. */}
+      {openSafeguardingCount > 0 && (
+        <div
+          role="alert"
+          className="flex items-start gap-4 p-5 rounded-2xl bg-red-50 border border-red-200"
+        >
+          <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
+            <ShieldAlert size={18} className="text-red-700" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-extrabold text-red-900">
+              {openSafeguardingCount} open safeguarding{" "}
+              {openSafeguardingCount === 1 ? "alert" : "alerts"} in your cohort
+            </p>
+            <p className="text-xs text-red-800/80 mt-1 leading-relaxed">
+              Amber's DSL inbox has been notified for each one. Per statutory
+              safeguarding policy, per-alert detail is held by Amber's DSL —
+              your org-admin role doesn't grant learner-level visibility. If you
+              need to follow up, contact{" "}
+              <a
+                href="mailto:dsl@amberesol.co.uk"
+                className="font-bold text-red-900 underline"
+              >
+                dsl@amberesol.co.uk
+              </a>
+              .
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -2,8 +2,6 @@ import { Link } from "react-router-dom";
 import { ArrowRight, PlayCircle } from "lucide-react";
 
 export default function HowItWorksHero() {
-  const APP_URL = process.env.REACT_APP_DASHBOARD_URL;
-
   return (
     <section className="relative bg-[#0B2343] pt-32 pb-20 overflow-hidden">
       <div
@@ -62,7 +60,7 @@ export default function HowItWorksHero() {
           className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3"
         >
           <Link
-            to={`${APP_URL}/signup`}
+            to={`/signup`}
             className="inline-flex items-center gap-2 px-7 py-3.5 bg-[#ff7c22] text-white text-sm font-bold rounded-full hover:bg-[#e56a10] transition-colors"
           >
             Get Started Free <ArrowRight size={16} />

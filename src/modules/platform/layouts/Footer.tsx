@@ -1,260 +1,179 @@
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  Mail,
-  Phone,
-  MapPin,
-  ArrowRight,
-  ArrowUpRight,
-  Instagram,
-  Linkedin,
-  GraduationCap,
-  Globe,
-  Clock,
-  ShieldCheck,
-} from "lucide-react";
-import logo from "../assets/logo.png";
+import { toast } from "sonner";
 
-const APP_URL = process.env.REACT_APP_DASHBOARD_URL;
-const footerSections = [
-  {
-    title: "Platform",
-    links: [
-      { name: "Find Tutors", path: "/tutors" },
-      { name: "How It Works", path: "/how-it-works" },
-      // { name: "Pricing", path: "/pricing" },
-      { name: "Become a Tutor", path: `${APP_URL}/signup/tutor` },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { name: "About Us", path: "/about" },
-      { name: "Contact", path: "/contact" },
-      { name: "Help Centre", path: "/help" },
-      { name: "Blogs", path: "/blogs" },
-    ],
-  },
-];
+/**
+ * Marketing-shell footer.
+ *
+ * Matches design-refs/site/index.html — editorial layout with a
+ * giant "Amber." mark, four link columns, a "twenty minutes" CTA
+ * with email capture, and the legal base strip.
+ */
+const Footer: React.FC = () => {
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-const socialLinks = [
-  {
-    icon: <Instagram size={18} />,
-    href: "https://www.instagram.com/ambertraining_/?hl=en",
-    label: "Instagram",
-  },
-  {
-    icon: <Linkedin size={18} />,
-    href: "https://www.linkedin.com/company/ambertraining/about/",
-    label: "LinkedIn",
-  },
-];
+  const handleSubscribe = (e: React.FormEvent): void => {
+    e.preventDefault();
+    if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      toast.error("Please enter a valid work email.");
+      return;
+    }
+    setSubmitting(true);
+    // Newsletter endpoint will be wired in M2. Confirm receipt for now.
+    setTimeout(() => {
+      toast.success("You're on the list. Expect quarterly notes only.");
+      setEmail("");
+      setSubmitting(false);
+    }, 400);
+  };
 
-const trustBadges = [
-  { icon: <ShieldCheck size={18} />, text: "Verified Tutors" },
-  { icon: <Clock size={18} />, text: "Flexible Scheduling" },
-  { icon: <Globe size={18} />, text: "Learn from Anywhere" },
-  { icon: <GraduationCap size={18} />, text: "CELTA/TEFL Certified" },
-];
-
-export default function Footer() {
   return (
-    <footer className="bg-[#0B2343] text-white">
-      {/* ─── CTA Banner ─── */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative -top-8">
-          <div className="relative overflow-hidden rounded-2xl bg-[#ff7c22] px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
-            <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/10" />
-            <div className="absolute -bottom-16 -left-8 w-40 h-40 rounded-full bg-white/[0.07]" />
-
-            <div className="relative flex flex-col lg:flex-row items-center justify-between gap-6">
-              <div className="text-center lg:text-left">
-                <h3 className="text-2xl lg:text-3xl font-bold text-white">
-                  Ready to improve your English?
-                </h3>
-                <p className="text-white/80 mt-2 text-base lg:text-lg max-w-lg">
-                  Join hundreds of learners already building confidence with
-                  expert ESOL tutors.
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
-                <Link
-                  to={`${APP_URL}/signup/student`}
-                  className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-white text-[#ff7c22] font-bold text-base rounded-full hover:bg-white/90 transition-colors duration-200"
-                >
-                  Start Learning Free
-                  <ArrowRight size={18} />
-                </Link>
-                <Link
-                  to="/tutors"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 text-white/90 font-medium text-sm border border-white/25 rounded-full hover:bg-white/10 hover:border-white/40 transition-colors duration-200"
-                >
-                  Browse Tutors
-                </Link>
-              </div>
+    <footer className="footer" role="contentinfo">
+      <div className="container">
+        <div className="footer-top">
+          <div>
+            <div className="footer-mark">
+              Amber<span>.</span>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ─── Trust Badges ─── */}
-      <div className="border-b border-white/[0.06]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-10">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-            {trustBadges.map((badge) => (
-              <div
-                key={badge.text}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.06]"
-              >
-                <span className="text-[#ff7c22]">{badge.icon}</span>
-                <span className="text-sm font-medium text-white/70">
-                  {badge.text}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ─── Main Grid ─── */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
-          {/* Brand */}
-          <div className="lg:col-span-5">
-            <Link to="/" className="inline-block">
-              <img
-                src={logo}
-                alt="Amber ESOL"
-                className="h-10 w-auto brightness-0 invert"
-                loading="lazy"
-              />
-            </Link>
-            <p className="mt-5 text-sm text-white/40 leading-relaxed max-w-xs">
-              Connecting English learners with expert tutors across the UK. Part
-              of Amber Training, trusted in professional development since 2015.
-            </p>
-
-            <div className="mt-6 space-y-3">
-              <a
-                href="mailto:hello@ambertraining.co.uk"
-                className="flex items-center gap-3 text-sm text-white/40 hover:text-[#ff7c22] transition-colors group"
-              >
-                <span className="w-8 h-8 rounded-lg bg-white/[0.05] flex items-center justify-center group-hover:bg-[#ff7c22]/10 transition-colors">
-                  <Mail size={14} />
-                </span>
-                hello@ambertraining.co.uk
-              </a>
-              <a
-                href="tel:+447763658885"
-                className="flex items-center gap-3 text-sm text-white/40 hover:text-[#ff7c22] transition-colors group"
-              >
-                <span className="w-8 h-8 rounded-lg bg-white/[0.05] flex items-center justify-center group-hover:bg-[#ff7c22]/10 transition-colors">
-                  <Phone size={14} />
-                </span>
-                +44 7763 658885
-              </a>
-              <div className="flex items-center gap-3 text-sm text-white/40">
-                <span className="w-8 h-8 rounded-lg bg-white/[0.05] flex items-center justify-center">
-                  <MapPin size={14} />
-                </span>
-                London, United Kingdom
-              </div>
+            <div className="footer-meta">
+              <span>UK ESOL platform</span>
+              <span>Est. 2025</span>
+              <span>London</span>
             </div>
           </div>
 
-          {/* Link Columns */}
-          {footerSections.map((section) => (
-            <div key={section.title} className="lg:col-span-2">
-              <h4 className="text-xs font-bold text-white/60 uppercase tracking-[0.15em]">
-                {section.title}
-              </h4>
-              <ul className="mt-5 space-y-3">
-                {section.links.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      to={link.path}
-                      className="group inline-flex items-center gap-1 text-sm text-white/35 hover:text-white transition-colors duration-200"
-                    >
-                      {link.name}
-                      <ArrowUpRight
-                        size={12}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      />
-                    </Link>
-                  </li>
-                ))}
+          <div className="footer-cols">
+            <div>
+              <h5>Platform</h5>
+              <ul>
+                <li>
+                  <Link to="/login">For Learners</Link>
+                </li>
+                <li>
+                  <Link to="/login">For Teachers</Link>
+                </li>
+                <li>
+                  <Link to="/for-organisations">For Org Admins</Link>
+                </li>
+                <li>
+                  <Link to="/bridge-method">Bridge Method</Link>
+                </li>
               </ul>
             </div>
-          ))}
+            <div>
+              <h5>Company</h5>
+              <ul>
+                <li>
+                  <Link to="/about">About</Link>
+                </li>
+                <li>
+                  <Link to="/roi-calculator">ROI calculator</Link>
+                </li>
+                <li>
+                  <Link to="/help">Help centre</Link>
+                </li>
+                <li>
+                  <Link to="/contact">Contact</Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h5>Compliance</h5>
+              <ul>
+                <li>
+                  <Link to="/help">ILR export spec</Link>
+                </li>
+                <li>
+                  <Link to="/bridge-method">RARPA framework</Link>
+                </li>
+                <li>
+                  <Link to="/help">ASF GLH guide</Link>
+                </li>
+                <li>
+                  <Link to="/contact">Safeguarding policy</Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h5>Get in touch</h5>
+              <ul>
+                <li>
+                  <a href="mailto:hello@amberesol.co.uk">
+                    hello@amberesol.co.uk
+                  </a>
+                </li>
+                <li>
+                  <a href="tel:+442079460000">020 7946 0000</a>
+                </li>
+                <li>
+                  <Link to="/contact">DSL escalation</Link>
+                </li>
+                <li>
+                  <Link to="/contact">Press &amp; partnerships</Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
 
-          {/* Newsletter */}
-          <div className="lg:col-span-3">
-            <h4 className="text-xs font-bold text-white/60 uppercase tracking-[0.15em]">
-              Stay Updated
-            </h4>
-            <p className="mt-5 text-sm text-white/35">
-              Tips, resources, and platform updates in your inbox.
-            </p>
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="mt-4 space-y-2.5"
+        <div className="footer-mid">
+          <h3>
+            Twenty minutes can save your team{" "}
+            <em>months of compliance work.</em>
+          </h3>
+          <form
+            className="form"
+            onSubmit={handleSubscribe}
+            aria-label="Newsletter signup"
+          >
+            <label htmlFor="newsletter-email" className="amber-sr-only">
+              Work email
+            </label>
+            <input
+              id="newsletter-email"
+              type="email"
+              placeholder="you@provider.org.uk"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={submitting}
             >
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="w-full px-4 py-2.5 text-base lg:text-sm bg-white/[0.06] border border-white/[0.08] rounded-xl text-white placeholder-white/25 focus:outline-none focus:border-[#ff7c22]/50 transition-colors duration-200"
-              />
-              <button
-                type="submit"
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-[#ff7c22] rounded-xl hover:bg-[#e56a10] transition-colors duration-200"
-              >
-                Subscribe
-                <ArrowRight size={14} />
-              </button>
-            </form>
+              {submitting ? "Sending…" : "Subscribe"}
+            </button>
+          </form>
+        </div>
 
-            <div className="mt-8 flex items-center gap-2">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={social.label}
-                  className="w-9 h-9 rounded-lg bg-white/[0.05] flex items-center justify-center text-white/40 hover:bg-[#ff7c22] hover:text-white transition-colors duration-200"
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
-          </div>
+        <div className="footer-base">
+          <span>
+            © {new Date().getFullYear()} Amber Training Ltd · Registered in
+            England &amp; Wales · Company 09xxxxxx
+          </span>
+          <span className="legals">
+            <Link to="/privacy">Privacy</Link>
+            <Link to="/terms">Terms</Link>
+            <Link to="/privacy">Cookies</Link>
+            <Link to="/help">Accessibility</Link>
+          </span>
         </div>
       </div>
 
-      {/* ─── Bottom Bar ─── */}
-      <div className="border-t border-white/[0.06]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <span className="text-xs text-white/25">
-              © {new Date().getFullYear()} Amber Training Ltd. All rights
-              reserved.
-            </span>
-            <div className="flex items-center gap-6">
-              {[
-                { name: "Privacy", path: "/privacy" },
-                { name: "Terms", path: "/terms" },
-              ].map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  className="text-xs text-white/25 hover:text-white/50 transition-colors"
-                >
-                  {link.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Screen-reader-only utility (used by the newsletter label) */}
+      <style>{`
+        .amber-sr-only {
+          position: absolute;
+          width: 1px; height: 1px;
+          padding: 0; margin: -1px;
+          overflow: hidden; clip: rect(0, 0, 0, 0);
+          white-space: nowrap; border: 0;
+        }
+      `}</style>
     </footer>
   );
-}
+};
+
+export default Footer;

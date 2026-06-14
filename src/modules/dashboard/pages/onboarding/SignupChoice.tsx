@@ -1,169 +1,159 @@
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
-import {
-  ArrowRight,
-  Sparkles,
-  Globe,
-  ShieldCheck,
-  BookOpen,
-  Mail,
-} from "lucide-react";
-import logo from "../../assets/logo.png";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
-const FRONTEND_URL = process.env.REACT_APP_FRONTEND_URL;
-
+/**
+ * /signup — referral entry.
+ *
+ * Visual port of design-refs/site/signup.html. Primary path is for
+ * learners arriving via a provider referral link: paste code + email
+ * → /join?token=CODE. A footer link routes pre-pivot students to the
+ * legacy /signup/student form.
+ */
 export default function SignupChoice() {
+  const navigate = useNavigate();
+  const [code, setCode] = useState("");
+  const [email, setEmail] = useState("");
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  const handleSubmit = (e: React.FormEvent): void => {
+    e.preventDefault();
+    if (!code.trim()) return;
+    const params = new URLSearchParams({ token: code.trim() });
+    if (email.trim()) params.set("email", email.trim());
+    navigate(`/join?${params.toString()}`);
+  };
+
   return (
-    <div className="min-h-screen">
-      {/* Left panel */}
-      <div className="hidden lg:flex fixed top-0 left-0 w-[42%] h-screen bg-[#0B2343] z-10">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(ellipse at 20% 80%, rgba(255,124,34,0.12) 0%, transparent 50%)",
-          }}
-        />
-        <div className="relative flex flex-col justify-between p-12 xl:p-16 w-full">
-          <Link to={FRONTEND_URL || "/"}>
-            <img
-              src={logo}
-              alt="Amber Training"
-              className="h-10 w-auto brightness-0 invert"
-            />
+    <div className="amber-platform">
+      <main className="auth">
+        {/* LEFT — navy panel */}
+        <aside className="auth-panel" aria-hidden="true">
+          <Link to="/" className="auth-brand">
+            <span className="mark" />
+            Amber
+            <span className="esol">ESOL</span>
           </Link>
 
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] mb-5">
-              <Sparkles size={12} className="text-[#ff7c22]" />
-              <span className="text-[11px] font-semibold text-white/60 uppercase tracking-wider">
-                The Amber Bridge Method™
+          <div className="auth-panel-body">
+            <p className="auth-quote">
+              Learn English in the language <em>you already think in.</em>
+            </p>
+            <div className="auth-cite">
+              Amber Bridge Method™ · UK adult ESOL
+            </div>
+
+            <div className="auth-panel-foot">
+              <span>20+ first languages</span>
+              <span>Your data stays in the UK</span>
+            </div>
+          </div>
+        </aside>
+
+        {/* RIGHT — form */}
+        <div className="auth-card-wrap">
+          <form
+            className="auth-card"
+            onSubmit={handleSubmit}
+            aria-label="Sign up"
+          >
+            <div className="auth-head">
+              <div className="kicker">
+                <span className="dot" />
+                Sign up · referral
+              </div>
+              <h1>Set up your account.</h1>
+              <p>
+                Welcome. We'll walk you through three quick steps to get you
+                onto the platform.
+              </p>
+            </div>
+
+            <div className="steps-explainer" aria-label="Signup steps">
+              <div className="step">
+                <span className="n">1</span>
+                <span className="l">
+                  Enter your referral code from your provider
+                </span>
+              </div>
+              <div className="step">
+                <span className="n">2</span>
+                <span className="l">Verify your details</span>
+              </div>
+              <div className="step">
+                <span className="n">3</span>
+                <span className="l">Take your placement test</span>
+              </div>
+            </div>
+
+            <div className="field">
+              <label htmlFor="s-code">
+                Referral code <span className="req">*</span>
+              </label>
+              <input
+                id="s-code"
+                type="text"
+                placeholder="e.g. BHM-COUNCIL-2026"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                required
+              />
+              <span className="hint">
+                Find this in the invitation email from your provider.
               </span>
             </div>
-            <h2 className="text-3xl xl:text-[38px] font-extrabold text-white leading-tight tracking-tight">
-              English in your
-              <br />
-              own language
-              <span className="text-[#ff7c22]">.</span>
-            </h2>
-            <p className="text-sm text-white/45 mt-4 leading-relaxed max-w-sm">
-              The only ESOL platform in the UK that teaches in your first
-              language — bridging into English at your pace.
-            </p>
-            <div className="mt-6 space-y-2.5">
-              {[
-                { icon: Globe, text: "Bilingual AI tutor — 20+ languages" },
-                { icon: BookOpen, text: "Practical UK scenarios — GP, work, housing" },
-                { icon: ShieldCheck, text: "Safe, GDPR-compliant, EU-hosted" },
-              ].map((item) => (
-                <div
-                  key={item.text}
-                  className="flex items-center gap-3 text-sm text-white/40"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-white/[0.05] flex items-center justify-center shrink-0">
-                    <item.icon size={14} className="text-[#ff7c22]" />
-                  </div>
-                  {item.text}
-                </div>
-              ))}
-            </div>
-          </div>
 
-          <p className="text-[11px] text-white/25">
-            &copy; {new Date().getFullYear()} Amber Training Ltd
-          </p>
+            <div className="field">
+              <label htmlFor="s-email">
+                Email <span className="req">*</span>
+              </label>
+              <input
+                id="s-email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary"
+              style={{ width: "100%", marginTop: 8 }}
+            >
+              Continue
+              <ArrowRight />
+            </button>
+
+            <div
+              style={{
+                marginTop: 18,
+                fontSize: 13,
+                color: "var(--ink-56)",
+                textAlign: "center",
+              }}
+            >
+              Need this in another language? Look for the translate button
+              bottom right.
+            </div>
+
+            <div className="auth-bottom">
+              <span>
+                <span className="label">Already have an account?</span>{" "}
+                <Link to="/login">Sign in</Link>
+              </span>
+              <span>
+                <span className="label">No referral code?</span>{" "}
+                <Link to="/signup/student">Use legacy signup →</Link>
+              </span>
+            </div>
+          </form>
         </div>
-      </div>
-
-      {/* Right panel */}
-      <div className="min-h-screen bg-white lg:ml-[42%]">
-        <div className="lg:hidden fixed top-0 inset-x-0 z-20 flex items-center justify-between p-5 bg-white border-b border-[#0B2343]/[0.05]">
-          <Link to={FRONTEND_URL || "/"}>
-            <img src={logo} alt="Amber Training" className="h-8 w-auto" />
-          </Link>
-          <Link
-            to="/login"
-            className="text-xs font-bold text-[#ff7c22] hover:underline"
-          >
-            Sign in
-          </Link>
-        </div>
-        <div className="lg:hidden h-16" />
-
-        <div className="flex justify-center px-6 sm:px-10 xl:px-16 py-12 lg:py-16">
-          <div className="w-full max-w-[480px]">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B2343] tracking-tight">
-              Get started
-            </h1>
-            <p className="text-sm text-[#0B2343]/40 mt-2">
-              How would you like to begin?
-            </p>
-
-            {/* Primary CTA — ESOL learner with invitation */}
-            <div className="mt-8 p-6 rounded-2xl bg-gradient-to-br from-[#fef3c7]/40 to-[#fafbfc] border-2 border-[#ff7c22]/30">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff7c22] text-white text-[10px] font-bold uppercase tracking-wider mb-3">
-                <Sparkles size={11} /> Recommended
-              </div>
-              <h2 className="text-lg font-extrabold text-[#0B2343]">
-                I have an invitation from an organisation
-              </h2>
-              <p className="text-xs text-[#0B2343]/55 mt-2 leading-relaxed">
-                If a college, charity, council, or employer has invited you to
-                learn English with Amber, please open the invitation email and
-                click the link inside to begin your placement.
-              </p>
-              <p className="text-[11px] text-[#0B2343]/40 mt-3">
-                Lost your invitation? Ask your case worker or contact us.
-              </p>
-            </div>
-
-            {/* Secondary — self-paid student via marketplace */}
-            <div className="mt-6 p-6 rounded-2xl bg-white border border-[#0B2343]/[0.08]">
-              <h2 className="text-base font-extrabold text-[#0B2343]">
-                I want a 1-to-1 tutor
-              </h2>
-              <p className="text-xs text-[#0B2343]/55 mt-2 leading-relaxed">
-                Browse our marketplace of qualified tutors for private
-                lessons. Pay-per-lesson, book around your schedule.
-              </p>
-              <Link
-                to="/signup/student"
-                className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 bg-[#0B2343] text-white text-xs font-bold rounded-xl hover:bg-[#1a3865] transition-colors"
-              >
-                Create student account <ArrowRight size={12} />
-              </Link>
-            </div>
-
-            {/* Tutor application — small text link only */}
-            <div className="mt-6 pt-6 border-t border-[#0B2343]/[0.04]">
-              <p className="text-xs text-[#0B2343]/40 text-center">
-                Are you a qualified ESOL or English tutor?{" "}
-                <Link
-                  to="/contact"
-                  className="text-[#ff7c22] font-bold hover:underline inline-flex items-center gap-1"
-                >
-                  <Mail size={11} />
-                  Get in touch
-                </Link>
-              </p>
-            </div>
-
-            <p className="text-center text-sm text-[#0B2343]/40 mt-8">
-              Already have an account?{" "}
-              <Link
-                to="/login"
-                className="text-[#ff7c22] font-bold hover:underline"
-              >
-                Sign in
-              </Link>
-            </p>
-          </div>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

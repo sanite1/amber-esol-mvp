@@ -9,8 +9,6 @@ import {
 } from "lucide-react";
 
 export default function HowItWorksSection() {
-  const APP_URL = process.env.REACT_APP_DASHBOARD_URL;
-
   return (
     <section className="py-16 lg:py-20 bg-[#fafbfc] relative overflow-hidden">
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -323,7 +321,7 @@ export default function HowItWorksSection() {
           className="mt-12 text-center"
         >
           <Link
-            to={`${APP_URL}/signup`}
+            to={`/signup`}
             className="group inline-flex items-center gap-2.5 px-8 py-4 text-base font-bold text-white bg-[#ff7c22] rounded-full hover:bg-[#e56a10] hover:shadow-[0_0_40px_rgba(255,124,34,0.3)] hover:-translate-y-0.5 transition-all duration-300"
           >
             Get Started, It's Free

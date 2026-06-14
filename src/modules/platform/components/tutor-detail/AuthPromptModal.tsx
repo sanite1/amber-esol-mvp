@@ -3,8 +3,6 @@ import { X, LogIn, GraduationCap, Lock, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-const APP_URL = process.env.REACT_APP_DASHBOARD_URL;
-
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -88,13 +86,13 @@ export default function AuthPromptModal({ isOpen, onClose, action }: Props) {
 
           {/* Buttons */}
           <div className="mt-7 space-y-3">
-            <Link to={`${APP_URL}/signup`} onClick={onClose} className="block">
+            <Link to={`/signup`} onClick={onClose} className="block">
               <button className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#ff7c22] text-white text-sm font-bold rounded-full hover:bg-[#e56a10] hover:shadow-lg hover:shadow-[#ff7c22]/25 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
                 <GraduationCap size={16} />
                 Create Free Account
               </button>
             </Link>
-            <Link to={`${APP_URL}/login`} onClick={onClose} className="block">
+            <Link to={`/login`} onClick={onClose} className="block">
               <button className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm font-semibold text-[#0B2343]/70 border border-[#0B2343]/[0.08] rounded-full hover:text-[#ff7c22] hover:border-[#ff7c22]/20 hover:bg-[#ff7c22]/[0.03] transition-all duration-200">
                 <LogIn size={16} />
                 Already have an account? Sign In

@@ -1,13 +1,6 @@
-import React, { useState } from "react";
-import {
-  X,
-  Eye,
-  EyeOff,
-  Loader2,
-  AlertCircle,
-  Check,
-  Lock,
-} from "lucide-react";
+import { useState } from "react";
+import { Eye, EyeOff, Loader2, AlertCircle, Check } from "lucide-react";
+import Modal from "../../../../../components/Modal";
 
 interface Props {
   onClose: () => void;
@@ -56,10 +49,10 @@ export default function AdminChangePasswordModal({ onClose, onSave }: Props) {
   }
 
   const inputClass = (field: string) =>
-    `w-full pl-3 pr-10 py-2.5 rounded-xl border text-base lg:text-sm text-[#0B2343] bg-[#fafbfc] focus:outline-none transition-colors ${
+    `block w-full rounded-xl bg-white px-3 pr-11 py-2 min-h-[44px] text-sm text-[#0B2343] placeholder:text-[#0B2343]/45 focus-visible:outline-none focus-visible:ring-2 ${
       errors[field]
-        ? "border-red-300 focus:border-red-400"
-        : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/30"
+        ? "border border-red-300 focus-visible:ring-red-500 focus-visible:border-red-500"
+        : "border border-[#0B2343]/[0.12] focus-visible:ring-[#ff7c22] focus-visible:border-[#ff7c22]"
     }`;
 
   function Chip({ met, label }: { met: boolean; label: string }) {
@@ -71,170 +64,168 @@ export default function AdminChangePasswordModal({ onClose, onSave }: Props) {
             : "bg-[#0B2343]/[0.04] text-[#0B2343]/40"
         }`}
       >
-        {met ? <Check size={9} /> : null}
+        {met ? <Check size={9} aria-hidden="true" /> : null}
         {label}
       </span>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
-      {/* Backdrop — fixed & full-viewport */}
-      <div
-        className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* Drawer / Modal panel */}
-      <div className="relative z-[10000] w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] flex flex-col">
-        {/* Header — pinned */}
-        <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-[#0B2343]/[0.06] rounded-t-2xl">
-          <h3 className="text-sm sm:text-[15px] font-semibold text-[#0B2343] flex items-center gap-2">
-            <Lock size={16} className="text-[#0B2343]/50" />
-            Change Password
-          </h3>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors shrink-0"
-          >
-            <X size={16} className="text-[#0B2343]/30" />
-          </button>
-        </div>
-
-        {/* Body — scrollable */}
-        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5">
-          {success ? (
-            <div className="text-center py-6">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto mb-3">
-                <Check size={24} className="text-emerald-500" />
-              </div>
-              <p className="text-sm font-semibold text-[#0B2343] mb-1">
-                Password Changed
-              </p>
-              <p className="text-xs text-[#0B2343]/50">
-                Your password has been updated successfully.
-              </p>
+    <Modal
+      open
+      onClose={onClose}
+      title="Change Password"
+      titleId="admin-change-password-title"
+      size="sm"
+      disableEscapeKey={saving}
+      disableBackdropClick={saving}
+    >
+      <Modal.Body>
+        {success ? (
+          <div className="text-center py-6" role="status">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto mb-3">
+              <Check
+                size={24}
+                aria-hidden="true"
+                className="text-emerald-500"
+              />
             </div>
-          ) : (
-            <div className="space-y-3">
-              {/* Current */}
-              <div>
-                <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 mb-1.5 block">
-                  Current Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showCurrent ? "text" : "password"}
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    className={inputClass("currentPassword")}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowCurrent(!showCurrent)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B2343]/30 hover:text-[#0B2343]/60"
-                  >
-                    {showCurrent ? <EyeOff size={14} /> : <Eye size={14} />}
-                  </button>
-                </div>
-                {errors.currentPassword && (
-                  <p className="flex items-center gap-1 text-[10px] text-red-500 mt-1">
-                    <AlertCircle size={10} />
-                    {errors.currentPassword}
-                  </p>
-                )}
-              </div>
-
-              {/* New */}
-              <div>
-                <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 mb-1.5 block">
-                  New Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showNew ? "text" : "password"}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className={inputClass("newPassword")}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNew(!showNew)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B2343]/30 hover:text-[#0B2343]/60"
-                  >
-                    {showNew ? <EyeOff size={14} /> : <Eye size={14} />}
-                  </button>
-                </div>
-                {errors.newPassword && (
-                  <p className="flex items-center gap-1 text-[10px] text-red-500 mt-1">
-                    <AlertCircle size={10} />
-                    {errors.newPassword}
-                  </p>
-                )}
-                <div className="flex flex-wrap gap-1.5 mt-1.5">
-                  <Chip met={hasMinLength} label="8+ chars" />
-                  <Chip met={hasUppercase} label="Uppercase" />
-                  <Chip met={hasNumber} label="Number" />
-                </div>
-              </div>
-
-              {/* Confirm */}
-              <div>
-                <label className="text-[10px] sm:text-[11px] font-medium text-[#0B2343]/40 mb-1.5 block">
-                  Confirm New Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showConfirm ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={inputClass("confirmPassword")}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirm(!showConfirm)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B2343]/30 hover:text-[#0B2343]/60"
-                  >
-                    {showConfirm ? <EyeOff size={14} /> : <Eye size={14} />}
-                  </button>
-                </div>
-                {errors.confirmPassword && (
-                  <p className="flex items-center gap-1 text-[10px] text-red-500 mt-1">
-                    <AlertCircle size={10} />
-                    {errors.confirmPassword}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Footer — pinned */}
-        {!success && (
-          <div className="shrink-0 px-4 py-3 sm:px-5 border-t border-[#0B2343]/[0.06] flex items-center gap-2">
-            <button
-              onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl bg-[#0B2343]/[0.04] text-xs sm:text-[13px] font-medium text-[#0B2343]/50 hover:bg-[#0B2343]/[0.08] transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#0B2343] text-white text-xs sm:text-[13px] font-medium hover:bg-[#0B2343]/90 transition-colors disabled:opacity-50"
-            >
-              {saving ? (
-                <>
-                  <Loader2 size={14} className="animate-spin" />
-                  Updating…
-                </>
-              ) : (
-                "Update Password"
-              )}
-            </button>
+            <p className="text-sm font-semibold text-[#0B2343] mb-1">
+              Password Changed
+            </p>
+            <p className="text-xs text-[#0B2343]/50">
+              Your password has been updated successfully.
+            </p>
           </div>
+        ) : (
+          <form
+            id="admin-change-password-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSave();
+            }}
+            className="space-y-3"
+          >
+            {/* Current */}
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55 mb-1.5 block">
+                Current Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showCurrent ? "text" : "password"}
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className={inputClass("currentPassword")}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrent(!showCurrent)}
+                  aria-label={showCurrent ? "Hide password" : "Show password"}
+                  aria-pressed={showCurrent}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B2343]/30 hover:text-[#0B2343]/60"
+                >
+                  {showCurrent ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+              </div>
+              {errors.currentPassword && (
+                <p className="flex items-center gap-1 text-[10px] text-red-500 mt-1">
+                  <AlertCircle size={10} aria-hidden="true" />
+                  {errors.currentPassword}
+                </p>
+              )}
+            </div>
+
+            {/* New */}
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55 mb-1.5 block">
+                New Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showNew ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className={inputClass("newPassword")}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNew(!showNew)}
+                  aria-label={showNew ? "Hide password" : "Show password"}
+                  aria-pressed={showNew}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B2343]/30 hover:text-[#0B2343]/60"
+                >
+                  {showNew ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+              </div>
+              {errors.newPassword && (
+                <p className="flex items-center gap-1 text-[10px] text-red-500 mt-1">
+                  <AlertCircle size={10} aria-hidden="true" />
+                  {errors.newPassword}
+                </p>
+              )}
+              <div className="flex flex-wrap gap-1.5 mt-1.5">
+                <Chip met={hasMinLength} label="8+ chars" />
+                <Chip met={hasUppercase} label="Uppercase" />
+                <Chip met={hasNumber} label="Number" />
+              </div>
+            </div>
+
+            {/* Confirm */}
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55 mb-1.5 block">
+                Confirm New Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showConfirm ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={inputClass("confirmPassword")}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(!showConfirm)}
+                  aria-label={showConfirm ? "Hide password" : "Show password"}
+                  aria-pressed={showConfirm}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B2343]/30 hover:text-[#0B2343]/60"
+                >
+                  {showConfirm ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+              </div>
+              {errors.confirmPassword && (
+                <p className="flex items-center gap-1 text-[10px] text-red-500 mt-1">
+                  <AlertCircle size={10} aria-hidden="true" />
+                  {errors.confirmPassword}
+                </p>
+              )}
+            </div>
+          </form>
         )}
-      </div>
-    </div>
+      </Modal.Body>
+      {!success && (
+        <Modal.Actions>
+          <button
+            type="submit"
+            form="admin-change-password-form"
+            disabled={saving}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-[#ff7c22] text-white text-sm font-bold hover:bg-[#e56a10] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22]/40 transition-colors"
+          >
+            {saving && (
+              <Loader2 size={14} aria-hidden="true" className="animate-spin" />
+            )}
+            {saving ? "Updating…" : "Update Password"}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={saving}
+            className="inline-flex items-center justify-center px-4 py-2.5 min-h-[44px] rounded-xl bg-white border border-[#0B2343]/[0.12] text-[#0B2343] text-sm font-bold hover:bg-[#fafbfc] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22] focus-visible:ring-offset-2 transition-colors"
+          >
+            Cancel
+          </button>
+        </Modal.Actions>
+      )}
+    </Modal>
   );
 }

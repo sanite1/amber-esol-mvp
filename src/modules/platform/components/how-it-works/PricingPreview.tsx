@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Check } from "lucide-react";
-const APP_URL = process.env.REACT_APP_DASHBOARD_URL;
 
 const plans = [
   {
@@ -14,7 +13,7 @@ const plans = [
       "No credit card required",
     ],
     cta: "Book a Free Trial",
-    ctaLink: `${APP_URL}/signup/student`,
+    ctaLink: `/signup/student`,
     highlighted: false,
   },
   {
@@ -29,7 +28,7 @@ const plans = [
       "Cancel up to 12 hrs before",
     ],
     cta: "Get Started",
-    ctaLink: `${APP_URL}/signup/student`,
+    ctaLink: `/signup/student`,
     highlighted: true,
   },
 ];

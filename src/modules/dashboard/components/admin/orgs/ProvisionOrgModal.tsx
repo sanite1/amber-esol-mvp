@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import Modal from "../../../../../components/Modal";
 import { useProvisionOrg } from "../../../lib/api/esolOrg";
 
 const schema = z.object({
@@ -56,8 +57,6 @@ export default function ProvisionOrgModal({ open, onClose }: Props) {
     },
   });
 
-  if (!open) return null;
-
   const onSubmit = async (data: FormData) => {
     try {
       const res = await provisionOrg({
@@ -85,48 +84,46 @@ export default function ProvisionOrgModal({ open, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-5 border-b border-[#0B2343]/[0.06] sticky top-0 bg-white z-10">
-          <div>
-            <h2 className="text-lg font-extrabold text-[#0B2343]">
-              Provision new organisation
-            </h2>
-            <p className="text-xs text-[#0B2343]/40 mt-0.5">
-              Create the organisation and its primary admin account.
+    <Modal
+      open={open}
+      onClose={handleClose}
+      title="Provision new organisation"
+      titleId="provision-org-title"
+      size="lg"
+      disableEscapeKey={isPending}
+      disableBackdropClick={isPending}
+    >
+      <Modal.Body>
+        {success ? (
+          /* ── Success state ── */
+          <div className="text-center py-6">
+            <div className="w-14 h-14 mx-auto rounded-full bg-emerald-50 flex items-center justify-center mb-4">
+              <CheckCircle2
+                size={26}
+                aria-hidden="true"
+                className="text-emerald-600"
+              />
+            </div>
+            <h3 className="text-lg font-extrabold text-[#0B2343]">
+              {success.orgName} provisioned
+            </h3>
+            <p className="text-sm text-[#0B2343]/55 mt-2">
+              A verification email has been sent to{" "}
+              <strong>{success.adminEmail}</strong>. Once they verify, they can
+              sign in and start managing learners.
             </p>
           </div>
-          <button
-            onClick={handleClose}
-            className="p-1.5 rounded-lg hover:bg-[#0B2343]/[0.04] transition-colors"
-          >
-            <X size={18} className="text-[#0B2343]/50" />
-          </button>
-        </div>
-
-        <div className="p-6">
-          {success ? (
-            <div className="text-center py-6">
-              <div className="w-14 h-14 mx-auto rounded-full bg-emerald-50 flex items-center justify-center mb-4">
-                <CheckCircle2 size={26} className="text-emerald-600" />
-              </div>
-              <h3 className="text-lg font-extrabold text-[#0B2343]">
-                {success.orgName} provisioned
-              </h3>
-              <p className="text-sm text-[#0B2343]/55 mt-2">
-                A verification email has been sent to{" "}
-                <strong>{success.adminEmail}</strong>. Once they verify, they
-                can sign in and start managing learners.
-              </p>
-              <button
-                onClick={handleClose}
-                className="mt-6 px-5 py-2.5 bg-[#ff7c22] text-white text-sm font-bold rounded-xl hover:bg-[#e56a10] transition-colors"
-              >
-                Done
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        ) : (
+          /* ── Form state ── */
+          <>
+            <p className="text-sm text-[#0B2343]/70 leading-relaxed mb-4">
+              Create the organisation and its primary admin account.
+            </p>
+            <form
+              id="provision-org-form"
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-5"
+            >
               <Section title="Organisation details">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Field label="Organisation name" error={errors.name?.message}>
@@ -270,43 +267,56 @@ export default function ProvisionOrgModal({ open, onClose }: Props) {
                   </Field>
                 </div>
               </Section>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#0B2343]/[0.06]">
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="px-5 py-2.5 border border-[#0B2343]/[0.08] text-sm font-bold text-[#0B2343]/60 rounded-xl hover:bg-[#0B2343]/[0.02] transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#ff7c22] text-white text-sm font-bold rounded-xl hover:bg-[#e56a10] disabled:opacity-50 transition-colors"
-                >
-                  {isPending ? (
-                    <>
-                      <Loader2 size={14} className="animate-spin" />
-                      Provisioning…
-                    </>
-                  ) : (
-                    "Provision organisation"
-                  )}
-                </button>
-              </div>
             </form>
-          )}
-        </div>
-      </div>
-    </div>
+          </>
+        )}
+      </Modal.Body>
+      <Modal.Actions>
+        {success ? (
+          <button
+            type="button"
+            onClick={handleClose}
+            className="inline-flex items-center justify-center px-4 py-2.5 min-h-[44px] rounded-xl bg-[#ff7c22] text-white text-sm font-bold hover:bg-[#e56a10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22]/40 transition-colors"
+          >
+            Done
+          </button>
+        ) : (
+          <>
+            <button
+              type="submit"
+              form="provision-org-form"
+              disabled={isPending}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-[#ff7c22] text-white text-sm font-bold hover:bg-[#e56a10] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22]/40 transition-colors"
+            >
+              {isPending && (
+                <Loader2
+                  size={14}
+                  aria-hidden="true"
+                  className="animate-spin"
+                />
+              )}
+              {isPending ? "Provisioning…" : "Provision organisation"}
+            </button>
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={isPending}
+              className="inline-flex items-center justify-center px-4 py-2.5 min-h-[44px] rounded-xl bg-white border border-[#0B2343]/[0.12] text-[#0B2343] text-sm font-bold hover:bg-[#fafbfc] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7c22] focus-visible:ring-offset-2 transition-colors"
+            >
+              Cancel
+            </button>
+          </>
+        )}
+      </Modal.Actions>
+    </Modal>
   );
 }
 
 const inputClasses = (hasError: boolean): string =>
-  `w-full px-4 py-2.5 rounded-xl border bg-[#fafbfc] text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
+  `block w-full rounded-xl bg-white px-3 py-2 min-h-[44px] text-sm text-[#0B2343] placeholder:text-[#0B2343]/45 focus-visible:outline-none focus-visible:ring-2 ${
     hasError
-      ? "border-red-300"
-      : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40 focus:bg-white"
+      ? "border border-red-300 focus-visible:ring-red-500"
+      : "border border-[#0B2343]/[0.12] focus-visible:ring-[#ff7c22] focus-visible:border-[#ff7c22]"
   }`;
 
 function Section({
@@ -337,13 +347,13 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
+      <label className="block text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/55 mb-1.5">
         {label}
       </label>
       {children}
       {error && (
-        <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
-          <AlertCircle size={12} /> {error}
+        <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+          <AlertCircle size={12} aria-hidden="true" /> {error}
         </p>
       )}
     </div>

@@ -1,3 +1,54 @@
 # https://www.robotstxt.org/robotstxt.html
+#
+# F19.4 — production robots policy.
+#
+# Allow crawlers on the public marketing site (no funnel pages
+# behind a JS-only render). Disallow every authed shell so search
+# engines don't index half-rendered login walls.
+#
+# /__diag is internal-only — never index.
+# /_health is the LB probe — never index.
+
 User-agent: *
-Disallow:
+Allow: /
+Allow: /about
+Allow: /help
+Allow: /contact
+Allow: /privacy
+Allow: /terms
+Allow: /for-organisations
+Allow: /bridge-method
+Allow: /how-it-works
+Allow: /tutors
+Allow: /tutors/*
+Allow: /blogs
+Allow: /blog/*
+Allow: /roi-calculator
+
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /org
+Disallow: /org/*
+Disallow: /org-admin
+Disallow: /org-admin/*
+Disallow: /teacher
+Disallow: /teacher/*
+Disallow: /tutor
+Disallow: /tutor/*
+Disallow: /esol
+Disallow: /esol/*
+Disallow: /learner
+Disallow: /learner/*
+Disallow: /__diag
+Disallow: /_health
+Disallow: /login
+Disallow: /signup
+Disallow: /signup-student
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /verify
+Disallow: /confirm-email
+Disallow: /join
+Disallow: /join/*
+
+Sitemap: https://esol.ambertraining.co.uk/sitemap.xml

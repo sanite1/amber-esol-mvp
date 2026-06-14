@@ -8,7 +8,7 @@ import {
   useDeleteAccount,
 } from "../../lib/api/authOnboarding";
 import { useAuth } from "../../context/AuthContext";
-import Cookies from "js-cookie";
+import { clearAuthCookie } from "../../lib/api/authOnboarding";
 import type { NotificationPreferences } from "../../lib/types/authOnboarding";
 import { SettingsPageSkeleton } from "../../components/tutor/settings/SettingsSkeleton";
 import SecuritySettingsCard from "../../components/tutor/settings/SecuritySettingsCard";
@@ -105,7 +105,7 @@ export default function TutorSettings() {
         payload: { reason, feedback },
       });
       logout();
-      Cookies.remove("authToken");
+      clearAuthCookie();
       localStorage.removeItem("user");
       window.location.href = "/";
       return true;

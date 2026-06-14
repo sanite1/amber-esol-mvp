@@ -6,7 +6,7 @@ import React, {
   useCallback,
   ReactNode,
 } from "react";
-import Cookies from "js-cookie";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   getDecodedJwt,
   getRefreshToken,
@@ -14,7 +14,7 @@ import {
   removeAuthToken,
   DecodedJwt,
 } from "../lib/auth";
-import { useRefresh } from "../lib/api/authOnboarding";
+import { useRefresh, clearAuthCookie } from "../lib/api/authOnboarding";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -44,15 +44,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   });
 
   const { mutateAsync: refreshMutation } = useRefresh();
+  const queryClient = useQueryClient();
 
   const logout = useCallback(() => {
+    // 1. Tokens — both the access JWT (cookie + localStorage) and the
+    //    refresh token. `removeAuthToken` clears both localStorage keys;
+    //    `clearAuthCookie` clears the cookie with the same domain/path
+    //    attributes it was set with.
     removeAuthToken();
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
-    Cookies.remove("authToken");
+    clearAuthCookie();
+
+    // 2. React state — anyone reading useAuth() flips to logged-out
+    //    synchronously so mid-render guards bounce instead of flashing
+    //    private content.
     setUser(null);
     setIsAuthenticated(false);
-  }, []);
+
+    // 3. react-query cache — without this, a user who logs out and
+    //    logs back in as a DIFFERENT role would see the previous
+    //    role's cached pages (teacher-priority-queue, admin-org-list,
+    //    etc.) for a moment before the per-query staleTime expires.
+    //    `clear()` is more aggressive than `invalidate()` — every
+    //    cached payload is dropped, so the next mount refetches.
+    queryClient.clear();
+  }, [queryClient]);
 
   const refreshAccessToken = useCallback(async () => {
     try {
@@ -94,6 +111,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     window.addEventListener("userUpdated", handleUserUpdated);
     return () => window.removeEventListener("userUpdated", handleUserUpdated);
   }, [refreshAuthState]);
+
+  // Listen for `auth:unauthorized` — dispatched by the axios interceptor
+  // when any non-auth endpoint returns 401 (session timeout, revoked
+  // token, etc.). The interceptor will hard-redirect to /login a tick
+  // later; we clear React state synchronously here so any visible UI
+  // (e.g. mid-edit modals, partial dashboards) tears down cleanly
+  // before the navigation.
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      logout();
+    };
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+    return () =>
+      window.removeEventListener("auth:unauthorized", handleUnauthorized);
+  }, [logout]);
 
   // Check token validity on mount
   useEffect(() => {

@@ -79,7 +79,46 @@ export const useListReferrals = (query?: {
   });
 };
 
-/* ── Validate referral token (public) ── */
+/* ── Revoke a pending invitation ── */
+
+export const useRevokeReferral = () => {
+  const qc = useQueryClient();
+  return useMutation<ApiResponse<unknown>, ApiError, string>({
+    mutationFn: (id) =>
+      api.patch<ApiResponse<unknown>>(
+        `/esol/referrals/${encodeURIComponent(id)}/revoke`,
+      ),
+    onSuccess: (res) => {
+      toast.success(res.message || "Invitation revoked");
+      qc.invalidateQueries({ queryKey: ["esolReferrals"] });
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.message || "Failed to revoke invitation");
+    },
+  });
+};
+
+/* ── Remind — re-send the invite email for a pending invitation ── */
+
+export const useRemindReferral = () => {
+  const qc = useQueryClient();
+  return useMutation<ApiResponse<unknown>, ApiError, string>({
+    mutationFn: (id) =>
+      api.post<ApiResponse<unknown>>(
+        `/esol/referrals/${encodeURIComponent(id)}/remind`,
+        {},
+      ),
+    onSuccess: (res) => {
+      toast.success(res.message || "Reminder sent");
+      qc.invalidateQueries({ queryKey: ["esolReferrals"] });
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.message || "Failed to send reminder");
+    },
+  });
+};
+
+/* ── Validate referral token (public, LEGACY) ── */
 
 export const useValidateReferral = (token: string | undefined) => {
   return useQuery<ApiResponse<ReferralValidatePreview>, ApiError>({
@@ -88,6 +127,35 @@ export const useValidateReferral = (token: string | undefined) => {
       api.get<ApiResponse<ReferralValidatePreview>>(
         `/esol/referrals/validate/${encodeURIComponent(token!)}`,
       ),
+    enabled: Boolean(token),
+    retry: false,
+  });
+};
+
+/* ── Verify referral token (public, brief Function 2 To-Do 1) ──────
+   POST /api/esol/verify-token — replaces the legacy validate above for
+   the Function 2 onboarding flow. Returns the brief's narrower shape
+   { org_id, org_name, org_type } and increments usage_count atomically
+   on each call. */
+
+export interface VerifyTokenResponse {
+  org_id: string;
+  org_name: string;
+  org_type: string | null;
+  /** Per-email invites carry the invitee's address — the wizard
+   *  prefills + locks the email field with it. Generic links → null. */
+  invited_email: string | null;
+  /** Pre-assigned ESOL level when the org admin set one. */
+  esol_level: string | null;
+}
+
+export const useVerifyReferralToken = (token: string | undefined) => {
+  return useQuery<ApiResponse<VerifyTokenResponse>, ApiError>({
+    queryKey: ["esolReferralVerify", token],
+    queryFn: () =>
+      api.post<ApiResponse<VerifyTokenResponse>>("/esol/verify-token", {
+        token,
+      }),
     enabled: Boolean(token),
     retry: false,
   });

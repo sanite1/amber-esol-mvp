@@ -1,62 +1,43 @@
-// src/modules/platform/pages/TutorDetail.tsx
-import { useEffect } from "react";
-import { useParams } from "react-router-dom";
-import AOS from "aos";
-import { Loader2 } from "lucide-react";
-import TutorProfileHeader from "../components/tutor-detail/TutorProfileHeader";
-import TutorVideoIntro from "../components/tutor-detail/TutorVideoIntro";
-import TutorAbout from "../components/tutor-detail/TutorAbout";
-import BookingSidebar from "../components/tutor-detail/BookingSidebar";
-import SimilarTutors from "../components/tutor-detail/SimilarTutors";
-import {
-  useFetchTutors,
-  useFetchUserById,
-} from "../../dashboard/lib/api/authOnboarding";
+import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight, FileText } from "lucide-react";
 
-export default function TutorDetail() {
-  const { id } = useParams<{ id: string }>();
-
-  const { data: tutor, isLoading, isError } = useFetchUserById(id ?? "");
-
-  // Fetch a few tutors for the "similar tutors" section
-  const { data: tutorsData } = useFetchTutors({ page: 1, limit: 6 });
-  const similarTutors = tutorsData?.data?.tutors ?? [];
-
+/**
+ * /tutors/:id — retired.
+ *
+ * Same retired-card treatment as /tutors. Old per-tutor URLs are
+ * preserved so inbound links resolve to something meaningful.
+ */
+const TutorDetail: React.FC = () => {
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    AOS.refresh();
-  }, [id]);
-
-  if (isLoading) {
-    return (
-      <div className="bg-white min-h-screen flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-[#ff7c22]" />
-      </div>
-    );
-  }
-
-  if (isError || !tutor) return <div className="">not found</div>;
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  }, []);
 
   return (
-    <div className="bg-white min-h-screen">
-      <TutorProfileHeader tutor={tutor} />
-
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
-        <div className="flex flex-col-reverse lg:flex-row lg:items-start gap-10">
-          <div className="flex-1 min-w-0 space-y-10">
-            <TutorVideoIntro tutor={tutor} />
-            <TutorAbout tutor={tutor} />
-            {/* <TutorAvailability tutor={tutor} />
-            <TutorReviews tutor={tutor} /> */}
-          </div>
-
-          <div className="w-full lg:w-[340px] shrink-0">
-            <BookingSidebar tutor={tutor} />
-          </div>
+    <section className="section">
+      <div className="container">
+        <div className="retired">
+          <span className="glyph">
+            <FileText />
+          </span>
+          <h1>
+            We've moved on from the{" "}
+            <span className="italic-orange">marketplace model.</span>
+          </h1>
+          <p>
+            Individual tutor profiles are no longer surfaced. Amber is now an
+            ESOL platform for UK providers — councils, FE colleges and charities
+            running funded provision. Teachers join via their provider, not via
+            a public marketplace.
+          </p>
+          <Link to="/" className="btn btn-primary">
+            Take me home
+            <ArrowRight />
+          </Link>
         </div>
       </div>
-
-      <SimilarTutors tutors={similarTutors} currentId={id as string} />
-    </div>
+    </section>
   );
-}
+};
+
+export default TutorDetail;

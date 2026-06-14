@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Amber — Check your inbox</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="auth">
+      <aside class="auth-panel" aria-hidden="true">
+        <a href="index.html" class="auth-brand"
+          ><span class="mark"></span>Amber<span class="esol">ESOL</span></a
+        >
+        <div class="auth-panel-body">
+          <p class="auth-quote">
+            Open it on <em>the same device</em> you signed up on for smoothest
+            verification.
+          </p>
+          <div class="auth-cite">Why? It keeps the session continuous</div>
+        </div>
+      </aside>
+
+      <div class="auth-card-wrap">
+        <div class="auth-card" role="region" aria-labelledby="ci-h1">
+          <div class="auth-head">
+            <div class="kicker"><span class="dot"></span>Almost there</div>
+            <h1 id="ci-h1">Check your inbox.</h1>
+            <p>
+              We've sent a confirmation email to
+              <strong style="color: var(--ink)"
+                >amina.rashid@birminghamcouncil.gov.uk</strong
+              >. Click the link inside to activate your account. The link works
+              for 24 hours.
+            </p>
+          </div>
+
+          <!-- Big inbox illustration block -->
+          <div
+            style="
+              background: var(--bg-soft);
+              border: 1px solid var(--ink-08);
+              border-radius: var(--r-lg);
+              padding: 32px;
+              text-align: center;
+              margin-bottom: 24px;
+            "
+          >
+            <div
+              style="
+                display: inline-grid;
+                place-items: center;
+                width: 64px;
+                height: 64px;
+                border-radius: 50%;
+                background: var(--cream);
+                color: var(--orange);
+                margin-bottom: 18px;
+              "
+            >
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+                />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+            </div>
+            <div
+              style="
+                font-size: 14.5px;
+                color: var(--ink-72);
+                line-height: 1.55;
+                max-width: 32ch;
+                margin: 0 auto;
+              "
+            >
+              Open the email on the same device you signed up on for the
+              smoothest verification.
+            </div>
+          </div>
+
+          <div
+            style="
+              font-size: 14px;
+              color: var(--ink-72);
+              line-height: 1.6;
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+            "
+          >
+            <div>
+              Wrong email?
+              <a
+                href="signup.html"
+                style="
+                  color: var(--orange);
+                  font-weight: 600;
+                  border-bottom: 1px solid currentColor;
+                "
+                >Go back and update it →</a
+              >
+            </div>
+            <div>
+              Didn't receive it?
+              <button
+                id="resend-btn"
+                style="
+                  background: none;
+                  border: none;
+                  color: var(--orange);
+                  font-weight: 600;
+                  cursor: pointer;
+                  padding: 0;
+                  border-bottom: 1px solid currentColor;
+                  font: inherit;
+                "
+              >
+                Resend confirmation
+              </button>
+            </div>
+            <div
+              id="resend-status"
+              hidden
+              style="
+                font-family: var(--font-mono);
+                font-size: 12px;
+                letter-spacing: 0.06em;
+                color: var(--green);
+                margin-top: 4px;
+              "
+            >
+              ● Sent again — try in <span id="cd">60</span>s
+            </div>
+          </div>
+
+          <div class="auth-bottom">
+            <a href="login.html" class="back">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M19 12H5" />
+                <path d="m12 19-7-7 7-7" />
+              </svg>
+              Back to login
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // Resend with 60s cooldown demo
+      const btn = document.getElementById("resend-btn");
+      const status = document.getElementById("resend-status");
+      const cd = document.getElementById("cd");
+      let timer;
+      btn.addEventListener("click", () => {
+        let n = 60;
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        btn.style.cursor = "not-allowed";
+        status.hidden = false;
+        cd.textContent = n;
+        timer = setInterval(() => {
+          n--;
+          cd.textContent = n;
+          if (n <= 0) {
+            clearInterval(timer);
+            btn.disabled = false;
+            btn.style.opacity = "";
+            btn.style.cursor = "";
+            status.hidden = true;
+          }
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>

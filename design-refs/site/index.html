@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Amber — ESOL platform for UK providers</title>
+    <meta
+      name="description"
+      content="AI tutor that scaffolds adult learners from their first language into independent English, while the platform writes your ILR, RARPA and ASF evidence automatically."
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="image-slot.js" defer></script>
+  </head>
+  <body>
+    <!-- ============================================================
+     NAVBAR
+     ============================================================ -->
+    <header class="nav">
+      <div class="container nav-inner">
+        <a href="index.html" class="brand" aria-label="Amber home">
+          <span class="mark" aria-hidden="true"></span>
+          Amber
+          <span class="esol">ESOL</span>
+        </a>
+
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#" class="nav-link has-caret"
+            >Platform
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </a>
+          <a href="for-organisations.html" class="nav-link">For Providers</a>
+          <a href="bridge-method.html" class="nav-link">Bridge Method</a>
+          <a href="#" class="nav-link">ROI Calculator</a>
+          <a href="about.html" class="nav-link">About</a>
+          <a href="help.html" class="nav-link">Help</a>
+        </nav>
+
+        <div class="nav-cta">
+          <a href="login.html" class="btn btn-ghost">Log in</a>
+          <a href="contact.html" class="btn btn-primary">Book a demo</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============================================================
+     (a) HERO — light, two columns, photograph anchor
+     ============================================================ -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-grid">
+          <div>
+            <div class="kicker">
+              <span class="dot" aria-hidden="true"></span>
+              For UK ESOL providers
+            </div>
+
+            <h1>
+              The ESOL platform that teaches<br />
+              <span class="italic-orange">in their language first.</span>
+            </h1>
+
+            <p class="lead">
+              An AI tutor that scaffolds adult learners from their first
+              language into independent English, while the platform writes your
+              ILR, RARPA and ASF evidence automatically. Built for councils, FE
+              colleges and charities running funded ESOL provision.
+            </p>
+
+            <div class="cta-row">
+              <a href="#" class="btn btn-primary">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="4" y="2" width="16" height="20" rx="2" />
+                  <line x1="8" x2="16" y1="6" y2="6" />
+                  <line x1="16" x2="16" y1="14" y2="18" />
+                  <path d="M16 10h.01" />
+                  <path d="M12 10h.01" />
+                  <path d="M8 10h.01" />
+                  <path d="M12 14h.01" />
+                  <path d="M8 14h.01" />
+                  <path d="M12 18h.01" />
+                  <path d="M8 18h.01" />
+                </svg>
+                See your funding gap
+              </a>
+              <a href="contact.html" class="btn btn-ghost"
+                >Book a 20 minute demo</a
+              >
+            </div>
+
+            <ul
+              class="trust-ticks"
+              style="margin-top: 26px; list-style: none; padding: 0"
+            >
+              <li class="tick">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+                20+ first languages
+              </li>
+              <li class="tick">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+                EU hosted, UK GDPR
+              </li>
+              <li class="tick">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+                WCAG 2.1 AA
+              </li>
+            </ul>
+          </div>
+
+          <!-- Hero image -->
+          <div class="hero-image">
+            <image-slot
+              id="home-hero"
+              shape="rect"
+              placeholder="Drop hero image: adult ESOL learner, classroom or 1:1"
+            ></image-slot>
+            <div class="badge">
+              <div>
+                <span class="v">20+</span>
+              </div>
+              <div style="flex: 1">
+                <span class="l">First languages</span>
+                <div
+                  style="
+                    margin-top: 4px;
+                    font-size: 13.5px;
+                    color: var(--on-navy);
+                  "
+                >
+                  Including RTL: Arabic, Urdu, Pashto, Farsi.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+     (b) PROBLEM STRIP — light, numbered figures in cards
+     ============================================================ -->
+    <section class="section warm">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker"><span class="dot"></span>Why this matters</div>
+          <h2>
+            ESOL providers are leaving funding on the table. Not because the
+            funding isn't there,
+            <span class="italic-orange">but because the evidence isn't.</span>
+          </h2>
+        </div>
+
+        <div class="grid-3" style="margin-top: 56px">
+          <div class="figure">
+            <div class="n">01 · Capacity</div>
+            <h3>Waiting lists run 8 to 14 months.</h3>
+            <p>
+              Teachers spend their week assembling compliance paperwork instead
+              of teaching. The throughput problem is an evidence problem.
+            </p>
+          </div>
+          <div class="figure">
+            <div class="n">02 · Dropout</div>
+            <h3>English first apps lose A1 learners by week three.</h3>
+            <p>
+              Without first language scaffolding, the basics never stick. Adults
+              stall on instructions they don't yet understand.
+            </p>
+          </div>
+          <div class="figure">
+            <div class="n">03 · Evidence</div>
+            <h3>ILR submissions bounce for missing RARPA stages.</h3>
+            <p>
+              Patchy evidence means ASF claims slip the deadline. Money on the
+              table that providers earned and cannot retrieve.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+     (c) PRODUCT PILLARS — light, three cards
+     ============================================================ -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker">
+            <span class="dot"></span>What Amber actually does
+          </div>
+          <h2>One platform replaces three workflows.</h2>
+        </div>
+
+        <div class="grid-3" style="margin-top: 56px">
+          <article class="card">
+            <span class="icon-box">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m5 8 6 6" />
+                <path d="m4 14 6-6 2-3" />
+                <path d="M2 5h12" />
+                <path d="M7 2h1" />
+                <path d="m22 22-5-10-5 10" />
+                <path d="M14 18h6" />
+              </svg>
+            </span>
+            <h3>AI tutor in 20+ first languages</h3>
+            <p>
+              Adults learn in their first language, then bridge into independent
+              English. UK context scenarios, never generic ESL.
+            </p>
+            <a href="bridge-method.html" class="link-arrow">
+              See the Bridge Method
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </a>
+          </article>
+
+          <article class="card">
+            <span class="icon-box">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"
+                />
+                <path
+                  d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"
+                />
+              </svg>
+            </span>
+            <h3>Teacher AI assistant</h3>
+            <p>
+              Surfaces the 10% of learners who need attention this week. The
+              other 90% progress autonomously on evidence the platform captures.
+            </p>
+            <a href="#" class="link-arrow">
+              Inside the teacher shell
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </a>
+          </article>
+
+          <article class="card">
+            <span class="icon-box">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                />
+                <polyline points="14 2 14 8 20 8" />
+                <path d="m9 15 2 2 4-4" />
+              </svg>
+            </span>
+            <h3>Compliance, on rails</h3>
+            <p>
+              ILR CSV, RARPA Stages 1 to 5, ASF GLH splits. Generated
+              continuously from real session activity. Month end becomes a
+              download.
+            </p>
+            <a href="for-organisations.html" class="link-arrow">
+              What providers get day one
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+     (e) BRIDGE METHOD TEASER — light, text + conversation
+     ============================================================ -->
+    <section class="section warm">
+      <div class="container">
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 1fr 1.1fr;
+            gap: 64px;
+            align-items: center;
+          "
+          class="bm-grid"
+        >
+          <div>
+            <div class="kicker">
+              <span class="dot"></span>The Bridge Method™
+            </div>
+            <h2 style="margin-top: 18px">
+              Not translation. Not English only.
+              <span class="italic-orange">Both, in sequence.</span>
+            </h2>
+
+            <div class="body stack" style="margin-top: 28px; max-width: 56ch">
+              <p>
+                Adult learners stall when the instructions are in a language
+                they don't yet speak. English only apps abandon them at A1.
+                Translation overlays teach sentences they cannot recombine.
+              </p>
+              <p>
+                The Bridge Method does both, in sequence. Six concurrent
+                pedagogical layers stack into a single AI prompt. The learner
+                sees one normal conversation. Under the hood, six teaching jobs
+                progress at once. RARPA evidence falls out automatically.
+              </p>
+            </div>
+
+            <a
+              href="bridge-method.html"
+              class="btn btn-dark"
+              style="margin-top: 32px"
+            >
+              Read the full breakdown
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </a>
+          </div>
+
+          <!-- Mock conversation surface — the one product mock that earns its place -->
+          <div class="surface">
+            <div class="surface-head">
+              <span class="name"
+                >Bridge session · scenario: GP appointment</span
+              >
+              <span>L1 · اردو</span>
+            </div>
+            <div class="convo">
+              <div class="bubble from-ai">
+                <span class="tag"
+                  ><span
+                    style="
+                      background: var(--orange);
+                      width: 6px;
+                      height: 6px;
+                      display: inline-block;
+                      border-radius: 50%;
+                    "
+                  ></span
+                  >01 · L1 anchor</span
+                >
+                ڈاکٹر سے ملاقات بک کرنا۔ آج ہم سیکھیں گے۔
+              </div>
+              <div class="bubble from-ai">
+                <span class="tag"
+                  ><span
+                    style="
+                      background: var(--orange);
+                      width: 6px;
+                      height: 6px;
+                      display: inline-block;
+                      border-radius: 50%;
+                    "
+                  ></span
+                  >02 · Bridge utterance</span
+                >
+                I have a <strong class="fl">cita</strong> with the
+                <strong class="fl">docter</strong>.
+              </div>
+              <div class="bubble from-learner">
+                <span class="tag muted" style="color: var(--on-navy-70)"
+                  >Learner attempt</span
+                >
+                I have an appointment with the doctor at half past ten.
+              </div>
+              <div class="bubble from-ai">
+                <span class="tag"
+                  ><span
+                    style="
+                      background: var(--orange);
+                      width: 6px;
+                      height: 6px;
+                      display: inline-block;
+                      border-radius: 50%;
+                    "
+                  ></span
+                  >03 · Independent English · scored 4/5</span
+                >
+                Strong on tense and time. One pronoun slip.
+                <div style="display: flex; gap: 4px; margin-top: 10px">
+                  <span
+                    style="
+                      height: 4px;
+                      flex: 1;
+                      background: var(--green);
+                      border-radius: 2px;
+                    "
+                  ></span>
+                  <span
+                    style="
+                      height: 4px;
+                      flex: 1;
+                      background: var(--green);
+                      border-radius: 2px;
+                    "
+                  ></span>
+                  <span
+                    style="
+                      height: 4px;
+                      flex: 1;
+                      background: var(--green);
+                      border-radius: 2px;
+                    "
+                  ></span>
+                  <span
+                    style="
+                      height: 4px;
+                      flex: 1;
+                      background: var(--green);
+                      border-radius: 2px;
+                    "
+                  ></span>
+                  <span
+                    style="
+                      height: 4px;
+                      flex: 1;
+                      background: var(--ink-12);
+                      border-radius: 2px;
+                    "
+                  ></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+     (d) THREE AUDIENCES — light, cards with photo top
+     ============================================================ -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker">
+            <span class="dot"></span>Built for everyone the funding model
+            touches
+          </div>
+          <h2>One platform. Three native experiences.</h2>
+        </div>
+
+        <div class="grid-3" style="margin-top: 56px">
+          <article class="aud">
+            <div class="photo">
+              <div class="pill">For learners</div>
+              <image-slot
+                id="aud-learner"
+                shape="rect"
+                placeholder="Adult ESOL learner"
+              ></image-slot>
+            </div>
+            <div class="body">
+              <h3>Learn in your language, then in English.</h3>
+              <p>
+                The AI tutor speaks your first language. You graduate into
+                English at your own pace.
+              </p>
+              <ul class="check-list">
+                <li>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M20 6 9 17l-5-5" /></svg
+                  >Conversations from real UK life: GP, school, Universal
+                  Credit.
+                </li>
+                <li>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M20 6 9 17l-5-5" /></svg
+                  >20+ first language interfaces, including RTL scripts.
+                </li>
+                <li>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M20 6 9 17l-5-5" /></svg
+                  >Your private practice stays private.
+                </li>
+              </ul>
+              <a href="login.html" class="link-arrow">
+                Enter the learner shell
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <article class="aud">
+            <div class="photo">
+              <div class="pill">For teachers</div>
+              <image-slot
+                id="aud-teacher"
+                shape="rect"
+                placeholder="ESOL teacher, CELTA practitioner"
+              ></image-slot>
+            </div>
+            <div class="body">
+              <h3>Less marking. More teaching.</h3>
+              <p>
+                A priority queue, not an inbox. Evidence packets write
+                themselves while you focus on the learners who need you.
+              </p>
+              <ul class="check-list">
+                <li>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M20 6 9 17l-5-5" /></svg
+                  >Under 8 minutes review time per learner per week.
+                </li>
+                <li>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M20 6 9 17l-5-5" /></svg
+                  >Message learners in their L1 from your dashboard.
+                </li>
+                <li>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M20 6 9 17l-5-5" /></svg
+                  >Stage 5 sign off in app. Append only audit trail.
+                </li>
+              </ul>
+              <a href="login.html" class="link-arrow">
+                Enter the teacher shell
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </a>
+            </div>
+          </article>
+
+          <article class="aud">
+            <div class="photo">
+              <div class="pill">For org admins</div>
+              <image-slot
+                id="aud-org"
+                shape="rect"
+                placeholder="ESOL provision lead, council adult learning"
+              ></image-slot>
+            </div>
+            <div class="body">
+              <h3>Run more provision with the same team.</h3>
+              <p>
+                Every learner in one view. GLH ratios live. ILR and RARPA
+                evidence ready before you ask.
+              </p>
+              <ul class="check-list">
+                <li>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M20 6 9 17l-5-5" /></svg
+                  >Bulk CSV import with per row validation.
+                </li>
+                <li>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M20 6 9 17l-5-5" /></svg
+                  >One click ILR CSV plus companion JSON.
+                </li>
+                <li>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M20 6 9 17l-5-5" /></svg
+                  >Teacher GLH analytics validate ASF ratios.
+                </li>
+              </ul>
+              <a href="for-organisations.html" class="link-arrow">
+                Enter the org admin shell
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+     (f) COMPLIANCE — the one dark navy band
+     ============================================================ -->
+    <section class="section dark">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker on-navy">
+            <span class="dot"></span>Compliance you don't have to build
+          </div>
+          <h2>
+            Four UK frameworks, wired in
+            <span class="italic-orange">from day one.</span>
+          </h2>
+        </div>
+
+        <div class="grid-4" style="margin-top: 56px">
+          <div class="compl">
+            <span class="tag">ILR</span>
+            <h4>Individualised Learner Record</h4>
+            <p>
+              One click CSV export with companion JSON. Four breaking change
+              handlers for the 2024/25 schema.
+            </p>
+          </div>
+          <div class="compl">
+            <span class="tag">RARPA</span>
+            <h4>Stages 1 to 5 evidence</h4>
+            <p>
+              Initial assessment, outcomes, review, progress, exit. Built
+              continuously from session activity.
+            </p>
+          </div>
+          <div class="compl">
+            <span class="tag">ASF</span>
+            <h4>Adult Skills Fund GLH</h4>
+            <p>
+              AI hours and teacher hours split per cohort. The ratio that
+              validates your claim.
+            </p>
+          </div>
+          <div class="compl">
+            <span class="tag">WCAG</span>
+            <h4>2.1 AA, every page</h4>
+            <p>
+              Keyboard routable, screen reader labelled, 4.5:1 contrast minimum.
+              Audited per release.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+     (g) FINAL CTA — cream wash
+     ============================================================ -->
+    <section class="section cream">
+      <div class="container">
+        <div class="final">
+          <div class="kicker" style="justify-content: center">
+            <span class="dot"></span>Most providers discover £40k to £200k of
+            unclaimed ASF / year
+          </div>
+          <h2>
+            See the gap on your numbers in
+            <span class="italic-orange">three minutes.</span>
+          </h2>
+          <p class="lead">
+            No login, no email gate. Your inputs stay in your browser unless you
+            send them to us.
+          </p>
+          <div class="cta-row">
+            <a href="#" class="btn btn-primary">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="4" y="2" width="16" height="20" rx="2" />
+                <line x1="8" x2="16" y1="6" y2="6" />
+              </svg>
+              Run the funding calculator
+            </a>
+            <a href="contact.html" class="btn btn-ghost"
+              >Or book a 20 minute demo</a
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+     FOOTER — editorial
+     ============================================================ -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-top">
+          <div>
+            <div class="footer-mark">Amber<span>.</span></div>
+            <div class="footer-meta">
+              <span>UK ESOL platform</span>
+              <span>Est. 2025</span>
+              <span>London</span>
+            </div>
+          </div>
+
+          <div class="footer-cols">
+            <div>
+              <h5>Platform</h5>
+              <ul>
+                <li><a href="#">For Learners</a></li>
+                <li><a href="#">For Teachers</a></li>
+                <li><a href="for-organisations.html">For Org Admins</a></li>
+                <li><a href="bridge-method.html">Bridge Method</a></li>
+              </ul>
+            </div>
+            <div>
+              <h5>Company</h5>
+              <ul>
+                <li><a href="about.html">About</a></li>
+                <li><a href="#">ROI calculator</a></li>
+                <li><a href="help.html">Help centre</a></li>
+                <li><a href="contact.html">Contact</a></li>
+              </ul>
+            </div>
+            <div>
+              <h5>Compliance</h5>
+              <ul>
+                <li><a href="#">ILR export spec</a></li>
+                <li><a href="#">RARPA framework</a></li>
+                <li><a href="#">ASF GLH guide</a></li>
+                <li><a href="#">Safeguarding policy</a></li>
+              </ul>
+            </div>
+            <div>
+              <h5>Get in touch</h5>
+              <ul>
+                <li>
+                  <a href="mailto:hello@amberesol.co.uk"
+                    >hello@amberesol.co.uk</a
+                  >
+                </li>
+                <li><a href="tel:+442079460000">020 7946 0000</a></li>
+                <li><a href="#">DSL escalation</a></li>
+                <li><a href="#">Press &amp; partnerships</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-mid">
+          <h3>
+            Twenty minutes can save your team
+            <em>months of compliance work.</em>
+          </h3>
+          <form
+            class="form"
+            onsubmit="event.preventDefault();"
+            aria-label="Newsletter signup"
+          >
+            <input
+              type="email"
+              placeholder="you@provider.org.uk"
+              aria-label="Email"
+            />
+            <button class="btn btn-primary">Subscribe</button>
+          </form>
+        </div>
+
+        <div class="footer-base">
+          <span
+            >© 2026 Amber Training Ltd · Registered in England &amp; Wales ·
+            Company 09xxxxxx</span
+          >
+          <span class="legals">
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Cookies</a>
+            <a href="#">Accessibility</a>
+          </span>
+        </div>
+      </div>
+    </footer>
+
+    <style>
+      @media (max-width: 1000px) {
+        .bm-grid {
+          grid-template-columns: 1fr !important;
+          gap: 40px !important;
+        }
+      }
+    </style>
+  </body>
+</html>

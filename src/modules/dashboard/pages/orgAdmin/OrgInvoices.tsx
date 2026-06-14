@@ -13,6 +13,7 @@ import {
   type OrgInvoiceStatus,
 } from "../../lib/api/esolInvoice";
 import { formatDate } from "../../lib/utils/esolHelpers";
+import InvoiceDetailModal from "../../components/admin/InvoiceDetailModal";
 
 const PER_PAGE = 20;
 
@@ -28,6 +29,7 @@ export default function OrgInvoices() {
     "all",
   );
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [detailId, setDetailId] = useState<string | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -133,7 +135,17 @@ export default function OrgInvoices() {
                 {invoices.map((inv) => (
                   <tr
                     key={inv._id}
-                    className="border-b border-[#0B2343]/[0.04] last:border-0 hover:bg-[#0B2343]/[0.01] transition-colors"
+                    onClick={() => setDetailId(inv._id)}
+                    className="border-b border-[#0B2343]/[0.04] last:border-0 hover:bg-[#0B2343]/[0.01] transition-colors cursor-pointer"
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`Open invoice ${inv.invoiceNumber} details`}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setDetailId(inv._id);
+                      }
+                    }}
                   >
                     <td className="px-6 py-4">
                       <p className="text-sm font-bold text-[#0B2343]">
@@ -162,9 +174,10 @@ export default function OrgInvoices() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <button
-                        onClick={() =>
-                          handleDownload(inv._id, inv.invoiceNumber)
-                        }
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownload(inv._id, inv.invoiceNumber);
+                        }}
                         disabled={downloadingId === inv._id}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-[#0B2343]/[0.08] text-xs font-bold text-[#0B2343]/60 rounded-lg hover:bg-[#0B2343]/[0.02] disabled:opacity-50 transition-colors"
                       >
@@ -208,6 +221,16 @@ export default function OrgInvoices() {
           </div>
         )}
       </div>
+
+      {/* F9.1 — invoice detail. Org admins don't see Mark-paid
+          (backend would 403 anyway; hiding the button removes the
+          "is this broken?" confusion). */}
+      <InvoiceDetailModal
+        open={Boolean(detailId)}
+        invoiceId={detailId}
+        onClose={() => setDetailId(null)}
+        showMarkPaid={false}
+      />
     </div>
   );
 }

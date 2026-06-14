@@ -1,343 +1,369 @@
-import { useEffect, useState } from "react";
-import AOS from "aos";
-import { Mail, Phone, MapPin, Send, Clock, CheckCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { ArrowRight, Mail, Phone, MapPin, Clock, Globe } from "lucide-react";
+import { toast } from "sonner";
 
-const contactMethods = [
-  {
-    icon: Mail,
-    label: "Email us",
-    value: "hello@ambertraining.co.uk",
-    href: "mailto:hello@ambertraining.co.uk",
-    response: "We reply within 24 hours",
-  },
-  {
-    icon: Phone,
-    label: "Call us",
-    value: "+44 (0)20 7946 0958",
-    href: "tel:+447763658885",
-    response: "Mon–Fri, 9am–6pm GMT",
-  },
-  // {
-  //   icon: MapPin,
-  //   label: "Visit us",
-  //   value: "London, United Kingdom",
-  //   href: "https://maps.google.com/?q=London,UK",
-  //   response: "By appointment only",
-  // },
-];
-
-export default function Contact() {
-  const [formData, setFormData] = useState({
+/**
+ * /contact — demo request + safeguarding contact.
+ *
+ * Direct port of design-refs/site/contact.html. Two-column dual-form
+ * layout: left = demo request (sales), right = safeguarding card
+ * with red top border (compliance escalation).
+ */
+const Contact: React.FC = () => {
+  const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState({
     name: "",
     email: "",
-    subject: "",
-    message: "",
+    org: "",
+    role: "",
+    context: "",
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    AOS.refresh();
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
   }, []);
 
-  function validate() {
-    const errs: Record<string, string> = {};
-    if (!formData.name.trim()) errs.name = "Name is required";
-    if (
-      !formData.email.trim() ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
-    )
-      errs.email = "Valid email is required";
-    if (!formData.subject.trim()) errs.subject = "Subject is required";
-    if (formData.message.trim().length < 10)
-      errs.message = "Message must be at least 10 characters";
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
-    if (!validate()) return;
-    setIsSubmitting(true);
-    // TODO: replace with actual API call
-    await new Promise((r) => setTimeout(r, 1500));
-    setIsSubmitting(false);
-    setIsSuccess(true);
-  }
-
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
-  }
-
-  function resetForm() {
-    setFormData({ name: "", email: "", subject: "", message: "" });
-    setErrors({});
-    setIsSuccess(false);
-  }
+    if (!form.name || !form.email || !form.org || !form.role) {
+      toast.error("Please complete the required fields.");
+      return;
+    }
+    setSubmitting(true);
+    // M2 wires the real endpoint. For now confirm receipt + log.
+    setTimeout(() => {
+      toast.success("Thanks. We'll reply within one UK working day.");
+      setForm({ name: "", email: "", org: "", role: "", context: "" });
+      setSubmitting(false);
+    }, 600);
+  };
 
   return (
-    <div className="bg-white">
-      {/* ── Hero ── */}
-      <section className="relative bg-[#0B2343] pt-32 pb-20 overflow-hidden">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(ellipse at 30% 0%, rgba(255,124,34,0.08) 0%, transparent 60%)",
-          }}
-        />
-        <div className="relative mx-auto max-w-3xl px-4 text-center">
-          <h1
-            data-aos="fade-up"
-            className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight"
-          >
-            Get in touch
-          </h1>
-          <p
-            data-aos="fade-up"
-            data-aos-delay="100"
-            className="mt-4 text-lg text-white/50 max-w-lg mx-auto"
-          >
-            Have a question, partnership idea, or just want to say hello? We'd
-            love to hear from you.
-          </p>
+    <>
+      {/* (a) HERO */}
+      <section className="section tight">
+        <div className="container">
+          <div style={{ maxWidth: 720, margin: "32px 0 0" }}>
+            <div className="kicker">
+              <span className="dot" />
+              Get in touch
+            </div>
+            <h1 style={{ marginTop: 18 }}>
+              Two ways to <span className="italic-orange">talk to us.</span>
+            </h1>
+            <p className="lead" style={{ marginTop: 24 }}>
+              Demo requests route to the sales team and get a reply within one
+              UK working day. Safeguarding and urgent compliance escalations
+              route separately, monitored 09:00 to 17:00 UK.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* ── Contact Methods ── */}
-      <section className="relative -mt-10 mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <div className="grid sm:grid-cols-2 gap-4">
-          {contactMethods.map((m, i) => (
-            <a
-              key={m.label}
-              href={m.href}
-              target={m.icon === MapPin ? "_blank" : undefined}
-              rel="noopener noreferrer"
-              data-aos="fade-up"
-              data-aos-delay={i * 80}
-              className="group flex flex-col items-center text-center p-6 bg-white rounded-2xl border border-[#0B2343]/[0.06] shadow-[0_2px_12px_rgba(11,35,67,0.04)] hover:border-[#ff7c22]/20 hover:shadow-[0_4px_20px_rgba(255,124,34,0.08)] transition-colors duration-300"
+      {/* (b) DUAL FORM */}
+      <section className="section tight">
+        <div className="container">
+          <div className="dual-form">
+            {/* LEFT — book a demo */}
+            <form
+              className="form-card"
+              onSubmit={handleSubmit}
+              aria-label="Book a demo"
             >
-              <div className="w-12 h-12 rounded-xl bg-[#ff7c22]/[0.07] flex items-center justify-center text-[#ff7c22] mb-4 group-hover:bg-[#ff7c22] group-hover:text-white transition-colors duration-300">
-                <m.icon size={22} />
-              </div>
-              <p className="text-sm font-bold text-[#0B2343]">{m.label}</p>
-              <p className="text-sm text-[#0B2343]/60 mt-1">{m.value}</p>
-              <p className="text-xs text-[#0B2343]/35 mt-2 flex items-center gap-1">
-                <Clock size={12} /> {m.response}
-              </p>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Form + Map ── */}
-      <section className="py-16 lg:py-20 mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-[1.2fr_1fr] gap-10 items-start">
-          {/* Form */}
-          <div
-            data-aos="fade-right"
-            className="bg-[#fafbfc] rounded-3xl border border-[#0B2343]/[0.05] p-8 sm:p-10"
-          >
-            {isSuccess ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 mx-auto rounded-full bg-[#22C55E]/10 flex items-center justify-center text-[#22C55E] mb-5">
-                  <CheckCircle size={32} />
-                </div>
-                <h3 className="text-xl font-bold text-[#0B2343]">
-                  Message sent!
-                </h3>
-                <p className="text-sm text-[#0B2343]/50 mt-2 mb-6">
-                  We'll get back to you within 24 hours.
+              <div className="form-head">
+                <h3>Book a demo</h3>
+                <p>
+                  Tell us about your provision. We'll send a 20 minute slot with
+                  the team that built Amber. No procurement loop required.
                 </p>
+              </div>
+
+              <div className="field-row">
+                <div className="field">
+                  <label htmlFor="d-name">
+                    Full name <span className="req">*</span>
+                  </label>
+                  <input
+                    id="d-name"
+                    type="text"
+                    autoComplete="name"
+                    required
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="d-email">
+                    Work email <span className="req">*</span>
+                  </label>
+                  <input
+                    id="d-email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={form.email}
+                    onChange={(e) =>
+                      setForm({ ...form, email: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="field-row">
+                <div className="field">
+                  <label htmlFor="d-org">
+                    Organisation <span className="req">*</span>
+                  </label>
+                  <input
+                    id="d-org"
+                    type="text"
+                    required
+                    value={form.org}
+                    onChange={(e) => setForm({ ...form, org: e.target.value })}
+                  />
+                  <span className="hint">
+                    Council, college or charity name.
+                  </span>
+                </div>
+                <div className="field">
+                  <label htmlFor="d-role">
+                    Your role <span className="req">*</span>
+                  </label>
+                  <select
+                    id="d-role"
+                    required
+                    value={form.role}
+                    onChange={(e) => setForm({ ...form, role: e.target.value })}
+                  >
+                    <option value="">Select…</option>
+                    <option>Head of adult learning</option>
+                    <option>ESOL programme manager</option>
+                    <option>CEO / Director</option>
+                    <option>Compliance / data lead</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="field">
+                <label htmlFor="d-context">What's prompting this?</label>
+                <textarea
+                  id="d-context"
+                  placeholder="ASF claim rate, dropout, waiting list, ILR submission — anything that helps us prepare."
+                  value={form.context}
+                  onChange={(e) =>
+                    setForm({ ...form, context: e.target.value })
+                  }
+                />
+                <span className="hint">
+                  Optional, but the more specific, the better the demo.
+                </span>
+              </div>
+
+              <div className="form-submit">
+                <span className="note">
+                  We reply within one UK working day. Usually faster.
+                </span>
                 <button
-                  onClick={resetForm}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-bold text-[#ff7c22] border-2 border-[#ff7c22]/20 rounded-full hover:bg-[#ff7c22] hover:text-white hover:border-[#ff7c22] transition-colors duration-300"
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={submitting}
                 >
-                  Send another message
+                  {submitting ? "Sending…" : "Request a demo"}
+                  <ArrowRight />
                 </button>
               </div>
-            ) : (
-              <>
-                <h2 className="text-2xl font-extrabold text-[#0B2343] mb-1">
-                  Send us a message
-                </h2>
-                <p className="text-sm text-[#0B2343]/40 mb-8">
-                  Fill in the form and we'll respond promptly.
+            </form>
+
+            {/* RIGHT — safeguarding */}
+            <div className="form-card alert">
+              <div className="form-head">
+                <span className="alert-tag">Safeguarding · Urgent</span>
+                <h3>Safeguarding or urgent compliance</h3>
+                <p>
+                  For disclosures, DSL escalations and time critical compliance
+                  issues. This inbox is monitored daily 09:00 to 17:00 UK by a
+                  named human, not a queue.
                 </p>
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  <div className="grid sm:grid-cols-2 gap-5">
-                    {/* Name */}
-                    <div>
-                      <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
-                        Your name
-                      </label>
-                      <input
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        placeholder="John Doe"
-                        className={`w-full px-4 py-3 rounded-xl bg-white border text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
-                          errors.name
-                            ? "border-red-400"
-                            : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40"
-                        }`}
-                      />
-                      {errors.name && (
-                        <p className="text-xs text-red-500 mt-1">
-                          {errors.name}
-                        </p>
-                      )}
-                    </div>
-                    {/* Email */}
-                    <div>
-                      <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
-                        Email address
-                      </label>
-                      <input
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="john@example.com"
-                        className={`w-full px-4 py-3 rounded-xl bg-white border text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
-                          errors.email
-                            ? "border-red-400"
-                            : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40"
-                        }`}
-                      />
-                      {errors.email && (
-                        <p className="text-xs text-red-500 mt-1">
-                          {errors.email}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  {/* Subject */}
-                  <div>
-                    <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
-                      Subject
-                    </label>
-                    <input
-                      name="subject"
-                      value={formData.subject}
-                      onChange={handleChange}
-                      placeholder="What's this about?"
-                      className={`w-full px-4 py-3 rounded-xl bg-white border text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none transition-colors ${
-                        errors.subject
-                          ? "border-red-400"
-                          : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40"
-                      }`}
-                    />
-                    {errors.subject && (
-                      <p className="text-xs text-red-500 mt-1">
-                        {errors.subject}
-                      </p>
-                    )}
-                  </div>
-                  {/* Message */}
-                  <div>
-                    <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
-                      Message
-                    </label>
-                    <textarea
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      rows={5}
-                      placeholder="Tell us more…"
-                      className={`w-full px-4 py-3 rounded-xl bg-white border text-base lg:text-sm text-[#0B2343] placeholder:text-[#0B2343]/25 outline-none resize-none transition-colors ${
-                        errors.message
-                          ? "border-red-400"
-                          : "border-[#0B2343]/[0.08] focus:border-[#ff7c22]/40"
-                      }`}
-                    />
-                    {errors.message && (
-                      <p className="text-xs text-red-500 mt-1">
-                        {errors.message}
-                      </p>
-                    )}
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="inline-flex items-center gap-2 px-8 py-3 bg-[#ff7c22] text-white text-sm font-bold rounded-full hover:bg-[#e56a10] disabled:opacity-50 transition-colors duration-300"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Sending…
-                      </>
-                    ) : (
-                      <>
-                        <Send size={16} /> Send Message
-                      </>
-                    )}
-                  </button>
-                </form>
-              </>
-            )}
-          </div>
-
-          {/* Right column, office info */}
-          <div data-aos="fade-left" className="space-y-6">
-            {/* Map embed */}
-            <div className="rounded-2xl overflow-hidden border border-[#0B2343]/[0.06] h-64">
-              <iframe
-                title="Amber Training Location"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d158858.182370148!2d-0.26640456816498!3d51.52855824523907!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47d8a00baf21de75%3A0x52963a5addd52a99!2sLondon!5e0!3m2!1sen!2suk!4v1700000000000"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-            </div>
-
-            {/* Office hours */}
-            <div className="bg-[#0B2343] rounded-2xl p-6 text-white">
-              <h3 className="text-base font-bold mb-4">Opening hours</h3>
-              <div className="space-y-3 text-sm">
-                {[
-                  { day: "Monday – Friday", time: "9:00 AM – 6:00 PM" },
-                  { day: "Saturday - Sunday", time: "Closed" },
-                ].map((row) => (
-                  <div
-                    key={row.day}
-                    className="flex items-center justify-between"
-                  >
-                    <span className="text-white/50">{row.day}</span>
-                    <span className="font-semibold">{row.time}</span>
-                  </div>
-                ))}
               </div>
-            </div>
 
-            {/* Quick link */}
-            <div className="bg-[#ff7c22]/[0.05] border border-[#ff7c22]/10 rounded-2xl p-6 text-center">
-              <p className="text-sm font-semibold text-[#0B2343] mb-1">
-                Looking for technical support?
-              </p>
-              <p className="text-xs text-[#0B2343]/40 mb-4">
-                Check our Help Centre for faster answers.
-              </p>
-              <Link
-                to="/help"
-                className="inline-flex items-center gap-1.5 text-sm font-bold text-[#ff7c22] hover:underline"
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: 18 }}
               >
-                Visit Help Centre <Send size={14} />
-              </Link>
+                <ContactRow
+                  icon={<Mail size={18} />}
+                  label="DSL inbox"
+                  value="dsl@amberesol.co.uk"
+                  href="mailto:dsl@amberesol.co.uk"
+                />
+                <ContactRow
+                  icon={<Phone size={18} />}
+                  label="Direct line"
+                  value="020 7946 0001"
+                  href="tel:+442079460001"
+                />
+
+                <div
+                  style={{
+                    background: "rgba(211,47,47,0.06)",
+                    border: "1px solid rgba(211,47,47,0.18)",
+                    borderRadius: "var(--r-md)",
+                    padding: 18,
+                    marginTop: 4,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: 11,
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      color: "var(--red)",
+                      fontWeight: 600,
+                      marginBottom: 8,
+                    }}
+                  >
+                    If in immediate danger
+                  </div>
+                  <p
+                    style={{
+                      fontSize: 14,
+                      color: "var(--ink-72)",
+                      lineHeight: 1.55,
+                      margin: 0,
+                    }}
+                  >
+                    Call 999. Amber is not an emergency service. For non urgent
+                    safeguarding concerns related to an Amber learner, the DSL
+                    inbox above is the right route.
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: "var(--ink-56)",
+                    paddingTop: 8,
+                    borderTop: "1px solid var(--ink-08)",
+                    marginTop: 4,
+                  }}
+                >
+                  We log every escalation with timestamp, source and severity.
+                  Logs are made available to your provider's nominated DSL on
+                  request.
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
-    </div>
+
+      {/* (c) OFFICE CARD */}
+      <section className="section">
+        <div className="container">
+          <div className="office">
+            <div className="text">
+              <div className="kicker on-navy">
+                <span className="dot" />
+                Where we are
+              </div>
+              <h3
+                style={{
+                  marginTop: 18,
+                  fontSize: 36,
+                  letterSpacing: "-0.03em",
+                }}
+              >
+                London office.
+              </h3>
+              <p>
+                The whole team works from one London base. Drop in by
+                appointment — we'd rather see you than send a deck.
+              </p>
+              <div className="row">
+                <span>
+                  <MapPin />
+                  71–75 Shelton Street, London WC2H 9JQ
+                </span>
+                <span>
+                  <Clock />
+                  Monday to Friday · 09:00 to 17:30
+                </span>
+                <span>
+                  <Globe />
+                  Nearest tube: Covent Garden
+                </span>
+              </div>
+            </div>
+            <div className="map" aria-hidden="true">
+              <span className="pin">Amber HQ</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Mobile rule for the dual-form layout */}
+      <style>{`
+        .dual-form {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 24px;
+        }
+        @media (max-width: 900px) {
+          .dual-form { grid-template-columns: 1fr; }
+        }
+      `}</style>
+    </>
   );
+};
+
+/* Single contact row inside the safeguarding card. */
+interface ContactRowProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  href: string;
 }
+
+const ContactRow: React.FC<ContactRowProps> = ({
+  icon,
+  label,
+  value,
+  href,
+}) => (
+  <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+    <span
+      style={{
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        background: "rgba(211,47,47,0.10)",
+        color: "var(--red)",
+        display: "inline-grid",
+        placeItems: "center",
+        flex: "none",
+      }}
+    >
+      {icon}
+    </span>
+    <div>
+      <div style={{ fontSize: 13, color: "var(--ink-56)", fontWeight: 500 }}>
+        {label}
+      </div>
+      <a
+        href={href}
+        style={{
+          fontSize: 17,
+          fontWeight: 700,
+          color: "var(--ink)",
+          display: "block",
+          marginTop: 2,
+        }}
+      >
+        {value}
+      </a>
+    </div>
+  </div>
+);
+
+export default Contact;

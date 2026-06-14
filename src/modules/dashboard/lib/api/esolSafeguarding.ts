@@ -15,6 +15,22 @@ export type SafeguardingAlertStatus =
   | "resolved"
   | "dismissed";
 
+/**
+ * Categories the backend's keyword + Gemini detector emits.
+ * Source: amber-esol-backend/src/models/SafeguardingAlert.ts.
+ *
+ * `child_protection` is the legacy Gemini value still accepted by the
+ * backend enum; `child_concern` is the canonical one — handle both.
+ */
+export type SafeguardingTriggerCategory =
+  | "self_harm"
+  | "domestic_abuse"
+  | "radicalisation"
+  | "child_concern"
+  | "child_protection"
+  | "exploitation"
+  | "mental_health_crisis";
+
 export interface SafeguardingAlert {
   _id: string;
   learnerId:
@@ -29,7 +45,18 @@ export interface SafeguardingAlert {
   orgId: string | { _id: string; name: string };
   sessionId: string | AISession;
   alertLevel: SafeguardingLevel;
-  triggerTextHash: string;
+  /**
+   * Backend's canonical field is `messageContentHash` (SHA-256 hex).
+   * The legacy name `triggerTextHash` was retained on the frontend
+   * for back-compat with the older `/esol/safeguarding/*` response
+   * shape — kept optional so newer payloads don't blow up the type.
+   */
+  triggerTextHash?: string;
+  messageContentHash?: string;
+  /** Pre-cache keyword class OR Gemini classification. Drives triage. */
+  triggerCategory?: SafeguardingTriggerCategory | null;
+  /** Whether the keyword cache or the AI tier flagged this. */
+  triggerSource?: "keyword" | "ai_only" | null;
   claudeReasoning?: string;
   reviewedBy?:
     | string
@@ -38,6 +65,13 @@ export interface SafeguardingAlert {
   reviewedAt?: string | null;
   status: SafeguardingAlertStatus;
   resolution?: string;
+  /** Set when an admin runs PATCH /api/admin/safeguarding/:id. */
+  resolvedAt?: string | null;
+  resolvedBy?:
+    | string
+    | { _id: string; firstname: string; lastname: string }
+    | null;
+  resolutionNotes?: string | null;
   notificationSentAt?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -97,6 +131,41 @@ export const useGetAlert = (alertId: string | undefined) => {
     queryFn: () =>
       api.get<ApiResponse<SafeguardingAlert>>(`/esol/safeguarding/${alertId}`),
     enabled: Boolean(alertId),
+  });
+};
+
+/* ── Org-admin safeguarding count ──────────────────────────────────
+ *
+ * Backend: GET /api/org-admin/safeguarding/count
+ *   route:  amber-esol-backend/src/routes/orgAdminSafeguarding.routes.ts
+ *   ctrl:   adminSafeguarding.controller.ts → getOrgAdminSafeguardingCount
+ *
+ * Default response: { open: number, resolved: number }
+ * Optional ?resolved=true → { resolved: number }
+ * Optional ?resolved=false → { open: number }
+ *
+ * Org admins are DELIBERATELY blind to per-alert detail per the
+ * brief (Function 10). This hook is the only safeguarding surface
+ * they get — a number to escalate against. The number alone is what
+ * the OrgAdminDashboard count card renders.
+ */
+
+export interface OrgAdminSafeguardingCount {
+  open?: number;
+  resolved?: number;
+}
+
+export const useOrgAdminSafeguardingCount = () => {
+  return useQuery<ApiResponse<OrgAdminSafeguardingCount>, ApiError>({
+    queryKey: ["orgAdminSafeguardingCount"],
+    queryFn: () =>
+      api.get<ApiResponse<OrgAdminSafeguardingCount>>(
+        "/org-admin/safeguarding/count",
+      ),
+    // 60s freshness — the count drives a banner the org admin shouldn't
+    // see flicker on every render.
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 

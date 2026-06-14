@@ -14,7 +14,13 @@ import type { LanguageLevel } from "../../data/student/studentProfileData";
 import ProfileHeaderCard from "../../components/student/profile/ProfileHeaderCard";
 import PersonalInfoSection from "../../components/student/profile/PersonalInfoSection";
 import LanguageGoalsSection from "../../components/student/profile/LanguageGoalsSection";
+import EsolPlacementSection from "../../components/student/profile/EsolPlacementSection";
 import SecuritySection from "../../components/student/profile/SecuritySection";
+// Phase 1 / Final Addendum §6 (BE-A) — learner-facing compliance
+// timeline. ESOL-only (gated below on esolLevel) because the audit
+// trail is meaningful only for funded ESOL learners — marketplace
+// students don't accumulate compliance events.
+import ComplianceTimelineSection from "../../components/student/profile/ComplianceTimelineSection";
 import ChangePasswordModal from "../../components/student/profile/ChangePasswordModal";
 import { ProfilePageSkeleton } from "../../components/student/profile/ProfileSkeleton";
 
@@ -170,13 +176,37 @@ export default function StudentProfile() {
 
       <PersonalInfoSection profile={profile} onSave={handlePersonalSave} />
 
-      <LanguageGoalsSection profile={profile} onSave={handleLanguageSave} />
+      {/* ESOL learners get the placement-based section instead of the
+          marketplace CEFR-scale "Language & Goals" panel. Two reasons:
+            1. ESOL uses NQF E1–L2, not CEFR A1–C2 — the legacy panel's
+               levels are wrong axis for these users.
+            2. ESOL learners can't set their own target level — it's
+               assigned by the placement algorithm and adjusted by the
+               teacher. Letting them pick A1→B2 here would be a no-op
+               at best and confusing at worst.
+          Detection: JWT-side esolLevel (set by /esol/placement/submit
+          and refreshed on the result page's continue handler). */}
+      {decoded?.esolLevel ? (
+        <EsolPlacementSection
+          esolLevel={decoded.esolLevel}
+          orgName={(user as { orgName?: string | null })?.orgName ?? null}
+        />
+      ) : (
+        <LanguageGoalsSection profile={profile} onSave={handleLanguageSave} />
+      )}
 
       <SecuritySection
         profile={profile}
         onChangePassword={() => setShowPwModal(true)}
         onVerifyPhone={handleVerifyPhone}
       />
+
+      {/* Phase 1 / Final Addendum §6 — append-only audit-log surface
+          for the learner. Placed at the bottom of /profile so it
+          doesn't interrupt the standard profile-edit flow above;
+          inspectors and curious learners scroll for it. ESOL-only:
+          marketplace learners don't accumulate audit entries. */}
+      {decoded?.esolLevel && <ComplianceTimelineSection />}
 
       {showPwModal && (
         <ChangePasswordModal

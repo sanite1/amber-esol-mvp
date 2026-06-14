@@ -1,328 +1,274 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import { Loader2, CheckCircle2, XCircle, ArrowRight, Star } from "lucide-react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { ArrowRight, ArrowLeft, Check, AlertCircle } from "lucide-react";
 import { useVerifyEmail } from "../../lib/api/authOnboarding";
-import logo from "../../assets/logo.png";
+import { useAuth } from "../../context/AuthContext";
+import { getDecodedJwt } from "../../lib/auth";
 
-const FRONTEND_URL = process.env.REACT_APP_FRONTEND_URL;
+/**
+ * /verify/:id/:token — email-verification landing.
+ *
+ * Visual port of design-refs/site/verify.html. Three states:
+ *   1. Loading (default on mount, while POST runs)
+ *   2. Success (green check, 2s auto-redirect to /login)
+ *   3. Failure (error card + three-cause list + send-new CTA)
+ *
+ * Hook wiring preserved: useVerifyEmail from authOnboarding.
+ * The mutation fires exactly once via a `hasCalled` ref so React's
+ * Strict-Mode double-render doesn't double-consume the token.
+ */
 
-const testimonial = {
-  quote:
-    "The verification was instant and I was learning with my tutor within minutes. Amber ESOL is genuinely the easiest platform I've used.",
-  author: "David Chen",
-  role: "A2 → B1 Student",
-  avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-};
+type View = "loading" | "success" | "failure";
 
-export default function VerifyEmailSuccess() {
+export default function VerifyEmail() {
   const navigate = useNavigate();
-  const { mutateAsync: verifyEmail } = useVerifyEmail();
   const { id, token } = useParams<{ id: string; token: string }>();
+  const { mutateAsync: verifyEmail } = useVerifyEmail();
+  const { logout } = useAuth();
 
-  const [isVerified, setIsVerified] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [countdown, setCountdown] = useState(5);
-
+  const [view, setView] = useState<View>("loading");
+  const [countdown, setCountdown] = useState(2);
   const hasCalled = useRef(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  // ── Verify account on mount ──
   useEffect(() => {
-    if (hasCalled.current || !id || !token) return;
+    if (hasCalled.current) return;
+    if (!id || !token) {
+      setView("failure");
+      return;
+    }
     hasCalled.current = true;
 
-    const verify = async () => {
+    void (async () => {
       try {
         await verifyEmail({ id, token });
-        setIsVerified(true);
-        setIsLoading(false);
+
+        // ── Stale-session guard ──
+        // Verification links are often opened in a browser that
+        // already holds SOMEONE ELSE'S session (e.g. an org admin
+        // who invited this learner and is testing the flow). The
+        // post-success redirect lands on /login, whose already-
+        // authenticated bounce would then forward the OLD session
+        // to ITS role home — the org admin "verifies a learner"
+        // and finds themselves on /org-admin/dashboard. Not an
+        // auth bypass (it's their own valid session) but badly
+        // misleading. If the stored JWT belongs to a different
+        // user than the one just verified, clear it so /login
+        // shows the sign-in form for the new account. Verifying
+        // your OWN email while signed in keeps your session.
+        const existing = getDecodedJwt();
+        if (existing && existing.id !== id) {
+          logout();
+        }
+
+        setView("success");
       } catch {
-        setHasError(true);
-        setIsLoading(false);
+        setView("failure");
       }
-    };
+    })();
+  }, [id, token, verifyEmail, logout]);
 
-    verify();
-  }, [id, token, verifyEmail]);
-
-  // ── Countdown + redirect after success ──
+  // Countdown + redirect after success
   useEffect(() => {
-    if (!isVerified) return;
-
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
+    if (view !== "success") return;
+    const t = setInterval(() => {
+      setCountdown((n) => {
+        if (n <= 1) {
+          clearInterval(t);
           navigate("/login");
           return 0;
         }
-        return prev - 1;
+        return n - 1;
       });
     }, 1000);
-
-    return () => clearInterval(timer);
-  }, [isVerified, navigate]);
-
-  const panelDescription = isLoading
-    ? "Hang tight, we're confirming your email address."
-    : isVerified
-      ? "Your email is verified. Welcome to the Amber ESOL community."
-      : "We couldn't verify your account. The link may have expired.";
+    return () => clearInterval(t);
+  }, [view, navigate]);
 
   return (
-    <div className="min-h-screen">
-      {/* ─── Left panel, fixed, never scrolls ─── */}
-      <div className="hidden lg:flex fixed top-0 left-0 w-[48%] h-screen bg-[#0B2343] z-10">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(ellipse at 20% 80%, rgba(255,124,34,0.1) 0%, transparent 50%)",
-          }}
-        />
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.03]"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <pattern
-              id="verify-grid"
-              x="0"
-              y="0"
-              width="32"
-              height="32"
-              patternUnits="userSpaceOnUse"
-            >
-              <circle cx="2" cy="2" r="1" fill="white" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#verify-grid)" />
-        </svg>
-
-        <div className="relative flex flex-col justify-between p-12 xl:p-16 w-full">
-          <Link to={FRONTEND_URL || "/"}>
-            <img
-              src={logo}
-              alt="Amber ESOL"
-              className="h-10 w-auto brightness-0 invert"
-            />
+    <div className="amber-platform">
+      <main className="auth">
+        {/* LEFT — navy panel */}
+        <aside className="auth-panel" aria-hidden="true">
+          <Link to="/" className="auth-brand">
+            <span className="mark" />
+            Amber
+            <span className="esol">ESOL</span>
           </Link>
 
-          <div>
-            <h2 className="text-4xl xl:text-[42px] font-extrabold text-white leading-tight tracking-tight">
-              {isLoading ? (
-                <>
-                  Verifying your
-                  <br />
-                  account
-                  <span className="text-[#ff7c22]">…</span>
-                </>
-              ) : isVerified ? (
-                <>
-                  You're all
-                  <br />
-                  set
-                  <span className="text-[#ff7c22]">!</span>
-                </>
-              ) : (
-                <>
-                  Something went
-                  <br />
-                  wrong
-                  <span className="text-[#ff7c22]">.</span>
-                </>
-              )}
-            </h2>
-            <p className="text-sm text-white/35 mt-4 leading-relaxed max-w-sm">
-              {panelDescription}
+          <div className="auth-panel-body">
+            <p className="auth-quote">
+              Almost in. <em>Hold tight.</em>
             </p>
-          </div>
-
-          <div className="max-w-sm">
-            <div className="flex items-center gap-0.5 mb-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  size={12}
-                  className="text-[#ff7c22]"
-                  fill="#ff7c22"
-                />
-              ))}
+            <div className="auth-cite">
+              Email verification · usually under 3 sec
             </div>
-            <p className="text-sm text-white/45 leading-relaxed">
-              "{testimonial.quote}"
-            </p>
-            <div className="flex items-center gap-3 mt-4">
-              <img
-                src={testimonial.avatar}
-                alt={testimonial.author}
-                loading="lazy"
-                className="w-8 h-8 rounded-full object-cover"
-              />
-              <div>
-                <p className="text-xs font-semibold text-white/60">
-                  {testimonial.author}
-                </p>
-                <p className="text-[10px] text-white/25">{testimonial.role}</p>
+          </div>
+        </aside>
+
+        {/* RIGHT */}
+        <div className="auth-card-wrap">
+          {view === "loading" && (
+            <div className="auth-card" style={{ textAlign: "center" }}>
+              <div className="spinner" aria-hidden="true" />
+              <h2 style={{ fontSize: 24, marginBottom: 10 }}>
+                Verifying your email…
+              </h2>
+              <p style={{ color: "var(--ink-72)", fontSize: 14.5 }}>
+                This usually takes under three seconds.
+              </p>
+            </div>
+          )}
+
+          {view === "success" && (
+            <div className="auth-card" style={{ textAlign: "center" }}>
+              <div
+                style={{
+                  display: "inline-grid",
+                  placeItems: "center",
+                  width: 72,
+                  height: 72,
+                  borderRadius: "50%",
+                  background: "rgba(34,160,107,0.10)",
+                  color: "var(--green)",
+                  margin: "0 auto 24px",
+                }}
+              >
+                <Check size={36} strokeWidth={2.5} />
+              </div>
+              <div
+                className="kicker"
+                style={{ justifyContent: "center", marginBottom: 14 }}
+              >
+                <span className="dot" />
+                Verified
+              </div>
+              <h1 style={{ fontSize: 38, letterSpacing: "-0.03em" }}>
+                Email verified.
+              </h1>
+              <p
+                style={{
+                  color: "var(--ink-72)",
+                  fontSize: 15.5,
+                  marginTop: 14,
+                  maxWidth: "32ch",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                }}
+              >
+                Your account is ready. Taking you to sign in…
+              </p>
+
+              <div style={{ marginTop: 32 }}>
+                <Link to="/login" className="btn btn-primary">
+                  Continue to sign in
+                  <ArrowRight />
+                </Link>
+              </div>
+
+              <div
+                style={{
+                  marginTop: 20,
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 11,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: "var(--ink-56)",
+                }}
+              >
+                Auto redirecting in {countdown}s…
               </div>
             </div>
-          </div>
+          )}
+
+          {view === "failure" && (
+            <div className="auth-card">
+              <div className="auth-status error" role="alert">
+                <span className="ic">
+                  <AlertCircle />
+                </span>
+                <div className="text">
+                  <strong>We couldn't verify that link.</strong>
+                  Three possible reasons:
+                </div>
+              </div>
+
+              <ul
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  margin: "0 0 28px",
+                  fontSize: 14.5,
+                  color: "var(--ink-72)",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 12,
+                }}
+              >
+                <CauseRow
+                  n="01"
+                  label="Expired."
+                  body="Verification links work for 24 hours."
+                />
+                <CauseRow
+                  n="02"
+                  label="Already used."
+                  body="Each link works once."
+                />
+                <CauseRow
+                  n="03"
+                  label="Malformed."
+                  body="The link may have been broken in your email client."
+                />
+              </ul>
+
+              <Link
+                to="/confirm-email"
+                className="btn btn-primary"
+                style={{ width: "100%" }}
+              >
+                Send a new verification email
+                <ArrowRight />
+              </Link>
+
+              <div className="auth-bottom">
+                <Link to="/login" className="back">
+                  <ArrowLeft />
+                  Back to login
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
-      </div>
-
-      {/* ─── Right panel, scrollable ─── */}
-      <div className="min-h-screen bg-white lg:ml-[48%]">
-        <div className="lg:hidden fixed top-0 inset-x-0 z-20 flex items-center justify-between p-5 bg-white border-b border-[#0B2343]/[0.05]">
-          <Link to={FRONTEND_URL || "/"}>
-            <img src={logo} alt="Amber ESOL" className="h-8 w-auto" />
-          </Link>
-          <Link
-            to="/login"
-            className="text-xs font-bold text-[#ff7c22] hover:underline"
-          >
-            Sign in
-          </Link>
-        </div>
-
-        <div className="lg:hidden h-16" />
-
-        <div className="flex items-center justify-center min-h-screen px-6 sm:px-12 xl:px-20 py-10 lg:py-0">
-          <div className="w-full max-w-[380px] text-center">
-            {/* ── Loading State ── */}
-            {isLoading && (
-              <>
-                <div className="mx-auto w-20 h-20 rounded-2xl bg-[#ff7c22]/10 flex items-center justify-center mb-8 relative">
-                  <Loader2 size={36} className="text-[#ff7c22] animate-spin" />
-                  <div className="absolute inset-0 rounded-2xl border-2 border-[#ff7c22]/20 animate-pulse" />
-                </div>
-
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B2343] tracking-tight mb-3">
-                  Verifying your email
-                </h1>
-                <p className="text-sm text-[#0B2343]/40 leading-relaxed mb-8">
-                  Please wait while we confirm your email address. This will
-                  only take a moment.
-                </p>
-
-                <div className="w-full h-1.5 bg-[#0B2343]/[0.04] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-[#ff7c22] rounded-full animate-pulse"
-                    style={{ width: "60%" }}
-                  />
-                </div>
-
-                <p className="text-xs text-[#0B2343]/30 mt-6">
-                  Do not close this page
-                </p>
-              </>
-            )}
-
-            {/* ── Success State ── */}
-            {!isLoading && isVerified && !hasError && (
-              <>
-                <div className="mx-auto w-20 h-20 rounded-2xl bg-emerald-50 flex items-center justify-center mb-8 relative">
-                  <CheckCircle2 size={36} className="text-emerald-500" />
-                  <div className="absolute -inset-2 rounded-3xl border border-emerald-100" />
-                </div>
-
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B2343] tracking-tight mb-3">
-                  Email verified!
-                </h1>
-                <p className="text-sm text-[#0B2343]/40 leading-relaxed mb-8">
-                  Your account has been successfully verified. You can now sign
-                  in and start learning with Amber ESOL.
-                </p>
-
-                <div className="mb-6 p-4 bg-[#0B2343]/[0.02] rounded-xl border border-[#0B2343]/[0.06]">
-                  <p className="text-sm text-[#0B2343]/50">
-                    Redirecting to sign in in{" "}
-                    <span className="font-bold text-[#ff7c22] tabular-nums">
-                      {countdown}
-                    </span>{" "}
-                    seconds…
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => navigate("/login")}
-                  className="w-full py-3.5 bg-[#ff7c22] text-white text-sm font-bold rounded-xl hover:bg-[#e56a10] transition-colors flex items-center justify-center gap-2 group"
-                >
-                  <span>Go to Sign In</span>
-                  <ArrowRight
-                    size={16}
-                    className="group-hover:translate-x-0.5 transition-transform"
-                  />
-                </button>
-
-                <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-[#0B2343]/[0.04]">
-                  {["256-bit SSL", "UK GDPR compliant", "Stripe secured"].map(
-                    (t) => (
-                      <span
-                        key={t}
-                        className="flex items-center gap-1 text-[10px] text-[#0B2343]/25"
-                      >
-                        <CheckCircle2 size={10} /> {t}
-                      </span>
-                    ),
-                  )}
-                </div>
-              </>
-            )}
-
-            {/* ── Error State ── */}
-            {!isLoading && hasError && (
-              <>
-                <div className="mx-auto w-20 h-20 rounded-2xl bg-red-50 flex items-center justify-center mb-8 relative">
-                  <XCircle size={36} className="text-red-500" />
-                  <div className="absolute -inset-2 rounded-3xl border border-red-100" />
-                </div>
-
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B2343] tracking-tight mb-3">
-                  Verification failed
-                </h1>
-                <p className="text-sm text-[#0B2343]/40 leading-relaxed mb-8">
-                  The verification link may have expired or is invalid. Please
-                  try again or request a new verification email.
-                </p>
-
-                <div className="space-y-3">
-                  <button
-                    onClick={() => navigate("/signup")}
-                    className="w-full py-3.5 bg-[#ff7c22] text-white text-sm font-bold rounded-xl hover:bg-[#e56a10] transition-colors flex items-center justify-center gap-2 group"
-                  >
-                    <span>Back to Sign Up</span>
-                    <ArrowRight
-                      size={16}
-                      className="group-hover:translate-x-0.5 transition-transform"
-                    />
-                  </button>
-
-                  <button
-                    onClick={() => navigate("/login")}
-                    className="w-full py-3 text-sm text-[#0B2343]/40 hover:text-[#0B2343]/60 transition-colors font-medium"
-                  >
-                    Already verified? Sign in
-                  </button>
-                </div>
-
-                <p className="mt-8 text-xs text-[#0B2343]/30">
-                  Need help?{" "}
-                  <Link
-                    to="/help"
-                    className="text-[#ff7c22] hover:underline font-medium"
-                  >
-                    Contact Support
-                  </Link>
-                </p>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }
+
+/* CauseRow — single reason inside the failure card */
+const CauseRow: React.FC<{ n: string; label: string; body: string }> = ({
+  n,
+  label,
+  body,
+}) => (
+  <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+    <span
+      style={{
+        fontFamily: "var(--font-mono)",
+        fontSize: 11,
+        color: "var(--orange)",
+        fontWeight: 600,
+        padding: "2px 8px",
+        background: "rgba(255,124,34,0.10)",
+        borderRadius: 4,
+      }}
+    >
+      {n}
+    </span>
+    <span>
+      <strong style={{ color: "var(--ink)" }}>{label}</strong> {body}
+    </span>
+  </li>
+);

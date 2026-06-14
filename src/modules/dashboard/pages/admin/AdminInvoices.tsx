@@ -19,6 +19,8 @@ import {
 } from "../../lib/api/esolInvoice";
 import { useListOrgs } from "../../lib/api/esolOrg";
 import { formatDate } from "../../lib/utils/esolHelpers";
+import InvoiceDetailModal from "../../components/admin/InvoiceDetailModal";
+import { useIsDemoMode } from "../../../../lib/demoMode";
 
 const PER_PAGE = 20;
 
@@ -35,6 +37,13 @@ export default function AdminInvoices() {
   const [orgFilter, setOrgFilter] = useState("");
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [generateOpen, setGenerateOpen] = useState(false);
+  const [detailId, setDetailId] = useState<string | null>(null);
+
+  // F15.1 — demo deployments hide invoice write-actions
+  // (Generate / Mark-paid). The backend would 403 in demo anyway,
+  // but hiding the affordance removes "is this broken?" confusion
+  // during a sales walkthrough.
+  const isDemoMode = useIsDemoMode();
 
   useEffect(() => {
     setPage(1);
@@ -75,12 +84,15 @@ export default function AdminInvoices() {
             Cross-organisation invoice management.
           </p>
         </div>
-        <button
-          onClick={() => setGenerateOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#ff7c22] text-white text-sm font-bold rounded-xl hover:bg-[#e56a10] transition-colors"
-        >
-          <Plus size={16} /> Generate invoice
-        </button>
+        {!isDemoMode && (
+          <button
+            onClick={() => setGenerateOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#ff7c22] text-white text-sm font-bold rounded-xl hover:bg-[#e56a10] transition-colors"
+            aria-label="Generate a new invoice from billable activity"
+          >
+            <Plus size={16} /> Generate invoice
+          </button>
+        )}
       </div>
 
       <div className="bg-white rounded-2xl border border-[#0B2343]/[0.06] p-4 flex flex-wrap gap-3">
@@ -164,7 +176,17 @@ export default function AdminInvoices() {
                   return (
                     <tr
                       key={inv._id}
-                      className="border-b border-[#0B2343]/[0.04] last:border-0 hover:bg-[#0B2343]/[0.01] transition-colors"
+                      onClick={() => setDetailId(inv._id)}
+                      className="border-b border-[#0B2343]/[0.04] last:border-0 hover:bg-[#0B2343]/[0.01] transition-colors cursor-pointer"
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`Open invoice ${inv.invoiceNumber} details`}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setDetailId(inv._id);
+                        }
+                      }}
                     >
                       <td className="px-6 py-4">
                         <p className="text-sm font-bold text-[#0B2343]">
@@ -190,9 +212,10 @@ export default function AdminInvoices() {
                       <td className="px-6 py-4 text-right">
                         <div className="inline-flex items-center gap-2 justify-end">
                           <button
-                            onClick={() =>
-                              handleDownload(inv._id, inv.invoiceNumber)
-                            }
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDownload(inv._id, inv.invoiceNumber);
+                            }}
                             disabled={downloadingId === inv._id}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-[#0B2343]/[0.08] text-xs font-bold text-[#0B2343]/60 rounded-lg hover:bg-[#0B2343]/[0.02] disabled:opacity-50 transition-colors"
                           >
@@ -203,10 +226,12 @@ export default function AdminInvoices() {
                             )}
                             PDF
                           </button>
-                          {inv.status !== "paid" &&
+                          {!isDemoMode &&
+                            inv.status !== "paid" &&
                             inv.status !== "cancelled" && (
                               <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   if (
                                     window.confirm(
                                       `Mark invoice ${inv.invoiceNumber} as paid?`,
@@ -262,6 +287,17 @@ export default function AdminInvoices() {
       <GenerateInvoiceModal
         open={generateOpen}
         onClose={() => setGenerateOpen(false)}
+      />
+
+      {/* F9.1 — invoice detail. Amber admin sees Mark-paid since the
+          backend's PATCH /:id/mark-paid is admin-only and the org
+          column makes cross-org context clear. F15.1 — demo
+          deployments hide it (backend would 403 too). */}
+      <InvoiceDetailModal
+        open={Boolean(detailId)}
+        invoiceId={detailId}
+        onClose={() => setDetailId(null)}
+        showMarkPaid={!isDemoMode}
       />
     </div>
   );
@@ -355,10 +391,14 @@ function GenerateInvoiceModal({
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
+            <label
+              htmlFor="generate-invoice-org"
+              className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5"
+            >
               Organisation
             </label>
             <select
+              id="generate-invoice-org"
               value={orgId}
               onChange={(e) => setOrgId(e.target.value)}
               required
@@ -377,10 +417,14 @@ function GenerateInvoiceModal({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
+              <label
+                htmlFor="generate-invoice-period-start"
+                className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5"
+              >
                 Period start
               </label>
               <input
+                id="generate-invoice-period-start"
                 type="date"
                 value={periodStart}
                 onChange={(e) => setPeriodStart(e.target.value)}
@@ -389,10 +433,14 @@ function GenerateInvoiceModal({
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
+              <label
+                htmlFor="generate-invoice-period-end"
+                className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5"
+              >
                 Period end
               </label>
               <input
+                id="generate-invoice-period-end"
                 type="date"
                 value={periodEnd}
                 onChange={(e) => setPeriodEnd(e.target.value)}
@@ -403,10 +451,14 @@ function GenerateInvoiceModal({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5">
+            <label
+              htmlFor="generate-invoice-notes"
+              className="block text-xs font-semibold text-[#0B2343]/60 mb-1.5"
+            >
               Notes (optional)
             </label>
             <textarea
+              id="generate-invoice-notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
