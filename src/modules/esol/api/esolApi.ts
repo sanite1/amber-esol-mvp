@@ -50,15 +50,17 @@ export type WizardCollected = {
 
 export type RegisterRequest = WizardCollected & {
   token: string;
-  // L1 derived from the language selector; backend enum is the 6-MVP set
-  // so non-MVP UI languages map to "english" upstream.
+  // L1 derived from the language selector. MVP set is Arabic /
+  // Cantonese / Turkish / English (AI Tutor Brief §3); deferred values
+  // stay accepted by the backend so existing learners don't break.
   l1_language:
     | "arabic"
+    | "cantonese"
+    | "turkish"
+    | "english"
     | "somali"
     | "dari"
-    | "pashto"
-    | "cantonese"
-    | "english";
+    | "pashto";
   // TODO(Function 3 onboarding): the brief restricts the wizard to five
   // screens, but the register endpoint also requires lldd_health_prob and
   // employment_status. We send conservative defaults so the wizard works

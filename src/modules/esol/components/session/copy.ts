@@ -11,22 +11,34 @@ import { LANGUAGES, LangCode } from "../../data/translations";
 // Language wiring (mirrors the PlacementAssessment pattern)
 // ─────────────────────────────────────────────────────────────────────
 
-// Phase 5 / Final Addendum §5 (BE-F) — added bn (Bengali) + ur (Urdu).
-// Each new bank gets its own COPY entry below; missing keys fall
-// back to the `en` slot via the `t()` helper so an under-translated
-// bank still renders correctly while the localisation backlog
-// catches up.
-type BankLang = "en" | "ar" | "so" | "fa" | "zh" | "bn" | "ur";
+// MVP banks (AI Tutor Brief §3): en, ar, yue (Cantonese), tr (Turkish).
+// Deferred banks (so/fa/zh/bn/ur) are kept — not deleted — so any
+// existing learner whose L1 is in the shelved set still renders, and
+// the revenue-/coverage-triggered revival is a picker change, not a
+// re-translate. Missing keys fall back to the `en` slot via t().
+type BankLang =
+  | "en"
+  | "ar"
+  | "yue"
+  | "tr"
+  // deferred (shelved behind the MVP picker gate)
+  | "zh"
+  | "so"
+  | "fa"
+  | "bn"
+  | "ur";
 
 const LANG_TO_BANK: Record<string, BankLang> = {
+  // MVP
   en: "en",
   ar: "ar",
-  so: "so",
+  yue: "yue", // Cantonese — own bank now (was folded into zh pre-MVP)
+  tr: "tr",
+  // deferred — mapped so existing data still renders
   "fa-AF": "fa",
   ps: "en",
-  yue: "zh",
   zh: "zh",
-  // Phase 5 / BE-F additions.
+  so: "so",
   bn: "bn",
   ur: "ur",
 };
@@ -195,6 +207,65 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     unread_from_teacher: "您的老師",
     error_network: "出現了問題。請檢查您的網路連線並重試。",
     error_retry: "再試一次",
+  },
+  // MVP — Cantonese (yue-HK). Rendered in written Traditional Chinese,
+  // which serves Cantonese readers for formal UI chrome. FLAG: confirm
+  // with a native Cantonese speaker before pilot; spoken-Cantonese
+  // particles aren't used here as this is screen chrome, not dialogue.
+  yue: {
+    loading_session: "正在載入您的課程…",
+    starting_message: "開始中…",
+    typing: "Amber 正在打字…",
+    input_placeholder: "用英語輸入您的訊息",
+    input_label: "您的訊息",
+    send: "傳送",
+    exit: "離開課程",
+    font_size: "文字大小",
+    translate_toggle_label: "顯示我的語言",
+    translate_placeholder: "翻譯功能即將推出",
+    safeguarding_break: "休息一下",
+    session_complete_title: "做得好!",
+    session_complete_score: "您的分數",
+    session_complete_vocab: "您學會的單字",
+    session_complete_finish: "完成",
+    feedback_prompt: "這次的課程感覺如何?",
+    feedback_thanks: "感謝您的回饋!",
+    unread_title: "來自老師的訊息",
+    unread_next: "下一個",
+    unread_done: "開始課程",
+    unread_from_teacher: "您的老師",
+    error_network: "出現了問題。請檢查您的網路連線並重試。",
+    error_retry: "再試一次",
+  },
+  // MVP — Turkish (tr-TR). Launch-territory language (Enfield/Haringey).
+  // FLAG: machine-then-reviewed draft; confirm with a native Turkish
+  // speaker before pilot. Chrome strings only — Amber's tutor turns are
+  // server-side and remain English-driven.
+  tr: {
+    loading_session: "Oturumunuz yükleniyor…",
+    starting_message: "Başlıyor…",
+    typing: "Amber yazıyor…",
+    input_placeholder: "Mesajınızı İngilizce yazın",
+    input_label: "Mesajınız",
+    send: "Gönder",
+    exit: "Oturumdan çık",
+    font_size: "Yazı boyutu",
+    translate_toggle_label: "Kendi dilimde göster",
+    translate_placeholder: "Çeviri yakında geliyor",
+    safeguarding_break: "Ara ver",
+    session_complete_title: "Harika iş!",
+    session_complete_score: "Puanınız",
+    session_complete_vocab: "Öğrendiğiniz kelimeler",
+    session_complete_finish: "Bitir",
+    feedback_prompt: "Bu oturum nasıldı?",
+    feedback_thanks: "Geri bildiriminiz için teşekkürler!",
+    unread_title: "Öğretmeninizden bir mesaj",
+    unread_next: "İleri",
+    unread_done: "Oturumu başlat",
+    unread_from_teacher: "Öğretmeniniz",
+    error_network:
+      "Bir şeyler ters gitti. Lütfen bağlantınızı kontrol edip tekrar deneyin.",
+    error_retry: "Tekrar dene",
   },
   // Phase 5 / BE-F — Bengali. Translations co-authored with a
   // native speaker; chrome strings only (Amber's tutor turns are

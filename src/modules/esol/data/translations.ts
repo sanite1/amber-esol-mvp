@@ -45,20 +45,34 @@ export type LangMeta = {
   code: LangCode;
   label: string; // Display in the language itself
   dir: "ltr" | "rtl";
-  // Maps to backend l1_language enum (6 MVP only). Languages outside the
-  // MVP set fall back to "english" — recorded value vs UI language are
+  // Maps to backend l1_language enum. Languages outside the MVP set
+  // fall back to "english" — recorded value vs UI language are
   // separate concerns.
-  l1?: "arabic" | "somali" | "dari" | "pashto" | "cantonese" | "english";
+  l1?:
+    | "arabic"
+    | "cantonese"
+    | "turkish"
+    | "somali"
+    | "dari"
+    | "pashto"
+    | "english";
+  // MVP gate (AI Tutor Brief §3): only ar/yue/tr/en are offered to a
+  // learner today. The rest stay defined here — they have wizard-chrome
+  // translations and re-enable by flipping this flag — but are not
+  // selectable until premium TTS / revenue triggers land.
+  mvp?: boolean;
 };
 
 export const LANGUAGES: LangMeta[] = [
-  { code: "en", label: "English", dir: "ltr", l1: "english" },
-  { code: "ar", label: "العربية", dir: "rtl", l1: "arabic" },
+  // ── MVP — selectable today ──
+  { code: "en", label: "English", dir: "ltr", l1: "english", mvp: true },
+  { code: "ar", label: "العربية", dir: "rtl", l1: "arabic", mvp: true },
+  { code: "yue", label: "粵語", dir: "ltr", l1: "cantonese", mvp: true },
+  { code: "tr", label: "Türkçe", dir: "ltr", l1: "turkish", mvp: true },
+  // ── Deferred — defined + translated, shelved behind the MVP gate ──
   { code: "so", label: "Soomaali", dir: "ltr", l1: "somali" },
   { code: "fa-AF", label: "دری", dir: "rtl", l1: "dari" },
   { code: "ps", label: "پښتو", dir: "rtl", l1: "pashto" },
-  { code: "yue", label: "粵語", dir: "ltr", l1: "cantonese" },
-  // Extras — UI translation only
   { code: "zh", label: "中文", dir: "ltr" },
   { code: "es", label: "Español", dir: "ltr" },
   { code: "fr", label: "Français", dir: "ltr" },
@@ -69,11 +83,17 @@ export const LANGUAGES: LangMeta[] = [
   { code: "bn", label: "বাংলা", dir: "ltr" },
   { code: "ur", label: "اردو", dir: "rtl" },
   { code: "pa", label: "ਪੰਜਾਬੀ", dir: "ltr" },
-  { code: "tr", label: "Türkçe", dir: "ltr" },
   { code: "ti", label: "ትግርኛ", dir: "ltr" },
   { code: "am", label: "አማርኛ", dir: "ltr" },
   { code: "vi", label: "Tiếng Việt", dir: "ltr" },
 ];
+
+/**
+ * The languages a learner may actually choose (AI Tutor Brief §3 MVP).
+ * Pickers render this; the full LANGUAGES list still resolves a saved
+ * code so a previously-set deferred language doesn't break.
+ */
+export const SELECTABLE_LANGUAGES: LangMeta[] = LANGUAGES.filter((l) => l.mvp);
 
 // Translation keys used across the wizard. Adding a new key here without
 // updating each language object is fine — fallback is English.

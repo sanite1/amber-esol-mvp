@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import {
   I18nContext,
   LANGUAGES,
+  SELECTABLE_LANGUAGES,
   LangCode,
   translate,
 } from "../data/translations";
@@ -361,7 +362,7 @@ export default function JoinWizard() {
                   </span>
                 </button>
                 <div className="lang-picker-menu" role="listbox">
-                  {LANGUAGES.map((l) => (
+                  {SELECTABLE_LANGUAGES.map((l) => (
                     <button
                       key={l.code}
                       type="button"

@@ -22,16 +22,14 @@ import {
   NATIONALITIES,
   UK_ETHNICITY_GROUPS,
 } from "../../../../lib/data/demographics";
-import { ESOL_L1_LANGUAGES } from "../../../../lib/data/languages";
+import { MVP_LEARNER_LANGUAGES } from "../../../../lib/data/languages";
 
-// Tigrinya is excluded from MVP per the Project Silk brief —
-// no frontier LLM has confirmed reliable Tigrinya support yet.
-// Re-add in v1.1 after Tigrinya-speaking ESOL professional evaluation.
-//
-// Shared with the teacher teaching-profile editor — matching compares
-// learner L1 and teacher languages verbatim, so both pickers must use
-// the same list. See src/lib/data/languages.ts.
-const LANGUAGES = ESOL_L1_LANGUAGES;
+// Learner first-language picker is gated to the AI Tutor Brief §3 MVP
+// set (Arabic / Cantonese / Turkish / Other) — the three with full
+// session + safeguarding support, plus Other. Deferred L1s revive by
+// widening MVP_LEARNER_LANGUAGES. The teacher teaching-profile picker
+// keeps the full ESOL_L1_LANGUAGES list (a teacher may speak any).
+const LANGUAGES = MVP_LEARNER_LANGUAGES;
 
 // NATIONALITIES + UK_ETHNICITY_GROUPS come from the shared
 // src/lib/data/demographics.ts module — the previous inline
