@@ -18,6 +18,9 @@ export interface GlhBreakdown {
   ai_glh: number;
   pre_platform_glh: number;
   teacher_contact_glh: number;
+  /** Claim-driving GLH = pre_platform + teacher_contact (EXCLUDES AI
+   *  time, F29). Use for funding figures; total_glh is display-only. */
+  claimable_glh: number;
   /** 0..1 — the UI multiplies by 100 for percentage display. */
   ratio_teacher_to_total: number;
 }

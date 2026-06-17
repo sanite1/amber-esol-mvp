@@ -41,6 +41,7 @@ import VocabularyTab from "./tabs/learnerDetail/VocabularyTab";
 import Stage3ObjectivesTab from "./tabs/learnerDetail/Stage3ObjectivesTab";
 import Stage5ReviewsTab from "./tabs/learnerDetail/Stage5ReviewsTab";
 import ComplianceTimelineTab from "./tabs/learnerDetail/ComplianceTimelineTab";
+import EvidenceChainTab from "./tabs/learnerDetail/EvidenceChainTab";
 import TeacherReviewsTab from "./tabs/learnerDetail/TeacherReviewsTab";
 import SuggestedTeachersPanel from "./tabs/learnerDetail/SuggestedTeachersPanel";
 
@@ -50,6 +51,7 @@ type TabKey =
   | "vocabulary"
   | "stage3"
   | "stage5"
+  | "evidence"
   | "compliance"
   | "teacher_reviews";
 
@@ -59,6 +61,7 @@ const TAB_LABELS: Record<TabKey, string> = {
   vocabulary: "Vocabulary",
   stage3: "Stage 3 Objectives",
   stage5: "Stage 5 Reviews",
+  evidence: "Evidence Chain",
   compliance: "Compliance Timeline",
   teacher_reviews: "Teacher Reviews",
 };
@@ -322,6 +325,9 @@ export default function LearnerDetail() {
       </TabPanel>
       <TabPanel value={activeTab} tabKey="stage5">
         <Stage5ReviewsTab learnerId={learner._id} />
+      </TabPanel>
+      <TabPanel value={activeTab} tabKey="evidence">
+        <EvidenceChainTab detail={detail} />
       </TabPanel>
       <TabPanel value={activeTab} tabKey="compliance">
         <ComplianceTimelineTab detail={detail} learnerId={learner._id} />

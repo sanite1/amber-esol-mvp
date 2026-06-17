@@ -197,6 +197,8 @@ export interface LearnerDetail {
     imported_hours: number;
     teacher_contact_hours: number;
     total_glh: number;
+    /** Claim-driving GLH = imported + teacher_contact (EXCLUDES AI). */
+    claimable_glh: number;
     scenarios_passed: number;
     last_active: string | null;
     assigned_teacher_id: string | null;
@@ -222,6 +224,7 @@ export interface LearnerDetail {
   };
   level_progression: LevelChangeRow[];
   safeguarding_alert_count: number;
+  evidence_chain: EvidenceChain;
   teacher_reviews: TeacherReviewRow[];
   audit_log_entries: {
     rows: AuditLogRow[];
@@ -232,6 +235,29 @@ export interface LearnerDetail {
       total_pages: number;
     };
   };
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Evidence chain (F29)
+// ─────────────────────────────────────────────────────────────────────
+
+export interface EvidenceRecordSummary {
+  beat: string;
+  data_point: string;
+  /** Whether this data point needs a human confirm to be summative. */
+  human_confirm: boolean;
+  count: number;
+  confirmed: number;
+  rarpa_stage: string;
+  ilr_fields: string[];
+  last_captured: string | null;
+}
+
+export interface EvidenceChain {
+  total: number;
+  /** Captured rows that require a human confirm but don't have one yet. */
+  pending_confirmation: number;
+  records: EvidenceRecordSummary[];
 }
 
 // ─────────────────────────────────────────────────────────────────────

@@ -544,6 +544,32 @@ export type SubmitTurnResponse = {
   micro_stages_completed?: boolean[];
 };
 
+/* ── Stage 3 learner negotiation (F30) ───────────────────────────── */
+
+export type MyGoalsResponse = {
+  objectives: Stage3Objective[];
+  /** Warm "do you agree?" framing in the learner's L1. */
+  negotiation_script: string;
+  l1_language: string;
+  /** ISO date the learner last agreed, or null if not yet. */
+  agreed_at: string | null;
+};
+
+export const useMyGoals = () =>
+  useQuery<ApiResponse<MyGoalsResponse>, ApiError>({
+    queryKey: ["esol", "myGoals"],
+    queryFn: () => api.get<ApiResponse<MyGoalsResponse>>("/esol/session/goals"),
+  });
+
+export const useAgreeGoals = () =>
+  useMutation<ApiResponse<{ agreed: boolean }>, ApiError, { note?: string }>({
+    mutationFn: (body) =>
+      api.post<ApiResponse<{ agreed: boolean }>>(
+        "/esol/session/goals/agree",
+        body,
+      ),
+  });
+
 /* ── Voice (F28) ──────────────────────────────────────────────────── */
 
 export type VoiceCapabilities = {

@@ -103,11 +103,17 @@ export default function OverviewTab({ detail }: Props) {
       </section>
 
       {/* ── Key metrics ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
         <KeyMetric label="Scenarios passed" value={learner.scenarios_passed} />
         <KeyMetric
           label="Total GLH"
           value={`${learner.total_glh.toFixed(1)} h`}
+          hint="includes AI time"
+        />
+        <KeyMetric
+          label="Claimable GLH"
+          value={`${learner.claimable_glh.toFixed(1)} h`}
+          hint="excludes AI time"
         />
         <KeyMetric
           label="AI tutor hours"
@@ -153,9 +159,10 @@ export default function OverviewTab({ detail }: Props) {
 interface KeyMetricProps {
   label: string;
   value: string | number;
+  hint?: string;
 }
 
-function KeyMetric({ label, value }: KeyMetricProps) {
+function KeyMetric({ label, value, hint }: KeyMetricProps) {
   return (
     <div className="rounded-2xl bg-white border border-[#0B2343]/[0.06] p-3 sm:p-4 text-center">
       <p className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/45">
@@ -164,6 +171,11 @@ function KeyMetric({ label, value }: KeyMetricProps) {
       <p className="text-xl sm:text-2xl font-extrabold text-[#0B2343] tabular-nums leading-tight mt-1">
         {value}
       </p>
+      {hint && (
+        <p className="text-[10px] text-[#0B2343]/40 mt-0.5 leading-tight">
+          {hint}
+        </p>
+      )}
     </div>
   );
 }

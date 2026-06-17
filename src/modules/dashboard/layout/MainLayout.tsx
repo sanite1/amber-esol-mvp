@@ -395,6 +395,7 @@ const DashboardLayout = () => {
             // light up at once, since the active-state check matches
             // by exact path.
             { name: "AI Tutor", icon: Sparkles, path: "/esol/scenarios" },
+            { name: "My Goals", icon: Target, path: "/esol/goals" },
             { name: "Vocabulary", icon: Library, path: "/esol/vocab" },
             // "My Lessons" (marketplace bookings, /lessons) was a
             // Phase 7 leftover — for ESOL learners that route just

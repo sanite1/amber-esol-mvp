@@ -136,6 +136,8 @@ const ScenarioPrepare = lazy(() => import("../esol/pages/ScenarioPrepare"));
 // the sidebar "AI Tutor" item has a unique destination (was previously
 // colliding with "Dashboard" on the same path).
 const Scenarios = lazy(() => import("../esol/pages/Scenarios"));
+// /esol/goals — F30 learner Stage 3 negotiation (review + agree goals).
+const LearnerGoals = lazy(() => import("../esol/pages/LearnerGoals"));
 const PlacementCalibration = lazy(
   () => import("../esol/pages/admin/PlacementCalibration"),
 );
@@ -293,6 +295,7 @@ export const DashboardRoutes: React.FC = () => {
               {/* ESOL learner routes (org-managed students) */}
               <Route path="/esol/home" element={<EsolLearnerHome />} />
               <Route path="/esol/scenarios" element={<Scenarios />} />
+              <Route path="/esol/goals" element={<LearnerGoals />} />
               <Route path="/esol/placement" element={<PlacementAssessment />} />
               {/* /esol/session/:scenarioId and /esol/sessions/:sessionId
                   are mounted ABOVE without MainLayout — immersive chat

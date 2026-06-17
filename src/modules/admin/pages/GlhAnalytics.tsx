@@ -273,13 +273,20 @@ export default function GlhAnalyticsPage() {
       )}
 
       {/* 1. Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
         <SummaryCard
           icon={<Sigma size={16} aria-hidden="true" />}
           label="Total GLH"
           value={data ? formatHour(data.totals.total_glh) : null}
-          caption={data ? `${data.period.days} days` : undefined}
+          caption={data ? `${data.period.days} days · incl. AI` : undefined}
           tone="default"
+        />
+        <SummaryCard
+          icon={<ClipboardList size={16} aria-hidden="true" />}
+          label="Claimable GLH"
+          value={data ? formatHour(data.totals.claimable_glh) : null}
+          caption="excludes AI time"
+          tone="teacher"
         />
         <SummaryCard
           icon={<Bot size={16} aria-hidden="true" />}
