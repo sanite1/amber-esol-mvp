@@ -3,7 +3,7 @@
  * from AiTutorSession.tsx. Exported for axe scanning + reuse.
  */
 
-import { Sparkles } from "lucide-react";
+import { Sparkles, Volume2, Loader2 } from "lucide-react";
 import { type BankLang } from "./copy";
 
 export type ChatMessage = {
@@ -17,10 +17,17 @@ export type ChatMessage = {
 export function MessageBubble({
   message,
   fontSizeClass,
+  onListen,
+  listenState,
 }: {
   message: ChatMessage;
   bankLang?: BankLang; // reserved — see L1 toggle comment in the form footer
   fontSizeClass: string;
+  /** F28 — when provided (TTS available), Amber bubbles show a Listen
+   *  button that plays the line aloud. */
+  onListen?: () => void;
+  /** Playback state for THIS bubble: idle | loading | playing. */
+  listenState?: "idle" | "loading" | "playing";
 }) {
   const isLearner = message.role === "learner";
 
@@ -72,6 +79,26 @@ export function MessageBubble({
           {/* Preserves newlines from Amber's multi-line replies. */}
           <p className="whitespace-pre-wrap break-words">{message.text}</p>
         </div>
+        {/* F28 — Listen: play Amber's line aloud (TTS). Only rendered
+            when voice is available (onListen supplied). */}
+        {onListen && (
+          <button
+            type="button"
+            onClick={onListen}
+            disabled={listenState === "loading"}
+            aria-label={
+              listenState === "playing" ? "Playing aloud" : "Listen to this"
+            }
+            className="mt-1.5 inline-flex items-center gap-1.5 min-h-[32px] px-2 -ml-2 text-[11px] font-semibold text-[#0B2343]/45 hover:text-[#ff7c22] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7c22]/40 transition-colors disabled:opacity-60"
+          >
+            {listenState === "loading" ? (
+              <Loader2 size={13} className="animate-spin" aria-hidden="true" />
+            ) : (
+              <Volume2 size={13} aria-hidden="true" />
+            )}
+            Listen
+          </button>
+        )}
         {/* L1 translation hint block removed — no backend translation
             for AI replies today. Re-add a real <p> here showing the
             translated text when the backend ships the endpoint. */}

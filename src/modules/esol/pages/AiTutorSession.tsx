@@ -14,6 +14,8 @@ import {
   AlertTriangle,
   Loader2,
   CheckCircle2,
+  Mic,
+  Square,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,6 +25,10 @@ import {
   useEndSession,
   useMarkTeacherMessageRead,
   sessionCapMinutesForLevel,
+  fetchVoiceCapabilities,
+  requestTts,
+  requestStt,
+  type VoiceCapabilities,
   TeacherMessage,
   EndSessionResponse,
 } from "../api/esolApi";
@@ -163,6 +169,109 @@ export default function AiTutorSession() {
     [],
   );
   const [capDismissed, setCapDismissed] = useState(false);
+
+  // ── F28 Voice ─────────────────────────────────────────────────────
+  const [voiceCaps, setVoiceCaps] = useState<VoiceCapabilities>({
+    tts: false,
+    stt: false,
+    location: "",
+  });
+  // Per-message TTS playback state (which Amber bubble is loading/playing).
+  const [ttsMsgId, setTtsMsgId] = useState<string | null>(null);
+  const [ttsLoadingId, setTtsLoadingId] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // STT mic: opt-in, default OFF. "off" until the learner taps record.
+  const [micState, setMicState] = useState<
+    "off" | "recording" | "transcribing"
+  >("off");
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+
+  useEffect(() => {
+    // Capabilities decide which controls render; failure → all-off.
+    fetchVoiceCapabilities().then(setVoiceCaps);
+  }, []);
+
+  // Stop any in-flight audio when the page unmounts.
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+      audioRef.current = null;
+    };
+  }, []);
+
+  // Play Amber's line aloud. Best-effort: a null result (voice off /
+  // synth failed) just clears the loading state — the text is still on
+  // screen.
+  const playTts = useCallback(async (id: string, text: string) => {
+    setTtsLoadingId(id);
+    try {
+      audioRef.current?.pause();
+      const b64 = await requestTts(text, "english");
+      if (!b64) return;
+      const audio = new Audio(`data:audio/mpeg;base64,${b64}`);
+      audioRef.current = audio;
+      setTtsMsgId(id);
+      audio.onended = () => setTtsMsgId(null);
+      audio.onerror = () => setTtsMsgId(null);
+      await audio.play().catch(() => setTtsMsgId(null));
+    } finally {
+      setTtsLoadingId(null);
+    }
+  }, []);
+
+  // STT — record a short utterance and drop the transcript into the
+  // input. Tap-to-type stays available throughout; this never gates.
+  const stopRecording = useCallback(() => {
+    mediaRecorderRef.current?.stop();
+  }, []);
+
+  const startRecording = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((tr) => tr.stop());
+        setMicState("transcribing");
+        try {
+          const blob = new Blob(audioChunksRef.current, {
+            type: "audio/webm",
+          });
+          const buf = await blob.arrayBuffer();
+          let binary = "";
+          const bytes = new Uint8Array(buf);
+          for (let i = 0; i < bytes.length; i += 1) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          const b64 = window.btoa(binary);
+          const transcript = await requestStt(b64, {
+            language: "english",
+            encoding: "WEBM_OPUS",
+            sampleRateHertz: 48000,
+          });
+          if (transcript) {
+            setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
+            requestAnimationFrame(() => inputRef.current?.focus());
+          } else {
+            toast.message("Couldn't hear that — you can type instead.");
+          }
+        } finally {
+          setMicState("off");
+        }
+      };
+      mediaRecorderRef.current = recorder;
+      recorder.start();
+      setMicState("recording");
+    } catch {
+      // Permission denied / no mic — silently fall back to typing.
+      setMicState("off");
+      toast.message("Microphone unavailable — you can type instead.");
+    }
+  }, []);
   // Resume-only: completed or safeguarding-flagged sessions render the
   // transcript without the input bar.
   const [readOnly, setReadOnly] = useState<
@@ -698,6 +807,18 @@ export default function AiTutorSession() {
                 message={m}
                 bankLang={bankLang}
                 fontSizeClass={FONT_SIZE_CLASSES[fontSize]}
+                onListen={
+                  voiceCaps.tts && m.role === "amber"
+                    ? () => playTts(m.id, m.text)
+                    : undefined
+                }
+                listenState={
+                  ttsLoadingId === m.id
+                    ? "loading"
+                    : ttsMsgId === m.id
+                      ? "playing"
+                      : "idle"
+                }
               />
             </li>
           ))}
@@ -926,7 +1047,47 @@ export default function AiTutorSession() {
                 POST /esol/session/translate-turn), re-introduce the
                 toggle here and wire it to the new endpoint.
                 See: backend follow-up BE-9 in docs/FRONTEND_USE_CASES.md */}
-              <div className="flex items-center justify-end px-3 pb-2">
+              <div className="flex items-center justify-between px-3 pb-2">
+                {/* F28 STT — opt-in mic. Default off; the learner taps to
+                    record. Tap-to-type (the textarea above) is always
+                    available, so this never gates input. Only rendered
+                    when the backend reports STT is enabled. */}
+                {voiceCaps.stt && !ending && stage.kind !== "unread" ? (
+                  <button
+                    type="button"
+                    onClick={
+                      micState === "recording" ? stopRecording : startRecording
+                    }
+                    disabled={micState === "transcribing" || sending}
+                    aria-label={
+                      micState === "recording"
+                        ? "Stop recording"
+                        : micState === "transcribing"
+                          ? "Transcribing"
+                          : "Record your answer"
+                    }
+                    aria-pressed={micState === "recording"}
+                    className={`h-9 w-9 inline-flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-[#ff7c22]/40 transition-colors ${
+                      micState === "recording"
+                        ? "bg-red-500 text-white animate-pulse"
+                        : "text-[#0B2343]/50 hover:text-[#ff7c22] hover:bg-[#ff7c22]/10"
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {micState === "transcribing" ? (
+                      <Loader2
+                        size={16}
+                        className="animate-spin"
+                        aria-hidden="true"
+                      />
+                    ) : micState === "recording" ? (
+                      <Square size={14} aria-hidden="true" />
+                    ) : (
+                      <Mic size={16} aria-hidden="true" />
+                    )}
+                  </button>
+                ) : (
+                  <span aria-hidden="true" />
+                )}
                 <button
                   type="submit"
                   disabled={

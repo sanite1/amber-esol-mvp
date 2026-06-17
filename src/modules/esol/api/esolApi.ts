@@ -544,6 +544,65 @@ export type SubmitTurnResponse = {
   micro_stages_completed?: boolean[];
 };
 
+/* ── Voice (F28) ──────────────────────────────────────────────────── */
+
+export type VoiceCapabilities = {
+  tts: boolean;
+  stt: boolean;
+  location: string;
+};
+
+/** What voice controls to render. Degrades to all-off on any error. */
+export const fetchVoiceCapabilities = async (): Promise<VoiceCapabilities> => {
+  try {
+    const res = await api.get<ApiResponse<VoiceCapabilities>>(
+      "/esol/session/voice-capabilities",
+    );
+    return res.data;
+  } catch {
+    return { tts: false, stt: false, location: "" };
+  }
+};
+
+/** Synthesise a line → base64 MP3, or null when voice is unavailable. */
+export const requestTts = async (
+  text: string,
+  language?: string,
+): Promise<string | null> => {
+  try {
+    const res = await api.post<
+      ApiResponse<{ available: boolean; audio_base64?: string }>
+    >("/esol/session/tts", { text, language });
+    return res.data.available && res.data.audio_base64
+      ? res.data.audio_base64
+      : null;
+  } catch {
+    return null;
+  }
+};
+
+/** Transcribe an utterance → text, or null (caller falls back to typing). */
+export const requestStt = async (
+  audioBase64: string,
+  opts?: { language?: string; encoding?: string; sampleRateHertz?: number },
+): Promise<string | null> => {
+  try {
+    const res = await api.post<
+      ApiResponse<{ available: boolean; transcript?: string }>
+    >("/esol/session/stt", {
+      audio_base64: audioBase64,
+      language: opts?.language,
+      encoding: opts?.encoding,
+      sample_rate_hertz: opts?.sampleRateHertz,
+    });
+    return res.data.available && res.data.transcript
+      ? res.data.transcript
+      : null;
+  } catch {
+    return null;
+  }
+};
+
 export const useSubmitTurn = () =>
   useMutation<
     ApiResponse<SubmitTurnResponse>,
