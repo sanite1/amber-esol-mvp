@@ -129,6 +129,9 @@ const PlacementAssessment = lazy(
   () => import("../esol/pages/PlacementAssessment"),
 );
 const AiTutorSession = lazy(() => import("../esol/pages/AiTutorSession"));
+// /esol/prepare/:scenarioId — the PREPARE beat (F31). Immersive lead-in
+// shown before the live session starts.
+const ScenarioPrepare = lazy(() => import("../esol/pages/ScenarioPrepare"));
 // /esol/scenarios — dedicated AI tutor picker. Sibling to /esol/home so
 // the sidebar "AI Tutor" item has a unique destination (was previously
 // colliding with "Dashboard" on the same path).
@@ -205,6 +208,12 @@ export const DashboardRoutes: React.FC = () => {
               PrivateRoute + RoleRoute so role enforcement is identical
               to the chrome'd routes. */}
           <Route element={<RoleRoute allowed={["student"]} />}>
+            {/* /esol/prepare/:scenarioId — PREPARE beat (F31), immersive
+                lead-in before the live session. */}
+            <Route
+              path="/esol/prepare/:scenarioId"
+              element={<ScenarioPrepare />}
+            />
             <Route
               path="/esol/session/:scenarioId"
               element={<AiTutorSession />}

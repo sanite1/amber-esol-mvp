@@ -22,6 +22,7 @@ import {
   useSubmitTurn,
   useEndSession,
   useMarkTeacherMessageRead,
+  sessionCapMinutesForLevel,
   TeacherMessage,
   EndSessionResponse,
 } from "../api/esolApi";
@@ -154,6 +155,14 @@ export default function AiTutorSession() {
     false,
     false,
   ]);
+  // F31 — soft session-length cap by level. Once elapsed time passes the
+  // level's cap we show a gentle wrap-up nudge (never a hard stop). The
+  // learner can dismiss it and keep practising.
+  const sessionCapMins = useMemo(
+    () => sessionCapMinutesForLevel(getDecodedJwt()?.esolLevel ?? "e2"),
+    [],
+  );
+  const [capDismissed, setCapDismissed] = useState(false);
   // Resume-only: completed or safeguarding-flagged sessions render the
   // transcript without the input bar.
   const [readOnly, setReadOnly] = useState<
@@ -799,6 +808,43 @@ export default function AiTutorSession() {
           </div>
         </div>
       )}
+
+      {/* Soft session-length cap (F31) — a gentle wrap-up nudge once the
+          learner passes their level's cap. Never blocks input; the
+          learner can dismiss it and keep going. Not shown on read-only
+          or safeguarding-flagged transcripts. */}
+      {stage.kind === "chat" &&
+        !readOnly &&
+        !capDismissed &&
+        !messages[messages.length - 1]?.safeguarding &&
+        (Date.now() - sessionStartMs.current) / 60000 >= sessionCapMins && (
+          <div className="shrink-0 bg-[#fff8ee] border-t border-[#ff7c22]/25 px-4 py-3">
+            <div className="max-w-3xl mx-auto flex items-center gap-3">
+              <p className="text-xs text-[#0B2343]/75 leading-relaxed flex-1">
+                You've been practising for a while — a great effort. This is a
+                good moment to wrap up and see how you did.
+              </p>
+              {messages.some((m) => m.role === "learner") && (
+                <button
+                  type="button"
+                  onClick={endAndReviewSession}
+                  disabled={ending}
+                  className="shrink-0 min-h-[40px] px-3.5 py-2 text-xs font-bold text-white bg-[#ff7c22] rounded-xl hover:bg-[#e56a10] focus:outline-none focus:ring-2 focus:ring-[#ff7c22]/40 disabled:opacity-50 transition-colors"
+                >
+                  End &amp; review
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setCapDismissed(true)}
+                aria-label="Keep practising"
+                className="shrink-0 min-h-[40px] min-w-[40px] inline-flex items-center justify-center text-[#0B2343]/45 hover:text-[#0B2343] hover:bg-[#0B2343]/[0.04] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7c22]/40 transition-colors"
+              >
+                <X size={16} aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+        )}
 
       {/* Input area — Claude-style: floating rounded card with textarea
           and send button inside. Read-only sessions (completed /

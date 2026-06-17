@@ -64,7 +64,7 @@ const ScenarioPicker: React.FC<Props> = ({ level }) => {
               <li key={s.id}>
                 <button
                   type="button"
-                  onClick={() => navigate(`/esol/session/${s.id}`)}
+                  onClick={() => navigate(`/esol/prepare/${s.id}`)}
                   className="w-full text-left p-4 rounded-xl border border-[#0B2343]/[0.08] hover:border-[#ff7c22]/40 hover:bg-[#fff8ee] transition-colors group focus:outline-none focus:ring-2 focus:ring-[#ff7c22]/40"
                 >
                   <div className="flex items-start justify-between gap-3">

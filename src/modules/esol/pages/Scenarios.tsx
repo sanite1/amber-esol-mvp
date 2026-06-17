@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Sparkles, ArrowLeft, BookOpen } from "lucide-react";
 import { getDecodedJwt } from "../../dashboard/lib/auth";
 import ScenarioPicker from "../components/ScenarioPicker";
+import { JourneyMap } from "../components/JourneyMap";
 import type { EsolLevel } from "../api/esolApi";
 
 /**
@@ -88,6 +89,11 @@ export default function Scenarios() {
           </div>
         </Link>
       )}
+
+      {/* Journey map — frames the level's scenarios as a path toward a
+          visible destination (F31). Above the flat picker so the
+          learner sees the milestone first. */}
+      {esolLevel && <JourneyMap level={esolLevel} />}
 
       {/* The picker itself — only meaningful when esolLevel is set.
           If the learner doesn't have a level yet, render a lightly

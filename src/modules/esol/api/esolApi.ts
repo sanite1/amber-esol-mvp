@@ -321,6 +321,10 @@ export type Scenario = {
   /** Rough expected duration so the learner knows what they're signing
    *  up for. */
   duration_minutes?: number;
+  /** The four roleplay micro-stages (F25) — mirrors the `micro_stages`
+   *  in the backend scenario JSON. Surfaced on the PREPARE screen so
+   *  the learner sees the arc before they begin. */
+  micro_stages?: string[];
 };
 
 /**
@@ -355,6 +359,12 @@ export const SCENARIO_CATALOGUE: Scenario[] = [
     level_range: { min: "e1", max: "e3" },
     uk_context: "GP appointment",
     duration_minutes: 12,
+    micro_stages: [
+      "Greet the receptionist and say why you are calling",
+      "Describe your symptoms and how long you have had them",
+      "Ask about and agree an appointment time",
+      "Give your details and confirm the booking",
+    ],
   },
   {
     id: "s2_payslip",
@@ -367,6 +377,12 @@ export const SCENARIO_CATALOGUE: Scenario[] = [
     level_range: { min: "e2", max: "l2" },
     uk_context: "Work",
     duration_minutes: 15,
+    micro_stages: [
+      "Say which part of the payslip you don't understand",
+      "Work out gross pay, deductions and net pay",
+      "Ask what each deduction (tax, National Insurance) is for",
+      "Confirm what you've understood and what to check next",
+    ],
   },
   {
     id: "s3_housing_rights",
@@ -384,6 +400,12 @@ export const SCENARIO_CATALOGUE: Scenario[] = [
     level_range: { min: "e2", max: "l2" },
     uk_context: "Housing",
     duration_minutes: 18,
+    micro_stages: [
+      "Explain the housing problem and how long it has gone on",
+      "Find out what your landlord is legally required to do",
+      "Rehearse what to say or write to the landlord",
+      "Identify who to contact for help if it isn't resolved",
+    ],
   },
   {
     id: "s4_pay_rise_negotiation",
@@ -396,6 +418,12 @@ export const SCENARIO_CATALOGUE: Scenario[] = [
     level_range: { min: "l1", max: "l2" },
     uk_context: "Work",
     duration_minutes: 22,
+    micro_stages: [
+      "Open the salary conversation and state your purpose",
+      "Present your case with specific evidence and a figure",
+      "Respond to hedging or pushback without backing down",
+      "Reach an agreement or propose a clear next step",
+    ],
   },
 ];
 
@@ -419,6 +447,56 @@ export const scenariosForLevel = (level: string): Scenario[] => {
     const maxIdx = LEVEL_ORDER.indexOf(s.level_range.max);
     return idx >= minIdx && idx <= maxIdx;
   });
+};
+
+/** Single scenario by id (PREPARE screen reads this). */
+export const scenarioById = (id: string): Scenario | undefined =>
+  SCENARIO_CATALOGUE.find((s) => s.id === id);
+
+/**
+ * The learner's journey destination — the CEFR level they're working
+ * toward and a rough time estimate, for the journey-map headline
+ * ("B2-ready in ~14 weeks"). The estimates are deliberate, conservative
+ * teaching-time approximations, NOT a funding/GLH figure.
+ */
+export type JourneyDestination = {
+  cefr: string;
+  label: string;
+  weeks: number;
+};
+
+const JOURNEY_BY_LEVEL: Record<EsolLevel, JourneyDestination> = {
+  e1: { cefr: "A2", label: "A2-ready", weeks: 16 },
+  e2: { cefr: "B1", label: "B1-ready", weeks: 16 },
+  e3: { cefr: "B1", label: "B1-ready", weeks: 14 },
+  l1: { cefr: "B2", label: "B2-ready", weeks: 14 },
+  l2: { cefr: "B2+", label: "B2+ fluency", weeks: 12 },
+};
+
+export const journeyDestinationForLevel = (
+  level: string,
+): JourneyDestination => {
+  const code = normalizeEsolLevel(level) ?? "e2";
+  return JOURNEY_BY_LEVEL[code];
+};
+
+/**
+ * Soft session-length cap (minutes) by level (F31). A gentle wrap-up
+ * prompt appears once the learner passes this — never a hard stop;
+ * cutting a learner off mid-sentence would be hostile. Lower levels
+ * cap shorter (cognitive load); higher levels sustain longer.
+ */
+const SESSION_CAP_MINS: Record<EsolLevel, number> = {
+  e1: 15,
+  e2: 18,
+  e3: 20,
+  l1: 25,
+  l2: 30,
+};
+
+export const sessionCapMinutesForLevel = (level: string): number => {
+  const code = normalizeEsolLevel(level) ?? "e2";
+  return SESSION_CAP_MINS[code];
 };
 
 /* ── AI tutor session ────────────────────────────────────────────── */
