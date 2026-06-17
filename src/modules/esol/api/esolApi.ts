@@ -450,6 +450,9 @@ export const useStartSession = () =>
 
 export type TurnMode = "anchor" | "bridge" | "immersion";
 
+/** Three-beat arc (F25) — surfaced so the UI can render the journey. */
+export type SessionBeat = "prepare" | "roleplay" | "complete";
+
 export type SubmitTurnResponse = {
   reply: string;
   mode: TurnMode;
@@ -457,6 +460,10 @@ export type SubmitTurnResponse = {
   vocab_words_seen: string[];
   /** Set by the backend when a safeguarding pre-cache reply was served. */
   safeguarding_served?: boolean;
+  // ── F25 three-beat arc state (drives the 4-dot ROLEPLAY indicator) ──
+  beat?: SessionBeat;
+  micro_stage_index?: number;
+  micro_stages_completed?: boolean[];
 };
 
 export const useSubmitTurn = () =>

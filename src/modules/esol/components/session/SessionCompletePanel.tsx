@@ -4,10 +4,11 @@
  * AiTutorSession.tsx.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { EndSessionResponse } from "../../api/esolApi";
 import { t, type BankLang } from "./copy";
+import { playCompletionChime } from "./chime";
 
 // ─────────────────────────────────────────────────────────────────────
 // SessionCompletePanel + emoji feedback
@@ -26,6 +27,13 @@ export function SessionCompletePanel({
 }) {
   const [feedback, setFeedback] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
+
+  // F31 — warm chime on the COMPLETE beat. Best-effort; no-ops when
+  // audio is blocked or the learner prefers reduced motion. Fires once
+  // on mount (the panel is only mounted when a session completes).
+  useEffect(() => {
+    playCompletionChime();
+  }, []);
 
   return (
     <div

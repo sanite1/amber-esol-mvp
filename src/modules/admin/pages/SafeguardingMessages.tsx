@@ -27,8 +27,12 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const LANGUAGE_LABELS: Record<string, string> = {
+  // MVP
   en: "English",
   ar: "Arabic",
+  yue: "Cantonese",
+  tr: "Turkish",
+  // Deferred (kept editable for existing data)
   so: "Somali",
   fa: "Dari / Farsi",
   zh: "Chinese",

@@ -46,6 +46,7 @@ import {
 } from "../components/session/bubbles";
 import { UnreadMessageModal } from "../components/session/UnreadMessageModal";
 import { SessionCompletePanel } from "../components/session/SessionCompletePanel";
+import { MicroStageProgress } from "../components/session/MicroStageProgress";
 /**
  * The ONE session page — brief Function 7 AI tutor chat.
  *
@@ -144,6 +145,15 @@ export default function AiTutorSession() {
   // comment for the path forward). Re-add as `useState(false)` when
   // the learner-side translate endpoint ships.
   const [fontSize, setFontSize] = useState<FontSize>("md");
+  // F25 ROLEPLAY arc — the 4-dot micro-stage progress, updated from each
+  // turn's `micro_stages_completed`. Starts empty (PREPARE) and fills as
+  // the conversation moves through its stages.
+  const [microStages, setMicroStages] = useState<boolean[]>([
+    false,
+    false,
+    false,
+    false,
+  ]);
   // Resume-only: completed or safeguarding-flagged sessions render the
   // transcript without the input bar.
   const [readOnly, setReadOnly] = useState<
@@ -345,6 +355,12 @@ export default function AiTutorSession() {
             },
           ]);
           setSending(false);
+
+          // F25 — advance the 4-dot ROLEPLAY indicator from the turn's
+          // arc state (backend is authoritative).
+          if (Array.isArray(data.micro_stages_completed)) {
+            setMicroStages(data.micro_stages_completed);
+          }
 
           if (data.session_complete) {
             // The /turn endpoint already marks the session done; explicit
@@ -645,6 +661,15 @@ export default function AiTutorSession() {
             <X size={18} aria-hidden="true" />
           </button>
         </div>
+
+        {/* ROLEPLAY 4-dot progress — F25. Live sessions only (a
+            read-only transcript has no live arc to advance). Sits on
+            its own row so it never crowds the title at 375px. */}
+        {!readOnly && (
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 pb-2.5 -mt-0.5 flex justify-center">
+            <MicroStageProgress completed={microStages} bankLang={bankLang} />
+          </div>
+        )}
       </header>
 
       {/* Chat area — flex-1 + overflow-y-auto means it takes all the
