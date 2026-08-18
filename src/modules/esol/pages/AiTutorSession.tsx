@@ -95,6 +95,15 @@ import { MicroStageProgress } from "../components/session/MicroStageProgress";
  *   - Input has an explicit label
  */
 
+/**
+ * F31 session-cap idle grace: how long after the learner's last
+ * interaction we keep counting time as "active practice". Generous on
+ * purpose — low-level learners spend minutes reading a reply and
+ * composing an answer, and that thinking time is practice. Beyond this
+ * window (or while the tab is hidden) the cap clock pauses.
+ */
+const CAP_IDLE_GRACE_MS = 2 * 60 * 1000;
+
 type Stage =
   | { kind: "loading" }
   | { kind: "unread"; messages: TeacherMessage[]; idx: number }
@@ -161,14 +170,29 @@ export default function AiTutorSession() {
     false,
     false,
   ]);
-  // F31 — soft session-length cap by level. Once elapsed time passes the
-  // level's cap we show a gentle wrap-up nudge (never a hard stop). The
-  // learner can dismiss it and keep practising.
+  // F31 — soft session-length cap by level. Once ACTIVE practice time
+  // passes the level's cap we show a gentle wrap-up nudge (never a hard
+  // stop). The learner can dismiss it and keep practising.
+  //
+  // "Active" is not wall-clock: a learner who opens a session and walks
+  // away must not come back to "you've been practising for a while" on
+  // a session they barely touched. The 1s timer interval accrues into
+  // activeMsRef only while the tab is visible AND the learner has
+  // interacted (typed / sent / received a reply / used voice) within
+  // the last CAP_IDLE_GRACE_MS. The grace window is deliberately
+  // generous — E1 learners read and compose slowly, and that thinking
+  // time IS practice; only genuine absence stops the clock.
   const sessionCapMins = useMemo(
     () => sessionCapMinutesForLevel(getDecodedJwt()?.esolLevel ?? "e2"),
     [],
   );
   const [capDismissed, setCapDismissed] = useState(false);
+  const activeMsRef = useRef(0);
+  const lastActivityMsRef = useRef<number>(Date.now());
+  const lastTickMsRef = useRef<number>(Date.now());
+  const markActivity = useCallback(() => {
+    lastActivityMsRef.current = Date.now();
+  }, []);
 
   // ── F28 Voice ─────────────────────────────────────────────────────
   const [voiceCaps, setVoiceCaps] = useState<VoiceCapabilities>({
@@ -203,22 +227,26 @@ export default function AiTutorSession() {
   // Play Amber's line aloud. Best-effort: a null result (voice off /
   // synth failed) just clears the loading state — the text is still on
   // screen.
-  const playTts = useCallback(async (id: string, text: string) => {
-    setTtsLoadingId(id);
-    try {
-      audioRef.current?.pause();
-      const b64 = await requestTts(text, "english");
-      if (!b64) return;
-      const audio = new Audio(`data:audio/mpeg;base64,${b64}`);
-      audioRef.current = audio;
-      setTtsMsgId(id);
-      audio.onended = () => setTtsMsgId(null);
-      audio.onerror = () => setTtsMsgId(null);
-      await audio.play().catch(() => setTtsMsgId(null));
-    } finally {
-      setTtsLoadingId(null);
-    }
-  }, []);
+  const playTts = useCallback(
+    async (id: string, text: string) => {
+      markActivity(); // listening to a line is active practice (F31 cap clock)
+      setTtsLoadingId(id);
+      try {
+        audioRef.current?.pause();
+        const b64 = await requestTts(text, "english");
+        if (!b64) return;
+        const audio = new Audio(`data:audio/mpeg;base64,${b64}`);
+        audioRef.current = audio;
+        setTtsMsgId(id);
+        audio.onended = () => setTtsMsgId(null);
+        audio.onerror = () => setTtsMsgId(null);
+        await audio.play().catch(() => setTtsMsgId(null));
+      } finally {
+        setTtsLoadingId(null);
+      }
+    },
+    [markActivity],
+  );
 
   // STT — record a short utterance and drop the transcript into the
   // input. Tap-to-type stays available throughout; this never gates.
@@ -255,6 +283,9 @@ export default function AiTutorSession() {
           });
           if (transcript) {
             setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
+            // Programmatic setInput skips the textarea onChange, so
+            // mark the F31 activity here too.
+            markActivity();
             requestAnimationFrame(() => inputRef.current?.focus());
           } else {
             toast.message("Couldn't hear that — you can type instead.");
@@ -266,12 +297,13 @@ export default function AiTutorSession() {
       mediaRecorderRef.current = recorder;
       recorder.start();
       setMicState("recording");
+      markActivity(); // speaking into the mic is active practice (F31)
     } catch {
       // Permission denied / no mic — silently fall back to typing.
       setMicState("off");
       toast.message("Microphone unavailable — you can type instead.");
     }
-  }, []);
+  }, [markActivity]);
   // Resume-only: completed or safeguarding-flagged sessions render the
   // transcript without the input bar.
   const [readOnly, setReadOnly] = useState<
@@ -293,9 +325,25 @@ export default function AiTutorSession() {
   const ending = endMutation.isPending;
 
   // ── Timer: bump state every second to refresh the displayed value ─
+  // The same tick accrues the F31 ACTIVE-practice clock (drives the
+  // wrap-up nudge): time counts only while the tab is visible and the
+  // learner interacted within the idle grace window. The delta clamp
+  // matters — browsers throttle background-tab intervals, so the first
+  // tick after returning can span minutes; without the clamp all that
+  // away-time would be credited as practice in one jump.
   useEffect(() => {
     if (stage.kind !== "chat") return;
-    const id = window.setInterval(() => setTimerTick((n) => n + 1), 1000);
+    lastTickMsRef.current = Date.now();
+    const id = window.setInterval(() => {
+      const now = Date.now();
+      const delta = now - lastTickMsRef.current;
+      lastTickMsRef.current = now;
+      const idle = now - lastActivityMsRef.current > CAP_IDLE_GRACE_MS;
+      if (!document.hidden && !idle && delta > 0 && delta < 5000) {
+        activeMsRef.current += delta;
+      }
+      setTimerTick((n) => n + 1);
+    }, 1000);
     return () => window.clearInterval(id);
   }, [stage.kind]);
 
@@ -456,6 +504,7 @@ export default function AiTutorSession() {
     setMessages((m) => [...m, learnerMsg]);
     setInput("");
     setSending(true);
+    markActivity(); // sending a turn is active practice (F31 cap clock)
 
     turnMutation.mutate(
       { session_id: sessionId, message: text },
@@ -473,6 +522,9 @@ export default function AiTutorSession() {
             },
           ]);
           setSending(false);
+          // Receiving Amber's reply restarts the grace window — the
+          // learner now reads it, and that reading time is practice.
+          markActivity();
 
           // F25 — advance the 4-dot ROLEPLAY indicator from the turn's
           // arc state (backend is authoritative).
@@ -523,7 +575,15 @@ export default function AiTutorSession() {
         },
       },
     );
-  }, [sessionId, input, sending, turnMutation, endMutation, bankLang]);
+  }, [
+    sessionId,
+    input,
+    sending,
+    turnMutation,
+    endMutation,
+    bankLang,
+    markActivity,
+  ]);
 
   const handleEnterKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -938,7 +998,7 @@ export default function AiTutorSession() {
         !readOnly &&
         !capDismissed &&
         !messages[messages.length - 1]?.safeguarding &&
-        (Date.now() - sessionStartMs.current) / 60000 >= sessionCapMins && (
+        activeMsRef.current / 60000 >= sessionCapMins && (
           <div className="shrink-0 bg-[#fff8ee] border-t border-[#ff7c22]/25 px-4 py-3">
             <div className="max-w-3xl mx-auto flex items-center gap-3">
               <p className="text-xs text-[#0B2343]/75 leading-relaxed flex-1">
@@ -1022,7 +1082,10 @@ export default function AiTutorSession() {
                 ref={inputRef}
                 rows={1}
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(e) => {
+                  setInput(e.target.value);
+                  markActivity(); // keystrokes keep the F31 active-practice clock running
+                }}
                 onKeyDown={handleEnterKey}
                 placeholder={t(bankLang, "input_placeholder")}
                 disabled={sending || ending || stage.kind === "unread"}
