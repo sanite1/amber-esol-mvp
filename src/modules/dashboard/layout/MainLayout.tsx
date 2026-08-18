@@ -101,6 +101,16 @@ const DashboardLayout = () => {
         {
           label: "ESOL",
           items: [
+            // Project Silk cohort dashboard (/org-admin/dashboard —
+            // Cohort / Audit Log / Stage 5 Pending tabs). Distinct from
+            // the Overview "Dashboard" above (/org/home), which is the
+            // legacy org landing page; each keeps its own entry so the
+            // exact-path active check highlights the right item.
+            {
+              name: "Cohort dashboard",
+              icon: PieChart,
+              path: "/org-admin/dashboard",
+            },
             { name: "Learners", icon: Users, path: "/org/learners" },
             { name: "Invitations", icon: Mail, path: "/org/invitations" },
             {
@@ -510,6 +520,7 @@ const DashboardLayout = () => {
         profilePercentage={percentage}
         helpUrl={helpUrl}
         user={user}
+        roleLabel={roleLabel}
         onClose={() => setMobileSidebarOpen(false)}
         onLogout={handleLogout}
       />

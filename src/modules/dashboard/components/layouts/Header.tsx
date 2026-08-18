@@ -66,7 +66,11 @@ const Header = ({
 
           <div className="w-px h-6 bg-[#0B2343]/[0.06] mx-1.5 hidden sm:block" />
 
-          <ProfileDropdown user={user} onLogout={onLogout} />
+          <ProfileDropdown
+            user={user}
+            roleLabel={roleLabel}
+            onLogout={onLogout}
+          />
         </div>
       </div>
     </header>

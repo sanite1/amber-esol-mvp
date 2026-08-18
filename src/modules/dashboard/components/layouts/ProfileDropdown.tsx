@@ -10,10 +10,18 @@ interface ProfileDropdownProps {
     email?: string;
     role?: string;
   } | null;
+  // Computed once in MainLayout (covers org_admin → "Organisation
+  // Admin" etc.) — the old local ternary here defaulted every
+  // non-admin/non-tutor role to "Student".
+  roleLabel: string;
   onLogout: () => void;
 }
 
-const ProfileDropdown = ({ user, onLogout }: ProfileDropdownProps) => {
+const ProfileDropdown = ({
+  user,
+  roleLabel,
+  onLogout,
+}: ProfileDropdownProps) => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -21,7 +29,6 @@ const ProfileDropdown = ({ user, onLogout }: ProfileDropdownProps) => {
   const fullName = `${user?.firstname || ""} ${user?.lastname || ""}`;
   const isAdmin = user?.role === "admin";
   const isTutor = user?.role === "tutor";
-  const roleLabel = isAdmin ? "Administrator" : isTutor ? "Tutor" : "Student";
 
   const profilePath = isAdmin
     ? "/admin/settings"

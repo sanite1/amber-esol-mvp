@@ -18,6 +18,10 @@ interface MobileSidebarProps {
     lastname?: string;
     role?: string;
   } | null;
+  // Computed once in MainLayout (covers org_admin → "Organisation
+  // Admin" etc.) — the old local ternary here defaulted every
+  // non-admin/non-tutor role to "Student".
+  roleLabel: string;
   onClose: () => void;
   onLogout: () => void;
 }
@@ -30,13 +34,12 @@ const MobileSidebar = ({
   profilePercentage,
   helpUrl,
   user,
+  roleLabel,
   onClose,
   onLogout,
 }: MobileSidebarProps) => {
   const initials = `${user?.firstname?.[0] || ""}${user?.lastname?.[0] || ""}`;
   const fullName = `${user?.firstname || ""} ${user?.lastname || ""}`;
-  const isTutor = user?.role === "tutor";
-  const roleLabel = isAdmin ? "Administrator" : isTutor ? "Tutor" : "Student";
 
   return (
     <AnimatePresence>

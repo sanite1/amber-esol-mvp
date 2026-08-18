@@ -434,7 +434,12 @@ export default function TeacherDashboardPage() {
         aria-labelledby="teacher-dashboard-heading"
         className="rounded-2xl bg-white border border-[#0B2343]/[0.06] overflow-hidden"
       >
-        <div className="border-b border-[#0B2343]/[0.06]">
+        {/* Greeting block — same header inset as the sibling cards
+            ("Priority queue" / "Your cohort" headers below), so the
+            hero copy no longer sits flush against the card edge. The
+            padding lives INSIDE this div, so the border-b divider and
+            the metric grid's divide-x/-y lines still span full width. */}
+        <div className="px-5 sm:px-6 pt-5 pb-4 border-b border-[#0B2343]/[0.06]">
           <div className="flex items-center gap-2.5 mb-1">
             <span
               aria-hidden="true"

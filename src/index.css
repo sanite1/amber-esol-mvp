@@ -5,6 +5,29 @@
 /* Amber ESOL platform design system (scoped to .amber-platform) */
 @import "./styles/amber-design-system.css";
 
+/* ─────────────────────────────────────────────────────────────────
+   iOS zoom guard.
+   Safari on iOS / iPadOS auto-zooms the viewport when a focused form
+   control renders below 16px. Rather than hunt every one of the ~368
+   input/textarea/select tags (and remember it for every future one),
+   force 16px on touch devices — this overrides any Tailwind text-sm /
+   text-xs on the control. Desktop (fine pointer) keeps its designed
+   sizes. Checkbox/radio/range/file/color are excluded (font-size is
+   irrelevant or harmful there). The viewport meta deliberately keeps
+   pinch-zoom enabled (no maximum-scale), so this is the a11y-safe fix.
+   ───────────────────────────────────────────────────────────────── */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(
+      [type="file"]
+    ):not([type="color"]):not([type="button"]):not([type="submit"]):not(
+      [type="reset"]
+    ):not([type="image"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 body {
   margin: 0;
   font-family:
