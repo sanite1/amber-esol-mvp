@@ -9,6 +9,11 @@ import {
   FileText,
 } from "lucide-react";
 
+import heroLearner from "../assets/heroLearner.jpg";
+import audienceLearner from "../assets/audienceLearner.jpg";
+import audienceTeacher from "../assets/audienceTeacher.jpg";
+import audienceOrgAdmin from "../assets/audienceOrgAdmin.jpg";
+
 /**
  * /  — public marketing home.
  *
@@ -88,16 +93,16 @@ const Home: React.FC = () => {
               </ul>
             </div>
 
-            {/* Hero image slot — placeholder until real photography lands */}
             <div className="hero-image">
-              <div
+              <img
+                src={heroLearner}
+                alt="Adult ESOL learner smiling and holding her orange course folder"
                 style={{
+                  display: "block",
+                  width: "100%",
                   aspectRatio: "4 / 5",
-                  background:
-                    "repeating-linear-gradient(135deg, rgba(11,35,67,0.06) 0, rgba(11,35,67,0.06) 1px, transparent 1px, transparent 12px), linear-gradient(140deg, #f3eee3 0%, #faf8f3 100%)",
+                  objectFit: "cover",
                 }}
-                aria-label="Photograph slot: adult ESOL learner, classroom or 1:1"
-                role="img"
               />
               <div className="badge">
                 <div>
@@ -384,7 +389,8 @@ const Home: React.FC = () => {
           <div className="grid-3" style={{ marginTop: 56 }}>
             <AudienceCard
               pill="For learners"
-              imageLabel="Adult ESOL learner"
+              image={audienceLearner}
+              imageLabel="Adult ESOL learners studying together around a table"
               heading="Learn in your language, then in English."
               body="The AI tutor speaks your first language. You graduate into English at your own pace."
               bullets={[
@@ -397,7 +403,8 @@ const Home: React.FC = () => {
             />
             <AudienceCard
               pill="For teachers"
-              imageLabel="ESOL teacher, CELTA practitioner"
+              image={audienceTeacher}
+              imageLabel="ESOL teacher smiling beside a whiteboard"
               heading="Less marking. More teaching."
               body="A priority queue, not an inbox. Evidence packets write themselves while you focus on the learners who need you."
               bullets={[
@@ -410,7 +417,8 @@ const Home: React.FC = () => {
             />
             <AudienceCard
               pill="For org admins"
-              imageLabel="ESOL provision lead, council adult learning"
+              image={audienceOrgAdmin}
+              imageLabel="Two provision leads celebrating over paperwork at a desk"
               heading="Run more provision with the same team."
               body="Every learner in one view. GLH ratios live. ILR and RARPA evidence ready before you ask."
               bullets={[
@@ -531,6 +539,7 @@ const Home: React.FC = () => {
    ============================================================ */
 interface AudienceCardProps {
   pill: string;
+  image: string;
   imageLabel: string;
   heading: string;
   body: string;
@@ -541,6 +550,7 @@ interface AudienceCardProps {
 
 const AudienceCard: React.FC<AudienceCardProps> = ({
   pill,
+  image,
   imageLabel,
   heading,
   body,
@@ -551,15 +561,15 @@ const AudienceCard: React.FC<AudienceCardProps> = ({
   <article className="aud">
     <div className="photo">
       <div className="pill">{pill}</div>
-      <div
+      <img
+        src={image}
+        alt={imageLabel}
         style={{
+          display: "block",
           width: "100%",
           height: "100%",
-          background:
-            "repeating-linear-gradient(135deg, rgba(11,35,67,0.06) 0, rgba(11,35,67,0.06) 1px, transparent 1px, transparent 12px), linear-gradient(140deg, #f3eee3 0%, #faf8f3 100%)",
+          objectFit: "cover",
         }}
-        role="img"
-        aria-label={`Photograph slot: ${imageLabel}`}
       />
     </div>
     <div className="body">

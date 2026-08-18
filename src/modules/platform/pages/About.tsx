@@ -2,15 +2,16 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Mail, Phone, MapPin } from "lucide-react";
 
+import aboutTeam from "../assets/aboutTeam.jpg";
+
 /**
  * /about — company page.
  *
  * Direct port of design-refs/site/about.html. Sections:
- *   (a) Hero with photo slot
+ *   (a) Hero with team photo
  *   (b) Mission statement (centred, warm)
  *   (c) Amber Training context — 2025 vs 2015 figure cards
- *   (d) Team strip — 4 team cards (placeholders until photography)
- *   (e) Office card (navy gradient)
+ *   (d) Office card (navy gradient)
  */
 const About: React.FC = () => {
   useEffect(() => {
@@ -56,14 +57,15 @@ const About: React.FC = () => {
             </div>
 
             <div className="hero-image">
-              <div
+              <img
+                src={aboutTeam}
+                alt="The Amber team working together around a table on laptops"
                 style={{
+                  display: "block",
+                  width: "100%",
                   aspectRatio: "4 / 5",
-                  background:
-                    "repeating-linear-gradient(135deg, rgba(11,35,67,0.06) 0, rgba(11,35,67,0.06) 1px, transparent 1px, transparent 12px), linear-gradient(140deg, #f3eee3 0%, #faf8f3 100%)",
+                  objectFit: "cover",
                 }}
-                role="img"
-                aria-label="Photograph slot: founder / team / classroom"
               />
             </div>
           </div>
@@ -198,52 +200,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* (d) TEAM STRIP */}
-      <section className="section warm">
-        <div className="container">
-          <div className="section-head">
-            <div className="kicker">
-              <span className="dot" />
-              Who's building this
-            </div>
-            <h2>
-              A small team.{" "}
-              <span className="italic-orange">
-                Long careers in adult education.
-              </span>
-            </h2>
-          </div>
-
-          <div className="team-grid" style={{ marginTop: 56 }}>
-            <TeamCard
-              imageLabel="Headshot: Founder & CEO"
-              title="Founder & CEO"
-              position="ESOL practitioner · 12 yrs"
-              bio="Built the product after a decade of writing the same RARPA reports twice. Cambridge ESOL trained, runs the pedagogy work directly."
-            />
-            <TeamCard
-              imageLabel="Headshot: Head of Pedagogy"
-              title="Head of Pedagogy"
-              position="DELTA · NATECLA member"
-              bio="Designs the Bridge Method layer specs and the five band scoring rubric. Owns the practitioner side of the product."
-            />
-            <TeamCard
-              imageLabel="Headshot: Head of Compliance"
-              title="Head of Compliance"
-              position="ASF · ILR · ESFA"
-              bio="Tracks ILR schema changes, owns the RARPA evidence templates and the GLH split logic."
-            />
-            <TeamCard
-              imageLabel="Headshot: Head of Engineering"
-              title="Head of Engineering"
-              position="Platform · Safeguarding"
-              bio="Owns the platform, the AI tutor and the safeguarding dispatch pipeline. Cares deeply about boring reliability."
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* (e) CONTACT CARD */}
+      {/* (d) CONTACT CARD */}
       <section className="section">
         <div className="container">
           <div className="office">
@@ -287,7 +244,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Local responsive rules for the context + team grids */}
+      {/* Local responsive rules for the context grid */}
       <style>{`
         .ctx-grid {
           display: grid;
@@ -295,56 +252,12 @@ const About: React.FC = () => {
           gap: 64px;
           align-items: center;
         }
-        .team-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 28px;
-        }
         @media (max-width: 900px) {
           .ctx-grid { grid-template-columns: 1fr; gap: 40px; }
-          .team-grid { grid-template-columns: 1fr 1fr; }
-        }
-        @media (max-width: 600px) {
-          .team-grid { grid-template-columns: 1fr; }
         }
       `}</style>
     </>
   );
 };
-
-/* TeamCard — used in the team strip */
-interface TeamCardProps {
-  imageLabel: string;
-  title: string;
-  /** Renamed from `role` — the JSX a11y linter treats any `role=`
-   *  attribute as an ARIA role and false-positives on string props. */
-  position: string;
-  bio: string;
-}
-
-const TeamCard: React.FC<TeamCardProps> = ({
-  imageLabel,
-  title,
-  position,
-  bio,
-}) => (
-  <div className="team-card">
-    <div className="pf">
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          background:
-            "repeating-linear-gradient(135deg, rgba(11,35,67,0.06) 0, rgba(11,35,67,0.06) 1px, transparent 1px, transparent 12px), linear-gradient(140deg, #f3eee3 0%, #faf8f3 100%)",
-        }}
-        role="img"
-        aria-label={imageLabel}
-      />
-    </div>
-    <h4>{title}</h4>
-    <div className="role">{position}</div>
-    <p className="bio">{bio}</p>
-  </div>
-);
 
 export default About;
