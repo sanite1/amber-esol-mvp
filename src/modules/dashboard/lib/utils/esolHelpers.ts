@@ -91,6 +91,7 @@ export const ulnStatusLabel = (status?: UlnStatus | null): string => {
 export const dbsStatusLabel = (status?: DbsCheckStatus | null): string => {
   switch (status) {
     case "clear":
+    case "cleared":
       return "Clear";
     case "pending":
       return "Pending";

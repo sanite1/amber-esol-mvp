@@ -171,7 +171,8 @@ export default function EsolTeacherApproval() {
                     {teacher.dbsCheckStatus ? (
                       <span
                         className={`text-xs font-semibold px-2 py-1 rounded-md ${
-                          teacher.dbsCheckStatus === "clear"
+                          teacher.dbsCheckStatus === "clear" ||
+                          teacher.dbsCheckStatus === "cleared"
                             ? "text-emerald-700 bg-emerald-50"
                             : teacher.dbsCheckStatus === "pending"
                               ? "text-amber-700 bg-amber-50"
