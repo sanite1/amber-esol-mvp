@@ -179,7 +179,7 @@ export default function Header() {
                         <div className="px-3 pb-3 space-y-0.5">
                           {link.children.map((child) => (
                             <Link
-                              key={child.path}
+                              key={child.name}
                               to={child.path}
                               className={`flex items-center gap-3.5 px-3 py-3 rounded-xl transition-colors duration-150 group ${
                                 isActive(child.path)
@@ -363,7 +363,7 @@ export default function Header() {
                         <div className="py-1.5 pl-3 space-y-0.5">
                           {link.children.map((child) => (
                             <Link
-                              key={child.path}
+                              key={child.name}
                               to={child.path}
                               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors ${
                                 isActive(child.path)
