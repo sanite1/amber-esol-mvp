@@ -8,6 +8,7 @@ import {
   FileText,
   User,
   Bot,
+  Mic,
 } from "lucide-react";
 import { useGetSession, useGetPrepNote } from "../../lib/api/esolSession";
 import { useCompleteSession } from "../../lib/api/esolSession";
@@ -192,13 +193,32 @@ export default function EsolTutorSession() {
                     <div className="w-7 h-7 rounded-full bg-[#0B2343]/[0.06] text-[#0B2343]/60 flex items-center justify-center shrink-0">
                       <User size={13} />
                     </div>
-                    <div className="flex-1">
-                      <p className="text-[10px] font-bold text-[#0B2343]/40 uppercase tracking-wider mb-1">
-                        Learner
-                      </p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <p className="text-[10px] font-bold text-[#0B2343]/40 uppercase tracking-wider">
+                          Learner
+                        </p>
+                        {/* F32 — spoken turn badge */}
+                        {turn.input_mode === "voice" && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#c2410c] bg-[#fff8ee] border border-[#ff7c22]/30 px-1.5 py-0.5 rounded-md">
+                            <Mic size={10} aria-hidden="true" /> Spoken
+                          </span>
+                        )}
+                      </div>
                       <p className="text-sm text-[#0B2343]">
                         {turn.originalInput}
                       </p>
+                      {/* F32 — AI pronunciation signal (human_confirm:
+                          moderate by listening to the learner live). */}
+                      {turn.input_mode === "voice" && turn.pronunciation && (
+                        <p className="mt-1 text-[11px] text-[#0B2343]/60">
+                          Pronunciation:{" "}
+                          {Math.round(turn.pronunciation.score * 100)}% ·{" "}
+                          {clarityLabel(turn.pronunciation.clarity)}
+                          {turn.pronunciation.unclear_words?.length > 0 &&
+                            ` · unclear: ${turn.pronunciation.unclear_words.join(", ")}`}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -240,6 +260,11 @@ export default function EsolTutorSession() {
       {sessionId && <TeacherFeedbackPanel sessionId={sessionId} />}
     </div>
   );
+}
+
+// F32 — clarity bucket → teacher-facing label ("mostly_clear" → "mostly clear")
+function clarityLabel(clarity: string): string {
+  return clarity.replace(/_/g, " ");
 }
 
 // Light markdown-to-HTML conversion for prep notes (bold + line breaks only)

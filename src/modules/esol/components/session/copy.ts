@@ -52,6 +52,7 @@ const readSavedLang = (): LangCode => {
 type CopyKey =
   | "loading_session"
   | "starting_message"
+  | "resume_opening"
   | "typing"
   | "input_placeholder"
   | "input_label"
@@ -72,7 +73,18 @@ type CopyKey =
   | "unread_done"
   | "unread_from_teacher"
   | "error_network"
-  | "error_retry";
+  | "error_retry"
+  // F32 speaking turns
+  | "speak_prompt"
+  | "speak_hint_typed"
+  | "spoken_label"
+  | "pron_clear"
+  | "pron_mostly"
+  | "pron_unclear"
+  | "mic_record"
+  | "mic_stop"
+  | "mic_sending"
+  | "mic_not_heard";
 
 /**
  * Compact local i18n for the chat chrome. Wizard `translations.ts`
@@ -83,6 +95,8 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
   en: {
     loading_session: "Loading your session…",
     starting_message: "Starting…",
+    resume_opening:
+      'Hi {name} — today we will practise "{topic}". Are you ready?',
     typing: "Amber is typing…",
     input_placeholder: "Type your message in English",
     input_label: "Your message",
@@ -105,10 +119,22 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     error_network:
       "Something went wrong. Please check your connection and try again.",
     error_retry: "Try again",
+    // F32 speaking turns
+    speak_prompt: "Say it out loud:",
+    speak_hint_typed: "This one is for speaking. Tap the microphone to say it.",
+    spoken_label: "Spoken answer",
+    pron_clear: "Clear",
+    pron_mostly: "Nearly there",
+    pron_unclear: "Let's try that again",
+    mic_record: "Record your answer",
+    mic_stop: "Stop and send",
+    mic_sending: "Sending your answer…",
+    mic_not_heard: "Couldn't hear that. Try again, or type instead.",
   },
   ar: {
     loading_session: "جارٍ تحميل جلستك…",
     starting_message: "جارٍ البدء…",
+    resume_opening: 'مرحباً {name} — اليوم سنتدرب على "{topic}". هل أنت مستعد؟',
     typing: "أمبر تكتب…",
     input_placeholder: "اكتب رسالتك بالإنجليزية",
     input_label: "رسالتك",
@@ -130,10 +156,23 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     unread_from_teacher: "معلمك",
     error_network: "حدث خطأ ما. يرجى التحقق من اتصالك والمحاولة مرة أخرى.",
     error_retry: "حاول مرة أخرى",
+    // F32 speaking turns
+    speak_prompt: "قلها بصوت عالٍ:",
+    speak_hint_typed: "هذه للتحدث. اضغط على الميكروفون لقولها.",
+    spoken_label: "إجابة منطوقة",
+    pron_clear: "واضح",
+    pron_mostly: "قريب جداً",
+    pron_unclear: "لنحاول مرة أخرى",
+    mic_record: "سجّل إجابتك",
+    mic_stop: "إيقاف وإرسال",
+    mic_sending: "جارٍ إرسال إجابتك…",
+    mic_not_heard: "لم أسمع ذلك. حاول مرة أخرى أو اكتب بدلاً من ذلك.",
   },
   so: {
     loading_session: "Waxaa la soo dejinayaa kalfadhigaaga…",
     starting_message: "Waa la bilaabayaa…",
+    resume_opening:
+      'Hello {name} — maanta waxaan ku tababaranaynaa "{topic}". Diyaar ma tahay?',
     typing: "Amber waxay qortaa…",
     input_placeholder: "Ku qor fariintaada Ingiriisi",
     input_label: "Fariintaada",
@@ -156,10 +195,23 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     error_network:
       "Wax baa qaldamay. Fadlan hubi xiriirkaaga oo mar kale isku day.",
     error_retry: "Mar kale isku day",
+    // F32 speaking turns — en fallback copy (deferred bank)
+    speak_prompt: "Say it out loud:",
+    speak_hint_typed: "This one is for speaking. Tap the microphone to say it.",
+    spoken_label: "Spoken answer",
+    pron_clear: "Clear",
+    pron_mostly: "Nearly there",
+    pron_unclear: "Let's try that again",
+    mic_record: "Record your answer",
+    mic_stop: "Stop and send",
+    mic_sending: "Sending your answer…",
+    mic_not_heard: "Couldn't hear that. Try again, or type instead.",
   },
   fa: {
     loading_session: "در حال بارگذاری جلسه شما…",
     starting_message: "در حال شروع…",
+    resume_opening:
+      'سلام {name} — امروز "{topic}" را تمرین می‌کنیم. آماده‌اید؟',
     typing: "Amber در حال تایپ کردن است…",
     input_placeholder: "پیام خود را به انگلیسی بنویسید",
     input_label: "پیام شما",
@@ -182,10 +234,22 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     error_network:
       "مشکلی پیش آمد. لطفاً اتصال خود را بررسی کرده و دوباره امتحان کنید.",
     error_retry: "دوباره امتحان کنید",
+    // F32 speaking turns — en fallback copy (deferred bank)
+    speak_prompt: "Say it out loud:",
+    speak_hint_typed: "This one is for speaking. Tap the microphone to say it.",
+    spoken_label: "Spoken answer",
+    pron_clear: "Clear",
+    pron_mostly: "Nearly there",
+    pron_unclear: "Let's try that again",
+    mic_record: "Record your answer",
+    mic_stop: "Stop and send",
+    mic_sending: "Sending your answer…",
+    mic_not_heard: "Couldn't hear that. Try again, or type instead.",
   },
   zh: {
     loading_session: "正在載入您的課程…",
     starting_message: "開始中…",
+    resume_opening: "你好 {name} — 今天我們會練習「{topic}」。準備好了嗎？",
     typing: "Amber 正在打字…",
     input_placeholder: "用英語輸入您的訊息",
     input_label: "您的訊息",
@@ -207,6 +271,17 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     unread_from_teacher: "您的老師",
     error_network: "出現了問題。請檢查您的網路連線並重試。",
     error_retry: "再試一次",
+    // F32 speaking turns — en fallback copy (deferred bank)
+    speak_prompt: "Say it out loud:",
+    speak_hint_typed: "This one is for speaking. Tap the microphone to say it.",
+    spoken_label: "Spoken answer",
+    pron_clear: "Clear",
+    pron_mostly: "Nearly there",
+    pron_unclear: "Let's try that again",
+    mic_record: "Record your answer",
+    mic_stop: "Stop and send",
+    mic_sending: "Sending your answer…",
+    mic_not_heard: "Couldn't hear that. Try again, or type instead.",
   },
   // MVP — Cantonese (yue-HK). Rendered in written Traditional Chinese,
   // which serves Cantonese readers for formal UI chrome. FLAG: confirm
@@ -215,6 +290,7 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
   yue: {
     loading_session: "正在載入您的課程…",
     starting_message: "開始中…",
+    resume_opening: "你好 {name} — 今日我哋會練習「{topic}」。準備好未？",
     typing: "Amber 正在打字…",
     input_placeholder: "用英語輸入您的訊息",
     input_label: "您的訊息",
@@ -236,6 +312,17 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     unread_from_teacher: "您的老師",
     error_network: "出現了問題。請檢查您的網路連線並重試。",
     error_retry: "再試一次",
+    // F32 speaking turns
+    speak_prompt: "大聲講出嚟：",
+    speak_hint_typed: "呢題要講出嚟。撳咪高風講。",
+    spoken_label: "口講答案",
+    pron_clear: "清楚",
+    pron_mostly: "差少少",
+    pron_unclear: "再試一次",
+    mic_record: "錄低你嘅答案",
+    mic_stop: "停止並發送",
+    mic_sending: "發送緊你嘅答案…",
+    mic_not_heard: "聽唔到。再試一次，或者打字。",
   },
   // MVP — Turkish (tr-TR). Launch-territory language (Enfield/Haringey).
   // FLAG: machine-then-reviewed draft; confirm with a native Turkish
@@ -244,6 +331,8 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
   tr: {
     loading_session: "Oturumunuz yükleniyor…",
     starting_message: "Başlıyor…",
+    resume_opening:
+      'Merhaba {name} — bugün "{topic}" konusunu çalışacağız. Hazır mısın?',
     typing: "Amber yazıyor…",
     input_placeholder: "Mesajınızı İngilizce yazın",
     input_label: "Mesajınız",
@@ -266,6 +355,17 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     error_network:
       "Bir şeyler ters gitti. Lütfen bağlantınızı kontrol edip tekrar deneyin.",
     error_retry: "Tekrar dene",
+    // F32 speaking turns
+    speak_prompt: "Yüksek sesle söyle:",
+    speak_hint_typed: "Bu konuşma içindir. Söylemek için mikrofona dokun.",
+    spoken_label: "Sesli cevap",
+    pron_clear: "Net",
+    pron_mostly: "Neredeyse",
+    pron_unclear: "Tekrar deneyelim",
+    mic_record: "Cevabını kaydet",
+    mic_stop: "Durdur ve gönder",
+    mic_sending: "Cevabın gönderiliyor…",
+    mic_not_heard: "Duyamadım. Tekrar dene ya da yaz.",
   },
   // Phase 5 / BE-F — Bengali. Translations co-authored with a
   // native speaker; chrome strings only (Amber's tutor turns are
@@ -274,6 +374,8 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
   bn: {
     loading_session: "আপনার সেশন লোড হচ্ছে…",
     starting_message: "শুরু হচ্ছে…",
+    resume_opening:
+      'হ্যালো {name} — আজ আমরা "{topic}" অনুশীলন করব। আপনি কি প্রস্তুত?',
     typing: "Amber টাইপ করছে…",
     input_placeholder: "ইংরেজিতে আপনার বার্তা লিখুন",
     input_label: "আপনার বার্তা",
@@ -296,6 +398,17 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     error_network:
       "কিছু একটা ভুল হয়েছে। অনুগ্রহ করে সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।",
     error_retry: "আবার চেষ্টা করুন",
+    // F32 speaking turns — en fallback copy (deferred bank)
+    speak_prompt: "Say it out loud:",
+    speak_hint_typed: "This one is for speaking. Tap the microphone to say it.",
+    spoken_label: "Spoken answer",
+    pron_clear: "Clear",
+    pron_mostly: "Nearly there",
+    pron_unclear: "Let's try that again",
+    mic_record: "Record your answer",
+    mic_stop: "Stop and send",
+    mic_sending: "Sending your answer…",
+    mic_not_heard: "Couldn't hear that. Try again, or type instead.",
   },
   // Phase 5 / BE-F — Urdu. Same translation philosophy as bn; the
   // RTL handling happens at the HTML root (lang/dir) — these strings
@@ -303,6 +416,8 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
   ur: {
     loading_session: "آپ کا سیشن لوڈ ہو رہا ہے…",
     starting_message: "شروع ہو رہا ہے…",
+    resume_opening:
+      'ہیلو {name} — آج ہم "{topic}" کی مشق کریں گے۔ کیا آپ تیار ہیں؟',
     typing: "Amber لکھ رہا ہے…",
     input_placeholder: "اپنا پیغام انگریزی میں لکھیں",
     input_label: "آپ کا پیغام",
@@ -325,6 +440,17 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     error_network:
       "کچھ غلط ہو گیا۔ براہ کرم اپنا کنکشن چیک کریں اور دوبارہ کوشش کریں۔",
     error_retry: "دوبارہ کوشش کریں",
+    // F32 speaking turns — en fallback copy (deferred bank)
+    speak_prompt: "Say it out loud:",
+    speak_hint_typed: "This one is for speaking. Tap the microphone to say it.",
+    spoken_label: "Spoken answer",
+    pron_clear: "Clear",
+    pron_mostly: "Nearly there",
+    pron_unclear: "Let's try that again",
+    mic_record: "Record your answer",
+    mic_stop: "Stop and send",
+    mic_sending: "Sending your answer…",
+    mic_not_heard: "Couldn't hear that. Try again, or type instead.",
   },
 };
 

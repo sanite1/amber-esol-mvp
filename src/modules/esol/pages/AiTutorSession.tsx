@@ -22,13 +22,16 @@ import { toast } from "sonner";
 import {
   useStartSession,
   useSubmitTurn,
+  useSubmitVoiceTurn,
   useEndSession,
   useMarkTeacherMessageRead,
   sessionCapMinutesForLevel,
   fetchVoiceCapabilities,
   requestTts,
-  requestStt,
   type VoiceCapabilities,
+  type SubmitTurnResponse,
+  type SpeakingPrompt,
+  type PronunciationAssessment,
   TeacherMessage,
   EndSessionResponse,
 } from "../api/esolApi";
@@ -119,6 +122,9 @@ interface ResumedSession {
     originalInput: string;
     deepSeekResponse: string;
     safeguardingScore?: number;
+    // F32 — spoken turns flow through on the turn subdoc.
+    input_mode?: "text" | "voice";
+    pronunciation?: PronunciationAssessment | null;
   }>;
   completedAt?: string | null;
   safeguardingFlagged?: boolean;
@@ -205,11 +211,23 @@ export default function AiTutorSession() {
   const [ttsLoadingId, setTtsLoadingId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   // STT mic: opt-in, default OFF. "off" until the learner taps record.
-  const [micState, setMicState] = useState<
-    "off" | "recording" | "transcribing"
-  >("off");
+  // F32: "sending" = audio is on its way to /turn-voice (STT +
+  // pronunciation + the tutor's reply all happen server-side).
+  const [micState, setMicState] = useState<"off" | "recording" | "sending">(
+    "off",
+  );
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const recordingStartMsRef = useRef<number>(0);
+  // F32 — the tutor's standing request to say something aloud. Set from
+  // every turn response, cleared when the learner's next turn goes out.
+  const [speakingPrompt, setSpeakingPrompt] = useState<SpeakingPrompt | null>(
+    null,
+  );
+  // F32 — one-line "this one is for speaking" hint under the textarea.
+  // Shown once the learner focuses/types while a speaking prompt is
+  // live; never blocks typing. Dismissed on send or record.
+  const [showSpeakHint, setShowSpeakHint] = useState(false);
 
   useEffect(() => {
     // Capabilities decide which controls render; failure → all-off.
@@ -248,62 +266,9 @@ export default function AiTutorSession() {
     [markActivity],
   );
 
-  // STT — record a short utterance and drop the transcript into the
-  // input. Tap-to-type stays available throughout; this never gates.
-  const stopRecording = useCallback(() => {
-    mediaRecorderRef.current?.stop();
-  }, []);
+  // STT mic flow (start/stop recording + the voice turn) lives below the
+  // turn-submission block — it shares applyTurnResponse with typing.
 
-  const startRecording = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      audioChunksRef.current = [];
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) audioChunksRef.current.push(e.data);
-      };
-      recorder.onstop = async () => {
-        stream.getTracks().forEach((tr) => tr.stop());
-        setMicState("transcribing");
-        try {
-          const blob = new Blob(audioChunksRef.current, {
-            type: "audio/webm",
-          });
-          const buf = await blob.arrayBuffer();
-          let binary = "";
-          const bytes = new Uint8Array(buf);
-          for (let i = 0; i < bytes.length; i += 1) {
-            binary += String.fromCharCode(bytes[i]);
-          }
-          const b64 = window.btoa(binary);
-          const transcript = await requestStt(b64, {
-            language: "english",
-            encoding: "WEBM_OPUS",
-            sampleRateHertz: 48000,
-          });
-          if (transcript) {
-            setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
-            // Programmatic setInput skips the textarea onChange, so
-            // mark the F31 activity here too.
-            markActivity();
-            requestAnimationFrame(() => inputRef.current?.focus());
-          } else {
-            toast.message("Couldn't hear that — you can type instead.");
-          }
-        } finally {
-          setMicState("off");
-        }
-      };
-      mediaRecorderRef.current = recorder;
-      recorder.start();
-      setMicState("recording");
-      markActivity(); // speaking into the mic is active practice (F31)
-    } catch {
-      // Permission denied / no mic — silently fall back to typing.
-      setMicState("off");
-      toast.message("Microphone unavailable — you can type instead.");
-    }
-  }, [markActivity]);
   // Resume-only: completed or safeguarding-flagged sessions render the
   // transcript without the input bar.
   const [readOnly, setReadOnly] = useState<
@@ -317,6 +282,7 @@ export default function AiTutorSession() {
   // ── Mutations ─────────────────────────────────────────────────────
   const startMutation = useStartSession();
   const turnMutation = useSubmitTurn();
+  const voiceTurnMutation = useSubmitVoiceTurn(); // F32
   const endMutation = useEndSession();
   const markReadMutation = useMarkTeacherMessageRead();
   // /end triggers Gemini scoring + summary generation on the backend,
@@ -376,14 +342,20 @@ export default function AiTutorSession() {
 
           // Re-derive the opening message — /start computes it but the
           // backend never persists it on the session document (BE-10).
-          // Template matches the en branch of buildOpeningMessage.
+          // Localised via the copy bank (resume_opening); the scenario
+          // name stays in English here because the frontend catalogue
+          // has no title translations — new sessions get the fully
+          // localised opening (L1 title + English gloss) from /start.
           const firstname = getDecodedJwt()?.firstname?.trim() || "";
           const opening: ChatMessage[] = s.topic
             ? [
                 {
                   id: "amber-opening",
                   role: "amber",
-                  text: `Hi${firstname ? ` ${firstname}` : ""} — today we will practise "${s.topic}". Are you ready?`,
+                  text: t(bankLang, "resume_opening", {
+                    name: firstname,
+                    topic: s.topic,
+                  }).replace(/\s{2,}/g, " "),
                   timestamp: new Date(),
                 },
               ]
@@ -400,6 +372,12 @@ export default function AiTutorSession() {
                   typeof turn.safeguardingScore === "number" &&
                   turn.safeguardingScore >= 0.7,
                 timestamp: new Date(),
+                // F32 — keep the spoken marker + chip on resumed transcripts.
+                spoken: turn.input_mode === "voice",
+                pronunciation:
+                  turn.input_mode === "voice"
+                    ? (turn.pronunciation ?? null)
+                    : null,
               },
               {
                 id: `amber-${i}`,
@@ -490,6 +468,83 @@ export default function AiTutorSession() {
   }, [messages.length, sending]);
 
   // ── Turn submission ───────────────────────────────────────────────
+  //
+  // ONE success handler for both typed (/turn) and spoken (/turn-voice)
+  // turns. Anything the UI does with a turn response — Amber's reply,
+  // the micro-stage dots, the speaking prompt, session_complete → /end,
+  // the F31 activity mark, re-focus — lives here so the two input paths
+  // can never drift apart (F32).
+  //
+  // `learnerMessage` is the learner bubble for this turn. The typed path
+  // appends it optimistically before the request; the voice path shows
+  // a placeholder until the transcript arrives. Either way we upsert by
+  // id here (replace if present, append if not) and then add the reply.
+  const applyTurnResponse = useCallback(
+    (data: SubmitTurnResponse, learnerMessage: ChatMessage) => {
+      if (!sessionId) return;
+      const reply: ChatMessage = {
+        id: `amber-${Date.now()}`,
+        role: "amber",
+        text: data.reply,
+        safeguarding: !!data.safeguarding_served,
+        timestamp: new Date(),
+      };
+      setMessages((m) => {
+        const idx = m.findIndex((x) => x.id === learnerMessage.id);
+        const base =
+          idx === -1
+            ? [...m, learnerMessage]
+            : m.map((x, i) => (i === idx ? learnerMessage : x));
+        return [...base, reply];
+      });
+      setSending(false);
+      // Receiving Amber's reply restarts the grace window — the
+      // learner now reads it, and that reading time is practice.
+      markActivity();
+
+      // F25 — advance the 4-dot ROLEPLAY indicator from the turn's
+      // arc state (backend is authoritative).
+      if (Array.isArray(data.micro_stages_completed)) {
+        setMicroStages(data.micro_stages_completed);
+      }
+
+      // F32 — the tutor may ask the learner to say something aloud.
+      // Null/absent clears any standing prompt.
+      setSpeakingPrompt(data.speaking_prompt ?? null);
+      setShowSpeakHint(false);
+
+      if (data.session_complete) {
+        // The /turn endpoint already marks the session done; explicit
+        // /end fires the level-progression check + final-score calc.
+        endMutation.mutate(
+          { session_id: sessionId },
+          {
+            onSuccess: (endRes) =>
+              setStage({ kind: "complete", result: endRes.data }),
+            onError: () => {
+              // Even if /end fails, surface a synthetic completion
+              // so the learner reaches the end screen — score will
+              // be missing but the path doesn't strand them.
+              setStage({
+                kind: "complete",
+                result: {
+                  session_summary: null,
+                  final_score: 0,
+                  passed: false,
+                  vocabulary_retained_count: 0,
+                },
+              });
+            },
+          },
+        );
+      }
+      // Re-focus input so the learner can keep typing without an
+      // extra click.
+      requestAnimationFrame(() => inputRef.current?.focus());
+    },
+    [sessionId, endMutation, markActivity],
+  );
+
   const submitTurn = useCallback(() => {
     if (!sessionId) return;
     const text = input.trim();
@@ -504,63 +559,16 @@ export default function AiTutorSession() {
     setMessages((m) => [...m, learnerMsg]);
     setInput("");
     setSending(true);
+    // F32 — a typed answer consumes the standing speaking prompt (the
+    // backend decides credit; the next response sets any new prompt).
+    setSpeakingPrompt(null);
+    setShowSpeakHint(false);
     markActivity(); // sending a turn is active practice (F31 cap clock)
 
     turnMutation.mutate(
       { session_id: sessionId, message: text },
       {
-        onSuccess: (res) => {
-          const data = res.data;
-          setMessages((m) => [
-            ...m,
-            {
-              id: `amber-${Date.now()}`,
-              role: "amber",
-              text: data.reply,
-              safeguarding: !!data.safeguarding_served,
-              timestamp: new Date(),
-            },
-          ]);
-          setSending(false);
-          // Receiving Amber's reply restarts the grace window — the
-          // learner now reads it, and that reading time is practice.
-          markActivity();
-
-          // F25 — advance the 4-dot ROLEPLAY indicator from the turn's
-          // arc state (backend is authoritative).
-          if (Array.isArray(data.micro_stages_completed)) {
-            setMicroStages(data.micro_stages_completed);
-          }
-
-          if (data.session_complete) {
-            // The /turn endpoint already marks the session done; explicit
-            // /end fires the level-progression check + final-score calc.
-            endMutation.mutate(
-              { session_id: sessionId },
-              {
-                onSuccess: (endRes) =>
-                  setStage({ kind: "complete", result: endRes.data }),
-                onError: () => {
-                  // Even if /end fails, surface a synthetic completion
-                  // so the learner reaches the end screen — score will
-                  // be missing but the path doesn't strand them.
-                  setStage({
-                    kind: "complete",
-                    result: {
-                      session_summary: null,
-                      final_score: 0,
-                      passed: false,
-                      vocabulary_retained_count: 0,
-                    },
-                  });
-                },
-              },
-            );
-          }
-          // Re-focus input so the learner can keep typing without an
-          // extra click.
-          requestAnimationFrame(() => inputRef.current?.focus());
-        },
+        onSuccess: (res) => applyTurnResponse(res.data, learnerMsg),
         onError: (err: any) => {
           // Preserve the input buffer so the learner can retry their
           // message — restore the text into the field instead of
@@ -580,10 +588,149 @@ export default function AiTutorSession() {
     input,
     sending,
     turnMutation,
-    endMutation,
+    applyTurnResponse,
     bankLang,
     markActivity,
   ]);
+
+  // ── F32 Voice turn — mic → /turn-voice → same handler as typing ──
+  //
+  // The recording is sent straight to the backend, which transcribes
+  // it, assesses pronunciation and runs the normal turn pipeline. No
+  // audio is kept client-side beyond this call. Tap-to-type stays
+  // available throughout; nothing here gates input.
+  const submitVoiceTurn = useCallback(
+    (audioBase64: string, mimeType: string, audioSeconds: number) => {
+      if (!sessionId) {
+        setMicState("off");
+        return;
+      }
+      // Placeholder learner bubble while STT runs — replaced by the
+      // transcript on success, removed if nothing was heard.
+      const learnerMsg: ChatMessage = {
+        id: `learner-${Date.now()}`,
+        role: "learner",
+        text: "…",
+        spoken: true,
+        timestamp: new Date(),
+      };
+      setMessages((m) => [...m, learnerMsg]);
+      setSending(true);
+      setMicState("sending");
+      setSpeakingPrompt(null);
+      setShowSpeakHint(false);
+      markActivity();
+
+      const dropPlaceholder = () =>
+        setMessages((m) => m.filter((x) => x.id !== learnerMsg.id));
+
+      voiceTurnMutation.mutate(
+        {
+          session_id: sessionId,
+          audio_base64: audioBase64,
+          encoding: "WEBM_OPUS",
+          sample_rate_hertz: 48000,
+          mime_type: mimeType,
+          language: "english",
+          audio_seconds: audioSeconds,
+        },
+        {
+          onSuccess: (res) => {
+            const data = res.data;
+            setMicState("off");
+            if (
+              !data.available ||
+              data.heard === false ||
+              typeof data.reply !== "string"
+            ) {
+              // STT off, or nothing transcribable — no turn was consumed.
+              dropPlaceholder();
+              setSending(false);
+              toast.message(t(bankLang, "mic_not_heard"));
+              return;
+            }
+            applyTurnResponse(data as SubmitTurnResponse, {
+              ...learnerMsg,
+              text: data.transcript ?? "",
+              spoken: true,
+              pronunciation: data.pronunciation ?? null,
+            });
+          },
+          onError: () => {
+            // Fail safe: the session carries on text-only. Same gentle
+            // copy as "not heard" — the learner just tries again or types.
+            setMicState("off");
+            dropPlaceholder();
+            setSending(false);
+            toast.message(t(bankLang, "mic_not_heard"));
+          },
+        },
+      );
+    },
+    [sessionId, voiceTurnMutation, applyTurnResponse, bankLang, markActivity],
+  );
+
+  const stopRecording = useCallback(() => {
+    mediaRecorderRef.current?.stop();
+  }, []);
+
+  const startRecording = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Prefer WebM/Opus explicitly (what STT expects as WEBM_OPUS).
+      // Browsers that can't (Safari → audio/mp4) fall back to their
+      // default container; the backend decides what it can accept.
+      const preferred = "audio/webm;codecs=opus";
+      const canWebmOpus =
+        typeof MediaRecorder.isTypeSupported === "function" &&
+        MediaRecorder.isTypeSupported(preferred);
+      const recorder = canWebmOpus
+        ? new MediaRecorder(stream, { mimeType: preferred })
+        : new MediaRecorder(stream);
+      const mimeType = (recorder.mimeType || "audio/webm").split(";")[0];
+      audioChunksRef.current = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((tr) => tr.stop());
+        const audioSeconds =
+          Math.round(
+            Math.max(0, Date.now() - recordingStartMsRef.current) / 100,
+          ) / 10;
+        try {
+          const blob = new Blob(audioChunksRef.current, { type: mimeType });
+          audioChunksRef.current = [];
+          if (blob.size === 0) {
+            setMicState("off");
+            toast.message(t(bankLang, "mic_not_heard"));
+            return;
+          }
+          const buf = await blob.arrayBuffer();
+          let binary = "";
+          const bytes = new Uint8Array(buf);
+          for (let i = 0; i < bytes.length; i += 1) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          const b64 = window.btoa(binary);
+          submitVoiceTurn(b64, mimeType, audioSeconds);
+        } catch {
+          setMicState("off");
+          toast.message(t(bankLang, "mic_not_heard"));
+        }
+      };
+      mediaRecorderRef.current = recorder;
+      recordingStartMsRef.current = Date.now();
+      recorder.start();
+      setMicState("recording");
+      setShowSpeakHint(false);
+      markActivity(); // speaking into the mic is active practice (F31)
+    } catch {
+      // Permission denied / no mic — silently fall back to typing.
+      setMicState("off");
+      toast.message("Microphone unavailable — you can type instead.");
+    }
+  }, [markActivity, submitVoiceTurn, bankLang]);
 
   const handleEnterKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -701,6 +848,13 @@ export default function AiTutorSession() {
       setStage({ ...stage, idx: nextIdx });
     }
   }, [stage, markReadMutation]);
+
+  // F32 — the tutor has asked for a spoken answer AND the mic is
+  // available. Drives the chip, the mic ring and the typed hint. When
+  // STT is off nothing new renders (fail safe).
+  const speakingPromptActive = Boolean(
+    voiceCaps.stt && !readOnly && speakingPrompt?.expects_speech,
+  );
 
   // ─────────────────────────────────────────────────────────────────
   // Render branches
@@ -1062,34 +1216,79 @@ export default function AiTutorSession() {
               </button>
             </div>
           ) : (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                submitTurn();
-              }}
-              className={`
+            <>
+              {/* F32 — "Say it out loud" chip. Only while the tutor has a
+                  live speaking prompt AND the mic is available; a gentle
+                  cue, never a gate (typing still works). */}
+              {speakingPromptActive && (
+                <div
+                  id="speak-prompt-chip"
+                  className="mb-2 mx-auto w-fit max-w-full inline-flex items-start gap-2 px-3 py-2 rounded-2xl bg-[#fff8ee] border border-[#ff7c22]/30 text-[#0B2343]"
+                >
+                  <Mic
+                    size={16}
+                    aria-hidden="true"
+                    className="shrink-0 mt-0.5 text-[#ff7c22]"
+                  />
+                  <p className="text-sm leading-snug min-w-0">
+                    <span className="font-bold">
+                      {t(bankLang, "speak_prompt")}
+                    </span>
+                    {speakingPrompt?.target_phrase && (
+                      <>
+                        {" "}
+                        <span
+                          className={`font-semibold text-[#ff7c22] ${FONT_SIZE_CLASSES[fontSize]}`}
+                          lang="en"
+                        >
+                          “{speakingPrompt.target_phrase}”
+                        </span>
+                      </>
+                    )}
+                  </p>
+                </div>
+              )}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  submitTurn();
+                }}
+                className={`
               relative bg-white border border-[#0B2343]/[0.12]
               rounded-3xl shadow-[0_2px_12px_-2px_rgba(11,35,67,0.08)]
               focus-within:border-[#ff7c22]/60 focus-within:shadow-[0_2px_16px_-2px_rgba(255,124,34,0.18)]
               transition-shadow
             `}
-            >
-              <label htmlFor="ai-tutor-input" className="sr-only">
-                {t(bankLang, "input_label")}
-              </label>
-              <textarea
-                id="ai-tutor-input"
-                ref={inputRef}
-                rows={1}
-                value={input}
-                onChange={(e) => {
-                  setInput(e.target.value);
-                  markActivity(); // keystrokes keep the F31 active-practice clock running
-                }}
-                onKeyDown={handleEnterKey}
-                placeholder={t(bankLang, "input_placeholder")}
-                disabled={sending || ending || stage.kind === "unread"}
-                className={`
+              >
+                <label htmlFor="ai-tutor-input" className="sr-only">
+                  {t(bankLang, "input_label")}
+                </label>
+                <textarea
+                  id="ai-tutor-input"
+                  ref={inputRef}
+                  rows={1}
+                  value={input}
+                  onChange={(e) => {
+                    setInput(e.target.value);
+                    markActivity(); // keystrokes keep the F31 active-practice clock running
+                    if (speakingPromptActive) setShowSpeakHint(true);
+                  }}
+                  // Pointer focus (tap/click) rather than onFocus: the page
+                  // re-focuses this field programmatically after every
+                  // reply, which would fire the hint before the learner
+                  // has chosen to type.
+                  onPointerDown={() => {
+                    if (speakingPromptActive) setShowSpeakHint(true);
+                  }}
+                  onKeyDown={handleEnterKey}
+                  placeholder={t(bankLang, "input_placeholder")}
+                  disabled={sending || ending || stage.kind === "unread"}
+                  aria-describedby={
+                    speakingPromptActive && showSpeakHint
+                      ? "speak-hint-typed"
+                      : undefined
+                  }
+                  className={`
                 w-full resize-none min-h-[56px] max-h-[200px]
                 px-5 pt-4 pb-2
                 bg-transparent border-0
@@ -1098,9 +1297,19 @@ export default function AiTutorSession() {
                 disabled:opacity-50 disabled:cursor-not-allowed
                 ${FONT_SIZE_CLASSES[fontSize]}
               `}
-              />
+                />
+                {/* F32 — one-line, non-blocking hint once the learner
+                    starts typing an answer the tutor asked to hear. */}
+                {speakingPromptActive && showSpeakHint && (
+                  <p
+                    id="speak-hint-typed"
+                    className="px-5 pb-1 text-xs text-[#0B2343]/60 leading-snug"
+                  >
+                    {t(bankLang, "speak_hint_typed")}
+                  </p>
+                )}
 
-              {/* Bottom row inside the card: send button on the right.
+                {/* Bottom row inside the card: send button on the right.
                 The L1 "Show in my language" toggle was removed in this
                 pass — the backend does NOT translate AI tutor replies
                 today. There's a teacher-only translation endpoint
@@ -1110,70 +1319,80 @@ export default function AiTutorSession() {
                 POST /esol/session/translate-turn), re-introduce the
                 toggle here and wire it to the new endpoint.
                 See: backend follow-up BE-9 in docs/FRONTEND_USE_CASES.md */}
-              <div className="flex items-center justify-between px-3 pb-2">
-                {/* F28 STT — opt-in mic. Default off; the learner taps to
-                    record. Tap-to-type (the textarea above) is always
-                    available, so this never gates input. Only rendered
-                    when the backend reports STT is enabled. */}
-                {voiceCaps.stt && !ending && stage.kind !== "unread" ? (
+                <div className="flex items-center justify-between px-2 pb-1.5">
+                  {/* F28/F32 STT — opt-in mic. Default off; the learner
+                      taps to record, taps again to stop AND send (the
+                      audio goes straight to /turn-voice). Tap-to-type
+                      (the textarea above) is always available, so this
+                      never gates input. Only rendered when the backend
+                      reports STT is enabled. 44px tap target. */}
+                  {voiceCaps.stt && !ending && stage.kind !== "unread" ? (
+                    <button
+                      type="button"
+                      onClick={
+                        micState === "recording"
+                          ? stopRecording
+                          : startRecording
+                      }
+                      disabled={micState === "sending" || sending}
+                      aria-label={
+                        micState === "recording"
+                          ? t(bankLang, "mic_stop")
+                          : micState === "sending"
+                            ? t(bankLang, "mic_sending")
+                            : t(bankLang, "mic_record")
+                      }
+                      aria-pressed={micState === "recording"}
+                      aria-describedby={
+                        speakingPromptActive ? "speak-prompt-chip" : undefined
+                      }
+                      className={`h-11 w-11 inline-flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-[#ff7c22]/40 transition-colors ${
+                        micState === "recording"
+                          ? "bg-red-500 text-white animate-pulse"
+                          : speakingPromptActive
+                            ? "text-[#ff7c22] bg-[#ff7c22]/10 ring-2 ring-[#ff7c22] ring-offset-1 ring-offset-white hover:bg-[#ff7c22]/15"
+                            : "text-[#0B2343]/50 hover:text-[#ff7c22] hover:bg-[#ff7c22]/10"
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      {micState === "sending" ? (
+                        <Loader2
+                          size={18}
+                          className="animate-spin"
+                          aria-hidden="true"
+                        />
+                      ) : micState === "recording" ? (
+                        <Square size={16} aria-hidden="true" />
+                      ) : (
+                        <Mic size={18} aria-hidden="true" />
+                      )}
+                    </button>
+                  ) : (
+                    <span aria-hidden="true" />
+                  )}
                   <button
-                    type="button"
-                    onClick={
-                      micState === "recording" ? stopRecording : startRecording
+                    type="submit"
+                    disabled={
+                      sending ||
+                      ending ||
+                      input.trim() === "" ||
+                      stage.kind === "unread"
                     }
-                    disabled={micState === "transcribing" || sending}
-                    aria-label={
-                      micState === "recording"
-                        ? "Stop recording"
-                        : micState === "transcribing"
-                          ? "Transcribing"
-                          : "Record your answer"
-                    }
-                    aria-pressed={micState === "recording"}
-                    className={`h-9 w-9 inline-flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-[#ff7c22]/40 transition-colors ${
-                      micState === "recording"
-                        ? "bg-red-500 text-white animate-pulse"
-                        : "text-[#0B2343]/50 hover:text-[#ff7c22] hover:bg-[#ff7c22]/10"
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    aria-label={t(bankLang, "send")}
+                    className="h-11 w-11 inline-flex items-center justify-center bg-[#ff7c22] text-white rounded-full hover:bg-[#e56a10] focus:outline-none focus:ring-2 focus:ring-[#ff7c22]/40 disabled:bg-[#0B2343]/15 disabled:cursor-not-allowed transition-colors"
                   >
-                    {micState === "transcribing" ? (
+                    {sending ? (
                       <Loader2
-                        size={16}
+                        size={18}
                         className="animate-spin"
                         aria-hidden="true"
                       />
-                    ) : micState === "recording" ? (
-                      <Square size={14} aria-hidden="true" />
                     ) : (
-                      <Mic size={16} aria-hidden="true" />
+                      <Send size={18} aria-hidden="true" />
                     )}
                   </button>
-                ) : (
-                  <span aria-hidden="true" />
-                )}
-                <button
-                  type="submit"
-                  disabled={
-                    sending ||
-                    ending ||
-                    input.trim() === "" ||
-                    stage.kind === "unread"
-                  }
-                  aria-label={t(bankLang, "send")}
-                  className="h-9 w-9 inline-flex items-center justify-center bg-[#ff7c22] text-white rounded-full hover:bg-[#e56a10] focus:outline-none focus:ring-2 focus:ring-[#ff7c22]/40 disabled:bg-[#0B2343]/15 disabled:cursor-not-allowed transition-colors"
-                >
-                  {sending ? (
-                    <Loader2
-                      size={16}
-                      className="animate-spin"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <Send size={16} aria-hidden="true" />
-                  )}
-                </button>
-              </div>
-            </form>
+                </div>
+              </form>
+            </>
           )}
 
           {/* Helper hint below the input card — Claude-style cue.

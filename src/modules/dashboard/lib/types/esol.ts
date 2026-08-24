@@ -13,7 +13,13 @@ export type UlnStatus = "pending" | "verified" | "not_required";
 
 export type FundingStatus = "esfa_funded" | "self_funded" | "employer_funded";
 
-export type DbsCheckStatus = "pending" | "clear" | "flagged" | "expired";
+export type DbsCheckStatus =
+  | "pending"
+  | "clear"
+  | "cleared"
+  | "flagged"
+  | "expired"
+  | "not_submitted";
 
 export type EsolQualificationType =
   | "CELTA"
@@ -113,6 +119,24 @@ export interface EsolTeacher {
   createdAt: string;
 }
 
+/* ── F32 speaking turns (mirrors esol/api/esolApi.ts wire types) ── */
+
+export interface PronunciationAssessment {
+  /** 0..1 */
+  score: number;
+  clarity: "clear" | "mostly_clear" | "unclear";
+  unclear_words: string[];
+  tip_for_learner: string;
+  note_for_tutor: string;
+  target_phrase: string | null;
+  method: "gemini_audio" | "stt_confidence" | "mock";
+}
+
+export interface SpeakingPrompt {
+  expects_speech: boolean;
+  target_phrase: string | null;
+}
+
 export interface AISessionTurn {
   turnIndex: number;
   originalInput: string;
@@ -121,6 +145,11 @@ export interface AISessionTurn {
   claudeAssessment?: string;
   safeguardingScore?: number;
   timestamp: string;
+  // F32 — spoken turns
+  input_mode?: "text" | "voice";
+  pronunciation?: PronunciationAssessment | null;
+  speaking_prompt?: SpeakingPrompt | null;
+  content_score?: number | null;
 }
 
 export interface AISession {

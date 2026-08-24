@@ -531,6 +531,32 @@ export type TurnMode = "anchor" | "bridge" | "immersion";
 /** Three-beat arc (F25) — surfaced so the UI can render the journey. */
 export type SessionBeat = "prepare" | "roleplay" | "complete";
 
+/* ── F32 speaking turns — shared wire types ───────────────────────── */
+
+/** Pronunciation assessment of ONE spoken turn (F32). AI signal only;
+ *  marked human_confirm in the evidence chain. */
+export type PronunciationAssessment = {
+  /** 0..1 */
+  score: number;
+  clarity: "clear" | "mostly_clear" | "unclear";
+  /** Words a listener would struggle with, lowercase, max 5. */
+  unclear_words: string[];
+  /** One short sentence, plain English, max 20 words. */
+  tip_for_learner: string;
+  /** One sentence for the tutor prompt. */
+  note_for_tutor: string;
+  /** What the tutor asked them to say, if any. */
+  target_phrase: string | null;
+  method: "gemini_audio" | "stt_confidence" | "mock";
+};
+
+/** What the tutor sets when it asks the learner to speak (F32). */
+export type SpeakingPrompt = {
+  expects_speech: boolean;
+  /** Exact short phrase to say aloud (<= 12 words). */
+  target_phrase: string | null;
+};
+
 export type SubmitTurnResponse = {
   reply: string;
   mode: TurnMode;
@@ -542,7 +568,25 @@ export type SubmitTurnResponse = {
   beat?: SessionBeat;
   micro_stage_index?: number;
   micro_stages_completed?: boolean[];
+  // ── F32 speaking turns ──
+  input_mode?: "text" | "voice";
+  /** Voice turns only: what STT heard (the learner's message text). */
+  transcript?: string;
+  /** Voice turns only: the pronunciation assessment, or null. */
+  pronunciation?: PronunciationAssessment | null;
+  /** Set when the tutor asks the learner to say something aloud. */
+  speaking_prompt?: SpeakingPrompt | null;
+  /** Final turn score (content blended with pronunciation on voice turns). */
+  turn_score?: number;
 };
+
+/** POST /esol/session/turn-voice (F32). `available:false` → STT is off;
+ *  `heard:false` → nothing transcribable (no turn consumed). Otherwise
+ *  the full turn response is spread in. */
+export type VoiceTurnResponse = {
+  available: boolean;
+  heard?: boolean;
+} & Partial<SubmitTurnResponse>;
 
 /* ── Stage 3 learner negotiation (F30) ───────────────────────────── */
 
@@ -637,6 +681,31 @@ export const useSubmitTurn = () =>
   >({
     mutationFn: (body) =>
       api.post<ApiResponse<SubmitTurnResponse>>("/esol/session/turn", body),
+  });
+
+/** F32 — a spoken learner turn. Audio goes straight to the backend,
+ *  which transcribes, assesses pronunciation, and runs the normal turn
+ *  pipeline. No audio is persisted. */
+export type VoiceTurnBody = {
+  session_id: string;
+  audio_base64: string;
+  encoding?: string;
+  sample_rate_hertz?: number;
+  mime_type?: string;
+  language?: string;
+  audio_seconds?: number;
+};
+
+export const useSubmitVoiceTurn = () =>
+  useMutation<ApiResponse<VoiceTurnResponse>, ApiError, VoiceTurnBody>({
+    mutationFn: (body) =>
+      api.post<ApiResponse<VoiceTurnResponse>>(
+        "/esol/session/turn-voice",
+        body,
+        // STT + Gemini audio assessment (up to 20s) + the turn itself can
+        // outrun the 30s axios default. The third arg is the axios config.
+        { timeout: 90_000 },
+      ),
   });
 
 export type EndSessionResponse = {

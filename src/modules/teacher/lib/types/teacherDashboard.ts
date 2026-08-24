@@ -138,6 +138,11 @@ export interface TeacherDetailLearner {
 export interface RecentSessionTurn {
   role: "learner" | "tutor";
   text: string;
+  // F32 — learner turns only: spoken via the microphone, with the AI
+  // pronunciation signal (human_confirm in the evidence chain).
+  spoken?: boolean;
+  pronunciation_score?: number | null;
+  pronunciation_clarity?: string | null;
 }
 
 export interface RecentSession {

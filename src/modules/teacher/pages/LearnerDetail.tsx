@@ -70,6 +70,7 @@ import {
   ClipboardList,
   GitFork,
   MessageSquare,
+  Mic,
   Plus,
   ShieldAlert,
 } from "lucide-react";
@@ -774,8 +775,23 @@ function RecentSessionsTab({ sessions }: { sessions: RecentSession[] }) {
                             : "bg-[#fff8ee] border border-[#ff7c22]/20"
                         }`}
                       >
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/45 mb-1">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#0B2343]/45 mb-1 flex items-center gap-1.5 flex-wrap">
                           {isLearner ? "Learner" : "AI tutor"}
+                          {/* F32 — spoken turn: mic glyph + AI
+                              pronunciation %, for the teacher's eye only
+                              (human_confirm evidence). */}
+                          {isLearner && t.spoken && (
+                            <span className="inline-flex items-center gap-1 normal-case tracking-normal text-[#c2410c]">
+                              <Mic size={10} aria-hidden="true" />
+                              <span className="sr-only">Spoken answer</span>
+                              {typeof t.pronunciation_score === "number" && (
+                                <span>
+                                  Pron {Math.round(t.pronunciation_score * 100)}
+                                  %
+                                </span>
+                              )}
+                            </span>
+                          )}
                         </p>
                         <p className="text-sm text-[#0B2343] leading-relaxed whitespace-pre-wrap">
                           {t.text}
