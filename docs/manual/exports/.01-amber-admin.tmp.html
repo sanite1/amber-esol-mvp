@@ -1,0 +1,995 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Amber Admin Guide</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 18mm 16mm 20mm 16mm;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        -webkit-print-color-adjust: exact;
+      }
+      body {
+        font-family:
+          -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: #0b2343;
+        font-size: 10.5pt;
+        line-height: 1.55;
+        margin: 0;
+      }
+      /* Cover block */
+      .cover {
+        padding: 40mm 0 8mm;
+        page-break-after: always;
+      }
+      .cover .brand {
+        color: #ff7c22;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-size: 10pt;
+      }
+      .cover h1 {
+        font-size: 30pt;
+        line-height: 1.15;
+        margin: 10px 0 14px;
+      }
+      .cover p {
+        color: rgba(11, 35, 67, 0.65);
+        font-size: 12pt;
+        max-width: 34em;
+      }
+      .cover .meta {
+        margin-top: 18mm;
+        color: rgba(11, 35, 67, 0.45);
+        font-size: 9pt;
+      }
+
+      h1 {
+        font-size: 17pt;
+        margin: 0 0 10px;
+        page-break-after: avoid;
+      }
+      h2 {
+        font-size: 13.5pt;
+        margin: 22px 0 8px;
+        padding-top: 10px;
+        border-top: 2px solid #ff7c22;
+        page-break-after: avoid;
+      }
+      h3 {
+        font-size: 11.5pt;
+        margin: 16px 0 6px;
+        page-break-after: avoid;
+      }
+      p,
+      li {
+        orphans: 3;
+        widows: 3;
+      }
+      a {
+        color: #ff7c22;
+        text-decoration: none;
+      }
+      blockquote {
+        margin: 10px 0;
+        padding: 8px 14px;
+        background: #fff8ee;
+        border-left: 3px solid #ff7c22;
+        border-radius: 4px;
+        color: rgba(11, 35, 67, 0.8);
+        page-break-inside: avoid;
+      }
+      blockquote p {
+        margin: 4px 0;
+      }
+      code {
+        background: rgba(11, 35, 67, 0.06);
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-size: 9pt;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid rgba(11, 35, 67, 0.15);
+        margin: 20px 0;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 10px 0;
+        font-size: 9.5pt;
+        page-break-inside: avoid;
+      }
+      th,
+      td {
+        border: 1px solid rgba(11, 35, 67, 0.15);
+        padding: 6px 9px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        background: #fff8ee;
+        font-weight: 700;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 10px auto;
+        border: 1px solid rgba(11, 35, 67, 0.15);
+        border-radius: 6px;
+        page-break-inside: avoid;
+      }
+      /* Keep screenshot captions (em right after an image) tight */
+      img + em {
+        display: block;
+        text-align: center;
+        color: rgba(11, 35, 67, 0.5);
+        font-size: 9pt;
+        margin-top: -4px;
+      }
+
+      /* Section keep-togethers: a heading and its first image */
+      h2,
+      h3 {
+        break-after: avoid-page;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cover">
+      <div class="brand">Amber ESOL · User Manual</div>
+      <h1>Amber Admin Guide</h1>
+      <p>
+        A step-by-step guide with pictures from the real system. Written to be
+        read by learners — simple words, short steps.
+      </p>
+      <div class="meta">Generated 2026-08-19 · Amber Training Ltd</div>
+    </div>
+    <h1>Amber ESOL Platform Admin Guide</h1>
+    <p>
+      <em
+        >This guide is for Amber staff who run the platform itself. It covers
+        every organisation, every teacher, safeguarding oversight, funding
+        evidence, compliance rules, and the background machinery that keeps the
+        platform honest. Every picture comes from the real system.</em
+      >
+    </p>
+    <blockquote>
+      <p>
+        <strong>The idea in one line:</strong> organisations teach and learners
+        practise, but the duties that protect everyone, safeguarding response,
+        funding integrity, and the audit trail, live at this level. This module
+        is where those duties are done.
+      </p>
+    </blockquote>
+    <hr />
+    <h2>Quick reference, the 10 things you will do most</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>I want to</th>
+          <th>Where to go</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>See the whole platform at a glance</td>
+          <td>Sidebar, <strong>Overview</strong></td>
+        </tr>
+        <tr>
+          <td>Add or manage a client organisation</td>
+          <td>Sidebar, <strong>Organisations</strong></td>
+        </tr>
+        <tr>
+          <td>Approve or revoke an ESOL teacher</td>
+          <td>Sidebar, <strong>ESOL Teachers</strong></td>
+        </tr>
+        <tr>
+          <td>Act on a safeguarding alert</td>
+          <td>Sidebar, <strong>Safeguarding</strong></td>
+        </tr>
+        <tr>
+          <td>Edit the crisis messages learners see</td>
+          <td>Sidebar, <strong>Response texts</strong></td>
+        </tr>
+        <tr>
+          <td>Check teacher workload</td>
+          <td>Sidebar, <strong>Teacher utilisation</strong></td>
+        </tr>
+        <tr>
+          <td>Export the ILR funding file</td>
+          <td>Sidebar, <strong>Reports</strong></td>
+        </tr>
+        <tr>
+          <td>See claimable versus total learning hours</td>
+          <td>Sidebar, <strong>GLH analytics</strong></td>
+        </tr>
+        <tr>
+          <td>Change ILR, RARPA, or routing rules</td>
+          <td>Sidebar, <strong>Compliance config</strong></td>
+        </tr>
+        <tr>
+          <td>Investigate what happened and when</td>
+          <td>Sidebar, <strong>Audit search</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <h2>1. Overview, the whole platform on one screen</h2>
+    <p>
+      <strong>What it is for:</strong> a live picture of every organisation:
+      learners, learning hours, and revenue for the current period.
+    </p>
+    <p>
+      <strong>How to get here:</strong> sign in as an Amber admin. You land
+      here. Sidebar, <strong>Overview</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/01-overview.png"
+        alt="The platform overview"
+      />
+    </p>
+    <p>What you see:</p>
+    <ol>
+      <li>
+        <strong>Four platform totals.</strong> Organisations, total learners,
+        GLH this month, and revenue this month.
+      </li>
+      <li>
+        <strong>The organisations table.</strong> One row per client with type,
+        contract end date, learner count, learners active in the last 7 days,
+        monthly GLH, monthly revenue, and a billing status chip.
+        <strong>Contract lapsed</strong> and <strong>No contract</strong> appear
+        in the billing column so a commercial problem is visible the moment you
+        sign in.
+      </li>
+      <li>
+        <strong>Search and the demo toggle.</strong> Search by name, and flip
+        <strong>Hide demo orgs</strong> to see only paying clients.
+      </li>
+    </ol>
+    <p>
+      Press <strong>View</strong> on any row to open that organisation in full.
+    </p>
+    <hr />
+    <h2>2. Organisations</h2>
+    <p>
+      <strong>What it is for:</strong> provisioning new clients and managing
+      existing ones.
+    </p>
+    <p>
+      <strong>How to get here:</strong> sidebar, <strong>Organisations</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/02-orgs.png"
+        alt="The organisations list"
+      />
+    </p>
+    <p>
+      Each row shows the organisation, its admin contact, the payment model
+      (invoiced or Stripe, with the billing cycle), the created date, and an
+      active status chip.
+    </p>
+    <ul>
+      <li>
+        <strong>Provision organisation</strong> opens the form for a new client.
+        It creates the organisation and its first org admin account in one step.
+      </li>
+      <li>
+        <strong>Deactivate</strong> suspends an organisation. Its people can no
+        longer sign in, but nothing is deleted and the audit trail stays intact.
+        Deactivating is reversible; use it for lapsed contracts rather than
+        asking for anything to be removed.
+      </li>
+    </ul>
+    <h3>An organisation in detail</h3>
+    <p>Press a row to open the full record:</p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/03-org-detail.png"
+        alt="An organisation in detail"
+      />
+    </p>
+    <p>Top to bottom:</p>
+    <ol>
+      <li>
+        <strong>The header.</strong> Name, type, contract dates, and a contract
+        status chip.
+      </li>
+      <li>
+        <strong>Four cards.</strong> Learners (with 7 day activity), GLH this
+        month, revenue this month, and the contract summary.
+      </li>
+      <li>
+        <strong>MIS connection.</strong> How the platform pushes ILR data into
+        the client&#39;s management information system. Pick the MIS type, paste
+        the endpoint and credentials, then <strong>Save</strong>. Credentials
+        are encrypted at rest with AES 256 and are never returned by the API, so
+        once saved they cannot be read back out by anyone, including you. Press
+        <strong>Test connection</strong> to prove the details work before
+        relying on them.
+      </li>
+      <li>
+        <strong>MIS sync.</strong> The push history for this client: when data
+        was last pushed, any open conflicts, and a
+        <strong>Sync now</strong> button for a manual push. Conflicts appear
+        here when the MIS rejects or disputes a record, and each one must be
+        resolved by a person.
+      </li>
+      <li>
+        <strong>Detail panels.</strong> Placeholders for the audit log,
+        safeguarding history, billing history, and teacher roster panels. These
+        are labelled coming soon in the current build.
+      </li>
+    </ol>
+    <hr />
+    <h2>3. ESOL Teachers, the approval gate</h2>
+    <p>
+      <strong>What it is for:</strong> deciding who is allowed to deliver ESOL
+      sessions on the platform. A teacher account can exist, but until you
+      approve it here, it cannot teach.
+    </p>
+    <p>
+      <strong>How to get here:</strong> sidebar, <strong>ESOL Teachers</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/04-esol-teachers.png"
+        alt="The teacher approval list"
+      />
+    </p>
+    <p>
+      Each row shows the tutor, their qualification, DBS status, rating, and
+      approval status.
+    </p>
+    <p><strong>Step by step, approving a teacher</strong></p>
+    <ol>
+      <li>Check the qualification column. A dash means none recorded yet.</li>
+      <li>
+        Check the DBS column. <strong>Not set</strong> shows in red because a
+        missing DBS check is a safeguarding matter, not a paperwork detail.
+      </li>
+      <li>
+        If everything is in order, press <strong>Approve</strong>. The teacher
+        can now be assigned learners and deliver sessions.
+      </li>
+      <li>
+        To withdraw approval later, press <strong>Revoke</strong>. The account
+        remains, but the teacher can no longer act on learners.
+      </li>
+    </ol>
+    <p>
+      <strong>Good to know:</strong> approval is deliberately a platform level
+      decision, not an organisation level one. An org admin can invite a
+      teacher, but only Amber can switch them on. That keeps one consistent
+      vetting bar across every client.
+    </p>
+    <hr />
+    <h2>4. Safeguarding, the most important queue on the platform</h2>
+    <p>
+      <strong>Why this matters:</strong> during AI practice sessions the
+      platform watches for signs that a learner may be at risk: self harm,
+      domestic abuse, radicalisation, concern about a child, exploitation, or a
+      mental health crisis. When something is detected, the learner immediately
+      receives a supportive message with real helpline numbers, the session
+      carries on if they want it to, and an alert lands in this queue. The
+      platform never contacts emergency services and never decides on its own. A
+      person, the designated safeguarding lead, must review every alert. This
+      screen is where that duty is discharged.
+    </p>
+    <p>
+      <strong>How to get here:</strong> sidebar, <strong>Safeguarding</strong>.
+      The count of open alerts is shown next to the page title.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/05-safeguarding.png"
+        alt="The safeguarding queue"
+      />
+    </p>
+    <p>Each alert row shows:</p>
+    <ul>
+      <li><strong>The level chip.</strong> HIGH means act now.</li>
+      <li>
+        <strong>The category chip.</strong> In the picture, DV marks a domestic
+        abuse trigger. Categories match the response texts in section 5.
+      </li>
+      <li>
+        <strong>The status chip.</strong> OPEN until a person records an
+        outcome.
+      </li>
+      <li>
+        <strong>Who and where.</strong> The learner&#39;s name and their
+        organisation, plus the time the alert was raised.
+      </li>
+    </ul>
+    <p>
+      <strong>The clock is running.</strong> Open alerts breach their service
+      level after 15 minutes. The row indicator turns amber at 5 minutes and red
+      at 15. An alert that has gone red is overdue for human attention and
+      should be picked up before anything else on the platform.
+    </p>
+    <p>
+      Filter by status or level to work the queue. Use
+      <strong>All statuses</strong> to review past alerts and confirm nothing
+      was left open.
+    </p>
+    <h3>Acting on an alert</h3>
+    <p>Press an alert to open it:</p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/05b-alert-detail.png"
+        alt="Reviewing a safeguarding alert"
+      />
+    </p>
+    <p>
+      The panel shows the level, status, the learner and their level, the
+      organisation, and when the alert was raised. To close the loop you record
+      an outcome. There are exactly four, and choosing honestly matters because
+      this record is the evidence of how the duty was met:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Outcome</th>
+          <th>When to choose it</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Reviewed</strong></td>
+          <td>
+            You looked at it, spoke to whoever you needed to, and no further
+            action is required.
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Escalated</strong></td>
+          <td>
+            You passed it to the safeguarding officer at the learner&#39;s
+            organisation, or to an external authority. Use this whenever the
+            concern is real and beyond a quick check.
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Resolved</strong></td>
+          <td>
+            The issue was addressed and concluded, for example support was
+            arranged and confirmed.
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Dismissed</strong></td>
+          <td>
+            A false positive. The trigger fired but there is no concern present.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      Write what you did in <strong>Resolution notes</strong>: the action taken,
+      any follow ups arranged, and who was contacted. Then press
+      <strong>Save review</strong>. The outcome, your notes, your identity, and
+      the timestamp all enter the append only audit trail.
+    </p>
+    <p><strong>Scenarios to be ready for:</strong></p>
+    <ul>
+      <li>
+        <strong>A high alert arrives out of hours.</strong> The SLA clock does
+        not pause. Whoever holds the safeguarding duty should be reachable, and
+        the response texts (section 5) mean the learner has already been given
+        crisis contacts in the moment, before any person responds.
+      </li>
+      <li>
+        <strong>You are not sure whether it is real.</strong> Choose
+        <strong>Escalated</strong> and let the organisation&#39;s safeguarding
+        officer decide. Dismissing a genuine concern is the failure mode this
+        queue exists to prevent; escalating a false positive costs only a phone
+        call.
+      </li>
+      <li>
+        <strong>The same learner triggers more than once.</strong> Each alert is
+        its own record and each needs its own outcome. A repeat pattern is
+        itself a signal worth escalating.
+      </li>
+      <li>
+        <strong>What the platform stores.</strong> The alert holds the category,
+        level, time, and a cryptographic fingerprint of the message that
+        triggered it. Treat everything on this screen as strictly confidential
+        and keep the detail in your notes factual and minimal.
+      </li>
+    </ul>
+    <hr />
+    <h2>5. Response texts, the words a learner sees in a crisis</h2>
+    <p>
+      <strong>What it is for:</strong> when a disclosure is detected mid
+      session, the learner instantly sees a supportive message. Those messages
+      are written here, by people, in advance. They are served from memory and
+      are never generated live by the AI, so what a learner in crisis reads has
+      always been reviewed by a human being.
+    </p>
+    <p>
+      <strong>How to get here:</strong> sidebar,
+      <strong>Response texts</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/06-response-texts.png"
+        alt="The safeguarding response texts"
+      />
+    </p>
+    <p>
+      There is one message per category: self harm, domestic abuse,
+      radicalisation, child concern, exploitation, and mental health crisis.
+      Each carries the relevant real helpline (Samaritans, the National Domestic
+      Abuse Helpline, NSPCC, the Modern Slavery Helpline, NHS 111) and closes by
+      inviting the learner to continue when ready.
+    </p>
+    <p><strong>Step by step, editing a message</strong></p>
+    <ol>
+      <li>
+        Pick the language tab. English is the source text; the other tabs
+        (Arabic, Cantonese, Turkish, Somali, Dari and Farsi, Chinese) hold
+        translations so learners read the message in their own language.
+      </li>
+      <li>Edit the text. The counter shows the 2000 character limit.</li>
+      <li>
+        Press <strong>Save</strong>. Saving updates the live platform
+        immediately, with no deploy and no restart.
+      </li>
+    </ol>
+    <p>
+      <strong>Good to know:</strong> a blank translation falls back to English
+      rather than showing nothing, and English itself cannot be blank. The badge
+      under each box confirms the text is live on the platform.
+    </p>
+    <p>
+      <strong>Treat edits here with the same care as a code release.</strong>
+      These words reach people at their lowest moment. Keep helpline numbers
+      exactly right, keep the tone warm and unhurried, and have a second person
+      read any change before you save it.
+    </p>
+    <hr />
+    <h2>6. Teacher utilisation</h2>
+    <p>
+      <strong>What it is for:</strong> spotting overloaded and underused
+      teachers across every organisation before it becomes a problem.
+    </p>
+    <p>
+      <strong>How to get here:</strong> sidebar,
+      <strong>Teacher utilisation</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/07-teacher-utilisation.png"
+        alt="Teacher utilisation"
+      />
+    </p>
+    <p>
+      The cards count teachers, teachers near capacity (80 percent or more), and
+      teachers over capacity (above 100 percent). The table shows each
+      teacher&#39;s organisations, learner count, capacity, utilisation
+      percentage, reviews this month, average review minutes, and teaching hours
+      this month. Filter by organisation, and press <strong>History</strong> for
+      a teacher&#39;s month by month record.
+    </p>
+    <p>
+      <strong>Good to know:</strong> utilisation feeds from the same reviews
+      teachers log in their own module, so a teacher who works but does not log
+      reviews will look idle here. If a number looks wrong, that is the first
+      thing to check.
+    </p>
+    <hr />
+    <h2>7. Placement calibration, proving the AI places learners correctly</h2>
+    <p>
+      <strong>Why this matters:</strong> the platform&#39;s placement assessment
+      assigns each new learner an ESOL level. Funding and teaching decisions
+      rest on that level, so the assessment must be proven against human
+      judgement before it is trusted, and proven again every time the question
+      bank changes. This screen runs that protocol.
+    </p>
+    <p>
+      <strong>How to get here:</strong> sidebar,
+      <strong>Placement calibration</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/08-calibration.png"
+        alt="Placement calibration"
+      />
+    </p>
+    <p>
+      The header shows the current question bank version, progress through the
+      cohort, and the verdict: PENDING, PASS, or FAIL.
+    </p>
+    <p><strong>The protocol, in plain terms</strong></p>
+    <ol>
+      <li>
+        Take at least 20 learners whose true level is already known to a
+        qualified ESOL practitioner.
+      </li>
+      <li>
+        For each learner, record a calibration row: the learner, the
+        practitioner&#39;s name as it appears on the sign off PDF, the known
+        level, the level the platform assigned, and optional notes.
+      </li>
+      <li>
+        Each row lands in one of five buckets: <strong>Correct</strong>,
+        <strong>One below</strong>, <strong>One above</strong>,
+        <strong>Over assigned</strong>, and <strong>Under assigned</strong>.
+      </li>
+      <li>
+        The bank passes only when at least 18 of the 20 land in Correct or One
+        below, and zero land in One above or Over assigned.
+      </li>
+    </ol>
+    <p>
+      The asymmetry is deliberate. Placing a learner one level below their
+      ability costs a little time and is caught quickly. Placing them above
+      their ability sets them up to fail and risks claiming funding for
+      provision they cannot access, so even one over assignment fails the bank.
+    </p>
+    <p>
+      <strong>Good to know:</strong> the yellow banner lists exactly which
+      criteria are unmet, as in the picture. A new bank version resets the
+      cohort and the protocol starts again from zero.
+    </p>
+    <hr />
+    <h2>8. Invoices</h2>
+    <p>
+      <strong>What it is for:</strong> invoice management across every
+      organisation in one place.
+    </p>
+    <p><strong>How to get here:</strong> sidebar, <strong>Invoices</strong>.</p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/09-invoices.png"
+        alt="All invoices"
+      />
+    </p>
+    <p>
+      Filter by organisation and status, or press
+      <strong>Generate invoice</strong> to raise one manually. Organisations on
+      Stripe bill automatically on their cycle; invoiced clients are managed
+      from here.
+    </p>
+    <hr />
+    <h2>9. Reports, the ILR export</h2>
+    <p>
+      <strong>Why this matters:</strong> this is the file that goes to the
+      funding body. It contains learner enrolment and delivery data for ESFA
+      funded ESOL provision: ULN, level, hours delivered, and funding status.
+      Getting it wrong is not a display bug, it is a compliance incident, so the
+      export is scoped and checked before anything downloads.
+    </p>
+    <p><strong>How to get here:</strong> sidebar, <strong>Reports</strong>.</p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/10-reports.png"
+        alt="The ILR export"
+      />
+    </p>
+    <p><strong>Step by step</strong></p>
+    <ol>
+      <li>
+        Select the organisation. The export covers all learners enrolled with
+        that organisation.
+      </li>
+      <li>Set the period start and end dates.</li>
+      <li>
+        Press <strong>Download CSV</strong>. The button stays disabled until the
+        selections are complete.
+      </li>
+    </ol>
+    <p>
+      <strong>Good to know:</strong> hours delivered are computed from completed
+      sessions within the chosen period, not from anything self reported. Before
+      submitting a return, sanity check the totals against
+      <strong>GLH analytics</strong> (section 10) for the same window; the
+      numbers should tell the same story.
+    </p>
+    <hr />
+    <h2>10. GLH analytics, total versus claimable</h2>
+    <p>
+      <strong>What it is for:</strong> guided learning hours across the
+      platform, split by where they came from: AI tutor practice, hours logged
+      before the platform, and teacher contact time.
+    </p>
+    <p>
+      <strong>How to get here:</strong> sidebar, <strong>GLH analytics</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/11-glh-analytics.png"
+        alt="GLH analytics"
+      />
+    </p>
+    <p>The five cards are the heart of it:</p>
+    <ul>
+      <li>
+        <strong>Total GLH.</strong> Everything, including AI practice time.
+      </li>
+      <li>
+        <strong>Claimable GLH.</strong> The subset that excludes AI time. This
+        is the number that matters for funding claims, because AI practice hours
+        are not claimable guided learning. The two cards exist side by side
+        precisely so nobody ever mistakes one for the other.
+      </li>
+      <li>
+        <strong>AI tutor GLH</strong>, <strong>Pre platform GLH</strong>, and
+        <strong>Teacher contact GLH</strong> show the mix, each with its share
+        of the total.
+      </li>
+    </ul>
+    <p>
+      The platform targets teacher contact at 10 to 20 percent of total GLH. The
+      teacher contact card carries an <strong>ABOVE TARGET</strong> or below
+      target badge so drift is visible at a glance. Below it, the trend chart
+      shows the mix week by week, and the organisation chart breaks the same
+      numbers down per client. Filter by date range and organisation at the top.
+    </p>
+    <hr />
+    <h2>11. Compliance config, the rules of the game</h2>
+    <p>
+      <strong>Why this matters:</strong> the rules that drive ILR exports, RARPA
+      evaluation, and ASF postcode routing change from academic year to academic
+      year. This screen versions those rules so a change is deliberate,
+      attributed, reversible, and visible in the audit log, rather than a silent
+      edit somewhere in the code.
+    </p>
+    <p>
+      <strong>How to get here:</strong> sidebar,
+      <strong>Compliance config</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/12-compliance-config.png"
+        alt="Compliance config"
+      />
+    </p>
+    <p><strong>Step by step, activating a new rule version</strong></p>
+    <ol>
+      <li>
+        Pick the tab: <strong>ILR</strong>, <strong>RARPA</strong>, or
+        <strong>ASF Routing</strong>.
+      </li>
+      <li>
+        Pick the academic year. A badge warns when the year has no active
+        version, as in the picture.
+      </li>
+      <li>
+        Edit the rules JSON. The badge above the editor confirms whether the
+        JSON is currently valid; you cannot activate an invalid object.
+      </li>
+      <li>
+        Write the changelog. This is required, in plain English, and appears
+        verbatim in the platform audit log. Say what changed and why, for
+        example a new SOF code routing per an ESFA notice.
+      </li>
+      <li>
+        Press <strong>Activate this version</strong>. The engine cache reloads
+        atomically. The new rules apply immediately, with no server restart and
+        no window where half the old rules and half the new ones apply.
+      </li>
+    </ol>
+    <p>
+      <strong>Version history</strong> at the bottom lists every prior version
+      with its activation time, status, and changelog, so you can see exactly
+      which rules were in force on any given date. That question comes up in
+      audits, and this table is the answer.
+    </p>
+    <p>
+      <strong>Good to know:</strong> activating never edits an old version. Each
+      activation creates the next version, so the history is complete by
+      construction. If a new version misbehaves, activate a corrected one; the
+      record of the mistake stays, which is the point.
+    </p>
+    <hr />
+    <h2>12. Audit search</h2>
+    <p>
+      <strong>What it is for:</strong> every compliance event across every
+      organisation, searchable in one place, for support questions,
+      investigations, and compliance reporting.
+    </p>
+    <p>
+      <strong>How to get here:</strong> sidebar, <strong>Audit search</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/13-audit-search.png"
+        alt="Cross organisation audit search"
+      />
+    </p>
+    <p>
+      Each event shows when it happened, the organisation, the action, the
+      actor, the learner affected, a plain English reason, and the compliance
+      config version in force at the time. You can watch a learner&#39;s whole
+      journey here: placement completed, teacher assigned, sessions started and
+      ended, Stage 3 objectives negotiated, messages acknowledged, nudges sent.
+    </p>
+    <p>
+      Filter by organisation, action, and date range. The trail is append only;
+      nothing here can be edited or deleted, by anyone, which is what makes it
+      usable as evidence.
+    </p>
+    <hr />
+    <h2>13. Sales intelligence</h2>
+    <p>
+      <strong>What it is for:</strong> submissions from the public ROI
+      calculator on the marketing site, ordered so outstanding leads surface
+      first.
+    </p>
+    <p>
+      <strong>How to get here:</strong> sidebar,
+      <strong>Sales intelligence</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/14-sales-intelligence.png"
+        alt="Sales intelligence"
+      />
+    </p>
+    <p>
+      The cards count submissions in scope, pending follow up, and already
+      contacted, plus the unclaimed funding pipeline across the current filter.
+      Each row carries the organisation, contact, waiting list size, unclaimed
+      funding per year, and payback estimate. Mark a lead contacted from its
+      row, and export the current view as CSV.
+    </p>
+    <hr />
+    <h2>14. Queues and failed jobs, the machinery</h2>
+    <p>
+      <strong>What it is for:</strong> the platform does its heavy work in
+      background queues: grading session turns, compiling RARPA evidence,
+      generating ILR exports, validating compliance artefacts, pushing to client
+      MIS systems, sending notifications, and more. These two screens are how
+      you check that machinery is healthy.
+    </p>
+    <p>
+      <strong>How to get here:</strong> sidebar, <strong>Queues</strong> (the
+      sidebar shows this under the platform section).
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/15-queues.png"
+        alt="The queues summary"
+      />
+    </p>
+    <p>
+      The summary shows live counts per queue: waiting, active, failed, delayed,
+      and completed. The row descriptions say what each queue does, so an
+      unhealthy number points straight at the affected feature. For a deeper
+      look, <strong>Open Bull Board</strong> opens the full queue UI in a new
+      tab, with per job payloads, retry history, and manual controls.
+    </p>
+    <h3>Failed jobs</h3>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/16-failed-jobs.png"
+        alt="Failed jobs"
+      />
+    </p>
+    <p>
+      A job lands here only after exhausting all its automatic retries. Each row
+      is the durable audit record of that failure: the queue, the job, the
+      error, attempts, and when it failed.
+    </p>
+    <p><strong>Step by step, working a failure</strong></p>
+    <ol>
+      <li>
+        Read the error. Filter by queue and date to see whether it is one off or
+        a pattern.
+      </li>
+      <li>
+        Press retry on the row. Retrying enqueues a fresh copy of the job with
+        the same data; the failure record itself stays, so the history is never
+        rewritten.
+      </li>
+      <li>
+        If the job should not run again, dismiss it. Dismissed rows stay
+        available under the <strong>Show dismissed</strong> toggle.
+      </li>
+    </ol>
+    <p>
+      <strong>Treat notification queue failures as urgent.</strong> The
+      notifications queue carries safeguarding alert emails among other things.
+      A failure there is not a technical detail; until it is retried
+      successfully, a safeguarding lead may not know an alert exists. Check the
+      failed jobs screen as part of acting on any safeguarding incident, and
+      retry notification failures first.
+    </p>
+    <hr />
+    <h2>15. Amber admin on your phone</h2>
+    <p>
+      The admin module works at phone size, with the sidebar folded into the
+      menu button:
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/amber-admin/17-mobile-overview.png"
+        alt="The overview on a phone"
+      />
+    </p>
+    <hr />
+    <h2>16. If something goes wrong</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Problem</th>
+          <th>What to do</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>An organisation cannot sign in</td>
+          <td>
+            Check its status on <strong>Organisations</strong>. Deactivated
+            organisations block sign in for all their people.
+          </td>
+        </tr>
+        <tr>
+          <td>A teacher says they cannot act on learners</td>
+          <td>
+            Check <strong>ESOL Teachers</strong>. They may be unapproved or
+            revoked.
+          </td>
+        </tr>
+        <tr>
+          <td>A safeguarding alert looks stuck open</td>
+          <td>
+            Open it and record the true outcome. If you cannot resolve it,
+            choose <strong>Escalated</strong> and note who now owns it.
+          </td>
+        </tr>
+        <tr>
+          <td>ILR numbers look wrong</td>
+          <td>
+            Compare the same period in <strong>GLH analytics</strong>, then
+            check <strong>Compliance config</strong> for which rule version was
+            active.
+          </td>
+        </tr>
+        <tr>
+          <td>Queue counts will not load</td>
+          <td>
+            The queue layer runs on Redis. If Redis is down the counts cannot
+            load, and background work pauses until it returns.
+          </td>
+        </tr>
+        <tr>
+          <td>A background feature silently stopped</td>
+          <td>
+            Check <strong>Failed jobs</strong> for that queue, fix the cause,
+            then retry the jobs.
+          </td>
+        </tr>
+        <tr>
+          <td>The MIS push keeps failing</td>
+          <td>
+            Open the organisation, use <strong>Test connection</strong>, and re
+            enter credentials if needed. Remember saved credentials cannot be
+            read back, only replaced.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <p>
+      <em
+        >Terms like RARPA, GLH, ILR, ULN, and Stage 5 are explained in the
+        <a href="00-getting-started.md#glossary">glossary</a>.</em
+      >
+    </p>
+  </body>
+</html>

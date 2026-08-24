@@ -1,0 +1,672 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Amber Getting Started Guide</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 18mm 16mm 20mm 16mm;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        -webkit-print-color-adjust: exact;
+      }
+      body {
+        font-family:
+          -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: #0b2343;
+        font-size: 10.5pt;
+        line-height: 1.55;
+        margin: 0;
+      }
+      /* Cover block */
+      .cover {
+        padding: 40mm 0 8mm;
+        page-break-after: always;
+      }
+      .cover .brand {
+        color: #ff7c22;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-size: 10pt;
+      }
+      .cover h1 {
+        font-size: 30pt;
+        line-height: 1.15;
+        margin: 10px 0 14px;
+      }
+      .cover p {
+        color: rgba(11, 35, 67, 0.65);
+        font-size: 12pt;
+        max-width: 34em;
+      }
+      .cover .meta {
+        margin-top: 18mm;
+        color: rgba(11, 35, 67, 0.45);
+        font-size: 9pt;
+      }
+
+      h1 {
+        font-size: 17pt;
+        margin: 0 0 10px;
+        page-break-after: avoid;
+      }
+      h2 {
+        font-size: 13.5pt;
+        margin: 22px 0 8px;
+        padding-top: 10px;
+        border-top: 2px solid #ff7c22;
+        page-break-after: avoid;
+      }
+      h3 {
+        font-size: 11.5pt;
+        margin: 16px 0 6px;
+        page-break-after: avoid;
+      }
+      p,
+      li {
+        orphans: 3;
+        widows: 3;
+      }
+      a {
+        color: #ff7c22;
+        text-decoration: none;
+      }
+      blockquote {
+        margin: 10px 0;
+        padding: 8px 14px;
+        background: #fff8ee;
+        border-left: 3px solid #ff7c22;
+        border-radius: 4px;
+        color: rgba(11, 35, 67, 0.8);
+        page-break-inside: avoid;
+      }
+      blockquote p {
+        margin: 4px 0;
+      }
+      code {
+        background: rgba(11, 35, 67, 0.06);
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-size: 9pt;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid rgba(11, 35, 67, 0.15);
+        margin: 20px 0;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 10px 0;
+        font-size: 9.5pt;
+        page-break-inside: avoid;
+      }
+      th,
+      td {
+        border: 1px solid rgba(11, 35, 67, 0.15);
+        padding: 6px 9px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        background: #fff8ee;
+        font-weight: 700;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 10px auto;
+        border: 1px solid rgba(11, 35, 67, 0.15);
+        border-radius: 6px;
+        page-break-inside: avoid;
+      }
+      /* Keep screenshot captions (em right after an image) tight */
+      img + em {
+        display: block;
+        text-align: center;
+        color: rgba(11, 35, 67, 0.5);
+        font-size: 9pt;
+        margin-top: -4px;
+      }
+
+      /* Section keep-togethers: a heading and its first image */
+      h2,
+      h3 {
+        break-after: avoid-page;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cover">
+      <div class="brand">Amber ESOL · User Manual</div>
+      <h1>Amber Getting Started Guide</h1>
+      <p>
+        A step-by-step guide with pictures from the real system. Written to be
+        read by learners — simple words, short steps.
+      </p>
+      <div class="meta">Generated 2026-08-19 · Amber Training Ltd</div>
+    </div>
+    <h1>Amber ESOL Getting Started Guide</h1>
+    <p>
+      <em
+        >This chapter is for everyone. It explains what Amber is, how to sign
+        in, how to find your way around, how the platform speaks your language,
+        and what every specialist term in the other chapters means. Read it
+        once, then keep it nearby as the glossary.</em
+      >
+    </p>
+    <blockquote>
+      <p>
+        <strong>The idea in one line:</strong> Amber is an AI supported English
+        learning platform where learners practise with an AI tutor, teachers
+        focus on the learners who need a human, and the paperwork that funded
+        provision requires writes itself as evidence, honestly, in the
+        background.
+      </p>
+    </blockquote>
+    <hr />
+    <h2>1. What Amber is</h2>
+    <p>
+      Amber ESOL is a platform for councils, colleges, and charities that run
+      funded English courses for adults whose first language is not English.
+      Learners practise real life scenarios with an AI tutor that supports them
+      in their own language. The platform records progress and hours
+      automatically, in the exact shape that UK funding rules expect, and keeps
+      a person in charge of every judgement that matters.
+    </p>
+    <p>Four kinds of people use it, and each has their own guide:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Role</th>
+          <th>Who they are</th>
+          <th>Where they land after sign in</th>
+          <th>Their guide</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Learner</strong></td>
+          <td>An adult learning English with their provider</td>
+          <td>Their learning home page</td>
+          <td><a href="04-learner.md">Learner Guide</a></td>
+        </tr>
+        <tr>
+          <td><strong>Teacher</strong></td>
+          <td>An ESOL teacher working across learners</td>
+          <td>The teacher dashboard and priority queue</td>
+          <td><a href="03-teacher.md">Teacher Guide</a></td>
+        </tr>
+        <tr>
+          <td><strong>Org admin</strong></td>
+          <td>The provider&#39;s administrator</td>
+          <td>The organisation dashboard</td>
+          <td><a href="02-org-admin.md">Org Admin Guide</a></td>
+        </tr>
+        <tr>
+          <td><strong>Amber admin</strong></td>
+          <td>Amber&#39;s own platform staff</td>
+          <td>The platform overview</td>
+          <td><a href="01-amber-admin.md">Platform Admin Guide</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <h2>2. Signing in and out</h2>
+    <p>
+      <strong>How to get here:</strong> open the platform and press
+      <strong>Sign in</strong>, or go straight to the login page.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/shared/01-login.png"
+        alt="The sign in page"
+      />
+    </p>
+    <p><strong>Step by step</strong></p>
+    <ol>
+      <li>
+        Enter your email and password. The eye button shows the password while
+        you check it.
+      </li>
+      <li>
+        Press <strong>Sign in</strong>. You land on the home screen for your
+        role, and if you were sent to sign in from a deeper page, you return to
+        that page instead.
+      </li>
+    </ol>
+    <p>
+      <strong>If the password is wrong</strong> you see &quot;Invalid email or
+      password&quot;. The message is deliberately the same whether the email or
+      the password was the problem, so nobody can use the login page to discover
+      which emails have accounts.
+    </p>
+    <p>
+      <strong>Forgot your password?</strong> Press the
+      <strong>Forgot password?</strong> link, enter your email, and check your
+      inbox. The page always says the same thing, &quot;If an account exists for
+      that email, the link is on its way&quot;, for the same privacy reason. The
+      link in the email works once and expires after one hour. The reset page
+      asks for a new password of at least 8 characters including an uppercase
+      letter, a number, and a symbol, and shows a strength meter while you type.
+    </p>
+    <p>
+      <strong>Staying signed in.</strong> You stay signed in for up to 7 days on
+      the same browser. After long enough away, the platform asks you to sign in
+      again and then returns you to the page you were on.
+    </p>
+    <p>
+      <strong>Signing out.</strong> Open the profile menu at the top right, or
+      scroll to the bottom of the menu on a phone, and press
+      <strong>Sign out</strong>.
+    </p>
+    <p>
+      <strong>Good to know:</strong> learners do not create their own accounts
+      from the login page. Learners join through an invitation link sent by
+      their organisation, which opens a short wizard in their own language and
+      ends in the placement assessment. The invitation screen looks like this,
+      with the language picker in the top corner:
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/20-join-welcome.png"
+        alt="The invitation wizard"
+      />
+    </p>
+    <hr />
+    <h2>3. Finding your way around</h2>
+    <p>Every role uses the same shell:</p>
+    <ul>
+      <li>
+        <strong>The sidebar</strong> on the left lists your screens, grouped
+        under small headings. Press <strong>Collapse</strong> at the bottom to
+        shrink it. Your profile card and the
+        <strong>Help and Support</strong> link live at the bottom of the
+        sidebar.
+      </li>
+      <li>
+        <strong>The breadcrumb</strong> across the top always shows where you
+        are.
+      </li>
+      <li>
+        <strong>The header icons</strong> at the top right are help,
+        notifications (the bell), and your profile menu.
+      </li>
+    </ul>
+    <p>
+      On a phone, the sidebar becomes a drawer behind the menu button at the top
+      left. Everything is in the same order, with <strong>Sign out</strong> at
+      the bottom:
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/shared/03-mobile-drawer.png"
+        alt="The mobile drawer"
+      />
+    </p>
+    <p>
+      Every screen in the platform works at phone size. Tables scroll sideways
+      inside their cards rather than breaking the page.
+    </p>
+    <hr />
+    <h2>4. Your language, and right to left</h2>
+    <p>
+      Amber is built for people learning English, so the platform never assumes
+      English.
+    </p>
+    <ul>
+      <li>
+        <strong>Choosing a language.</strong> The language picker sits in the
+        top corner of the invitation wizard. A learner picks their language on
+        their very first screen, before anything else, and the choice is
+        remembered on that device. Four languages are selectable today, English,
+        Arabic, Cantonese, and Turkish, with sixteen more already prepared
+        behind the scenes.
+      </li>
+      <li>
+        <strong>What follows the choice.</strong> The placement assessment, the
+        session preparation screens, the practice session itself, goal setting,
+        and the messages inbox all follow the chosen language.
+      </li>
+      <li>
+        <strong>Right to left.</strong> Arabic flips the whole layout so it
+        reads naturally right to left, as here mid session:
+      </li>
+    </ul>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/15-rtl-session.png"
+        alt="A session in Arabic, right to left"
+      />
+    </p>
+    <ul>
+      <li>
+        <strong>Messages arrive translated.</strong> When a teacher writes to a
+        learner, the platform translates the message into the learner&#39;s
+        first language before it is delivered, and the teacher sees a preview of
+        that translation before sending.
+      </li>
+      <li>
+        <strong>Crisis messages too.</strong> The supportive messages a learner
+        sees if they disclose something worrying are written by people, per
+        language, in advance. They are never machine generated in the moment.
+      </li>
+    </ul>
+    <p>
+      <strong>Good to know:</strong> the learner&#39;s first language also
+      shapes the teaching itself. The AI tutor uses it as a scaffold into
+      English, more support at Entry 1, almost none by Level 2. That approach is
+      the Bridge Method, explained in the glossary below.
+    </p>
+    <hr />
+    <h2>5. How the platform talks to you</h2>
+    <p>
+      <strong>The bell.</strong> Every role has the notifications bell in the
+      header. It shows an orange badge with your unread count, and opens into
+      the ten newest notifications. Press one to mark it read, or
+      <strong>Mark all read</strong>. The list refreshes itself about once a
+      minute.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/shared/02-notifications.png"
+        alt="The notifications bell"
+      />
+    </p>
+    <p>
+      <strong>Toasts.</strong> Small cards appear at the top right after
+      actions, to confirm a save, a send, or to explain a failure. They
+      disappear on their own.
+    </p>
+    <p>
+      <strong>For learners, teacher messages cannot be missed.</strong> A
+      message from your teacher appears as a banner on your home page, as a note
+      that opens when you arrive, and as a full screen note before your next
+      practice session begins. Messages marked <strong>Auto sent</strong> are
+      friendly automatic check ins that go out on the teacher&#39;s behalf when
+      someone has been away a while; teachers can switch those off.
+    </p>
+    <p>
+      <strong>Email.</strong> The platform sends email for the moments that
+      matter: safeguarding alerts go to the safeguarding lead within seconds,
+      organisations can send a one tap encouragement email in the learner&#39;s
+      own language, and admins are emailed when a learner is ready to move up a
+      level. Teacher messages currently live in the app only, there is no email
+      copy, so the in app surfaces above are the ones to trust.
+    </p>
+    <hr />
+    <h2>6. Accessibility</h2>
+    <p>
+      The platform is built to the WCAG 2.1 AA standard, and the practical
+      things you will notice are these:
+    </p>
+    <ul>
+      <li>
+        <strong>Touch targets</strong> are at least 44 pixels, so buttons are
+        easy to hit on a phone.
+      </li>
+      <li>
+        <strong>Form fields never zoom the page</strong> on iPhones, because
+        text inputs are always at least 16 pixels.
+      </li>
+      <li>
+        <strong>Keyboard use</strong> works across the platform, with a visible
+        focus ring as you tab.
+      </li>
+      <li>
+        <strong>Text size in sessions.</strong> The practice session has its own
+        text size button that cycles small, medium, and large, for the screen
+        where reading comfort matters most.
+      </li>
+      <li>
+        <strong>Listen and speak.</strong> Where voice is enabled, learners can
+        press <strong>Listen</strong> to hear the tutor&#39;s message aloud, and
+        opt in to a microphone to speak their answers instead of typing.
+      </li>
+      <li>
+        <strong>Screens work small.</strong> Learner pages are usable at 425
+        pixels wide, and the practice session at 375 pixels.
+      </li>
+    </ul>
+    <p>
+      Accessibility work is ongoing; some older administrative screens are still
+      being brought up to the same bar.
+    </p>
+    <hr />
+    <h2>7. If something goes wrong</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Problem</th>
+          <th>What to do</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>I cannot sign in</td>
+          <td>
+            Check the email and password. After a reset link expires (one hour),
+            request a new one.
+          </td>
+        </tr>
+        <tr>
+          <td>My invitation link says it is invalid or expired</td>
+          <td>
+            Links expire after 30 days by default. Ask your organisation for a
+            fresh one.
+          </td>
+        </tr>
+        <tr>
+          <td>I did not get the reset email</td>
+          <td>
+            The page will not confirm whether the email has an account; check
+            spam, then ask your admin to confirm the address on file.
+          </td>
+        </tr>
+        <tr>
+          <td>It signed me out by itself</td>
+          <td>
+            You were away long enough for the session to end. Sign in again and
+            you return to where you were.
+          </td>
+        </tr>
+        <tr>
+          <td>The page looks stuck loading</td>
+          <td>
+            Give it a few seconds; most screens show grey placeholder blocks
+            while data loads.
+          </td>
+        </tr>
+        <tr>
+          <td>The layout looks wrong in Arabic</td>
+          <td>
+            Tell your provider which screen; the direction flip is per screen
+            and feedback pinpoints the fix.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <h2>Glossary</h2>
+    <p>
+      The other four guides use these terms freely. Plain English versions of
+      all of them live here.
+    </p>
+    <h3>Levels and assessment</h3>
+    <p>
+      <strong>ESOL.</strong> English for Speakers of Other Languages, the UK
+      term for English courses taught to adults whose first language is not
+      English.
+    </p>
+    <p>
+      <strong>E1, E2, E3, L1, L2.</strong> The five UK adult ESOL course levels:
+      Entry 1, Entry 2, Entry 3, Level 1, and Level 2. Entry 1 is the beginner
+      stage and Level 2 is the most advanced the platform teaches. Every
+      learner, session, and result carries one of these levels.
+    </p>
+    <p>
+      <strong>CEFR.</strong> The Common European Framework of Reference for
+      Languages, an international scale of language ability. Amber maps the UK
+      levels onto it: E1 is A1, E2 sits between A1 and A2, E3 is A2, L1 is B1,
+      and L2 is B2.
+    </p>
+    <p>
+      <strong>Placement assessment.</strong> The 20 question assessment every
+      learner takes when joining. It adapts once, after the fifth answer,
+      rewriting the remaining questions to suit the learner, then places them at
+      one of the five levels with a confidence score. A teacher reviews every
+      placement result.
+    </p>
+    <h3>Funding and compliance</h3>
+    <p>
+      <strong>ILR.</strong> Individualised Learner Record, the standard data
+      return that funded UK education providers submit to government. Amber
+      builds the ILR rows automatically from real learner and session records.
+    </p>
+    <p>
+      <strong>ULN.</strong> Unique Learner Number, a ten digit identifier that
+      follows a learner across UK education systems. It is the key identity
+      field on funding returns.
+    </p>
+    <p>
+      <strong>ESFA.</strong> The Education and Skills Funding Agency, the
+      government body that receives ILR submissions.
+    </p>
+    <p>
+      <strong>ASF.</strong> The Adult Skills Fund, the pot of government funding
+      that pays for adult courses such as ESOL. Amber records hours and evidence
+      in the shape ASF assurance reviews expect, and keeps records for at least
+      six years.
+    </p>
+    <p>
+      <strong>GLH.</strong> Guided Learning Hours, the taught hours recorded for
+      each learner, which funding claims are based on. Amber totals them
+      automatically from AI tutor time, teacher contact time, and any hours
+      imported from before the platform.
+    </p>
+    <p>
+      <strong>Total versus Claimable GLH.</strong> Two figures shown side by
+      side everywhere hours appear. Total GLH counts everything including AI
+      tutor time. Claimable GLH excludes AI time and counts only teacher contact
+      and imported hours, because AI hours are not yet an accepted basis for a
+      funding claim. Any funding figure must use the claimable number.
+    </p>
+    <p>
+      <strong>Teacher contact target.</strong> The funding model assumes teacher
+      contact sits between 10 and 20 percent of a learner&#39;s total hours.
+      Below that there is too little qualified oversight; above it the cost
+      advantage of the AI tutor erodes. The platform tracks the ratio and flags
+      drift.
+    </p>
+    <p>
+      <strong>MIS.</strong> Management information system, the student record
+      software a provider already runs, such as ProSolution, Maytas, or EBS.
+      Amber can push learner records into it so nothing is typed twice.
+    </p>
+    <p>
+      <strong>Evidence chain.</strong> The audit trail that links every claim
+      about a learner back to the moment its evidence was created. Records are
+      written as events happen and can never be edited afterwards, and an AI
+      judgement only counts as final once a person confirms it.
+    </p>
+    <h3>RARPA, the progress framework</h3>
+    <p>
+      <strong>RARPA.</strong> Recognising And Recording Progress And
+      Achievement, the six stage quality framework used to evidence learner
+      progress on courses that do not end in an exam. Amber generates the
+      evidence for each stage automatically from real activity.
+    </p>
+    <ul>
+      <li>
+        <strong>Stage 1, aims.</strong> Who the learner is and what the course
+        sets out to achieve.
+      </li>
+      <li>
+        <strong>Stage 2, starting point.</strong> The diagnostic assessment
+        recorded at enrolment, so later progress has a baseline.
+      </li>
+      <li>
+        <strong>Stage 3, objectives.</strong> Individual learning objectives
+        agreed with the learner, in their own language, with the agreement
+        itself recorded as evidence.
+      </li>
+      <li>
+        <strong>Stage 4, ongoing progress.</strong> The running record collected
+        every session: scores, vocabulary, skills practised, and how the learner
+        responds to correction.
+      </li>
+      <li>
+        <strong>Stage 5, the achievement review.</strong> The end of level
+        review. It gathers the learner&#39;s self assessment, the AI tutor&#39;s
+        summary, and then two human approvals.
+      </li>
+      <li>
+        <strong>Stage 6, next steps.</strong> Where the learner goes after the
+        course, always confirmed by a person.
+      </li>
+    </ul>
+    <p>
+      <strong>The Stage 5 two person rule.</strong> A level achievement is only
+      final after two different people approve it in order: the teacher signs
+      off first, then the org admin confirms. Both approvals are stamped with
+      who and when. Nothing the AI scores can become an achievement on its own.
+    </p>
+    <h3>The teaching method</h3>
+    <p>
+      <strong>Bridge Method.</strong> Amber&#39;s teaching approach: the
+      learner&#39;s first language is used as a scaffold into English rather
+      than being banned. The share of first language is set by level, from
+      roughly 70 percent at Entry 1 down to almost none at Level 2, and it
+      reduces as confidence grows.
+    </p>
+    <p>
+      <strong>ANCHOR, BRIDGE, IMMERSION.</strong> The three modes a practice
+      session moves between, decided turn by turn. ANCHOR gives maximum first
+      language support and switches on when the learner is struggling or
+      distressed. BRIDGE is the normal mix for the learner&#39;s level.
+      IMMERSION is mostly or entirely English, earned by three strong answers in
+      a row. The platform never records less support than the learner actually
+      needed.
+    </p>
+    <p>
+      <strong>Vocab ledger.</strong> The per learner record of every word met,
+      with a count of encounters. A word counts as retained once the learner has
+      met it at least 5 times and produced it correctly in a strong answer, and
+      once retained it stays retained. Teachers see the ledger split into
+      retained and in progress.
+    </p>
+    <p>
+      <strong>Priority bands P1 to P4.</strong> The flag that tells teachers who
+      needs attention first, recalculated daily. P1 means act now, for example
+      an open safeguarding alert, two weeks of silence, or three weak sessions
+      in a row. P2 means act within a week. P3 means act within two weeks. P4
+      means on track, nothing needed.
+    </p>
+    <h3>Safety</h3>
+    <p>
+      <strong>DSL.</strong> Designated Safeguarding Lead, the named person
+      responsible for acting on safeguarding concerns. When the platform detects
+      a possible disclosure during a session it alerts the DSL by email within
+      seconds, while the learner immediately sees a supportive, human written
+      message with real helplines. The platform never handles the concern inside
+      the lesson and never decides on its own; a person always does.
+    </p>
+    <hr />
+    <p>
+      <em
+        >You are ready. Pick your guide: <a href="04-learner.md">Learner</a>,
+        <a href="03-teacher.md">Teacher</a>,
+        <a href="02-org-admin.md">Org Admin</a>, or
+        <a href="01-amber-admin.md">Platform Admin</a>.</em
+      >
+    </p>
+  </body>
+</html>

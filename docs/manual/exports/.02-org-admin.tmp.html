@@ -1,0 +1,798 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Organisation Admin Guide</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 18mm 16mm 20mm 16mm;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        -webkit-print-color-adjust: exact;
+      }
+      body {
+        font-family:
+          -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: #0b2343;
+        font-size: 10.5pt;
+        line-height: 1.55;
+        margin: 0;
+      }
+      /* Cover block */
+      .cover {
+        padding: 40mm 0 8mm;
+        page-break-after: always;
+      }
+      .cover .brand {
+        color: #ff7c22;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-size: 10pt;
+      }
+      .cover h1 {
+        font-size: 30pt;
+        line-height: 1.15;
+        margin: 10px 0 14px;
+      }
+      .cover p {
+        color: rgba(11, 35, 67, 0.65);
+        font-size: 12pt;
+        max-width: 34em;
+      }
+      .cover .meta {
+        margin-top: 18mm;
+        color: rgba(11, 35, 67, 0.45);
+        font-size: 9pt;
+      }
+
+      h1 {
+        font-size: 17pt;
+        margin: 0 0 10px;
+        page-break-after: avoid;
+      }
+      h2 {
+        font-size: 13.5pt;
+        margin: 22px 0 8px;
+        padding-top: 10px;
+        border-top: 2px solid #ff7c22;
+        page-break-after: avoid;
+      }
+      h3 {
+        font-size: 11.5pt;
+        margin: 16px 0 6px;
+        page-break-after: avoid;
+      }
+      p,
+      li {
+        orphans: 3;
+        widows: 3;
+      }
+      a {
+        color: #ff7c22;
+        text-decoration: none;
+      }
+      blockquote {
+        margin: 10px 0;
+        padding: 8px 14px;
+        background: #fff8ee;
+        border-left: 3px solid #ff7c22;
+        border-radius: 4px;
+        color: rgba(11, 35, 67, 0.8);
+        page-break-inside: avoid;
+      }
+      blockquote p {
+        margin: 4px 0;
+      }
+      code {
+        background: rgba(11, 35, 67, 0.06);
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-size: 9pt;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid rgba(11, 35, 67, 0.15);
+        margin: 20px 0;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 10px 0;
+        font-size: 9.5pt;
+        page-break-inside: avoid;
+      }
+      th,
+      td {
+        border: 1px solid rgba(11, 35, 67, 0.15);
+        padding: 6px 9px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        background: #fff8ee;
+        font-weight: 700;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 10px auto;
+        border: 1px solid rgba(11, 35, 67, 0.15);
+        border-radius: 6px;
+        page-break-inside: avoid;
+      }
+      /* Keep screenshot captions (em right after an image) tight */
+      img + em {
+        display: block;
+        text-align: center;
+        color: rgba(11, 35, 67, 0.5);
+        font-size: 9pt;
+        margin-top: -4px;
+      }
+
+      /* Section keep-togethers: a heading and its first image */
+      h2,
+      h3 {
+        break-after: avoid-page;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cover">
+      <div class="brand">Amber ESOL · User Manual</div>
+      <h1>Organisation Admin Guide</h1>
+      <p>
+        A step-by-step guide with pictures from the real system. Written to be
+        read by learners — simple words, short steps.
+      </p>
+      <div class="meta">Generated 2026-08-19 · Amber Training Ltd</div>
+    </div>
+    <h1>Amber ESOL Organisation Admin Guide</h1>
+    <p>
+      <em
+        >This guide is for provision leads and administrators at councils,
+        colleges, and charities running funded ESOL provision. It covers the
+        cohort dashboard, learner records, enrolment, teacher assignment, and
+        the approval and export flows that carry funding consequences. Every
+        picture comes from the real system.</em
+      >
+    </p>
+    <blockquote>
+      <p>
+        <strong>The idea in one line:</strong> the platform builds your ILR,
+        RARPA, and ASF evidence continuously while learners practise, so month
+        end becomes a download instead of a scramble. Your job is oversight and
+        the approvals only a human may give.
+      </p>
+    </blockquote>
+    <hr />
+    <h2>Quick reference, the 10 things you will do most</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>I want to</th>
+          <th>Where to go</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>See the whole cohort at a glance</td>
+          <td>Sidebar, <strong>Cohort dashboard</strong></td>
+        </tr>
+        <tr>
+          <td>Enrol one learner</td>
+          <td>Sidebar, <strong>Invitations</strong>, create an invite link</td>
+        </tr>
+        <tr>
+          <td>Enrol a whole cohort</td>
+          <td>Cohort dashboard, <strong>Import CSV</strong></td>
+        </tr>
+        <tr>
+          <td>Open a learner&#39;s full record</td>
+          <td>Press the learner&#39;s name anywhere</td>
+        </tr>
+        <tr>
+          <td>Confirm a level achievement</td>
+          <td>The Stage 5 review page, <strong>Confirm and lock</strong></td>
+        </tr>
+        <tr>
+          <td>Export the ILR return</td>
+          <td>Cohort dashboard, <strong>Export ILR</strong></td>
+        </tr>
+        <tr>
+          <td>Generate the funding evidence pack</td>
+          <td>Cohort dashboard, <strong>Funding report</strong></td>
+        </tr>
+        <tr>
+          <td>Assign or change a teacher</td>
+          <td>Sidebar, <strong>ESOL Teachers</strong></td>
+        </tr>
+        <tr>
+          <td>Check who did what and when</td>
+          <td>Sidebar, <strong>Audit log</strong></td>
+        </tr>
+        <tr>
+          <td>Nudge an inactive learner</td>
+          <td>Learner record, <strong>Send nudge</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <h2>1. First sign in</h2>
+    <p>
+      The first time an organisation admin signs in, Amber walks you through a
+      short onboarding built around the ROI calculator, so you can see the
+      funding picture for your own numbers before you start. Complete it once
+      and you will not see it again. After that, signing in lands you on your
+      dashboard.
+    </p>
+    <hr />
+    <h2>2. The cohort dashboard</h2>
+    <p>
+      <strong>What it is for:</strong> your whole provision on one screen:
+      status, progress, compliance, and the three big actions.
+    </p>
+    <p>
+      <strong>How to get here:</strong> sidebar,
+      <strong>Cohort dashboard</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/org-admin/01-cohort-dashboard.png"
+        alt="The cohort dashboard"
+      />
+    </p>
+    <p>Top to bottom:</p>
+    <ol>
+      <li>
+        <strong>The three action buttons.</strong> Import CSV, Funding report,
+        and Export ILR. Sections 8, 9, and 10 cover each in detail.
+      </li>
+      <li>
+        <strong>Three tabs.</strong> Cohort (this view), Audit Log, and Stage 5
+        Pending.
+      </li>
+      <li>
+        <strong>Cohort summary.</strong> A plain English narrative of the
+        reporting period, written by the AI from your real data and cached.
+        Press <strong>Refresh</strong> to regenerate it. Use it as the opening
+        paragraph of a board or funder update.
+      </li>
+      <li>
+        <strong>Filters and Download CSV.</strong> Search by name, filter by
+        status, level, or aim type. Download CSV exports the table as you
+        filtered it.
+      </li>
+      <li>
+        <strong>The cohort table.</strong> One row per learner: starting and
+        current level, <strong>Total GLH</strong>, <strong>Teacher HRS</strong>,
+        scenarios passed, last active, status band, last reviewed, aim, teacher,
+        and a ULN tick.
+      </li>
+    </ol>
+    <p><strong>Reading the hours columns, this matters for funding:</strong></p>
+    <ul>
+      <li>
+        <strong>Total GLH</strong> includes AI tutor time. It shows the
+        learner&#39;s whole learning volume.
+      </li>
+      <li><strong>Teacher HRS</strong> is human contact time only.</li>
+      <li>
+        The learner record splits this further into AI, imported, and teacher
+        hours. Only the parts your funding rules allow are ever claimed; AI
+        tutor time is kept out of claims until the funder confirms it may count.
+        The platform enforces this for you, so a bigger Total GLH never inflates
+        a claim by itself.
+      </li>
+    </ul>
+    <p>
+      <strong>Status bands:</strong> Active means recent practice. Inactive and
+      Dormant mean rising time away; those learners are candidates for a nudge
+      or a teacher message. <strong>Last reviewed</strong> showing
+      <strong>Never</strong> in amber is a prompt: no teacher has logged a
+      review for that learner yet.
+    </p>
+    <hr />
+    <h2>3. A learner&#39;s record</h2>
+    <p>
+      <strong>How to get here:</strong> press a learner&#39;s name in any table,
+      or sidebar, <strong>Learners</strong>, then the learner.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/org-admin/10-learner-overview.png"
+        alt="The learner record"
+      />
+    </p>
+    <p>The header gives you:</p>
+    <ul>
+      <li>
+        <strong>Total guided learning hours</strong> with the split underneath:
+        AI, Imported, Teacher. This is the honest hours picture per learner.
+      </li>
+      <li>
+        <strong>Send nudge.</strong> One press sends the learner a friendly
+        reminder email. Every nudge is recorded in the audit log.
+      </li>
+      <li>
+        <strong>Suggested teachers.</strong> Ranked by fit: level coverage,
+        shared language, specialism, then workload. You decide; every assignment
+        is audited.
+      </li>
+    </ul>
+    <h3>The eight tabs</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Tab</th>
+          <th>What it shows</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Overview</strong></td>
+          <td>Level history, key stats, recent activity</td>
+        </tr>
+        <tr>
+          <td><strong>Sessions</strong></td>
+          <td>Every AI session with pass results and durations</td>
+        </tr>
+        <tr>
+          <td><strong>Vocabulary</strong></td>
+          <td>Words retained and words in progress</td>
+        </tr>
+        <tr>
+          <td><strong>Stage 3 Objectives</strong></td>
+          <td>
+            The learner&#39;s goals, grouped by level, with source (placement,
+            level change, teacher)
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Stage 5 Reviews</strong></td>
+          <td>The learner&#39;s review history (see the note in section 6)</td>
+        </tr>
+        <tr>
+          <td><strong>Evidence Chain</strong></td>
+          <td>The audit backbone, explained below</td>
+        </tr>
+        <tr>
+          <td><strong>Compliance Timeline</strong></td>
+          <td>Every compliance event for this learner in order</td>
+        </tr>
+        <tr>
+          <td><strong>Teacher Reviews</strong></td>
+          <td>Every review teachers have logged, with durations</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>The Evidence Chain tab, your audit view</h3>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/org-admin/15-evidence-chain-tab.png"
+        alt="The evidence chain"
+      />
+    </p>
+    <p>
+      Every data point captured during a session is recorded at the moment it
+      happens and mapped to its RARPA stage and ILR fields. The badges at the
+      top count the records and, crucially, how many still
+      <strong>await human sign off</strong>.
+    </p>
+    <p>How to read the STATUS column:</p>
+    <ul>
+      <li>
+        <strong>Formative.</strong> Supporting evidence. It stands on its own
+        and needs no approval: vocabulary used, skill codes, teaching mode
+        changes.
+      </li>
+      <li>
+        <strong>Needs sign-off (0/2).</strong> These rows are AI judgements, for
+        example the per turn scores. They are formative until a human confirms
+        the learner&#39;s achievement at Stage 5. This is the honesty gate:
+        nothing the AI scores can enter a funding claim by itself.
+      </li>
+      <li>
+        <strong>Confirmed.</strong> A human has signed off, so the record can
+        support a summative claim.
+      </li>
+    </ul>
+    <p>
+      If an auditor asks &quot;where did this ILR field come from&quot;, this
+      tab is the answer, per learner, per session, per data point.
+    </p>
+    <hr />
+    <h2>4. Enrolling learners one at a time, invitations</h2>
+    <p>
+      <strong>How to get here:</strong> sidebar, <strong>Invitations</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/org-admin/18-invitations.png"
+        alt="Invitations"
+      />
+    </p>
+    <p><strong>Step by step</strong></p>
+    <ol>
+      <li>
+        Optionally enter the learner&#39;s email and expected level; set how
+        many days the invite stays valid.
+      </li>
+      <li>
+        Press create. Amber generates a unique join link (and emails it if you
+        gave an address).
+      </li>
+      <li>
+        The learner opens the link and completes the five step join form in
+        their own language.
+      </li>
+      <li>
+        The table below tracks every invite: pending, used, expired. You can
+        <strong>remind</strong> (resend) or <strong>revoke</strong> (cancel) any
+        pending invite.
+      </li>
+    </ol>
+    <p>
+      <strong>Good to know:</strong> the invite carries your organisation, so
+      learners who join through it land in your cohort automatically.
+    </p>
+    <hr />
+    <h2>5. Enrolling a whole cohort, bulk import</h2>
+    <p>
+      <strong>How to get here:</strong> cohort dashboard,
+      <strong>Import CSV</strong>, or sidebar via the Learners area.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/org-admin/19-bulk-import.png"
+        alt="Bulk import"
+      />
+    </p>
+    <p><strong>Step by step</strong></p>
+    <ol>
+      <li>
+        Press <strong>Download CSV template</strong>. Column names are case
+        sensitive and unknown columns are rejected, so always start from the
+        template.
+      </li>
+      <li>
+        Press <strong>Read instructions</strong> before your first upload. Two
+        columns are compliance critical and the instructions cover their rules:
+        <code>lldd_health_prob</code> and <code>aim_type</code>.
+      </li>
+      <li>
+        Fill the template, one row per learner, up to 500 learners and 10 MB per
+        file.
+      </li>
+      <li>
+        Drag the file in. Amber validates
+        <strong>every row individually</strong> and reports problems by row
+        number, so one bad row never sinks the file. Rows with a postcode that
+        needs manual funding routing import with a warning rather than failing.
+      </li>
+      <li>Fix any reported rows and upload just the corrections.</li>
+    </ol>
+    <hr />
+    <h2>6. Stage 5, confirming an achievement</h2>
+    <p>
+      This is the most important approval in the system, so it gets the full
+      treatment.
+      <strong
+        >Nothing becomes an achieved outcome in your funding data until you
+        confirm it here.</strong
+      >
+    </p>
+    <h3>The journey to your desk</h3>
+    <ol>
+      <li>
+        The learner completes their level and submits a short
+        <strong>self assessment</strong>, their own voice on their progress.
+      </li>
+      <li>
+        The AI writes a <strong>summary of the evidence</strong>: readiness, key
+        achievements, and a plain English narrative.
+      </li>
+      <li>
+        The <strong>teacher signs off</strong> their side from the learner
+        record.
+      </li>
+      <li>
+        The review then waits for <strong>you</strong>. Until you act, the
+        learner&#39;s ILR record stays &quot;continuing&quot;, never
+        &quot;achieved&quot;. The export notes call this a withheld achievement.
+      </li>
+    </ol>
+    <h3>The review page</h3>
+    <p>
+      <strong>How to get here:</strong> from the learner&#39;s record, or
+      directly at the review link in your notification.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/org-admin/07-stage5-review-detail.png"
+        alt="The Stage 5 review page"
+      />
+    </p>
+    <p>
+      The badge in the corner tells you the state:
+      <strong>Ready for your confirmation</strong> means the self assessment and
+      teacher sign off are in place. The two panels give you everything you need
+      to judge:
+    </p>
+    <ul>
+      <li>
+        <strong>Learner&#39;s self assessment.</strong> Overall confidence plus
+        a rating against every one of their goals.
+      </li>
+      <li>
+        <strong>AI tutor summary.</strong> Readiness for the next level, a
+        narrative summary, and key achievements drawn from real sessions. This
+        is advisory. You are the decision.
+      </li>
+    </ul>
+    <h3>Confirming</h3>
+    <ol>
+      <li>
+        Write the <strong>agreed next steps</strong>, the plan agreed with the
+        learner. This field is required; the confirm button stays disabled until
+        you write it.
+      </li>
+      <li>
+        The <strong>optional override</strong> lets you record a different level
+        decision for the audit trail. The caption explains that the level change
+        itself has already happened; this field records your final judgement.
+      </li>
+      <li>Press <strong>Confirm and lock</strong>.</li>
+    </ol>
+    <p><strong>What happens when you confirm, all of it recorded:</strong></p>
+    <ul>
+      <li>
+        The review is stamped with your name and the time, permanently. It
+        cannot be edited afterwards, which is what makes it evidence.
+      </li>
+      <li>
+        The learner&#39;s achievement becomes eligible for the ILR export as an
+        achieved outcome. Before this moment the export withholds it.
+      </li>
+      <li>The audit log records the confirmation.</li>
+    </ul>
+    <p><strong>Consider these scenarios before pressing confirm:</strong></p>
+    <ul>
+      <li>
+        <em
+          >The self assessment says low confidence but the AI says high
+          readiness.</em
+        >
+        Talk to the teacher and the learner first. Confirming is your judgement,
+        not a formality.
+      </li>
+      <li>
+        <em>No teacher sign off yet.</em> The state badge will say so. Chase the
+        teacher rather than confirming around them.
+      </li>
+      <li>
+        <em>You disagree with the level.</em> Use the override field so the
+        audit trail carries your decision, and speak to the teacher about the
+        pathway.
+      </li>
+      <li>
+        <em>You are not ready to decide.</em> Do nothing. Leaving a review
+        pending is always safe; the learner keeps practising and no claim is
+        made.
+      </li>
+    </ul>
+    <h3>The Stage 5 Pending tab</h3>
+    <p>
+      The cohort dashboard has a <strong>Stage 5 Pending</strong> tab intended
+      to list every review waiting for you in one place. In the current release
+      the list itself is still being wired up, so reviews are reached from your
+      notifications or the learner&#39;s record. The confirm flow itself is
+      fully live.
+    </p>
+    <hr />
+    <h2>7. Teachers and assignment</h2>
+    <p>
+      <strong>How to get here:</strong> sidebar, <strong>ESOL Teachers</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/org-admin/20-teachers.png"
+        alt="Teachers"
+      />
+    </p>
+    <ul>
+      <li>
+        Add teachers to your organisation and remove them when they leave.
+      </li>
+      <li>
+        Assign learners to teachers. The
+        <strong>suggested teachers</strong> panel on each learner record ranks
+        candidates by fit; assignment is always your decision and always
+        audited.
+      </li>
+      <li>
+        A learner needs an assigned teacher for the priority queue, messaging,
+        and reviews to work, so assign at enrolment.
+      </li>
+    </ul>
+    <hr />
+    <h2>8. Exporting the ILR return</h2>
+    <p>
+      <strong>How to get here:</strong> cohort dashboard,
+      <strong>Export ILR</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/org-admin/04-ilr-export-modal.png"
+        alt="The ILR export"
+      />
+    </p>
+    <p><strong>Step by step</strong></p>
+    <ol>
+      <li>
+        Check the <strong>academic year</strong> (defaults to the current UK
+        academic year) and the reporting period dates.
+      </li>
+      <li>
+        Leave <strong>Force refresh</strong> unticked normally. Exports are
+        cached for speed; tick it only when you need the export rebuilt from
+        this minute&#39;s data.
+      </li>
+      <li>
+        Press <strong>Generate</strong>. You receive the ESFA format CSV plus a
+        JSON companion file that documents what was exported and why.
+      </li>
+    </ol>
+    <p>
+      <strong>What the export does for you, and what it refuses to do:</strong>
+    </p>
+    <ul>
+      <li>
+        Validates every row and reports warnings rather than exporting silently
+        wrong data. Rows with problems the rules can correct are fixed and
+        noted; rows that cannot be exported are suppressed with a reason.
+      </li>
+      <li>
+        <strong>Withholds unconfirmed achievements.</strong> A learner who
+        passed with the AI but has no confirmed Stage 5 review exports as
+        continuing, with a note explaining the withheld achievement. Confirm the
+        Stage 5 review and the next export includes the achievement.
+      </li>
+      <li>
+        <strong>Keeps AI hours out of the claim.</strong> Claim driving hours
+        come from teacher contact and imported prior learning. AI tutor time is
+        reported for reconciliation but never summed into a claim, pending
+        funder confirmation.
+      </li>
+    </ul>
+    <p>
+      <strong>Before you submit to the funder,</strong> read the companion
+      JSON&#39;s warning list. It is your pre submission checklist.
+    </p>
+    <hr />
+    <h2>9. The funding report</h2>
+    <p>
+      <strong>How to get here:</strong> cohort dashboard,
+      <strong>Funding report</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/org-admin/05-funding-report-modal.png"
+        alt="The funding report"
+      />
+    </p>
+    <p>
+      Pick a reporting period within the last 12 months and press
+      <strong>Generate report</strong>. The PDF consolidates RARPA Stages 1 to
+      5, teacher oversight, an ILR summary, and an aggregate safeguarding
+      section. This is the document to hand an auditor or a funder alongside the
+      ILR CSV.
+    </p>
+    <hr />
+    <h2>10. The audit log</h2>
+    <p>
+      <strong>How to get here:</strong> sidebar, <strong>Audit log</strong>, or
+      the Audit Log tab on the cohort dashboard.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/org-admin/08-audit-tab.png"
+        alt="The audit tab"
+      />
+    </p>
+    <p>
+      Every compliance relevant event in your organisation, in order: who, what,
+      when, and why. Sessions, level changes, exports, confirmations, nudges,
+      assignments. The log is append only. Nobody, including Amber, can edit
+      history. Use the search and filters to answer any &quot;what happened
+      here&quot; question without asking a developer.
+    </p>
+    <hr />
+    <h2>11. Invoices and settings</h2>
+    <ul>
+      <li>
+        <strong>Invoices</strong> (sidebar, Invoices): your billing history with
+        Amber.
+      </li>
+      <li>
+        <strong>Settings</strong> (sidebar, Settings): your organisation
+        profile.
+      </li>
+    </ul>
+    <hr />
+    <h2>12. Amber on your phone</h2>
+    <p>
+      The cohort dashboard works at phone size, so you can check status and
+      confirm reviews away from your desk:
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/org-admin/24-mobile-cohort.png"
+        alt="The dashboard on a phone"
+      />
+    </p>
+    <hr />
+    <h2>13. If something goes wrong</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Problem</th>
+          <th>What to do</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>A learner&#39;s achievement is missing from the ILR export</td>
+          <td>
+            Almost always the Stage 5 review is unconfirmed. Open the review,
+            confirm it, export again. The export notes name every withheld
+            achievement.
+          </td>
+        </tr>
+        <tr>
+          <td>The CSV import rejected my file</td>
+          <td>
+            Start from the downloaded template; column names are case sensitive.
+            Fix the rows named in the report and upload just those.
+          </td>
+        </tr>
+        <tr>
+          <td>An invite expired before the learner used it</td>
+          <td>Press remind to resend, or create a fresh invite.</td>
+        </tr>
+        <tr>
+          <td>The cohort summary looks out of date</td>
+          <td>It is cached. Press Refresh next to it.</td>
+        </tr>
+        <tr>
+          <td>A learner shows Never reviewed</td>
+          <td>
+            No teacher review has been logged. Check the teacher assignment and
+            ask the teacher to log their contact.
+          </td>
+        </tr>
+        <tr>
+          <td>I confirmed a Stage 5 review by mistake</td>
+          <td>
+            Confirmations are permanent by design. Contact Amber support; the
+            audit trail preserves the full history either way.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <p>
+      <em
+        >Terms like ILR, RARPA, GLH, and aim type are explained in the
+        <a href="00-getting-started.md#glossary">glossary</a>.</em
+      >
+    </p>
+  </body>
+</html>

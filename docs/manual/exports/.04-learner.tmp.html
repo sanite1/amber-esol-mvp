@@ -1,0 +1,777 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Learner Guide</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 18mm 16mm 20mm 16mm;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        -webkit-print-color-adjust: exact;
+      }
+      body {
+        font-family:
+          -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: #0b2343;
+        font-size: 10.5pt;
+        line-height: 1.55;
+        margin: 0;
+      }
+      /* Cover block */
+      .cover {
+        padding: 40mm 0 8mm;
+        page-break-after: always;
+      }
+      .cover .brand {
+        color: #ff7c22;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-size: 10pt;
+      }
+      .cover h1 {
+        font-size: 30pt;
+        line-height: 1.15;
+        margin: 10px 0 14px;
+      }
+      .cover p {
+        color: rgba(11, 35, 67, 0.65);
+        font-size: 12pt;
+        max-width: 34em;
+      }
+      .cover .meta {
+        margin-top: 18mm;
+        color: rgba(11, 35, 67, 0.45);
+        font-size: 9pt;
+      }
+
+      h1 {
+        font-size: 17pt;
+        margin: 0 0 10px;
+        page-break-after: avoid;
+      }
+      h2 {
+        font-size: 13.5pt;
+        margin: 22px 0 8px;
+        padding-top: 10px;
+        border-top: 2px solid #ff7c22;
+        page-break-after: avoid;
+      }
+      h3 {
+        font-size: 11.5pt;
+        margin: 16px 0 6px;
+        page-break-after: avoid;
+      }
+      p,
+      li {
+        orphans: 3;
+        widows: 3;
+      }
+      a {
+        color: #ff7c22;
+        text-decoration: none;
+      }
+      blockquote {
+        margin: 10px 0;
+        padding: 8px 14px;
+        background: #fff8ee;
+        border-left: 3px solid #ff7c22;
+        border-radius: 4px;
+        color: rgba(11, 35, 67, 0.8);
+        page-break-inside: avoid;
+      }
+      blockquote p {
+        margin: 4px 0;
+      }
+      code {
+        background: rgba(11, 35, 67, 0.06);
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-size: 9pt;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid rgba(11, 35, 67, 0.15);
+        margin: 20px 0;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 10px 0;
+        font-size: 9.5pt;
+        page-break-inside: avoid;
+      }
+      th,
+      td {
+        border: 1px solid rgba(11, 35, 67, 0.15);
+        padding: 6px 9px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        background: #fff8ee;
+        font-weight: 700;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 10px auto;
+        border: 1px solid rgba(11, 35, 67, 0.15);
+        border-radius: 6px;
+        page-break-inside: avoid;
+      }
+      /* Keep screenshot captions (em right after an image) tight */
+      img + em {
+        display: block;
+        text-align: center;
+        color: rgba(11, 35, 67, 0.5);
+        font-size: 9pt;
+        margin-top: -4px;
+      }
+
+      /* Section keep-togethers: a heading and its first image */
+      h2,
+      h3 {
+        break-after: avoid-page;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cover">
+      <div class="brand">Amber ESOL · User Manual</div>
+      <h1>Learner Guide</h1>
+      <p>
+        A step-by-step guide with pictures from the real system. Written to be
+        read by learners — simple words, short steps.
+      </p>
+      <div class="meta">Generated 2026-08-19 · Amber Training Ltd</div>
+    </div>
+    <h1>Amber ESOL — Learner Guide</h1>
+    <p>
+      <em
+        >This guide is for you — the learner. It shows you every screen and
+        every step. The pictures are from the real system.</em
+      >
+    </p>
+    <blockquote>
+      <p>
+        <strong>Reading tip:</strong> every section follows the same shape —
+        what the screen is for, how to get there, what you see, and what to
+        press.
+      </p>
+    </blockquote>
+    <hr />
+    <h2>Quick reference — the 8 things you&#39;ll do most</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>I want to…</th>
+          <th>Where to go</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Practise English with Amber</td>
+          <td>
+            Sidebar → <strong>AI Tutor</strong> → pick a scenario →
+            <strong>Begin roleplay</strong>
+          </td>
+        </tr>
+        <tr>
+          <td>See my learning goals</td>
+          <td>Sidebar → <strong>My Goals</strong></td>
+        </tr>
+        <tr>
+          <td>See the words I&#39;ve learned</td>
+          <td>Sidebar → <strong>Vocabulary</strong></td>
+        </tr>
+        <tr>
+          <td>Continue an unfinished session</td>
+          <td>
+            Sidebar → <strong>My Sessions</strong> → the one marked
+            <strong>In progress</strong>
+          </td>
+        </tr>
+        <tr>
+          <td>Read a message from my teacher</td>
+          <td>Sidebar → <strong>Messages</strong></td>
+        </tr>
+        <tr>
+          <td>Change the app language</td>
+          <td>
+            The language picker (also changes right-to-left layout for Arabic)
+          </td>
+        </tr>
+        <tr>
+          <td>Make the text bigger in a session</td>
+          <td>
+            The <strong>T</strong> button at the top of the session screen
+          </td>
+        </tr>
+        <tr>
+          <td>Stop a session without losing it</td>
+          <td>
+            The <strong>✕</strong> button → <strong>Leave for now</strong>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <h2>1. Signing in</h2>
+    <p><strong>What it&#39;s for:</strong> getting into your Amber account.</p>
+    <p>
+      <strong>How to get here:</strong> open the Amber website and choose
+      <strong>Sign in</strong>, or go straight to <code>/login</code>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/shared/01-login.png"
+        alt="Login screen"
+      />
+    </p>
+    <p><strong>Step by step</strong></p>
+    <ol>
+      <li>Type your email address.</li>
+      <li>Type your password.</li>
+      <li>Press the sign-in button.</li>
+    </ol>
+    <p>
+      You will land on <strong>your dashboard</strong>. If you have not joined
+      yet, you need an invitation link from your organisation — see the next
+      section.
+    </p>
+    <p><strong>If something goes wrong</strong></p>
+    <ul>
+      <li>
+        <em>Wrong password</em> — check it carefully; ask your teacher or
+        organisation if you need it reset.
+      </li>
+      <li>
+        <em>&quot;Account not enrolled&quot;</em> — your organisation has not
+        set you up for ESOL yet. Contact them.
+      </li>
+    </ul>
+    <hr />
+    <h2>2. Joining Amber (first time only)</h2>
+    <p>
+      Your organisation sends you a special <strong>invitation link</strong>.
+      Opening it starts a short, friendly form — about 5 minutes, in five steps
+      (you can see them across the top):
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/20-join-welcome.png"
+        alt="The welcome step of the join form"
+      />
+    </p>
+    <ol>
+      <li>
+        <p>
+          <strong>Welcome</strong> — what Amber is, in simple words. Note the
+          language picker at the top right — you can read the whole form in your
+          own language. Press <strong>Start</strong>.
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong>Your details</strong> — your name, date of birth, nationality,
+          and <strong>your first language</strong>. Choose the language you know
+          best — Amber will use it to help you learn. You can choose English,
+          العربية (Arabic), 粵語 (Cantonese), or Türkçe (Turkish).
+        </p>
+        <p>
+          <img
+            src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/21-join-details.png"
+            alt="The details step"
+          />
+        </p>
+      </li>
+      <li>
+        <p><strong>Eligibility</strong> — one declaration to confirm.</p>
+      </li>
+      <li>
+        <p>
+          <strong>ULN</strong> — your Unique Learner Number if you know it. You
+          can skip this and add it later.
+        </p>
+      </li>
+      <li>
+        <p><strong>Done</strong> — you&#39;re in!</p>
+      </li>
+    </ol>
+    <p>
+      <strong>Good to know:</strong> if you choose Arabic, the whole app flips
+      to right-to-left reading. You can change language later at any time.
+      Nothing saves until you press Continue, and you can press Back at any
+      step.
+    </p>
+    <h3>Your placement assessment</h3>
+    <p>
+      The first time you sign in, Amber asks you 20 short questions to find your
+      <strong>level</strong> (from Entry 1 to Level 2). It is not a test you can
+      fail — it just helps Amber pick the right conversations for you.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/23-placement-question.png"
+        alt="A placement question"
+      />
+    </p>
+    <p>
+      Read each question and press the answer that feels right. The orange bar
+      at the top shows how far you are. At the end you&#39;ll see your level and
+      your first learning goals. Your teacher reviews every placement, so it can
+      be adjusted if it feels wrong.
+    </p>
+    <hr />
+    <h2>3. Your dashboard</h2>
+    <p>
+      <strong>What it&#39;s for:</strong> your home page — see your level, jump
+      into practice, and catch anything new.
+    </p>
+    <p>
+      <strong>How to get here:</strong> you land here after signing in. Sidebar
+      → <strong>Dashboard</strong>.
+    </p>
+    <h3>If your teacher has written to you</h3>
+    <p>
+      A message from your teacher appears <strong>first</strong>, before
+      anything else:
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/02-teacher-message-modal.png"
+        alt="A message from your teacher"
+      />
+    </p>
+    <ul>
+      <li>Read it, then press <strong>Got it — close</strong>.</li>
+      <li>
+        Press <strong>Open inbox</strong> to see all your messages instead.
+      </li>
+      <li>
+        Press <strong>Read later</strong> to close it for now — it stays in
+        <strong>Messages</strong>.
+      </li>
+    </ul>
+    <h3>The welcome card (first visits)</h3>
+    <p>
+      After placement you&#39;ll see a welcome card with
+      <strong>your level</strong> and three tips for starting well:
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/02b-welcome-modal.png"
+        alt="Welcome card with your placement result"
+      />
+    </p>
+    <p>
+      Press <strong>Start practising</strong> to go straight to the scenarios,
+      or <strong>Explore first</strong> to look around.
+    </p>
+    <h3>The dashboard itself</h3>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/01-dashboard.png"
+        alt="Your dashboard"
+      />
+    </p>
+    <p>What you see:</p>
+    <ul>
+      <li><strong>Your level</strong> (for example E3) on the big card.</li>
+      <li><strong>Pick a scenario</strong> — shortcuts into practice.</li>
+      <li>
+        Your <strong>recent sessions</strong> and <strong>recent words</strong>.
+      </li>
+      <li>A banner if you have an unread teacher message.</li>
+    </ul>
+    <hr />
+    <h2>4. Practising with the AI Tutor</h2>
+    <p>
+      This is the heart of Amber. A practice session has
+      <strong>three parts</strong>: <strong>Prepare</strong> (get ready) →
+      <strong>Roleplay</strong> (the conversation) →
+      <strong>Complete</strong> (see how you did).
+    </p>
+    <h3>4.1 Choose a scenario</h3>
+    <p>
+      <strong>How to get here:</strong> Sidebar → <strong>AI Tutor</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/03-journey-scenarios.png"
+        alt="Your journey and the scenario picker"
+      />
+    </p>
+    <ul>
+      <li>
+        <strong>Your journey</strong> shows your scenarios as a path, ending at
+        your next milestone (for example
+        <strong>B1-ready · about 14 weeks</strong>). Work through them in order
+        — or pick any one you like.
+      </li>
+      <li>
+        <strong>Pick a scenario</strong> below shows the same conversations as
+        cards, all matched to your level.
+      </li>
+      <li>Each card shows the topic and about how many minutes it takes.</li>
+    </ul>
+    <p>Press any scenario to continue.</p>
+    <h3>4.2 Prepare</h3>
+    <p>
+      <strong>What it&#39;s for:</strong> see what you will practise
+      <em>before</em> you start — no surprises.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/04-prepare.png"
+        alt="The Prepare screen"
+      />
+    </p>
+    <p>
+      You see the situation, the UK context, roughly how long it takes, and the
+      <strong>four steps</strong> of the conversation (for example: greet the
+      receptionist → describe your symptoms → agree a time → confirm your
+      details).
+    </p>
+    <p>Press <strong>Begin roleplay</strong> when you&#39;re ready.</p>
+    <h3>4.3 The conversation</h3>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/06-session-conversation.png"
+        alt="A live session"
+      />
+    </p>
+    <p>What&#39;s on this screen:</p>
+    <ul>
+      <li><strong>Top:</strong> the scenario name and a timer.</li>
+      <li>
+        <strong>The four dots</strong> — your progress through the
+        conversation&#39;s four steps. They fill up as you complete each step
+        (&quot;Step 1 of 4&quot;).
+      </li>
+      <li>
+        <strong>The chat</strong> — Amber speaks first. Type your reply in the
+        box and press <strong>Enter</strong> (or the send button).
+      </li>
+      <li><strong>T button</strong> — makes the text bigger (three sizes).</li>
+      <li>
+        <strong>✕ button</strong> — leave the session (your progress is saved —
+        see 4.5).
+      </li>
+    </ul>
+    <p><strong>Step by step</strong></p>
+    <ol>
+      <li>Read Amber&#39;s message.</li>
+      <li>
+        Type your answer in English — the best English you can. Mistakes are
+        welcome; that&#39;s how you learn.
+      </li>
+      <li>Press Enter. Amber replies in a few seconds.</li>
+      <li>Keep going — the dots fill as the conversation moves forward.</li>
+    </ol>
+    <p><strong>Good to know</strong></p>
+    <ul>
+      <li>
+        <strong>If you don&#39;t understand, say so</strong> — write &quot;I
+        don&#39;t understand&quot; in English <em>or in your own language</em>.
+        Amber will slow down and use more of your language. This is never a
+        problem.
+      </li>
+      <li>
+        If your provider has <strong>voice</strong> switched on, you&#39;ll also
+        see a <strong>Listen</strong> button under Amber&#39;s messages (hear it
+        aloud) and a <strong>microphone</strong> button (speak instead of
+        typing). Typing always works too.
+      </li>
+      <li>
+        After a while, a gentle banner may suggest wrapping up. You can dismiss
+        it and keep going — it never stops you.
+      </li>
+    </ul>
+    <h3>4.4 Finishing — your results</h3>
+    <p>End a session in either way:</p>
+    <ul>
+      <li>finish the conversation naturally, or</li>
+      <li>
+        press <strong>End &amp; review session →</strong> under the message box.
+      </li>
+    </ul>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/07-session-complete.png"
+        alt="Your results"
+      />
+    </p>
+    <p>You see:</p>
+    <ul>
+      <li><strong>Your score</strong> for the session.</li>
+      <li><strong>Words you have learned.</strong></li>
+      <li>
+        <strong>Your tutor&#39;s note</strong> — what you did well and what to
+        practise next.
+      </li>
+      <li>The emoji row — tell us how the session felt (one tap).</li>
+    </ul>
+    <p>
+      Press <strong>Finish</strong> to go back to your dashboard. You&#39;ll
+      hear a soft chime — well done!
+    </p>
+    <h3>4.5 Leaving early and coming back</h3>
+    <p>Press <strong>✕</strong> during a session and you&#39;ll see this:</p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/09-exit-modal.png"
+        alt="Leaving a session"
+      />
+    </p>
+    <ul>
+      <li>
+        <strong>Leave for now</strong> — closes the session and
+        <em>saves everything</em>. You can come back any time.
+      </li>
+      <li>
+        <strong>End &amp; review</strong> — finishes the session now and shows
+        your score.
+      </li>
+      <li>
+        <strong>Keep practising</strong> — changes nothing; back to the chat.
+      </li>
+    </ul>
+    <p>
+      To <strong>come back later</strong>: Sidebar →
+      <strong>My Sessions</strong> → press the session marked
+      <strong>In progress</strong>. The whole conversation is restored:
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/08-session-resume.png"
+        alt="Resuming a session"
+      />
+    </p>
+    <h3>If you write about something upsetting</h3>
+    <p>
+      If you tell Amber about something serious — feeling unsafe, being hurt, or
+      feeling very low — the practice pauses and Amber shows you a calm message
+      <strong>in your language</strong> with real places that can help. A
+      trusted person at your organisation is told, so a human can support you.
+      You are never in trouble for saying how you feel.
+    </p>
+    <hr />
+    <h2>5. My Goals</h2>
+    <p>
+      <strong>What it&#39;s for:</strong> the learning goals set after your
+      placement — check they feel right, and agree them.
+    </p>
+    <p>
+      <strong>How to get here:</strong> Sidebar → <strong>My Goals</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/10-goals.png"
+        alt="Your learning goals"
+      />
+    </p>
+    <p><strong>Step by step</strong></p>
+    <ol>
+      <li>Read the goals — they&#39;re written for your level.</li>
+      <li>
+        (Optional) add anything you&#39;d like in the box — for example, &quot;I
+        also want to practise phone calls.&quot;
+      </li>
+      <li>Press <strong>These goals look right</strong>.</li>
+    </ol>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/11-goals-agreed.png"
+        alt="Goals agreed"
+      />
+    </p>
+    <p>
+      <strong>Good to know:</strong> agreeing your goals is recorded — it&#39;s
+      part of your official learning record. Want to change them later? Speak to
+      your teacher any time.
+    </p>
+    <hr />
+    <h2>6. Vocabulary</h2>
+    <p>
+      <strong>What it&#39;s for:</strong> every word you meet in sessions is
+      saved here so you can revisit it.
+    </p>
+    <p>
+      <strong>How to get here:</strong> Sidebar → <strong>Vocabulary</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/12-vocabulary.png"
+        alt="Your vocabulary"
+      />
+    </p>
+    <p>What you see:</p>
+    <ul>
+      <li><strong>Total words · Mastered · To practise</strong> at the top.</li>
+      <li>
+        One card per word: which scenario it came from, when, and how many times
+        you&#39;ve seen it.
+      </li>
+      <li>
+        <strong>I know this</strong> / <strong>Need practice</strong> — tap to
+        tell Amber. Words you keep using well become &quot;learned&quot;
+        automatically too.
+      </li>
+      <li>Search and level filter at the top.</li>
+    </ul>
+    <p>
+      Amber quietly brings your &quot;to practise&quot; words back into future
+      conversations — that&#39;s how they stick.
+    </p>
+    <hr />
+    <h2>7. My Sessions</h2>
+    <p>
+      <strong>What it&#39;s for:</strong> every session you&#39;ve ever started,
+      newest first.
+    </p>
+    <p>
+      <strong>How to get here:</strong> Sidebar → <strong>My Sessions</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/13-sessions-list.png"
+        alt="All your sessions"
+      />
+    </p>
+    <ul>
+      <li>
+        <strong>Done</strong> — finished sessions. Press one to re-read the
+        whole conversation (you can&#39;t type in a finished session).
+      </li>
+      <li>
+        <strong>In progress</strong> — press to continue where you left off.
+      </li>
+    </ul>
+    <hr />
+    <h2>8. Messages</h2>
+    <p>
+      <strong>What it&#39;s for:</strong> notes from your teacher, in your
+      language.
+    </p>
+    <p>
+      <strong>How to get here:</strong> Sidebar → <strong>Messages</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/14-messages.png"
+        alt="Messages from your tutor"
+      />
+    </p>
+    <p>
+      New messages also appear as a banner on your dashboard — and Amber makes
+      sure you see them before your next session. When there&#39;s nothing new,
+      you&#39;ll see &quot;You&#39;re all caught up.&quot;
+    </p>
+    <hr />
+    <h2>9. Your language (and right-to-left)</h2>
+    <p>
+      Choose your language when you join — or change it later. If you use
+      Arabic, every screen flips to right-to-left automatically, including the
+      session screen:
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/15-rtl-session.png"
+        alt="A session in right-to-left Arabic layout"
+      />
+    </p>
+    <hr />
+    <h2>10. Amber on your phone</h2>
+    <p>Everything works on a phone — same features, same account:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Dashboard</th>
+          <th>Prepare</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <img
+              src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/16-mobile-dashboard.png"
+              alt="Dashboard on a phone"
+            />
+          </td>
+          <td>
+            <img
+              src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/learner/17-mobile-prepare.png"
+              alt="Prepare screen on a phone"
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      <strong>Tip:</strong> the text boxes won&#39;t zoom your screen when you
+      tap them — type comfortably.
+    </p>
+    <hr />
+    <h2>11. If something goes wrong</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Problem</th>
+          <th>What to do</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Amber says &quot;Sorry — I didn&#39;t quite catch that&quot;</td>
+          <td>Nothing is broken — just say your message again.</td>
+        </tr>
+        <tr>
+          <td>The page won&#39;t load</td>
+          <td>Check your internet, then refresh. Your session is saved.</td>
+        </tr>
+        <tr>
+          <td>I closed the app mid-session</td>
+          <td>
+            Open <strong>My Sessions</strong> → your session is there marked
+            <strong>In progress</strong>.
+          </td>
+        </tr>
+        <tr>
+          <td>I can&#39;t sign in</td>
+          <td>Ask your teacher or organisation to check your account.</td>
+        </tr>
+        <tr>
+          <td>I sent a message by mistake</td>
+          <td>It&#39;s fine — just keep going, or leave the session.</td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <h2>12. Stage 5 — your own assessment</h2>
+    <p>
+      When you finish a level, your teacher starts a <strong>review</strong>.
+      Part of it is <strong>your voice</strong>: a short self-assessment where
+      you say how you feel about your progress. You&#39;ll see a card on your
+      dashboard when it&#39;s your turn — press it and answer honestly. Your
+      teacher and organisation confirm the level together with you.
+    </p>
+    <hr />
+    <p>
+      <em
+        >Words like &quot;placement&quot;, &quot;level&quot;, and
+        &quot;scenario&quot; are explained in the
+        <a href="00-getting-started.md#glossary">glossary</a>.</em
+      >
+    </p>
+  </body>
+</html>

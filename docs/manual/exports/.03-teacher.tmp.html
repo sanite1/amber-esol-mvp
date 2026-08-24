@@ -1,0 +1,588 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Teacher Guide</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 18mm 16mm 20mm 16mm;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        -webkit-print-color-adjust: exact;
+      }
+      body {
+        font-family:
+          -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: #0b2343;
+        font-size: 10.5pt;
+        line-height: 1.55;
+        margin: 0;
+      }
+      /* Cover block */
+      .cover {
+        padding: 40mm 0 8mm;
+        page-break-after: always;
+      }
+      .cover .brand {
+        color: #ff7c22;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-size: 10pt;
+      }
+      .cover h1 {
+        font-size: 30pt;
+        line-height: 1.15;
+        margin: 10px 0 14px;
+      }
+      .cover p {
+        color: rgba(11, 35, 67, 0.65);
+        font-size: 12pt;
+        max-width: 34em;
+      }
+      .cover .meta {
+        margin-top: 18mm;
+        color: rgba(11, 35, 67, 0.45);
+        font-size: 9pt;
+      }
+
+      h1 {
+        font-size: 17pt;
+        margin: 0 0 10px;
+        page-break-after: avoid;
+      }
+      h2 {
+        font-size: 13.5pt;
+        margin: 22px 0 8px;
+        padding-top: 10px;
+        border-top: 2px solid #ff7c22;
+        page-break-after: avoid;
+      }
+      h3 {
+        font-size: 11.5pt;
+        margin: 16px 0 6px;
+        page-break-after: avoid;
+      }
+      p,
+      li {
+        orphans: 3;
+        widows: 3;
+      }
+      a {
+        color: #ff7c22;
+        text-decoration: none;
+      }
+      blockquote {
+        margin: 10px 0;
+        padding: 8px 14px;
+        background: #fff8ee;
+        border-left: 3px solid #ff7c22;
+        border-radius: 4px;
+        color: rgba(11, 35, 67, 0.8);
+        page-break-inside: avoid;
+      }
+      blockquote p {
+        margin: 4px 0;
+      }
+      code {
+        background: rgba(11, 35, 67, 0.06);
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-size: 9pt;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid rgba(11, 35, 67, 0.15);
+        margin: 20px 0;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 10px 0;
+        font-size: 9.5pt;
+        page-break-inside: avoid;
+      }
+      th,
+      td {
+        border: 1px solid rgba(11, 35, 67, 0.15);
+        padding: 6px 9px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        background: #fff8ee;
+        font-weight: 700;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 10px auto;
+        border: 1px solid rgba(11, 35, 67, 0.15);
+        border-radius: 6px;
+        page-break-inside: avoid;
+      }
+      /* Keep screenshot captions (em right after an image) tight */
+      img + em {
+        display: block;
+        text-align: center;
+        color: rgba(11, 35, 67, 0.5);
+        font-size: 9pt;
+        margin-top: -4px;
+      }
+
+      /* Section keep-togethers: a heading and its first image */
+      h2,
+      h3 {
+        break-after: avoid-page;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cover">
+      <div class="brand">Amber ESOL · User Manual</div>
+      <h1>Teacher Guide</h1>
+      <p>
+        A step-by-step guide with pictures from the real system. Written to be
+        read by learners — simple words, short steps.
+      </p>
+      <div class="meta">Generated 2026-08-19 · Amber Training Ltd</div>
+    </div>
+    <h1>Amber ESOL Teacher Guide</h1>
+    <p>
+      <em
+        >This guide is for ESOL teachers. It covers your dashboard, the priority
+        queue, learner records, reviews, messaging, and the parts of the
+        compliance record that carry your name. Every picture comes from the
+        real system.</em
+      >
+    </p>
+    <blockquote>
+      <p>
+        <strong>The idea in one line:</strong> the AI tutor handles routine
+        practice and the platform writes the evidence, so your time goes to the
+        learners who need a human this week.
+      </p>
+    </blockquote>
+    <hr />
+    <h2>Quick reference, the 8 things you will do most</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>I want to</th>
+          <th>Where to go</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>See who needs my attention this week</td>
+          <td>
+            Sidebar, <strong>Teacher Dashboard</strong>, the priority queue
+          </td>
+        </tr>
+        <tr>
+          <td>Open a learner&#39;s full record</td>
+          <td>
+            Dashboard, press <strong>Open learner</strong> on any card or row
+          </td>
+        </tr>
+        <tr>
+          <td>Log a review after working with a learner</td>
+          <td>
+            Learner page, <strong>Log review</strong> (this records your
+            teaching hours)
+          </td>
+        </tr>
+        <tr>
+          <td>Message a learner</td>
+          <td>Learner page, <strong>Send message</strong></td>
+        </tr>
+        <tr>
+          <td>Read an AI session transcript</td>
+          <td>Sidebar, <strong>ESOL Sessions</strong>, press a session</td>
+        </tr>
+        <tr>
+          <td>Approve a level achievement</td>
+          <td>
+            Learner page, <strong>Sign off RARPA Stage 5</strong> (active when a
+            review is waiting)
+          </td>
+        </tr>
+        <tr>
+          <td>Set which learners get matched to me</td>
+          <td>Sidebar, <strong>Teaching Profile</strong></td>
+        </tr>
+        <tr>
+          <td>Pause the automatic nudge emails</td>
+          <td>Dashboard, the toggle on the banner</td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <h2>1. Your dashboard</h2>
+    <p>
+      <strong>What it is for:</strong> one screen that answers the question
+      &quot;who needs me this week?&quot;
+    </p>
+    <p>
+      <strong>How to get here:</strong> sign in as a teacher. You land here.
+      Sidebar, <strong>Teacher Dashboard</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/teacher/01-dashboard.png"
+        alt="The teacher dashboard"
+      />
+    </p>
+    <p>What you see, top to bottom:</p>
+    <ol>
+      <li>
+        <strong>Your stats.</strong> Learners assigned to you, plus reviews and
+        teaching hours for the month.
+      </li>
+      <li>
+        <strong>The nudge toggle.</strong> When ON, Amber sends a short
+        &quot;checking in&quot; note from you to any learner who has not signed
+        in for two weeks. At most one nudge every 14 days per learner, and you
+        can always send your own message instead. Turn it off any time.
+      </li>
+      <li>
+        <strong>The priority queue.</strong> Learners grouped into four bands.
+        P1 means act now, P4 means on track, nothing needed. Each card gives the
+        reason and an <strong>Open learner</strong> button. When everyone is on
+        track you will see the whole cohort sitting in P4, as in the picture.
+      </li>
+      <li>
+        <strong>Your cohort.</strong> The full table with level, priority,
+        recommended action, last session, and last review. Filter by priority or
+        organisation, or search by name.
+      </li>
+    </ol>
+    <p>
+      <strong>Good to know:</strong> you never need to hunt for work. If a
+      learner needs something, they rise into the queue with the reason
+      attached.
+    </p>
+    <hr />
+    <h2>2. A learner&#39;s record</h2>
+    <p>
+      <strong>What it is for:</strong> everything about one learner in one
+      place, plus every action you can take for them.
+    </p>
+    <p>
+      <strong>How to get here:</strong> press
+      <strong>Open learner</strong> anywhere, or press a row in the cohort
+      table.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/teacher/02-learner-overview.png"
+        alt="The learner record"
+      />
+    </p>
+    <p>
+      The header shows the learner&#39;s name, organisation, ULN, level badge,
+      priority badge, and status. Below it sits the
+      <strong>recommended action</strong> panel, and on the right the
+      <strong>Actions</strong> rail:
+    </p>
+    <ul>
+      <li>
+        <strong>Log review.</strong> Record work you did with or about this
+        learner (details in section 3).
+      </li>
+      <li>
+        <strong>Override pathway.</strong> Hand pick the scenarios this learner
+        should practise next, replacing the automatic choice for 30 days.
+      </li>
+      <li>
+        <strong>Send message.</strong> A short note the learner sees on their
+        dashboard and before their next session (section 4).
+      </li>
+      <li>
+        <strong>Sign off RARPA Stage 5.</strong> Greyed out until a Stage 5
+        review is waiting for you. The caption underneath always explains why.
+      </li>
+    </ul>
+    <h3>The four tabs</h3>
+    <p>
+      <strong>Recent sessions.</strong> The learner&#39;s last AI tutor sessions
+      as collapsible cards. Open one to read the conversation exactly as it
+      happened, with pass results and duration.
+    </p>
+    <p>
+      <strong>Vocab and objectives.</strong> The words the learner has retained
+      and the words still in progress, plus their Stage 3 goals with progress
+      notes against each one.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/teacher/03-vocab-objectives-tab.png"
+        alt="Vocab and objectives tab"
+      />
+    </p>
+    <p>
+      <strong>Your reviews.</strong> Every review you have logged for this
+      learner, newest first. Reviews cannot be edited after saving, so the
+      record stands as written.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/teacher/04-reviews-tab.png"
+        alt="Your reviews tab"
+      />
+    </p>
+    <p>
+      <strong>Activity.</strong> The learner&#39;s compliance trail: sessions
+      started and completed, goals agreed, messages read. This list is append
+      only. You cannot edit history, and neither can anyone else. That is what
+      makes it evidence.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/teacher/05-activity-tab.png"
+        alt="Activity tab"
+      />
+    </p>
+    <hr />
+    <h2>3. Logging a review</h2>
+    <p>
+      <strong>Why this matters:</strong> your reviews are the human teaching
+      record. They also count your contact time, which feeds the
+      organisation&#39;s funding evidence. If you worked with a learner and did
+      not log it, the system does not know it happened.
+    </p>
+    <p>
+      <strong>How to get here:</strong> learner page,
+      <strong>Log review</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/teacher/06-log-review-modal.png"
+        alt="Log a review"
+      />
+    </p>
+    <p><strong>Step by step</strong></p>
+    <ol>
+      <li>
+        Pick the review type:
+        <ul>
+          <li>
+            <strong>Contact session</strong> for live teaching time with the
+            learner.
+          </li>
+          <li>
+            <strong>Async review</strong> when you read their AI sessions
+            without contact.
+          </li>
+          <li>
+            <strong>Pathway adjustment</strong> when you changed their scenario
+            route.
+          </li>
+        </ul>
+      </li>
+      <li>
+        Enter the duration in minutes. For contact sessions this adds to your
+        recorded teaching hours.
+      </li>
+      <li>
+        Write your notes. They stay private to you and Amber admins, and they
+        cannot be edited later.
+      </li>
+      <li>Tick the box if you acted on the AI&#39;s recommendation.</li>
+      <li>Press <strong>Save review</strong>.</li>
+    </ol>
+    <p>
+      <strong>Good to know:</strong> Stage 5 approvals have their own dedicated
+      action. Use <strong>Sign off RARPA Stage 5</strong> for those rather than
+      a plain review, so the review and the Stage 5 record are stamped together.
+    </p>
+    <hr />
+    <h2>4. Messaging a learner</h2>
+    <p>
+      <strong>How to get here:</strong> learner page,
+      <strong>Send message</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/teacher/07-send-message-modal.png"
+        alt="Send a message"
+      />
+    </p>
+    <p>
+      Messages are short on purpose, at most 300 characters. Long coaching
+      belongs in a session. When a learner&#39;s first language is not English,
+      Amber offers a translation preview so the learner receives the note in
+      their own language. The learner sees your message on their dashboard
+      banner and as a full screen note before their next practice session, so it
+      cannot be missed.
+    </p>
+    <hr />
+    <h2>5. ESOL sessions</h2>
+    <p>
+      <strong>What it is for:</strong> the sessions of your assigned learners,
+      across your whole cohort, in one list.
+    </p>
+    <p>
+      <strong>How to get here:</strong> sidebar, <strong>ESOL Sessions</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/teacher/08-sessions-list.png"
+        alt="The sessions list"
+      />
+    </p>
+    <p>
+      The three cards count sessions in progress, completed, and flagged for
+      review. Press any session to open its detail:
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/teacher/09-session-detail.png"
+        alt="A session in detail"
+      />
+    </p>
+    <p>The detail view gives you:</p>
+    <ul>
+      <li>
+        <strong>The transcript.</strong> Every learner message and every AI
+        reply, exactly as the learner saw them.
+      </li>
+      <li>
+        <strong>The final session summary.</strong> The AI&#39;s closing note to
+        the learner.
+      </li>
+      <li>
+        <strong>A teacher prep note.</strong> A short AI generated briefing
+        about what happened and what to focus on. It generates on first open, so
+        give it a few seconds.
+      </li>
+      <li>
+        <strong>Your feedback.</strong> Space for your own comment on the
+        session.
+      </li>
+    </ul>
+    <hr />
+    <h2>6. Your teaching profile</h2>
+    <p>
+      <strong>What it is for:</strong> this profile drives which learners get
+      matched to you automatically.
+    </p>
+    <p>
+      <strong>How to get here:</strong> sidebar,
+      <strong>Teaching Profile</strong>.
+    </p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/teacher/10-teaching-profile.png"
+        alt="The teaching profile"
+      />
+    </p>
+    <p>Three sections, all optional:</p>
+    <ol>
+      <li>
+        <strong>Levels you teach.</strong> Learners outside these levels will
+        not be auto assigned to you.
+      </li>
+      <li>
+        <strong>Languages you speak.</strong> Sharing a learner&#39;s first
+        language is the strongest matching signal, especially for Entry level
+        learners.
+      </li>
+      <li>
+        <strong>Specialisms.</strong> Exam preparation, employability, everyday
+        English, family learning, SEND support, digital skills. Learners whose
+        goals fit your strengths come to you first.
+      </li>
+    </ol>
+    <p>
+      Leaving a section empty means no preference: you stay eligible for every
+      learner. Press <strong>Save profile</strong> when done.
+    </p>
+    <hr />
+    <h2>7. Stage 5, approving an achievement</h2>
+    <p>
+      When a learner completes a level, the platform prepares a
+      <strong>Stage 5 review</strong>. Nothing the AI scores can be exported as
+      an achievement on its own. A human must confirm it, and for your part that
+      is the <strong>Sign off RARPA Stage 5</strong> action on the learner page.
+    </p>
+    <ul>
+      <li>
+        The button stays greyed out until a review actually awaits you, and the
+        caption explains the current state.
+      </li>
+      <li>
+        Signing off writes your review and stamps the Stage 5 record in one
+        step, into the append only audit trail.
+      </li>
+      <li>
+        The organisation admin then completes the final confirmation. Only after
+        that does the achievement enter the funding record.
+      </li>
+    </ul>
+    <p>
+      This two person rule is deliberate. It keeps the evidence honest and audit
+      safe, and it keeps a person, not a model, at the moment of judgement.
+    </p>
+    <hr />
+    <h2>8. Amber on your phone</h2>
+    <p>The dashboard and every learner page work at phone size:</p>
+    <p>
+      <img
+        src="file:///Users/collinssanni/Documents/amber-esol-mvp/docs/manual/images/teacher/11-mobile-dashboard.png"
+        alt="The dashboard on a phone"
+      />
+    </p>
+    <hr />
+    <h2>9. If something goes wrong</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Problem</th>
+          <th>What to do</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>A learner is missing from my cohort</td>
+          <td>
+            Their organisation assigns learners to teachers. Ask the org admin.
+          </td>
+        </tr>
+        <tr>
+          <td>The Stage 5 button is greyed out</td>
+          <td>No review is waiting. The caption under the button says so.</td>
+        </tr>
+        <tr>
+          <td>A session shows a spinner instead of a prep note</td>
+          <td>It is generating. Give it a few seconds and it fills in.</td>
+        </tr>
+        <tr>
+          <td>I logged a review with a typo</td>
+          <td>
+            Reviews are append only and cannot be edited. Log a short follow up
+            review with the correction.
+          </td>
+        </tr>
+        <tr>
+          <td>The dashboard shows empty cards</td>
+          <td>It is still loading, or no learners are assigned yet.</td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <p>
+      <em
+        >Terms like RARPA, GLH, and Stage 5 are explained in the
+        <a href="00-getting-started.md#glossary">glossary</a>.</em
+      >
+    </p>
+  </body>
+</html>

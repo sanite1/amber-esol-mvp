@@ -1,0 +1,1142 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Amber Demo Call Run Sheet</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 18mm 16mm 20mm 16mm;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        -webkit-print-color-adjust: exact;
+      }
+      body {
+        font-family:
+          -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: #0b2343;
+        font-size: 10.5pt;
+        line-height: 1.55;
+        margin: 0;
+      }
+      /* Cover block */
+      .cover {
+        padding: 40mm 0 8mm;
+        page-break-after: always;
+      }
+      .cover .brand {
+        color: #ff7c22;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-size: 10pt;
+      }
+      .cover h1 {
+        font-size: 30pt;
+        line-height: 1.15;
+        margin: 10px 0 14px;
+      }
+      .cover p {
+        color: rgba(11, 35, 67, 0.65);
+        font-size: 12pt;
+        max-width: 34em;
+      }
+      .cover .meta {
+        margin-top: 18mm;
+        color: rgba(11, 35, 67, 0.45);
+        font-size: 9pt;
+      }
+
+      h1 {
+        font-size: 17pt;
+        margin: 0 0 10px;
+        page-break-after: avoid;
+      }
+      h2 {
+        font-size: 13.5pt;
+        margin: 22px 0 8px;
+        padding-top: 10px;
+        border-top: 2px solid #ff7c22;
+        page-break-after: avoid;
+      }
+      h3 {
+        font-size: 11.5pt;
+        margin: 16px 0 6px;
+        page-break-after: avoid;
+      }
+      p,
+      li {
+        orphans: 3;
+        widows: 3;
+      }
+      a {
+        color: #ff7c22;
+        text-decoration: none;
+      }
+      blockquote {
+        margin: 10px 0;
+        padding: 8px 14px;
+        background: #fff8ee;
+        border-left: 3px solid #ff7c22;
+        border-radius: 4px;
+        color: rgba(11, 35, 67, 0.8);
+        page-break-inside: avoid;
+      }
+      blockquote p {
+        margin: 4px 0;
+      }
+      code {
+        background: rgba(11, 35, 67, 0.06);
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-size: 9pt;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid rgba(11, 35, 67, 0.15);
+        margin: 20px 0;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 10px 0;
+        font-size: 9.5pt;
+        page-break-inside: avoid;
+      }
+      th,
+      td {
+        border: 1px solid rgba(11, 35, 67, 0.15);
+        padding: 6px 9px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        background: #fff8ee;
+        font-weight: 700;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 10px auto;
+        border: 1px solid rgba(11, 35, 67, 0.15);
+        border-radius: 6px;
+        page-break-inside: avoid;
+      }
+      /* Keep screenshot captions (em right after an image) tight */
+      img + em {
+        display: block;
+        text-align: center;
+        color: rgba(11, 35, 67, 0.5);
+        font-size: 9pt;
+        margin-top: -4px;
+      }
+
+      /* Section keep-togethers: a heading and its first image */
+      h2,
+      h3 {
+        break-after: avoid-page;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cover">
+      <div class="brand">Amber ESOL · User Manual</div>
+      <h1>Amber Demo Call Run Sheet</h1>
+      <p>
+        A step-by-step guide with pictures from the real system. Written to be
+        read by learners — simple words, short steps.
+      </p>
+      <div class="meta">Generated 2026-08-24 · Amber Training Ltd</div>
+    </div>
+    <h1>Amber ESOL Demo Call Run Sheet</h1>
+    <p>
+      <em
+        >Follow this top to bottom on the call. Every step tells you exactly
+        where to click, what to type, and what to say. Total running time is
+        about 40 minutes. Steps marked <strong>SAY</strong> are your talking
+        points; steps marked <strong>DO</strong> are your clicks.</em
+      >
+    </p>
+    <hr />
+    <h2>Before the call (15 minutes before, not during)</h2>
+    <ol>
+      <li>
+        Start the backend: open a terminal in
+        <code>amber-esol-backend</code> and run <code>npm run dev</code>. Wait
+        for &quot;connected&quot; in the log.
+      </li>
+      <li>
+        Start the frontend: open a terminal in <code>amber-esol-mvp</code> and
+        run <code>npm start</code>. Wait for <code>localhost:3000</code> to
+        open.
+      </li>
+      <li>
+        Restore the demo state (this re creates Lara&#39;s unread teacher
+        message and the pending Stage 5 review if a previous demo consumed
+        them). In <code>amber-esol-backend</code> run:
+      </li>
+    </ol>
+    <pre><code class="language-bash">npx ts-node --transpile-only src/scripts/prepManualDemoData.ts
+</code></pre>
+    <ol start="4">
+      <li>
+        Open <strong>two browser windows</strong> side by side:
+        <ul>
+          <li>
+            Window A (normal): your main window for admin, teacher, and org
+            admin logins.
+          </li>
+          <li>
+            Window B (incognito/private): reserved for the learner joining flow,
+            so two accounts can be signed in at once.
+          </li>
+        </ul>
+      </li>
+      <li>
+        Test one login (any account from the table below) and log out again.
+      </li>
+      <li>
+        Check your internet. The AI tutor replies, placement scoring, and the
+        cohort summary all use live Gemini calls.
+      </li>
+      <li>Have this script open on a second screen or printed.</li>
+    </ol>
+    <h3>
+      Voice: text to speech and the microphone (optional, do this the day
+      before)
+    </h3>
+    <p>
+      The AI tutor can read its lines aloud (a <strong>Listen</strong> button on
+      every Amber message) and the learner can speak an answer instead of typing
+      it (a <strong>Record your answer</strong> microphone next to the input).
+      Both are built and tested, but they are switched off until two things
+      happen. Right now they are off, so if you skip this section the session
+      simply runs text only and nothing looks broken.
+    </p>
+    <ol>
+      <li>
+        Enable two Google APIs on the same Google Cloud project that already
+        powers Gemini (project <code>trim-epigram-496314-m4</code>). Open each
+        link, make sure that project is selected at the top, press
+        <strong>Enable</strong>:
+        <ul>
+          <li>
+            Cloud Text to Speech:
+            <a
+              href="https://console.developers.google.com/apis/api/texttospeech.googleapis.com/overview?project=trim-epigram-496314-m4"
+              >https://console.developers.google.com/apis/api/texttospeech.googleapis.com/overview?project=trim-epigram-496314-m4</a
+            >
+          </li>
+          <li>
+            Cloud Speech to Text:
+            <a
+              href="https://console.developers.google.com/apis/api/speech.googleapis.com/overview?project=trim-epigram-496314-m4"
+              >https://console.developers.google.com/apis/api/speech.googleapis.com/overview?project=trim-epigram-496314-m4</a
+            >
+            Wait two or three minutes after enabling.
+          </li>
+        </ul>
+      </li>
+      <li>
+        In <code>amber-esol-backend/.env</code> change the two lines at the
+        bottom from <code>false</code> to <code>true</code>:
+      </li>
+    </ol>
+    <pre><code class="language-bash">VOICE_TTS_ENABLED=true
+VOICE_STT_ENABLED=true
+</code></pre>
+    <ol start="3">
+      <li>
+        Restart the backend (<code>Ctrl+C</code> in its terminal, then
+        <code>npm run dev</code> again).
+      </li>
+      <li>
+        Rehearse once: sign in as Lara, start a session, and check that a small
+        speaker <strong>Listen</strong> button now shows under Amber&#39;s first
+        message and a microphone button sits beside the text box. Press the
+        microphone once in rehearsal so Chrome asks for microphone permission
+        and you can press <strong>Allow</strong> before the call, not during it.
+      </li>
+    </ol>
+    <p>
+      The voices are Google&#39;s EU hosted voices (London region), matched to
+      the learner&#39;s language. If the buttons do not appear after step 3, the
+      API enable has not propagated yet; wait a few minutes and restart the
+      backend again.
+    </p>
+    <p>
+      <strong>Important warning:</strong> do NOT type anything about being
+      unsafe, hurt, or frightened into the AI tutor during the demo. The
+      safeguarding detector is real: it will raise a live alert and email the
+      safeguarding inbox. You will show safeguarding from the admin side instead
+      (Act 8), where a real open alert and a resolved one already exist.
+    </p>
+    <hr />
+    <h2>The cast (all passwords are <code>TestPass1!</code> unless stated)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Role</th>
+          <th>Email</th>
+          <th>Use for</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Amber admin</td>
+          <td>
+            <a href="mailto:seed-qa-admin@example.com"
+              >seed-qa-admin@example.com</a
+            >
+          </td>
+          <td>Acts 2 and 8</td>
+        </tr>
+        <tr>
+          <td>Org admin (Seed QA Organisation)</td>
+          <td>
+            <a href="mailto:seed-qa-orgadmin@example.com"
+              >seed-qa-orgadmin@example.com</a
+            >
+          </td>
+          <td>Acts 3 and 7</td>
+        </tr>
+        <tr>
+          <td>Teacher (Theo)</td>
+          <td>
+            <a href="mailto:seed-qa-teacher@example.com"
+              >seed-qa-teacher@example.com</a
+            >
+          </td>
+          <td>Act 6</td>
+        </tr>
+        <tr>
+          <td>Learner (Lara, E3, two months of history)</td>
+          <td>
+            <a href="mailto:seed-qa-learner@example.com"
+              >seed-qa-learner@example.com</a
+            >
+          </td>
+          <td>Act 5</td>
+        </tr>
+        <tr>
+          <td>Hillview org admin (Hana)</td>
+          <td>
+            <a href="mailto:hillview-admin@example.org"
+              >hillview-admin@example.org</a
+            >
+          </td>
+          <td>backup org</td>
+        </tr>
+        <tr>
+          <td>Hillview teacher (Priya)</td>
+          <td>
+            <a href="mailto:hillview-teacher@example.org"
+              >hillview-teacher@example.org</a
+            >
+          </td>
+          <td>backup teacher</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      The learner you create live in Act 4 needs no email or password at all,
+      which is itself a selling point.
+    </p>
+    <hr />
+    <h2>Act 1: The story in one minute (no screen yet)</h2>
+    <p>
+      <strong>SAY:</strong> &quot;Amber is an AI supported English learning
+      platform for funded adult ESOL. Learners practise real UK life scenarios
+      with an AI tutor that supports them in their own language. While they
+      practise, the platform writes the compliance record automatically: guided
+      learning hours, RARPA evidence, the ILR return. And every judgement that
+      matters, a level achieved, a safeguarding concern, is confirmed by a
+      person, never by the AI alone. I&#39;ll show you the whole journey:
+      we&#39;ll create an organisation, invite a learner, watch them join and
+      get placed, practise with the AI tutor, and then see what the teacher, the
+      provider, and Amber each see.&quot;
+    </p>
+    <hr />
+    <h2>Act 2: Amber admin provisions an organisation (4 min)</h2>
+    <p><strong>DO, in Window A:</strong></p>
+    <ol>
+      <li>Go to <code>localhost:3000/login</code>.</li>
+      <li>
+        Email: <code>seed-qa-admin@example.com</code> · Password:
+        <code>TestPass1!</code> · press <strong>Sign in</strong>.
+      </li>
+      <li>You land on <strong>Overview</strong>. Pause here.</li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;This is Amber&#39;s own view: every client
+      organisation, learners, hours this month, revenue, and billing state at a
+      glance. You can see one client with a lapsed contract flagged in
+      red.&quot;
+    </p>
+    <ol start="4">
+      <li>
+        In the sidebar press <strong>Organisations</strong>, then the orange
+        <strong>Provision organisation</strong> button (top right).
+      </li>
+      <li>
+        Fill the form (say the values out loud as you type):
+        <ul>
+          <li>Organisation name: <code>Riverside Community College</code></li>
+          <li>Contact name: <code>Dana Ellis</code></li>
+          <li>Contact email: <code>dana@riverside-demo.org</code></li>
+          <li>Phone: <code>07700900123</code></li>
+          <li>
+            Payment model: <strong>Invoiced</strong> · Invoice cycle: monthly
+          </li>
+          <li>
+            Admin first name <code>Dana</code>, last name <code>Ellis</code>,
+            admin email <code>dana@riverside-demo.org</code>, admin phone
+            <code>07700900123</code>
+          </li>
+        </ul>
+      </li>
+      <li>Press the create button and point at the new row in the list.</li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;One form creates the organisation and its
+      first admin account together. The admin gets a welcome email and from that
+      moment Riverside runs itself: Amber does not create learners for them.
+      That is deliberate: providers own their learners, Amber owns the platform.
+      For the rest of the demo I&#39;ll use Seed QA Organisation, which has two
+      months of live history in it.&quot;
+    </p>
+    <ol start="7">
+      <li>Top right, press your avatar, then <strong>Sign out</strong>.</li>
+    </ol>
+    <hr />
+    <h2>Act 3: Org admin invites a learner (3 min)</h2>
+    <p><strong>DO, in Window A:</strong></p>
+    <ol>
+      <li>
+        Sign in as <code>seed-qa-orgadmin@example.com</code> /
+        <code>TestPass1!</code>.
+      </li>
+      <li>
+        You land on the <strong>Cohort dashboard</strong>. Do not explain it
+        yet, that is Act 7. Just say: &quot;This is the provider&#39;s home;
+        we&#39;ll come back to it once our learner has some data.&quot;
+      </li>
+      <li>
+        Sidebar: press <strong>Invitations</strong>, then
+        <strong>New invitation</strong>.
+      </li>
+      <li>
+        In the modal:
+        <ul>
+          <li>
+            Learner email: leave <strong>empty</strong> (say: &quot;with an
+            email the invite is sent automatically; I&#39;ll use a link so you
+            can watch the learner side live&quot;).
+          </li>
+          <li>
+            Assigned ESOL level: leave as <strong>Set later</strong> (the
+            placement will decide).
+          </li>
+          <li>Expires in: leave the default 30 days.</li>
+        </ul>
+      </li>
+      <li>
+        Press create, then press <strong>Copy link</strong> on the new
+        invitation row.
+      </li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;That link is the entire enrolment
+      infrastructure. No account creation, no passwords to manage, no IT ticket.
+      The provider sends this to a learner by text, email, or on paper as a QR
+      code.&quot;
+    </p>
+    <hr />
+    <h2>Act 4: The learner joins and gets placed at E3 (7 min)</h2>
+    <p><strong>DO, in Window B (incognito):</strong></p>
+    <ol>
+      <li>Paste the copied invite link and open it.</li>
+      <li>
+        The welcome screen appears, branded for the organisation. Point at the
+        <strong>language picker, top right</strong>. Click it and switch to
+        <strong>العربية (Arabic)</strong>.
+      </li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;First decision the learner ever makes: their
+      language. And watch the whole layout flip right to left for Arabic. Amber
+      never assumes English.&quot;
+    </p>
+    <ol start="3">
+      <li>
+        Switch back to <strong>English</strong>. Press <strong>Start</strong>.
+      </li>
+      <li>
+        Walk the wizard steps, filling minimal details:
+        <ul>
+          <li>
+            Details: first name <code>Amal</code>, last name
+            <code>Hassan</code>, and whatever else the step requires.
+          </li>
+          <li>
+            Eligibility: answer the declarations honestly (&quot;this is the
+            ESFA eligibility evidence being captured at source&quot;).
+          </li>
+          <li>
+            ULN: <strong>skip</strong> (say: &quot;the provider can record it
+            later; the compliance dashboard flags it as missing until
+            then&quot;).
+          </li>
+          <li>Done: press through to the placement assessment.</li>
+        </ul>
+      </li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;No email, no password. The learner is enrolled
+      and goes straight to placement: twenty questions, adapting to their
+      answers, scored by AI, and, important, reviewed by a teacher
+      afterwards.&quot;
+    </p>
+    <ol start="5">
+      <li>
+        <p>
+          <strong>The placement.</strong> Twenty multiple choice questions. To
+          land Amal at Entry 3, answer with this cheat sheet: get every E1, E2,
+          and E3 question RIGHT and every L1 and L2 question WRONG. The level
+          tag is not shown on screen, so recognise the question and use this
+          table:
+        </p>
+        <p><strong>Answer these correctly:</strong></p>
+        <table>
+          <thead>
+            <tr>
+              <th>When you see</th>
+              <th>Click</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>&#39;NO ENTRY&#39; sign meaning</td>
+              <td>You cannot go in</td>
+            </tr>
+            <tr>
+              <td>Shop &#39;OPEN 9am 5pm Mon to Fri&#39;, open Sunday?</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Correctly written sentence (London)</td>
+              <td>I am from London.</td>
+            </tr>
+            <tr>
+              <td>How old is Sara?</td>
+              <td>25</td>
+            </tr>
+            <tr>
+              <td>Train to Manchester leaves at</td>
+              <td>3:30</td>
+            </tr>
+            <tr>
+              <td>How much was the milk?</td>
+              <td>£1.50</td>
+            </tr>
+            <tr>
+              <td>&#39;I will meet you ___ the bus stop.&#39;</td>
+              <td>at</td>
+            </tr>
+            <tr>
+              <td>Polite reply to &#39;How are you?&#39;</td>
+              <td>I&#39;m fine, thank you. And you?</td>
+            </tr>
+            <tr>
+              <td>Correct sentence (shops yesterday)</td>
+              <td>She went to the shops yesterday.</td>
+            </tr>
+            <tr>
+              <td>What do doctors recommend?</td>
+              <td>Walking for half an hour daily</td>
+            </tr>
+            <tr>
+              <td>Library closes at the weekend at</td>
+              <td>5pm</td>
+            </tr>
+            <tr>
+              <td>Politely ask to leave work early</td>
+              <td>Could I leave a bit early today, please?</td>
+            </tr>
+          </tbody>
+        </table>
+        <p><strong>Answer these wrongly (click the option shown):</strong></p>
+        <table>
+          <thead>
+            <tr>
+              <th>When you see</th>
+              <th>Deliberately click</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Tenancy agreement, one month&#39;s notice</td>
+              <td>Tell the landlord by phone on the day of leaving</td>
+            </tr>
+            <tr>
+              <td>Conditional sentence (rain)</td>
+              <td>If it will rain, I will stay home.</td>
+            </tr>
+            <tr>
+              <td>Meeting postponed because</td>
+              <td>Someone was late</td>
+            </tr>
+            <tr>
+              <td>Disagree with a colleague professionally</td>
+              <td>That is wrong.</td>
+            </tr>
+            <tr>
+              <td>Manager asks why you missed a deadline</td>
+              <td>I forgot about it.</td>
+            </tr>
+            <tr>
+              <td>Retail footfall article means</td>
+              <td>Online prices rose by 18%</td>
+            </tr>
+            <tr>
+              <td>Past perfect sentence</td>
+              <td>By the time we arrived, the meeting has already finished.</td>
+            </tr>
+            <tr>
+              <td>&#39;Had we anticipated...&#39; the speaker is</td>
+              <td>Making a prediction about the future</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          The first five questions are one from each level in rising order (E1,
+          E2, E3, L1, L2), so early on expect: sign, train time, shops
+          yesterday, tenancy, missed deadline.
+        </p>
+      </li>
+      <li><p>Submit and wait a few seconds while it scores.</p></li>
+    </ol>
+    <p>
+      <strong>SAY (while it scores):</strong> &quot;Gemini is scoring the
+      attempt now: level, confidence score, and skill weaknesses. The result
+      seeds everything downstream: the learner&#39;s scenario difficulty, their
+      goals, and the funding paperwork.&quot;
+    </p>
+    <ol start="7">
+      <li>
+        The result lands at <strong>Entry 3</strong>. Show the learner&#39;s
+        goals screen if offered (objectives written in plain language, agreed by
+        the learner). Then leave Window B; Amal&#39;s part is done.
+      </li>
+    </ol>
+    <p>
+      <strong>If the placement misbehaves live</strong> (network hiccup): close
+      Window B and say &quot;rather than fight the wifi, let me show you a
+      learner who has been using Amber for two months&quot;, and go straight to
+      Act 5.
+    </p>
+    <hr />
+    <h2>Act 5: Living with Amber as a learner (8 min)</h2>
+    <p><strong>DO, in Window A</strong> (sign out of the org admin first):</p>
+    <ol>
+      <li>
+        Sign in as <code>seed-qa-learner@example.com</code> /
+        <code>TestPass1!</code>.
+      </li>
+      <li>
+        A full screen note appears: <strong>a message from her teacher</strong>.
+        Read it out loud.
+      </li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;Teacher messages physically cannot be missed.
+      They appear before anything else, translated into the learner&#39;s
+      language when needed.&quot;
+    </p>
+    <ol start="3">
+      <li>
+        Press <strong>Got it</strong>. If a welcome panel appears next, close it
+        too.
+      </li>
+      <li>
+        You are on Lara&#39;s dashboard. Point at, in order: her level badge
+        (E3), the scenario picker, and the stats below.
+      </li>
+      <li>
+        Sidebar: <strong>My Goals</strong>. Show her objectives and the
+        agreement note.
+      </li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;These are her RARPA Stage 3 objectives, agreed
+      by her, in her own words and language. Every practice session collects
+      evidence against them automatically.&quot;
+    </p>
+    <ol start="6">
+      <li>
+        Sidebar: <strong>Vocabulary</strong>. Show retained versus in progress
+        words.
+      </li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;Every word she meets is tracked. A word only
+      counts as retained after she has met it five times and used it correctly
+      herself. This is the vocabulary evidence for her file.&quot;
+    </p>
+    <ol start="7">
+      <li>
+        <p>
+          Now the main event. Go back to the dashboard and press
+          <strong>Booking a GP appointment</strong> in the scenario picker.
+        </p>
+      </li>
+      <li>
+        <p>
+          The PREPARE screen shows what she will practise and the key phrases.
+          Press <strong>Begin roleplay</strong>.
+        </p>
+      </li>
+      <li>
+        <p>
+          Amber opens the conversation. Wait for its first message, then type
+          exactly this and press Enter:
+        </p>
+        <blockquote>
+          <p>
+            Hello, I would like to book an appointment with the doctor please.
+          </p>
+        </blockquote>
+      </li>
+      <li>
+        <p>
+          Wait for Amber&#39;s reply (a few seconds; the typing indicator shows
+          it thinking). Then type:
+        </p>
+        <blockquote>
+          <p>
+            I have pain in my back for three days. It hurts when I sit for a
+            long time.
+          </p>
+        </blockquote>
+      </li>
+      <li>
+        <p>
+          <strong
+            >Voice moment (only if you enabled voice before the call).</strong
+          >
+          When Amber&#39;s second reply arrives, press the small speaker
+          <strong>Listen</strong> button under it and let it play out loud.
+        </p>
+        <p>
+          <strong>SAY:</strong> &quot;Every line the tutor says can be heard as
+          well as read, in a natural voice matched to the learner&#39;s
+          language. For a learner with low literacy in English, or in their own
+          script, this is the difference between using the platform and
+          not.&quot;
+        </p>
+        <p>
+          Then, instead of typing the third message, press the microphone button
+          (<strong>Record your answer</strong>) next to the text box and say
+          clearly:
+        </p>
+        <blockquote>
+          <p>Thursday morning is good for me. What do I need to bring?</p>
+        </blockquote>
+        <p>
+          Press the same button again (<strong>Stop and send</strong>). A moment
+          later her sentence appears in the conversation as a spoken answer,
+          with a small microphone mark and a clarity chip under it (Clear,
+          Nearly there, or Let&#39;s try that again) plus a one line
+          pronunciation tip. Amber&#39;s reply will comment on how it sounded
+          before carrying on.
+        </p>
+        <p>
+          <strong>SAY:</strong> &quot;This is the part typing can never do. She
+          spoke, the platform listened, and the tutor now knows how she
+          pronounced it, not just what she meant. The clarity is scored,
+          credited as speaking evidence, and flagged for the teacher to confirm.
+          The audio itself is assessed in Google&#39;s EU region and never
+          stored; Amber keeps only the words and the assessment.&quot;
+        </p>
+        <p>
+          <strong>If you did NOT enable voice</strong>, simply type the third
+          message instead:
+        </p>
+        <blockquote>
+          <p>Thursday morning is good for me. What do I need to bring?</p>
+        </blockquote>
+      </li>
+      <li>
+        <p>
+          While replies come in, point at the screen furniture: the mode chip
+          (BRIDGE means first language support is available, ANCHOR means
+          maximum support, IMMERSION means mostly English), the text size
+          button, and the four stage progress dots.
+        </p>
+      </li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;Notice the tutor never just says
+      &#39;correct&#39;. It recasts her mistakes naturally, the way a good
+      teacher does, and every turn is scored quietly in the background. Nothing
+      she does here is wasted: it is all becoming evidence.&quot;
+    </p>
+    <ol start="13">
+      <li>
+        <strong>Ending the session:</strong> after Amber&#39;s third reply,
+        press <strong>End &amp; review</strong> (top of the chat). A completion
+        panel appears with her score, the words she used, and the tutor&#39;s
+        note.
+      </li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;Ten minutes of practice, and the by product is
+      a scored, transcripted, evidenced learning session. She just presses one
+      button and she is done. Now let me show you what her teacher sees.&quot;
+    </p>
+    <ol start="14">
+      <li>Sign out.</li>
+    </ol>
+    <hr />
+    <h2>Act 6: The teacher&#39;s morning (6 min)</h2>
+    <p><strong>DO, in Window A:</strong></p>
+    <ol>
+      <li>
+        Sign in as <code>seed-qa-teacher@example.com</code> /
+        <code>TestPass1!</code>.
+      </li>
+      <li>
+        You land on the <strong>Teacher Dashboard</strong>. Give it a second to
+        load, then walk the priority queue top to bottom.
+      </li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;This is the whole product for teachers: who
+      needs me, and why. P1 at the top: Stephen has an open safeguarding alert,
+      act today. P2: Collins has gone quiet for a week, send encouragement. And
+      the learners who are fine are parked in P4, on track, explicitly labelled
+      no action needed. The teacher never hunts for work. Note the queue was
+      built by the platform overnight, with the reason attached to every
+      name.&quot;
+    </p>
+    <ol start="3">
+      <li>
+        <p>
+          Point at the <strong>auto send toggle</strong> above the queue:
+          &quot;if a learner goes quiet for two weeks, the platform checks in on
+          the teacher&#39;s behalf, at most once a fortnight, and the teacher
+          can turn it off.&quot;
+        </p>
+      </li>
+      <li>
+        <p>
+          In the cohort table press <strong>Lara Learner</strong> to open her
+          record.
+        </p>
+      </li>
+      <li>
+        <p>Walk the tabs quickly:</p>
+        <ul>
+          <li>
+            <strong>Recent sessions</strong>: open the top card, show the
+            transcript of the session you just did in Act 5.
+          </li>
+          <li>
+            <strong>Vocab and objectives</strong>: her ledger and Stage 3 goals
+            with progress.
+          </li>
+          <li>
+            <strong>Your reviews</strong>: the review history (append only,
+            cannot be edited later).
+          </li>
+          <li><strong>Activity</strong>: the compliance trail.</li>
+        </ul>
+      </li>
+      <li>
+        <p>
+          Press <strong>Log review</strong> (right side). Pick
+          <strong>Async review</strong>, set 15 minutes, and type notes:
+        </p>
+        <blockquote>
+          <p>
+            Reviewed today&#39;s GP booking session. Clear progress on polite
+            requests. Ready for the housing scenario next.
+          </p>
+        </blockquote>
+        <p>
+          Tick &quot;acted on the AI recommendation&quot; and press
+          <strong>Save review</strong>.
+        </p>
+      </li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;That 15 minutes just became part of the
+      organisation&#39;s claimable teaching hours, stamped with my name in the
+      audit trail. Reviews cannot be edited after saving; the record stands as
+      written.&quot;
+    </p>
+    <ol start="7">
+      <li>
+        <p>Press <strong>Send message</strong>, type:</p>
+        <blockquote>
+          <p>
+            Great session today, Lara. Next time we will try talking to your
+            landlord about repairs.
+          </p>
+        </blockquote>
+        <p>
+          Point at the translation preview if her language is set, then
+          <strong>Send</strong>.
+        </p>
+      </li>
+      <li><p>Sign out.</p></li>
+    </ol>
+    <hr />
+    <h2>Act 7: The provider&#39;s compliance view (6 min)</h2>
+    <p><strong>DO, in Window A:</strong></p>
+    <ol>
+      <li>
+        Sign in as <code>seed-qa-orgadmin@example.com</code> /
+        <code>TestPass1!</code>.
+      </li>
+      <li>
+        The <strong>Cohort dashboard</strong> loads (the table takes a few
+        seconds; it is aggregating every session and evidence row live; fill the
+        gap by reading the AI cohort summary at the top out loud).
+      </li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;A plain English summary of the month, written
+      by the platform from the real data, and under it the cohort: hours,
+      teacher hours, scenarios passed, last activity, status, and whether we
+      hold a ULN for each learner. This table IS the funding record.&quot;
+    </p>
+    <ol start="3">
+      <li>
+        Press <strong>Lara Learner</strong> (or go via
+        <strong>Learners</strong>) to open her detail. On the overview point at
+        the four hour cards.
+      </li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;The most important distinction in the product:
+      Total hours include AI practice. Claimable hours exclude it, only teacher
+      contact and imported classroom hours count toward a funding claim. Both
+      are shown side by side precisely so nobody ever claims the wrong
+      number.&quot;
+    </p>
+    <ol start="4">
+      <li>Press the <strong>Evidence Chain</strong> tab.</li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;Every claim traces back to the moment it was
+      captured: which session, which turn, which ILR fields it feeds, which
+      RARPA stage it satisfies, and whether a human has confirmed it. The
+      AI&#39;s scores stay marked &#39;needs sign off&#39; until a person
+      confirms. This is what an auditor sees.&quot;
+    </p>
+    <ol start="5">
+      <li>
+        Go back to the Cohort dashboard and press the
+        <strong>Stage 5 Pending</strong> tab. Open Lara&#39;s pending review.
+      </li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;Lara completed Entry 3. Here is her own self
+      assessment, the AI&#39;s summary of her evidence, and her teacher&#39;s
+      sign off, already done. The final step is mine: the organisation confirms.
+      Two different humans, in order, before anything becomes an achievement.
+      Nothing the AI scores can be exported on its own.&quot;
+    </p>
+    <ol start="6">
+      <li>
+        <p>
+          <strong>Optional live moment:</strong> type into the required next
+          steps box:
+        </p>
+        <blockquote>
+          <p>
+            Progress to Level 1 pathway with an employability focus. Review at
+            October half term.
+          </p>
+        </blockquote>
+        <p>
+          and press <strong>Confirm and lock</strong>. (This consumes the
+          pending review; the reset command in the last section restores it for
+          the next demo.)
+        </p>
+      </li>
+      <li>
+        <p>
+          Quickly show <strong>Export ILR</strong> on the cohort dashboard: pick
+          the organisation and dates, download the CSV, and open it for two
+          seconds: &quot;this is the file that goes to the funding body.&quot;
+        </p>
+      </li>
+      <li>
+        <p>
+          Sidebar <strong>Invoices</strong>: show the paid invoices. Sign out.
+        </p>
+      </li>
+    </ol>
+    <hr />
+    <h2>Act 8: Amber oversight: safeguarding, hours, audit (5 min)</h2>
+    <p><strong>DO, in Window A:</strong></p>
+    <ol>
+      <li>
+        Sign in as <code>seed-qa-admin@example.com</code> /
+        <code>TestPass1!</code>.
+      </li>
+      <li>Sidebar: <strong>Safeguarding</strong>.</li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;The most important queue in the platform.
+      During any AI session, if a learner discloses something worrying, the
+      learner instantly sees a supportive message with real helplines, written
+      by humans in advance, and an alert lands here with the safeguarding lead
+      emailed within seconds. Here is a live one: high level, domestic abuse
+      trigger, still open, and the SLA clock is running. And below it,
+      July&#39;s alert: reviewed, escalated to the organisation, resolved the
+      same day, with the notes preserved. The AI never handles the concern in
+      the lesson. A person always does.&quot;
+    </p>
+    <ol start="3">
+      <li>
+        Press the open alert to show the review panel and its four outcomes.
+        Press <strong>Cancel</strong> (do not resolve it; it is the standing
+        demo of the duty).
+      </li>
+      <li>
+        Sidebar: <strong>Response texts</strong>: &quot;the exact crisis
+        messages learners see, per language, editable by us, never generated
+        live.&quot;
+      </li>
+      <li>
+        Sidebar: <strong>GLH analytics</strong>. Point at Total versus Claimable
+        cards, the teacher contact percentage with its ABOVE TARGET badge, and
+        the weekly trend.
+      </li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;Platform wide hours by source. The funding
+      model targets teacher contact at ten to twenty percent of total hours:
+      enough human oversight to satisfy the funder, little enough that the AI is
+      doing the heavy lifting. We track that ratio continuously.&quot;
+    </p>
+    <ol start="6">
+      <li>
+        Sidebar: <strong>Teacher utilisation</strong>: two teachers, load,
+        capacity, reviews and hours this month.
+      </li>
+      <li>Sidebar: <strong>Audit search</strong>. Scroll slowly.</li>
+    </ol>
+    <p>
+      <strong>SAY:</strong> &quot;And finally, the memory. Every compliance
+      event across every organisation: sessions, placements, goals agreed,
+      reviews, messages, nudges, level changes, safeguarding. Append only,
+      nothing can be edited or deleted, by anyone. When an auditor asks what
+      happened, this is the answer.&quot;
+    </p>
+    <hr />
+    <h2>Wrap (1 min)</h2>
+    <p>
+      <strong>SAY:</strong> &quot;So that is the full loop: the provider
+      invites, the learner joins in their own language with no password, the AI
+      tutors and quietly writes the evidence, the teacher spends their time only
+      where a human is needed, the provider signs off achievements and exports
+      the funding file, and Amber holds the safeguarding duty and the audit
+      trail. Questions?&quot;
+    </p>
+    <hr />
+    <h2>If something goes wrong live</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Symptom</th>
+          <th>What to do and say</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Cohort table sits on a spinner</td>
+          <td>It aggregates live evidence; say so and give it ten seconds.</td>
+        </tr>
+        <tr>
+          <td>AI tutor reply is slow</td>
+          <td>
+            &quot;It is generating a level matched reply live.&quot; It arrives;
+            do not resend.
+          </td>
+        </tr>
+        <tr>
+          <td>Placement scoring fails</td>
+          <td>
+            Close the incognito window; continue with Lara (Act 5). All later
+            acts work without Act 4.
+          </td>
+        </tr>
+        <tr>
+          <td>Teacher message modal reappears on learner login</td>
+          <td>
+            That is the unread message from Act 6. Read it out: it proves the
+            loop. Press Got it.
+          </td>
+        </tr>
+        <tr>
+          <td>No Listen or microphone buttons in the session</td>
+          <td>
+            Voice is off (flags false, or the Google APIs not yet enabled). Skip
+            the voice moment; type the line instead. Nothing else is affected.
+          </td>
+        </tr>
+        <tr>
+          <td>Listen button shows but nothing plays</td>
+          <td>
+            The Google API enable has not propagated, or the tab is muted. Say
+            &quot;voice is optional&quot; and move on; check after the call.
+          </td>
+        </tr>
+        <tr>
+          <td>Microphone does nothing</td>
+          <td>
+            Chrome blocked the mic. Click the camera/mic icon in the address
+            bar, Allow, and retry once. Otherwise type the line.
+          </td>
+        </tr>
+        <tr>
+          <td>Wrong dashboard after login</td>
+          <td>
+            You are signed into another role in this window. Sign out via the
+            top right avatar.
+          </td>
+        </tr>
+        <tr>
+          <td>A page looks empty</td>
+          <td>
+            Check you are signed in as the role that act names. Seed QA
+            Organisation is where all the history lives.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>Reset between demos</h2>
+    <p>
+      Run in <code>amber-esol-backend</code> (restores Lara&#39;s unread
+      message, the pending Stage 5 review, and the open safeguarding alert if
+      any demo consumed them):
+    </p>
+    <pre><code class="language-bash">npx ts-node --transpile-only src/scripts/prepManualDemoData.ts
+</code></pre>
+    <p>
+      The organisation you provisioned in Act 2 can be deactivated from
+      Organisations after the call, and each demo run should invent a new
+      learner name in Act 4 (each invite link is fresh anyway).
+    </p>
+  </body>
+</html>

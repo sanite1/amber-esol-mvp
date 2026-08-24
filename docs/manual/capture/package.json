@@ -1,0 +1,13 @@
+{
+  "name": "amber-manual-capture",
+  "private": true,
+  "type": "module",
+  "description": "Screenshot harness for the Amber ESOL user manual. Isolated from the app's dependencies on purpose — `npm install` here, then `node capture.mjs [module]`.",
+  "scripts": {
+    "capture": "node capture.mjs"
+  },
+  "dependencies": {
+    "marked": "^18.0.10",
+    "puppeteer": "^23.11.1"
+  }
+}
