@@ -248,6 +248,45 @@ are never in trouble for saying how you feel.
 
 ---
 
+### Speaking your answer
+
+When the tutor asks you to say something out loud, you can answer
+with your voice instead of typing. Press the **microphone** button
+next to the text box. The box turns into a recording bar:
+
+![Recording your answer](images/learner/26-recording-bar.png)
+
+From left to right: a **bin** to throw the recording away and start
+again, a red dot with a **clock** showing how long you have been
+speaking, a **sound meter** that moves while you talk (so you know
+Amber can hear you), a red **pause** button, and a dark **send**
+arrow.
+
+**Step by step**
+
+1. Press the microphone, then speak as soon as the clock starts.
+2. Need a moment? Press **pause**. The clock and the meter stop.
+   Press it again to carry on; the clock continues from where it was.
+3. Made a mistake? Press the **bin**. Nothing is sent and the text box
+   comes back.
+4. Happy with it? Press the **send** arrow. Your words appear in the
+   conversation with a small microphone mark, and under them a chip
+   says how clearly you spoke (**Clear**, **Nearly there**, or **Let's
+   try that again**) with a short tip.
+
+![Your spoken answer with its clarity chip](images/learner/24-spoken-turn.png)
+
+**Good to know:** the tutor listens to the recording itself, not just
+the words, so it can help with pronunciation. The recording is used
+for that one answer and is not kept. Typing always works too; you are
+never forced to speak.
+
+The recording bar works the same on a phone:
+
+![Recording bar on a phone](images/learner/27-recording-bar-mobile.png)
+
+---
+
 ## 5. My Goals
 
 **What it's for:** the learning goals set after your placement — check

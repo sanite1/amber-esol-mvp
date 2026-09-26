@@ -143,9 +143,62 @@ const main = async () => {
   );
   console.log("typed turn: reply received");
 
-  // Turn 2 spoken: record with the fake mic for ~2.5s then stop.
+  // Turn 2 spoken: record with the fake mic. Exercise the recording bar
+  // (clock + level meter + pause/resume) and capture it at both widths
+  // before sending.
   await clickByAria(page, "Record your answer");
-  await sleep(2500);
+  // The bar appears instantly (optimistic); the recorder itself starts
+  // once the device opens — ~100ms on a real machine, ~3s for headless
+  // Chrome's fake device. Wait for the clock to leave 0:00.
+  const tRec = Date.now();
+  await page.waitForFunction(
+    () =>
+      (document.querySelector('[role="timer"]')?.textContent ?? "0:00") !==
+      "0:00",
+    { timeout: 20000 },
+  );
+  console.log(`recorder live after ${Date.now() - tRec}ms`);
+  await sleep(2000);
+  const clockAt2s = await page.$eval('[role="timer"]', (el) => el.textContent);
+  const meterMax = await page.$$eval(
+    '[role="group"][aria-label="Recording"] div[dir="ltr"] > span',
+    (els) => Math.max(...els.map((el) => parseFloat(el.style.height) || 0)),
+  );
+  console.log(
+    `clock after 2.5s: ${clockAt2s} (want >= 0:02) · meter peak: ${meterMax}% (flat = 10%)`,
+  );
+  await page.screenshot({
+    path: join(OUT, "26-recording-bar.png"),
+    fullPage: false,
+  });
+  console.log("📸 learner/26-recording-bar.png");
+  await clickByAria(page, "Pause recording");
+  await sleep(700);
+  const pausedClock = await page.$eval(
+    '[role="timer"]',
+    (el) => el.textContent,
+  );
+  await sleep(1200);
+  const pausedClockLater = await page.$eval(
+    '[role="timer"]',
+    (el) => el.textContent,
+  );
+  console.log(
+    `paused clock frozen: ${pausedClock} -> ${pausedClockLater} (${pausedClock === pausedClockLater ? "yes" : "NO"})`,
+  );
+  await clickByAria(page, "Resume recording");
+  await sleep(1500);
+  await page.setViewport({ width: 390, height: 844 });
+  await sleep(500);
+  await page.screenshot({
+    path: join(OUT, "27-recording-bar-mobile.png"),
+    fullPage: false,
+  });
+  console.log("📸 learner/27-recording-bar-mobile.png");
+  await page.setViewport({ width: 1280, height: 900 });
+  await sleep(400);
+  const clockNow = await page.$eval('[role="timer"]', (el) => el.textContent);
+  console.log(`clock before send: ${clockNow}`);
   await clickByAria(page, "Stop and send");
   console.log("recording stopped, waiting for spoken turn round trip…");
   await page.waitForFunction(

@@ -84,7 +84,11 @@ type CopyKey =
   | "mic_record"
   | "mic_stop"
   | "mic_sending"
-  | "mic_not_heard";
+  | "mic_not_heard"
+  | "rec_status"
+  | "rec_discard"
+  | "rec_pause"
+  | "rec_resume";
 
 /**
  * Compact local i18n for the chat chrome. Wizard `translations.ts`
@@ -130,6 +134,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     mic_stop: "Stop and send",
     mic_sending: "Sending your answer…",
     mic_not_heard: "Couldn't hear that. Try again, or type instead.",
+    rec_status: "Recording",
+    rec_discard: "Discard recording",
+    rec_pause: "Pause recording",
+    rec_resume: "Resume recording",
   },
   ar: {
     loading_session: "جارٍ تحميل جلستك…",
@@ -167,6 +175,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     mic_stop: "إيقاف وإرسال",
     mic_sending: "جارٍ إرسال إجابتك…",
     mic_not_heard: "لم أسمع ذلك. حاول مرة أخرى أو اكتب بدلاً من ذلك.",
+    rec_status: "جارٍ التسجيل",
+    rec_discard: "حذف التسجيل",
+    rec_pause: "إيقاف التسجيل مؤقتاً",
+    rec_resume: "متابعة التسجيل",
   },
   so: {
     loading_session: "Waxaa la soo dejinayaa kalfadhigaaga…",
@@ -206,6 +218,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     mic_stop: "Stop and send",
     mic_sending: "Sending your answer…",
     mic_not_heard: "Couldn't hear that. Try again, or type instead.",
+    rec_status: "Recording",
+    rec_discard: "Discard recording",
+    rec_pause: "Pause recording",
+    rec_resume: "Resume recording",
   },
   fa: {
     loading_session: "در حال بارگذاری جلسه شما…",
@@ -245,6 +261,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     mic_stop: "Stop and send",
     mic_sending: "Sending your answer…",
     mic_not_heard: "Couldn't hear that. Try again, or type instead.",
+    rec_status: "Recording",
+    rec_discard: "Discard recording",
+    rec_pause: "Pause recording",
+    rec_resume: "Resume recording",
   },
   zh: {
     loading_session: "正在載入您的課程…",
@@ -282,6 +302,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     mic_stop: "Stop and send",
     mic_sending: "Sending your answer…",
     mic_not_heard: "Couldn't hear that. Try again, or type instead.",
+    rec_status: "Recording",
+    rec_discard: "Discard recording",
+    rec_pause: "Pause recording",
+    rec_resume: "Resume recording",
   },
   // MVP — Cantonese (yue-HK). Rendered in written Traditional Chinese,
   // which serves Cantonese readers for formal UI chrome. FLAG: confirm
@@ -323,6 +347,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     mic_stop: "停止並發送",
     mic_sending: "發送緊你嘅答案…",
     mic_not_heard: "聽唔到。再試一次，或者打字。",
+    rec_status: "錄緊音",
+    rec_discard: "刪除錄音",
+    rec_pause: "暫停錄音",
+    rec_resume: "繼續錄音",
   },
   // MVP — Turkish (tr-TR). Launch-territory language (Enfield/Haringey).
   // FLAG: machine-then-reviewed draft; confirm with a native Turkish
@@ -366,6 +394,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     mic_stop: "Durdur ve gönder",
     mic_sending: "Cevabın gönderiliyor…",
     mic_not_heard: "Duyamadım. Tekrar dene ya da yaz.",
+    rec_status: "Kaydediliyor",
+    rec_discard: "Kaydı sil",
+    rec_pause: "Kaydı duraklat",
+    rec_resume: "Kayda devam et",
   },
   // Phase 5 / BE-F — Bengali. Translations co-authored with a
   // native speaker; chrome strings only (Amber's tutor turns are
@@ -409,6 +441,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     mic_stop: "Stop and send",
     mic_sending: "Sending your answer…",
     mic_not_heard: "Couldn't hear that. Try again, or type instead.",
+    rec_status: "Recording",
+    rec_discard: "Discard recording",
+    rec_pause: "Pause recording",
+    rec_resume: "Resume recording",
   },
   // Phase 5 / BE-F — Urdu. Same translation philosophy as bn; the
   // RTL handling happens at the HTML root (lang/dir) — these strings
@@ -451,6 +487,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     mic_stop: "Stop and send",
     mic_sending: "Sending your answer…",
     mic_not_heard: "Couldn't hear that. Try again, or type instead.",
+    rec_status: "Recording",
+    rec_discard: "Discard recording",
+    rec_pause: "Pause recording",
+    rec_resume: "Resume recording",
   },
 };
 

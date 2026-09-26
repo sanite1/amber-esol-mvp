@@ -306,16 +306,22 @@ herself. This is the vocabulary evidence for her file."
     this is the difference between using the platform and not."
 
     Then, instead of typing the third message, press the microphone
-    button (**Record your answer**) next to the text box and say
-    clearly:
+    button (**Record your answer**) next to the text box. The text box
+    turns into a recording bar, like a voice note on a phone: a red
+    dot and a running clock on the left, a live sound meter that moves
+    as you speak, a red **pause** circle, a **bin** to throw the
+    recording away, and a dark **send** arrow. Say clearly:
 
     > Thursday morning is good for me. What do I need to bring?
 
-    Press the same button again (**Stop and send**). A moment later
-    her sentence appears in the conversation as a spoken answer, with
-    a small microphone mark and a clarity chip under it (Clear, Nearly
-    there, or Let's try that again) plus a one line pronunciation tip.
-    Amber's reply will comment on how it sounded before carrying on.
+    Point at the meter moving while you talk, then press the **send**
+    arrow. (If you fluff a line, press the bin and start again; if you
+    need a breath, press pause, the clock stops, then press it again to
+    carry on.) A moment later her sentence appears in the conversation
+    as a spoken answer, with a small microphone mark and a clarity
+    chip under it (Clear, Nearly there, or Let's try that again) plus
+    a one line pronunciation tip. Amber's reply will comment on how it
+    sounded before carrying on.
 
     **SAY:** "This is the part typing can never do. She spoke, the
     platform listened, and the tutor now knows how she pronounced it,

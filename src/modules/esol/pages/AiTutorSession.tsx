@@ -15,7 +15,6 @@ import {
   Loader2,
   CheckCircle2,
   Mic,
-  Square,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -57,6 +56,12 @@ import {
 import { UnreadMessageModal } from "../components/session/UnreadMessageModal";
 import { SessionCompletePanel } from "../components/session/SessionCompletePanel";
 import { MicroStageProgress } from "../components/session/MicroStageProgress";
+import { RecordingBar } from "../components/session/RecordingBar";
+
+/** Bars in the live level meter of the recording bar. */
+const REC_BAR_COUNT = 40;
+/** Level-meter sample cadence — about 12 bars a second. */
+const REC_SAMPLE_INTERVAL_MS = 80;
 /**
  * The ONE session page — brief Function 7 AI tutor chat.
  *
@@ -219,6 +224,24 @@ export default function AiTutorSession() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingStartMsRef = useRef<number>(0);
+  // Recording bar (voice-note style): running clock, live level meter,
+  // pause/resume and discard. Client-side only — nothing changes on the
+  // wire, the audio still goes to /turn-voice on send.
+  const [recElapsedMs, setRecElapsedMs] = useState(0);
+  const [recPaused, setRecPaused] = useState(false);
+  const [recLevels, setRecLevels] = useState<number[]>(() =>
+    new Array<number>(REC_BAR_COUNT).fill(0),
+  );
+  /** Milliseconds captured in segments that already ended (pauses). */
+  const recAccumulatedMsRef = useRef(0);
+  /** Date.now() when the live segment began; 0 while paused/stopped. */
+  const recSegmentStartRef = useRef(0);
+  /** Set by Discard so the recorder's onstop drops the audio. */
+  const recDiscardRef = useRef(false);
+  const recAudioCtxRef = useRef<AudioContext | null>(null);
+  const recRafRef = useRef<number | null>(null);
+  const recClockRef = useRef<number | null>(null);
+  const recLastSampleRef = useRef(0);
   // F32 — the tutor's standing request to say something aloud. Set from
   // every turn response, cleared when the learner's next turn goes out.
   const [speakingPrompt, setSpeakingPrompt] = useState<SpeakingPrompt | null>(
@@ -670,11 +693,80 @@ export default function AiTutorSession() {
     [sessionId, voiceTurnMutation, applyTurnResponse, bankLang, markActivity],
   );
 
-  const stopRecording = useCallback(() => {
-    mediaRecorderRef.current?.stop();
+  /** Milliseconds of audio captured so far, excluding time spent paused. */
+  const recordedMs = useCallback(
+    () =>
+      recAccumulatedMsRef.current +
+      (recSegmentStartRef.current
+        ? Date.now() - recSegmentStartRef.current
+        : 0),
+    [],
+  );
+
+  /** Tear down the clock, the level meter and the AudioContext. */
+  const clearRecordingMeters = useCallback(() => {
+    if (recRafRef.current !== null) {
+      cancelAnimationFrame(recRafRef.current);
+      recRafRef.current = null;
+    }
+    if (recClockRef.current !== null) {
+      window.clearInterval(recClockRef.current);
+      recClockRef.current = null;
+    }
+    void recAudioCtxRef.current?.close().catch(() => undefined);
+    recAudioCtxRef.current = null;
   }, []);
 
+  // "Send": stop the recorder; its onstop handler ships the audio.
+  const stopRecording = useCallback(() => {
+    const r = mediaRecorderRef.current;
+    if (!r || r.state === "inactive") return;
+    r.stop();
+  }, []);
+
+  // "Discard": stop the recorder but tell onstop to throw the audio away.
+  const discardRecording = useCallback(() => {
+    recDiscardRef.current = true;
+    const r = mediaRecorderRef.current;
+    if (r && r.state !== "inactive") {
+      r.stop();
+    } else {
+      clearRecordingMeters();
+      setMicState("off");
+    }
+  }, [clearRecordingMeters]);
+
+  // Pause freezes the clock and the meter; resume picks both back up.
+  const togglePauseRecording = useCallback(() => {
+    const r = mediaRecorderRef.current;
+    if (!r || r.state === "inactive") return;
+    if (r.state === "recording") {
+      r.pause();
+      recAccumulatedMsRef.current += Date.now() - recSegmentStartRef.current;
+      recSegmentStartRef.current = 0;
+      setRecPaused(true);
+    } else if (r.state === "paused") {
+      r.resume();
+      recSegmentStartRef.current = Date.now();
+      setRecPaused(false);
+    }
+    markActivity();
+  }, [markActivity]);
+
   const startRecording = useCallback(async () => {
+    // Switch to the recording bar IMMEDIATELY so the tap feels instant;
+    // the permission prompt / device open can take a second or two and
+    // a button that "does nothing" gets tapped again. The bar's own
+    // buttons are no-ops until the recorder exists, and we revert on
+    // failure below.
+    recDiscardRef.current = false;
+    recAccumulatedMsRef.current = 0;
+    recSegmentStartRef.current = 0;
+    setRecElapsedMs(0);
+    setRecPaused(false);
+    setRecLevels(new Array<number>(REC_BAR_COUNT).fill(0));
+    setMicState("recording");
+    setShowSpeakHint(false);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       // Prefer WebM/Opus explicitly (what STT expects as WEBM_OPUS).
@@ -694,10 +786,17 @@ export default function AiTutorSession() {
       };
       recorder.onstop = async () => {
         stream.getTracks().forEach((tr) => tr.stop());
-        const audioSeconds =
-          Math.round(
-            Math.max(0, Date.now() - recordingStartMsRef.current) / 100,
-          ) / 10;
+        const audioSeconds = Math.round(recordedMs() / 100) / 10;
+        clearRecordingMeters();
+        recSegmentStartRef.current = 0;
+        setRecPaused(false);
+        if (recDiscardRef.current) {
+          // Learner pressed Discard: no upload, no toast, back to typing.
+          recDiscardRef.current = false;
+          audioChunksRef.current = [];
+          setMicState("off");
+          return;
+        }
         try {
           const blob = new Blob(audioChunksRef.current, { type: mimeType });
           audioChunksRef.current = [];
@@ -721,16 +820,91 @@ export default function AiTutorSession() {
       };
       mediaRecorderRef.current = recorder;
       recordingStartMsRef.current = Date.now();
+      recSegmentStartRef.current = Date.now();
+
+      // Running clock (¼-second granularity is plenty for m:ss).
+      recClockRef.current = window.setInterval(
+        () => setRecElapsedMs(recordedMs()),
+        250,
+      );
+
+      // Live level meter via the Web Audio analyser. Decorative: if the
+      // AudioContext cannot be created (old Safari, blocked autoplay
+      // policy) the recording still works, the bars just stay flat.
+      try {
+        const AC =
+          window.AudioContext ||
+          (window as unknown as { webkitAudioContext?: typeof AudioContext })
+            .webkitAudioContext;
+        if (AC) {
+          const ctx = new AC();
+          // Chrome can hand back a SUSPENDED context once the user
+          // activation that opened the mic has lapsed (we awaited
+          // getUserMedia). A suspended context feeds the analyser
+          // silence, so the meter would sit flat. Resume explicitly.
+          void ctx.resume().catch(() => undefined);
+          const analyser = ctx.createAnalyser();
+          analyser.fftSize = 512;
+          // Source → analyser only; NOT connected to the speakers, so
+          // there is no feedback loop.
+          ctx.createMediaStreamSource(stream).connect(analyser);
+          recAudioCtxRef.current = ctx;
+          const buf = new Uint8Array(analyser.fftSize);
+          const sample = (now: number) => {
+            recRafRef.current = requestAnimationFrame(sample);
+            if (now - recLastSampleRef.current < REC_SAMPLE_INTERVAL_MS) return;
+            recLastSampleRef.current = now;
+            if (recSegmentStartRef.current === 0) return; // paused: freeze
+            analyser.getByteTimeDomainData(buf);
+            let sum = 0;
+            for (let i = 0; i < buf.length; i += 1) {
+              const v = (buf[i] - 128) / 128;
+              sum += v * v;
+            }
+            // Speech RMS is small (quiet ~0.02, normal ~0.05–0.1, loud
+            // ~0.2). A compressive curve keeps quiet speech visibly
+            // moving instead of pinned at the floor, and saturates loud
+            // speech at full height: 0.02→25%, 0.05→44%, 0.1→66%, 0.2→100%.
+            const rms = Math.sqrt(sum / buf.length);
+            const level = Math.min(1, Math.pow(rms * 5, 0.6));
+            setRecLevels((prev) => [...prev.slice(1), level]);
+          };
+          recRafRef.current = requestAnimationFrame(sample);
+        }
+      } catch {
+        /* meter is optional */
+      }
+
       recorder.start();
-      setMicState("recording");
-      setShowSpeakHint(false);
       markActivity(); // speaking into the mic is active practice (F31)
     } catch {
       // Permission denied / no mic — silently fall back to typing.
+      clearRecordingMeters();
       setMicState("off");
       toast.message("Microphone unavailable — you can type instead.");
     }
-  }, [markActivity, submitVoiceTurn, bankLang]);
+  }, [
+    markActivity,
+    submitVoiceTurn,
+    bankLang,
+    recordedMs,
+    clearRecordingMeters,
+  ]);
+
+  // Leaving the page mid-recording: drop the audio and release the mic.
+  useEffect(
+    () => () => {
+      recDiscardRef.current = true;
+      try {
+        const r = mediaRecorderRef.current;
+        if (r && r.state !== "inactive") r.stop();
+      } catch {
+        /* already stopped */
+      }
+      clearRecordingMeters();
+    },
+    [clearRecordingMeters],
+  );
 
   const handleEnterKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -1260,35 +1434,48 @@ export default function AiTutorSession() {
               transition-shadow
             `}
               >
-                <label htmlFor="ai-tutor-input" className="sr-only">
-                  {t(bankLang, "input_label")}
-                </label>
-                <textarea
-                  id="ai-tutor-input"
-                  ref={inputRef}
-                  rows={1}
-                  value={input}
-                  onChange={(e) => {
-                    setInput(e.target.value);
-                    markActivity(); // keystrokes keep the F31 active-practice clock running
-                    if (speakingPromptActive) setShowSpeakHint(true);
-                  }}
-                  // Pointer focus (tap/click) rather than onFocus: the page
-                  // re-focuses this field programmatically after every
-                  // reply, which would fire the hint before the learner
-                  // has chosen to type.
-                  onPointerDown={() => {
-                    if (speakingPromptActive) setShowSpeakHint(true);
-                  }}
-                  onKeyDown={handleEnterKey}
-                  placeholder={t(bankLang, "input_placeholder")}
-                  disabled={sending || ending || stage.kind === "unread"}
-                  aria-describedby={
-                    speakingPromptActive && showSpeakHint
-                      ? "speak-hint-typed"
-                      : undefined
-                  }
-                  className={`
+                {micState === "recording" ? (
+                  <RecordingBar
+                    elapsedMs={recElapsedMs}
+                    levels={recLevels}
+                    paused={recPaused}
+                    sending={false}
+                    bankLang={bankLang}
+                    onDiscard={discardRecording}
+                    onTogglePause={togglePauseRecording}
+                    onSend={stopRecording}
+                  />
+                ) : (
+                  <>
+                    <label htmlFor="ai-tutor-input" className="sr-only">
+                      {t(bankLang, "input_label")}
+                    </label>
+                    <textarea
+                      id="ai-tutor-input"
+                      ref={inputRef}
+                      rows={1}
+                      value={input}
+                      onChange={(e) => {
+                        setInput(e.target.value);
+                        markActivity(); // keystrokes keep the F31 active-practice clock running
+                        if (speakingPromptActive) setShowSpeakHint(true);
+                      }}
+                      // Pointer focus (tap/click) rather than onFocus: the page
+                      // re-focuses this field programmatically after every
+                      // reply, which would fire the hint before the learner
+                      // has chosen to type.
+                      onPointerDown={() => {
+                        if (speakingPromptActive) setShowSpeakHint(true);
+                      }}
+                      onKeyDown={handleEnterKey}
+                      placeholder={t(bankLang, "input_placeholder")}
+                      disabled={sending || ending || stage.kind === "unread"}
+                      aria-describedby={
+                        speakingPromptActive && showSpeakHint
+                          ? "speak-hint-typed"
+                          : undefined
+                      }
+                      className={`
                 w-full resize-none min-h-[56px] max-h-[200px]
                 px-5 pt-4 pb-2
                 bg-transparent border-0
@@ -1297,19 +1484,19 @@ export default function AiTutorSession() {
                 disabled:opacity-50 disabled:cursor-not-allowed
                 ${FONT_SIZE_CLASSES[fontSize]}
               `}
-                />
-                {/* F32 — one-line, non-blocking hint once the learner
+                    />
+                    {/* F32 — one-line, non-blocking hint once the learner
                     starts typing an answer the tutor asked to hear. */}
-                {speakingPromptActive && showSpeakHint && (
-                  <p
-                    id="speak-hint-typed"
-                    className="px-5 pb-1 text-xs text-[#0B2343]/60 leading-snug"
-                  >
-                    {t(bankLang, "speak_hint_typed")}
-                  </p>
-                )}
+                    {speakingPromptActive && showSpeakHint && (
+                      <p
+                        id="speak-hint-typed"
+                        className="px-5 pb-1 text-xs text-[#0B2343]/60 leading-snug"
+                      >
+                        {t(bankLang, "speak_hint_typed")}
+                      </p>
+                    )}
 
-                {/* Bottom row inside the card: send button on the right.
+                    {/* Bottom row inside the card: send button on the right.
                 The L1 "Show in my language" toggle was removed in this
                 pass — the backend does NOT translate AI tutor replies
                 today. There's a teacher-only translation endpoint
@@ -1319,78 +1506,71 @@ export default function AiTutorSession() {
                 POST /esol/session/translate-turn), re-introduce the
                 toggle here and wire it to the new endpoint.
                 See: backend follow-up BE-9 in docs/FRONTEND_USE_CASES.md */}
-                <div className="flex items-center justify-between px-2 pb-1.5">
-                  {/* F28/F32 STT — opt-in mic. Default off; the learner
+                    <div className="flex items-center justify-between px-2 pb-1.5">
+                      {/* F28/F32 STT — opt-in mic. Default off; the learner
                       taps to record, taps again to stop AND send (the
                       audio goes straight to /turn-voice). Tap-to-type
                       (the textarea above) is always available, so this
                       never gates input. Only rendered when the backend
                       reports STT is enabled. 44px tap target. */}
-                  {voiceCaps.stt && !ending && stage.kind !== "unread" ? (
-                    <button
-                      type="button"
-                      onClick={
-                        micState === "recording"
-                          ? stopRecording
-                          : startRecording
-                      }
-                      disabled={micState === "sending" || sending}
-                      aria-label={
-                        micState === "recording"
-                          ? t(bankLang, "mic_stop")
-                          : micState === "sending"
-                            ? t(bankLang, "mic_sending")
-                            : t(bankLang, "mic_record")
-                      }
-                      aria-pressed={micState === "recording"}
-                      aria-describedby={
-                        speakingPromptActive ? "speak-prompt-chip" : undefined
-                      }
-                      className={`h-11 w-11 inline-flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-[#ff7c22]/40 transition-colors ${
-                        micState === "recording"
-                          ? "bg-red-500 text-white animate-pulse"
-                          : speakingPromptActive
-                            ? "text-[#ff7c22] bg-[#ff7c22]/10 ring-2 ring-[#ff7c22] ring-offset-1 ring-offset-white hover:bg-[#ff7c22]/15"
-                            : "text-[#0B2343]/50 hover:text-[#ff7c22] hover:bg-[#ff7c22]/10"
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      {micState === "sending" ? (
-                        <Loader2
-                          size={18}
-                          className="animate-spin"
-                          aria-hidden="true"
-                        />
-                      ) : micState === "recording" ? (
-                        <Square size={16} aria-hidden="true" />
+                      {voiceCaps.stt && !ending && stage.kind !== "unread" ? (
+                        <button
+                          type="button"
+                          onClick={startRecording}
+                          disabled={micState === "sending" || sending}
+                          aria-label={
+                            micState === "sending"
+                              ? t(bankLang, "mic_sending")
+                              : t(bankLang, "mic_record")
+                          }
+                          aria-describedby={
+                            speakingPromptActive
+                              ? "speak-prompt-chip"
+                              : undefined
+                          }
+                          className={`h-11 w-11 inline-flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-[#ff7c22]/40 transition-colors ${
+                            speakingPromptActive
+                              ? "text-[#ff7c22] bg-[#ff7c22]/10 ring-2 ring-[#ff7c22] ring-offset-1 ring-offset-white hover:bg-[#ff7c22]/15"
+                              : "text-[#0B2343]/50 hover:text-[#ff7c22] hover:bg-[#ff7c22]/10"
+                          } disabled:opacity-50 disabled:cursor-not-allowed`}
+                        >
+                          {micState === "sending" ? (
+                            <Loader2
+                              size={18}
+                              className="animate-spin"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <Mic size={18} aria-hidden="true" />
+                          )}
+                        </button>
                       ) : (
-                        <Mic size={18} aria-hidden="true" />
+                        <span aria-hidden="true" />
                       )}
-                    </button>
-                  ) : (
-                    <span aria-hidden="true" />
-                  )}
-                  <button
-                    type="submit"
-                    disabled={
-                      sending ||
-                      ending ||
-                      input.trim() === "" ||
-                      stage.kind === "unread"
-                    }
-                    aria-label={t(bankLang, "send")}
-                    className="h-11 w-11 inline-flex items-center justify-center bg-[#ff7c22] text-white rounded-full hover:bg-[#e56a10] focus:outline-none focus:ring-2 focus:ring-[#ff7c22]/40 disabled:bg-[#0B2343]/15 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {sending ? (
-                      <Loader2
-                        size={18}
-                        className="animate-spin"
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      <Send size={18} aria-hidden="true" />
-                    )}
-                  </button>
-                </div>
+                      <button
+                        type="submit"
+                        disabled={
+                          sending ||
+                          ending ||
+                          input.trim() === "" ||
+                          stage.kind === "unread"
+                        }
+                        aria-label={t(bankLang, "send")}
+                        className="h-11 w-11 inline-flex items-center justify-center bg-[#ff7c22] text-white rounded-full hover:bg-[#e56a10] focus:outline-none focus:ring-2 focus:ring-[#ff7c22]/40 disabled:bg-[#0B2343]/15 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {sending ? (
+                          <Loader2
+                            size={18}
+                            className="animate-spin"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <Send size={18} aria-hidden="true" />
+                        )}
+                      </button>
+                    </div>
+                  </>
+                )}
               </form>
             </>
           )}
