@@ -11,7 +11,7 @@
  * Output: docs/manual/exports/<md-basename>.pdf
  */
 
-import { readFileSync, writeFileSync, mkdirSync } from "fs";
+import { readFileSync, writeFileSync, mkdirSync, rmSync } from "fs";
 import { dirname, join, resolve, basename } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import { execFileSync } from "child_process";
@@ -116,17 +116,23 @@ const tmpHtml = join(outDir, `.${basename(mdPath, ".md")}.tmp.html`);
 writeFileSync(tmpHtml, html);
 
 // ── html → pdf via headless chrome ────────────────────────────────────
-execFileSync(
-  CHROME,
-  [
-    "--headless",
-    "--disable-gpu",
-    "--no-sandbox",
-    "--no-pdf-header-footer",
-    `--print-to-pdf=${outPdf}`,
-    pathToFileURL(tmpHtml).href,
-  ],
-  { stdio: "pipe" },
-);
+try {
+  execFileSync(
+    CHROME,
+    [
+      "--headless",
+      "--disable-gpu",
+      "--no-sandbox",
+      "--no-pdf-header-footer",
+      `--print-to-pdf=${outPdf}`,
+      pathToFileURL(tmpHtml).href,
+    ],
+    { stdio: "pipe" },
+  );
+} finally {
+  // Scratch file only; leaving it behind trips the repo's prettier
+  // check at commit time.
+  rmSync(tmpHtml, { force: true });
+}
 
 console.log(`✓ PDF written: ${outPdf}`);
