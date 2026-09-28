@@ -576,6 +576,8 @@ export type SubmitTurnResponse = {
   pronunciation?: PronunciationAssessment | null;
   /** Set when the tutor asks the learner to say something aloud. */
   speaking_prompt?: SpeakingPrompt | null;
+  /** F33 — reply split into language runs for read-aloud. */
+  reply_segments?: ReplySegment[] | null;
   /** Final turn score (content blended with pronunciation on voice turns). */
   turn_score?: number;
 };
@@ -638,17 +640,53 @@ export const fetchVoiceCapabilities = async (): Promise<VoiceCapabilities> => {
 export const requestTts = async (
   text: string,
   language?: string,
+  rate?: number,
 ): Promise<string | null> => {
   try {
     const res = await api.post<
       ApiResponse<{ available: boolean; audio_base64?: string }>
-    >("/esol/session/tts", { text, language });
+    >("/esol/session/tts", { text, language, rate });
     return res.data.available && res.data.audio_base64
       ? res.data.audio_base64
       : null;
   } catch {
     return null;
   }
+};
+
+/** F33 — one run of a mixed-language reply. "l1" = the learner's own
+ *  first language (resolved server-side), "en" = English. */
+export type ReplySegment = { lang: "en" | "l1"; text: string };
+
+export type TtsSegmentAudio = ReplySegment & { audio_base64: string | null };
+
+/**
+ * Synthesise a mixed-language reply run by run, each in its own voice.
+ * Returns null when voice is unavailable (caller shows text only).
+ */
+export const requestTtsSegments = async (
+  segments: ReplySegment[],
+  rate?: number,
+): Promise<TtsSegmentAudio[] | null> => {
+  try {
+    const res = await api.post<
+      ApiResponse<{ available: boolean; segments?: TtsSegmentAudio[] }>
+    >("/esol/session/tts", { segments, rate });
+    return res.data.available && res.data.segments?.length
+      ? res.data.segments
+      : null;
+  } catch {
+    return null;
+  }
+};
+
+/** Slower speech for lower levels: E1/E2 0.85, E3 0.92, L1+ 1.0.
+ *  Mirrors ttsRateForLevel on the backend. */
+export const ttsRateForLevel = (level: string | null | undefined): number => {
+  const l = (level ?? "").toLowerCase();
+  if (l === "e1" || l === "e2") return 0.85;
+  if (l === "e3") return 0.92;
+  return 1.0;
 };
 
 /** Transcribe an utterance → text, or null (caller falls back to typing). */

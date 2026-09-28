@@ -88,7 +88,11 @@ type CopyKey =
   | "rec_status"
   | "rec_discard"
   | "rec_pause"
-  | "rec_resume";
+  | "rec_resume"
+  | "tts_listen"
+  | "tts_stop"
+  | "read_aloud_on"
+  | "read_aloud_off";
 
 /**
  * Compact local i18n for the chat chrome. Wizard `translations.ts`
@@ -138,6 +142,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     rec_discard: "Discard recording",
     rec_pause: "Pause recording",
     rec_resume: "Resume recording",
+    tts_listen: "Listen",
+    tts_stop: "Stop",
+    read_aloud_on: "Read replies aloud: on",
+    read_aloud_off: "Read replies aloud: off",
   },
   ar: {
     loading_session: "جارٍ تحميل جلستك…",
@@ -179,6 +187,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     rec_discard: "حذف التسجيل",
     rec_pause: "إيقاف التسجيل مؤقتاً",
     rec_resume: "متابعة التسجيل",
+    tts_listen: "استمع",
+    tts_stop: "إيقاف",
+    read_aloud_on: "قراءة الردود بصوت عالٍ: مفعّل",
+    read_aloud_off: "قراءة الردود بصوت عالٍ: متوقف",
   },
   so: {
     loading_session: "Waxaa la soo dejinayaa kalfadhigaaga…",
@@ -222,6 +234,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     rec_discard: "Discard recording",
     rec_pause: "Pause recording",
     rec_resume: "Resume recording",
+    tts_listen: "Listen",
+    tts_stop: "Stop",
+    read_aloud_on: "Read replies aloud: on",
+    read_aloud_off: "Read replies aloud: off",
   },
   fa: {
     loading_session: "در حال بارگذاری جلسه شما…",
@@ -265,6 +281,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     rec_discard: "Discard recording",
     rec_pause: "Pause recording",
     rec_resume: "Resume recording",
+    tts_listen: "Listen",
+    tts_stop: "Stop",
+    read_aloud_on: "Read replies aloud: on",
+    read_aloud_off: "Read replies aloud: off",
   },
   zh: {
     loading_session: "正在載入您的課程…",
@@ -306,6 +326,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     rec_discard: "Discard recording",
     rec_pause: "Pause recording",
     rec_resume: "Resume recording",
+    tts_listen: "Listen",
+    tts_stop: "Stop",
+    read_aloud_on: "Read replies aloud: on",
+    read_aloud_off: "Read replies aloud: off",
   },
   // MVP — Cantonese (yue-HK). Rendered in written Traditional Chinese,
   // which serves Cantonese readers for formal UI chrome. FLAG: confirm
@@ -351,6 +375,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     rec_discard: "刪除錄音",
     rec_pause: "暫停錄音",
     rec_resume: "繼續錄音",
+    tts_listen: "聽",
+    tts_stop: "停止",
+    read_aloud_on: "朗讀回覆：開",
+    read_aloud_off: "朗讀回覆：關",
   },
   // MVP — Turkish (tr-TR). Launch-territory language (Enfield/Haringey).
   // FLAG: machine-then-reviewed draft; confirm with a native Turkish
@@ -398,6 +426,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     rec_discard: "Kaydı sil",
     rec_pause: "Kaydı duraklat",
     rec_resume: "Kayda devam et",
+    tts_listen: "Dinle",
+    tts_stop: "Durdur",
+    read_aloud_on: "Cevapları sesli oku: açık",
+    read_aloud_off: "Cevapları sesli oku: kapalı",
   },
   // Phase 5 / BE-F — Bengali. Translations co-authored with a
   // native speaker; chrome strings only (Amber's tutor turns are
@@ -445,6 +477,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     rec_discard: "Discard recording",
     rec_pause: "Pause recording",
     rec_resume: "Resume recording",
+    tts_listen: "Listen",
+    tts_stop: "Stop",
+    read_aloud_on: "Read replies aloud: on",
+    read_aloud_off: "Read replies aloud: off",
   },
   // Phase 5 / BE-F — Urdu. Same translation philosophy as bn; the
   // RTL handling happens at the HTML root (lang/dir) — these strings
@@ -491,6 +527,10 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     rec_discard: "Discard recording",
     rec_pause: "Pause recording",
     rec_resume: "Resume recording",
+    tts_listen: "Listen",
+    tts_stop: "Stop",
+    read_aloud_on: "Read replies aloud: on",
+    read_aloud_off: "Read replies aloud: off",
   },
 };
 

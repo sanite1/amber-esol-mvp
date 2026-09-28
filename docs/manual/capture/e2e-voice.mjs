@@ -143,6 +143,72 @@ const main = async () => {
   );
   console.log("typed turn: reply received");
 
+  // F33 read-aloud: switch in the header, per-message Listen / Stop,
+  // segment highlight. Mock TTS returns a 0.4 s silent clip, so the
+  // playing state is brief; watch the network and the aria state.
+  const ttsReqs = [];
+  page.on("response", (r) => {
+    if (r.url().includes("/esol/session/tts"))
+      ttsReqs.push({ status: r.status(), method: r.request().method() });
+  });
+  const ttsOn = (caps.data ?? caps).tts;
+  console.log("tts capability:", ttsOn);
+  if (ttsOn) {
+    const switchLabelBefore = await page.$eval(
+      'button[aria-label^="Read replies aloud"]',
+      (b) =>
+        `${b.getAttribute("aria-label")} / pressed=${b.getAttribute("aria-pressed")}`,
+    );
+    await clickByAria(page, "Read replies aloud: off").catch(async () => {
+      // already on from a previous run's localStorage
+      await clickByAria(page, "Read replies aloud: on");
+      await clickByAria(page, "Read replies aloud: off");
+    });
+    const switchLabelAfter = await page.$eval(
+      'button[aria-label^="Read replies aloud"]',
+      (b) =>
+        `${b.getAttribute("aria-label")} / pressed=${b.getAttribute("aria-pressed")}`,
+    );
+    console.log(
+      `read-aloud switch: ${switchLabelBefore} -> ${switchLabelAfter}`,
+    );
+    const stored = await page.evaluate(() =>
+      localStorage.getItem("esol_read_aloud"),
+    );
+    console.log("read-aloud persisted:", stored);
+
+    // Listen on the last Amber bubble; expect a Stop state + a TTS request.
+    const listenBtns = await page.$$('button[aria-label="Listen"]');
+    if (!listenBtns.length) throw new Error("no Listen button rendered");
+    await listenBtns[listenBtns.length - 1].click();
+    const sawStop = await page
+      .waitForSelector('button[aria-label="Stop"]', { timeout: 15000 })
+      .then(() => true)
+      .catch(() => false);
+    const highlighted = sawStop
+      ? await page.evaluate(
+          () =>
+            !!document.querySelector('main ol span[class*="bg-[#ff7c22]/15"]'),
+        )
+      : false;
+    await page.screenshot({
+      path: join(OUT, "28-read-aloud.png"),
+      fullPage: false,
+    });
+    console.log("📸 learner/28-read-aloud.png");
+    await page
+      .waitForFunction(
+        () => !document.querySelector('button[aria-label="Stop"]'),
+        { timeout: 20000 },
+      )
+      .catch(() => {});
+    console.log(
+      `listen: stop state shown=${sawStop} · segment highlighted=${highlighted} · tts requests=${JSON.stringify(ttsReqs)}`,
+    );
+    if (!sawStop || !ttsReqs.some((r) => r.status === 200))
+      throw new Error("read-aloud Listen did not play");
+  }
+
   // Turn 2 spoken: record with the fake mic. Exercise the recording bar
   // (clock + level meter + pause/resume) and capture it at both widths
   // before sending.

@@ -285,6 +285,24 @@ The recording bar works the same on a phone:
 
 ![Recording bar on a phone](images/learner/27-recording-bar-mobile.png)
 
+### Hearing Amber instead of reading
+
+If your provider has voice switched on, you never have to read Amber's
+messages if you would rather listen.
+
+- Press **Listen** under any Amber message to hear it. The button turns
+  into **Stop** while it plays, and the words being spoken are lightly
+  highlighted so you can follow along. Press **Stop** to end it early.
+- Press the **speaker** button in the header (next to the text size
+  button) to switch on **Read replies aloud**. From then on, every new
+  reply from Amber is played as soon as it arrives. Press it again to
+  switch it off. Amber remembers your choice on this device.
+- When Amber mixes English and your own language in one message, each
+  part is spoken in the right voice.
+- At Entry 1 to Entry 3, Amber speaks a little more slowly.
+
+![Listening to Amber with read aloud switched on](images/learner/28-read-aloud.png)
+
 ---
 
 ## 5. My Goals

@@ -15,6 +15,8 @@ import {
   Loader2,
   CheckCircle2,
   Mic,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -27,6 +29,9 @@ import {
   sessionCapMinutesForLevel,
   fetchVoiceCapabilities,
   requestTts,
+  requestTtsSegments,
+  ttsRateForLevel,
+  type ReplySegment,
   type VoiceCapabilities,
   type SubmitTurnResponse,
   type SpeakingPrompt,
@@ -57,6 +62,7 @@ import { UnreadMessageModal } from "../components/session/UnreadMessageModal";
 import { SessionCompletePanel } from "../components/session/SessionCompletePanel";
 import { MicroStageProgress } from "../components/session/MicroStageProgress";
 import { RecordingBar } from "../components/session/RecordingBar";
+import { SILENT_MP3_DATA_URI } from "../components/session/silentMp3";
 
 /** Bars in the live level meter of the recording bar. */
 const REC_BAR_COUNT = 40;
@@ -130,6 +136,8 @@ interface ResumedSession {
     // F32 — spoken turns flow through on the turn subdoc.
     input_mode?: "text" | "voice";
     pronunciation?: PronunciationAssessment | null;
+    // F33 — language runs for read-aloud.
+    reply_segments?: ReplySegment[] | null;
   }>;
   completedAt?: string | null;
   safeguardingFlagged?: boolean;
@@ -211,10 +219,34 @@ export default function AiTutorSession() {
     stt: false,
     location: "",
   });
+  useEffect(() => {
+    voiceTtsRef.current = voiceCaps.tts;
+  }, [voiceCaps.tts]);
   // Per-message TTS playback state (which Amber bubble is loading/playing).
   const [ttsMsgId, setTtsMsgId] = useState<string | null>(null);
   const [ttsLoadingId, setTtsLoadingId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  // F33 read-aloud. `readAloud` = auto-play every new Amber reply; the
+  // per-message Listen button works regardless. Persisted per browser.
+  const [readAloud, setReadAloud] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem("esol_read_aloud") === "1";
+    } catch {
+      return false;
+    }
+  });
+  const readAloudRef = useRef(readAloud);
+  useEffect(() => {
+    readAloudRef.current = readAloud;
+  }, [readAloud]);
+  const voiceTtsRef = useRef(false);
+  /** Index of the reply segment currently being spoken (for highlight). */
+  const [ttsSegIdx, setTtsSegIdx] = useState<number | null>(null);
+  /** Bumped on every play/stop so a stale playback loop exits quietly. */
+  const ttsTokenRef = useRef(0);
+  const playTtsRef = useRef<
+    ((id: string, text: string, segments: ReplySegment[] | null) => void) | null
+  >(null);
   // STT mic: opt-in, default OFF. "off" until the learner taps record.
   // F32: "sending" = audio is on its way to /turn-voice (STT +
   // pronunciation + the tutor's reply all happen server-side).
@@ -268,26 +300,98 @@ export default function AiTutorSession() {
   // Play Amber's line aloud. Best-effort: a null result (voice off /
   // synth failed) just clears the loading state — the text is still on
   // screen.
+  /** Stop any Amber audio currently playing. */
+  const stopTts = useCallback(() => {
+    ttsTokenRef.current += 1;
+    audioRef.current?.pause();
+    setTtsMsgId(null);
+    setTtsSegIdx(null);
+  }, []);
+
+  /**
+   * Play one Amber reply aloud. Mixed-language replies arrive as runs
+   * ("en" / "l1"); each run is voiced by the matching voice and
+   * highlighted while it plays. Pressing again on the message that is
+   * playing stops it. Fail safe: any failure just leaves the text.
+   */
   const playTts = useCallback(
-    async (id: string, text: string) => {
+    async (id: string, text: string, segments: ReplySegment[] | null) => {
       markActivity(); // listening to a line is active practice (F31 cap clock)
+      if (ttsMsgId === id) {
+        stopTts();
+        return;
+      }
+      stopTts();
+      const token = ttsTokenRef.current;
       setTtsLoadingId(id);
       try {
-        audioRef.current?.pause();
-        const b64 = await requestTts(text, "english");
-        if (!b64) return;
-        const audio = new Audio(`data:audio/mpeg;base64,${b64}`);
+        const rate = ttsRateForLevel(getDecodedJwt()?.esolLevel);
+        const clips: Array<{ audio: string | null; segIdx: number | null }> =
+          [];
+        if (segments && segments.length > 0) {
+          const voiced = await requestTtsSegments(segments, rate);
+          if (!voiced) return;
+          voiced.forEach((v, i) =>
+            clips.push({ audio: v.audio_base64, segIdx: i }),
+          );
+        } else {
+          const b64 = await requestTts(text, "english", rate);
+          if (!b64) return;
+          clips.push({ audio: b64, segIdx: null });
+        }
+        if (token !== ttsTokenRef.current) return; // stopped meanwhile
+        // One shared player: iOS only lets audio start from a tap, and
+        // reusing the element that the read-aloud switch unlocked keeps
+        // later replies playing too.
+        const audio = audioRef.current ?? new Audio();
         audioRef.current = audio;
         setTtsMsgId(id);
-        audio.onended = () => setTtsMsgId(null);
-        audio.onerror = () => setTtsMsgId(null);
-        await audio.play().catch(() => setTtsMsgId(null));
-      } finally {
         setTtsLoadingId(null);
+        for (const clip of clips) {
+          if (token !== ttsTokenRef.current) return;
+          if (!clip.audio) continue; // no voice for this language yet
+          setTtsSegIdx(clip.segIdx);
+          await new Promise<void>((resolve) => {
+            audio.onended = () => resolve();
+            audio.onerror = () => resolve();
+            audio.src = `data:audio/mpeg;base64,${clip.audio}`;
+            audio.play().catch(() => resolve());
+          });
+        }
+        if (token === ttsTokenRef.current) {
+          setTtsMsgId(null);
+          setTtsSegIdx(null);
+        }
+      } finally {
+        setTtsLoadingId((cur) => (cur === id ? null : cur));
       }
     },
-    [markActivity],
+    [markActivity, stopTts, ttsMsgId],
   );
+  useEffect(() => {
+    playTtsRef.current = playTts;
+  }, [playTts]);
+
+  /** Read-aloud switch. Unlocks the shared player inside the tap. */
+  const toggleReadAloud = useCallback(() => {
+    setReadAloud((on) => {
+      const next = !on;
+      try {
+        localStorage.setItem("esol_read_aloud", next ? "1" : "0");
+      } catch {
+        /* private mode etc. */
+      }
+      if (next) {
+        const audio = audioRef.current ?? new Audio();
+        audioRef.current = audio;
+        audio.src = SILENT_MP3_DATA_URI;
+        audio.play().catch(() => undefined);
+      } else {
+        stopTts();
+      }
+      return next;
+    });
+  }, [stopTts]);
 
   // STT mic flow (start/stop recording + the voice turn) lives below the
   // turn-submission block — it shares applyTurnResponse with typing.
@@ -406,6 +510,7 @@ export default function AiTutorSession() {
                 id: `amber-${i}`,
                 role: "amber",
                 text: turn.deepSeekResponse,
+                segments: turn.reply_segments ?? null,
                 safeguarding:
                   typeof turn.safeguardingScore === "number" &&
                   turn.safeguardingScore >= 0.7,
@@ -511,7 +616,16 @@ export default function AiTutorSession() {
         text: data.reply,
         safeguarding: !!data.safeguarding_served,
         timestamp: new Date(),
+        segments: data.reply_segments ?? null,
       };
+      // F33 — read the reply out as it lands when the switch is on.
+      if (readAloudRef.current && voiceTtsRef.current) {
+        window.setTimeout(
+          () =>
+            playTtsRef.current?.(reply.id, reply.text, reply.segments ?? null),
+          0,
+        );
+      }
       setMessages((m) => {
         const idx = m.findIndex((x) => x.id === learnerMessage.id);
         const base =
@@ -1158,6 +1272,30 @@ export default function AiTutorSession() {
             />
           </button>
 
+          {/* F33 — read-aloud switch. Only when the backend has TTS. */}
+          {voiceCaps.tts && (
+            <button
+              type="button"
+              onClick={toggleReadAloud}
+              aria-pressed={readAloud}
+              aria-label={t(
+                bankLang,
+                readAloud ? "read_aloud_on" : "read_aloud_off",
+              )}
+              className={`min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7c22]/40 transition-colors ${
+                readAloud
+                  ? "text-[#ff7c22] bg-[#ff7c22]/10 hover:bg-[#ff7c22]/15"
+                  : "text-[#0B2343]/60 hover:text-[#0B2343] hover:bg-[#0B2343]/[0.04]"
+              }`}
+            >
+              {readAloud ? (
+                <Volume2 size={18} aria-hidden="true" />
+              ) : (
+                <VolumeX size={18} aria-hidden="true" />
+              )}
+            </button>
+          )}
+
           <button
             type="button"
             onClick={requestExit}
@@ -1197,9 +1335,10 @@ export default function AiTutorSession() {
                 fontSizeClass={FONT_SIZE_CLASSES[fontSize]}
                 onListen={
                   voiceCaps.tts && m.role === "amber"
-                    ? () => playTts(m.id, m.text)
+                    ? () => playTts(m.id, m.text, m.segments ?? null)
                     : undefined
                 }
+                activeSegment={ttsMsgId === m.id ? ttsSegIdx : null}
                 listenState={
                   ttsLoadingId === m.id
                     ? "loading"

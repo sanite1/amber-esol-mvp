@@ -298,12 +298,18 @@ herself. This is the vocabulary evidence for her file."
 
 11. **Voice moment (only if you enabled voice before the call).**
     When Amber's second reply arrives, press the small speaker
-    **Listen** button under it and let it play out loud.
+    **Listen** button under it and let it play out loud. Point at the
+    highlight moving through the words. Then press the speaker button
+    in the header so **Read replies aloud** is on, and send one more
+    short line so the next reply plays by itself.
 
     **SAY:** "Every line the tutor says can be heard as well as read,
-    in a natural voice matched to the learner's language. For a
-    learner with low literacy in English, or in their own script,
-    this is the difference between using the platform and not."
+    in a natural voice matched to the learner's language. English and
+    the learner's own language are each spoken in their own voice, and
+    lower levels hear it a little slower. With the switch on, the
+    learner does not need to read at all. For a learner with low
+    literacy in English, or in their own script, this is the
+    difference between using the platform and not."
 
     Then, instead of typing the third message, press the microphone
     button (**Record your answer**) next to the text box. The text box

@@ -3,9 +3,9 @@
  * from AiTutorSession.tsx. Exported for axe scanning + reuse.
  */
 
-import { Sparkles, Volume2, Loader2, Mic } from "lucide-react";
+import { Sparkles, Volume2, Loader2, Mic, Square } from "lucide-react";
 import { t, type BankLang } from "./copy";
-import type { PronunciationAssessment } from "../../api/esolApi";
+import type { PronunciationAssessment, ReplySegment } from "../../api/esolApi";
 
 export type ChatMessage = {
   id: string;
@@ -17,6 +17,9 @@ export type ChatMessage = {
   spoken?: boolean;
   /** F32 — pronunciation assessment for a spoken turn (AI signal). */
   pronunciation?: PronunciationAssessment | null;
+  /** F33 — Amber reply split into language runs ("en" / "l1") so
+   *  read-aloud can voice each run and highlight it as it plays. */
+  segments?: ReplySegment[] | null;
 };
 
 /** Clarity bucket → copy key + colour classes. Colour never carries the
@@ -44,6 +47,7 @@ export function MessageBubble({
   bankLang = "en",
   fontSizeClass,
   onListen,
+  activeSegment = null,
   listenState,
 }: {
   message: ChatMessage;
@@ -52,6 +56,8 @@ export function MessageBubble({
   /** F28 — when provided (TTS available), Amber bubbles show a Listen
    *  button that plays the line aloud. */
   onListen?: () => void;
+  /** F33 — index of the segment currently being spoken (highlighted). */
+  activeSegment?: number | null;
   /** Playback state for THIS bubble: idle | loading | playing. */
   listenState?: "idle" | "loading" | "playing";
 }) {
@@ -142,8 +148,26 @@ export function MessageBubble({
             }
           `}
         >
-          {/* Preserves newlines from Amber's multi-line replies. */}
-          <p className="whitespace-pre-wrap break-words">{message.text}</p>
+          {/* Preserves newlines from Amber's multi-line replies. When the
+              reply arrived as language runs, render each run in its own
+              span so read-aloud can highlight the one being spoken. */}
+          <p className="whitespace-pre-wrap break-words">
+            {message.segments && message.segments.length > 0
+              ? message.segments.map((seg, i) => (
+                  <span
+                    key={i}
+                    lang={seg.lang === "en" ? "en" : undefined}
+                    className={
+                      activeSegment === i
+                        ? "bg-[#ff7c22]/15 rounded-sm transition-colors"
+                        : "transition-colors"
+                    }
+                  >
+                    {seg.text}
+                  </span>
+                ))
+              : message.text}
+          </p>
         </div>
         {/* F28 — Listen: play Amber's line aloud (TTS). Only rendered
             when voice is available (onListen supplied). */}
@@ -153,16 +177,22 @@ export function MessageBubble({
             onClick={onListen}
             disabled={listenState === "loading"}
             aria-label={
-              listenState === "playing" ? "Playing aloud" : "Listen to this"
+              listenState === "playing"
+                ? t(bankLang, "tts_stop")
+                : t(bankLang, "tts_listen")
             }
             className="mt-1.5 inline-flex items-center gap-1.5 min-h-[32px] px-2 -ms-2 text-[11px] font-semibold text-[#0B2343]/45 hover:text-[#ff7c22] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7c22]/40 transition-colors disabled:opacity-60"
           >
             {listenState === "loading" ? (
               <Loader2 size={13} className="animate-spin" aria-hidden="true" />
+            ) : listenState === "playing" ? (
+              <Square size={11} aria-hidden="true" />
             ) : (
               <Volume2 size={13} aria-hidden="true" />
             )}
-            Listen
+            {listenState === "playing"
+              ? t(bankLang, "tts_stop")
+              : t(bankLang, "tts_listen")}
           </button>
         )}
         {/* L1 translation hint block removed — no backend translation
