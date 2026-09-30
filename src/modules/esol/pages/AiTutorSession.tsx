@@ -551,6 +551,12 @@ export default function AiTutorSession() {
         onSuccess: (res) => {
           if (cancelled) return; // unmounted before response — drop
           const data = res.data;
+          if (data.resumed) {
+            // The server returned the learner's live session on this
+            // scenario; the resume view rebuilds its transcript.
+            navigate(`/esol/sessions/${data.session_id}`, { replace: true });
+            return;
+          }
           setSessionId(data.session_id);
           setScenarioTitle(data.scenario_title);
           // Seed the chat with the opening message (Amber's first bubble).

@@ -270,6 +270,8 @@ export interface LoginResponse {
 
 export interface RefreshResponse {
   accessToken: string;
+  /** Rotated on every refresh so the sign in window slides (Silk brief section 4). */
+  refreshToken?: string;
 }
 
 export interface RegisterResponse {

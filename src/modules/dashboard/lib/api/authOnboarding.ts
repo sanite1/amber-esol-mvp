@@ -264,7 +264,7 @@ export const refresh = async (): Promise<ApiResponse<RefreshResponse>> => {
   const res = await api.post<ApiResponse<RefreshResponse>>("/users/refresh", {
     token: getRefreshToken(),
   });
-  persistAuth(res.data.accessToken);
+  persistAuth(res.data.accessToken, res.data.refreshToken);
   return res;
 };
 

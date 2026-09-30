@@ -127,6 +127,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       window.removeEventListener("auth:unauthorized", handleUnauthorized);
   }, [logout]);
 
+  // Silk brief section 4: refresh the access token a few minutes before
+  // it expires while the tab is open, so a learner mid session is never
+  // logged out by a 401. Re-armed whenever auth state changes.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const token = getToken();
+    const decoded = getDecodedJwt(token || "");
+    if (!decoded?.exp) return;
+    const msUntilRefresh = Math.max(
+      5_000,
+      decoded.exp * 1000 - Date.now() - 5 * 60_000,
+    );
+    const timer = window.setTimeout(() => {
+      refreshAccessToken();
+    }, msUntilRefresh);
+    return () => window.clearTimeout(timer);
+  }, [isAuthenticated, user, refreshAccessToken]);
+
   // Check token validity on mount
   useEffect(() => {
     const initializeAuth = async () => {

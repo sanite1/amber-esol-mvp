@@ -403,7 +403,10 @@ export const SCENARIO_CATALOGUE: Scenario[] = [
   },
   {
     id: "s3_housing_rights",
-    title: "Talking to your landlord about repairs",
+    // Must match backend/src/data/scenarios/s3_housing_rights.json title.en:
+    // the session header shows the server title, so a different card
+    // title reads as "the card opened a different scenario".
+    title: "Your housing rights",
     summary:
       "Report a problem to your landlord and ask for a repair. Polite escalation if it isn't fixed.",
     // Range MUST match backend/src/data/scenarios/s3_housing_rights.json
@@ -528,6 +531,11 @@ export type TeacherMessage = {
 
 export type StartSessionResponse = {
   session_id: string;
+  /** True when the server handed back the learner's in progress session
+   *  on this scenario instead of creating a new one (Silk brief section 4).
+   *  The client then opens the resume view, which rebuilds the transcript. */
+  resumed?: boolean;
+  turn_count?: number;
   opening_message: string;
   scenario_title: string;
   unread_messages: TeacherMessage[];
