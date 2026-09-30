@@ -157,6 +157,7 @@ export type PlacementOption = {
   text_so: string;
   text_fa: string;
   text_zh: string;
+  text_tr?: string;
 };
 
 export type PlacementQuestion = {
@@ -168,6 +169,7 @@ export type PlacementQuestion = {
   question_so: string;
   question_fa: string;
   question_zh: string;
+  question_tr?: string;
   options: PlacementOption[];
 };
 
@@ -222,7 +224,12 @@ export const useSubmitPlacement = () =>
     { answers: { question_id: string; answer: string }[] }
   >({
     mutationFn: (body) =>
-      api.post<ApiResponse<PlacementResult>>("/esol/placement/submit", body),
+      // Scoring is one Gemini call with a retry; give it more room than
+      // the 30 s default so a slow score is not shown as a connection
+      // error while the result lands anyway (Silk brief section 2).
+      api.post<ApiResponse<PlacementResult>>("/esol/placement/submit", body, {
+        timeout: 60_000,
+      }),
   });
 
 /* ── org-admin bulk import ────────────────────────────────────────── */
