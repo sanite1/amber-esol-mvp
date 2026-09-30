@@ -719,17 +719,30 @@ export function ResultPanel({
         {/* Provisional-placement notice. Renders only when the backend
             fell back to e1 because automatic scoring failed. Sits at
             the top so the learner knows the level isn't final. */}
-        {isProvisionalFallback && (
+        {result.level_held ? (
           <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200">
             <p className="text-sm font-bold text-amber-800">
-              Provisional placement
+              Your level has not changed
             </p>
             <p className="text-xs text-amber-800/80 mt-1 leading-relaxed">
-              Automatic scoring couldn't complete this time, so we've placed you
-              at Entry 1 for now. Your teacher will review and adjust your level
-              after you've completed a few sessions.
+              {result.held_reason === "scoring_unavailable"
+                ? "Automatic scoring couldn't complete this time, so you stay at your current level. Your teacher will review this assessment."
+                : "You already have a level, so this assessment has been sent to your teacher to confirm before anything changes."}
             </p>
           </div>
+        ) : (
+          isProvisionalFallback && (
+            <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200">
+              <p className="text-sm font-bold text-amber-800">
+                Provisional placement
+              </p>
+              <p className="text-xs text-amber-800/80 mt-1 leading-relaxed">
+                Automatic scoring couldn't complete this time, so we've placed
+                you at Entry 1 for now. Your teacher will review and adjust your
+                level after you've completed a few sessions.
+              </p>
+            </div>
+          )
         )}
 
         {/* Confidence + Level summary card */}

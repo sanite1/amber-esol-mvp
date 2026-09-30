@@ -192,7 +192,17 @@ export type Stage3Objective = {
 
 /** Shape returned by /submit. */
 export type PlacementResult = {
+  /** The level now on the learner record. */
   esol_level: EsolLevel;
+  /** What this attempt scored. Differs from esol_level when held. */
+  suggested_level?: EsolLevel;
+  /** True when the learner already had a level and it was kept pending
+   *  teacher confirmation (Silk brief section 2). */
+  level_held?: boolean;
+  held_reason?:
+    | "scoring_unavailable"
+    | "existing_level_requires_teacher_confirmation"
+    | null;
   confidence: number;
   rationale: string;
   stage3_objectives: Stage3Objective[];
