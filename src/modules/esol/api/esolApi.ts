@@ -157,6 +157,7 @@ export type PlacementOption = {
   text_so: string;
   text_fa: string;
   text_zh: string;
+  text_tr?: string;
 };
 
 export type PlacementQuestion = {
@@ -168,6 +169,7 @@ export type PlacementQuestion = {
   question_so: string;
   question_fa: string;
   question_zh: string;
+  question_tr?: string;
   options: PlacementOption[];
 };
 
@@ -190,7 +192,17 @@ export type Stage3Objective = {
 
 /** Shape returned by /submit. */
 export type PlacementResult = {
+  /** The level now on the learner record. */
   esol_level: EsolLevel;
+  /** What this attempt scored. Differs from esol_level when held. */
+  suggested_level?: EsolLevel;
+  /** True when the learner already had a level and it was kept pending
+   *  teacher confirmation (Silk brief section 2). */
+  level_held?: boolean;
+  held_reason?:
+    | "scoring_unavailable"
+    | "existing_level_requires_teacher_confirmation"
+    | null;
   confidence: number;
   rationale: string;
   stage3_objectives: Stage3Objective[];
@@ -222,7 +234,12 @@ export const useSubmitPlacement = () =>
     { answers: { question_id: string; answer: string }[] }
   >({
     mutationFn: (body) =>
-      api.post<ApiResponse<PlacementResult>>("/esol/placement/submit", body),
+      // Scoring is one Gemini call with a retry; give it more room than
+      // the 30 s default so a slow score is not shown as a connection
+      // error while the result lands anyway (Silk brief section 2).
+      api.post<ApiResponse<PlacementResult>>("/esol/placement/submit", body, {
+        timeout: 60_000,
+      }),
   });
 
 /* ── org-admin bulk import ────────────────────────────────────────── */

@@ -52,7 +52,7 @@ import { LANGUAGES, LangCode } from "../data/translations";
  *   - Cantonese (yue) → zh (the bank uses the macrolanguage tag)
  *   - Anything outside MVP → English
  */
-type BankLang = "en" | "ar" | "so" | "fa" | "zh";
+type BankLang = "en" | "ar" | "so" | "fa" | "zh" | "tr";
 
 const LANG_TO_BANK: Record<string, BankLang> = {
   en: "en",
@@ -62,6 +62,7 @@ const LANG_TO_BANK: Record<string, BankLang> = {
   ps: "en",
   yue: "zh",
   zh: "zh",
+  tr: "tr",
   // Phase 5 / Final Addendum §5 (BE-F) — Bengali + Urdu degrade to
   // English for the placement assessment. The AI tutor already
   // carries real bn + ur chrome translations (AiTutorSession.tsx)
@@ -89,17 +90,19 @@ const QUESTION_FIELD: Record<BankLang, keyof PlacementQuestion> = {
   so: "question_so",
   fa: "question_fa",
   zh: "question_zh",
+  tr: "question_tr",
 };
 
 const OPTION_FIELD: Record<
   BankLang,
-  "text_en" | "text_ar" | "text_so" | "text_fa" | "text_zh"
+  "text_en" | "text_ar" | "text_so" | "text_fa" | "text_zh" | "text_tr"
 > = {
   en: "text_en",
   ar: "text_ar",
   so: "text_so",
   fa: "text_fa",
   zh: "text_zh",
+  tr: "text_tr",
 };
 
 // ─────────────────────────────────────────────────────────────────────
@@ -183,6 +186,19 @@ const COPY: Record<BankLang, Record<CopyKey, string>> = {
     result_cta: "繼續第一節課",
     error_retry: "再試一次",
     error_generic: "出現了問題。請檢查您的網路連線並重試。",
+  },
+  tr: {
+    loading: "İlk sorunuz yükleniyor…",
+    intro: "Size uygun seviyeyi bulabilmemiz için 20 kısa soruyu cevaplayın.",
+    progress: "Soru {current} / {total}",
+    submitting: "Cevaplarınız değerlendiriliyor…",
+    result_title: "Seviyeniz: {level}",
+    result_message:
+      "Tebrikler! Sizi {level} seviyesine yerleştirdik. Derslerinize bu seviyeden başlayacağız.",
+    result_cta: "İlk dersinize devam edin",
+    error_retry: "Tekrar deneyin",
+    error_generic:
+      "Bir şeyler ters gitti. Lütfen bağlantınızı kontrol edip tekrar deneyin.",
   },
 };
 
@@ -482,7 +498,13 @@ export function QuestionPanel({
   firstOptionRef?: React.MutableRefObject<HTMLButtonElement | null>;
   onAnswer: (optionId: string) => void;
 }) {
-  const stem = q[QUESTION_FIELD[bankLang]] as string;
+  // Bilingual items (Silk brief section 2): the stem in the learner's
+  // language with the English underneath, so the learner is placed on
+  // their English rather than on their ability to read the question.
+  const stemL1 = (q[QUESTION_FIELD[bankLang]] as string | undefined) ?? "";
+  const stem = stemL1 || q.question_en;
+  const stemEn =
+    bankLang !== "en" && stem !== q.question_en ? q.question_en : null;
   const currentNumber = answered + 1;
   const optionTextField = OPTION_FIELD[bankLang];
 
@@ -520,6 +542,15 @@ export function QuestionPanel({
         {/* Question stem ─────────────────────────────────────────── */}
         <h1 className="text-xl md:text-2xl font-bold text-[#0B2343] mb-6 leading-relaxed">
           {stem}
+          {stemEn && (
+            <span
+              lang="en"
+              dir="ltr"
+              className="block mt-2 text-base font-medium text-[#0B2343]/60"
+            >
+              {stemEn}
+            </span>
+          )}
         </h1>
 
         {/* Options ─────────────────────────────────────────────────── */}
@@ -688,17 +719,30 @@ export function ResultPanel({
         {/* Provisional-placement notice. Renders only when the backend
             fell back to e1 because automatic scoring failed. Sits at
             the top so the learner knows the level isn't final. */}
-        {isProvisionalFallback && (
+        {result.level_held ? (
           <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200">
             <p className="text-sm font-bold text-amber-800">
-              Provisional placement
+              Your level has not changed
             </p>
             <p className="text-xs text-amber-800/80 mt-1 leading-relaxed">
-              Automatic scoring couldn't complete this time, so we've placed you
-              at Entry 1 for now. Your teacher will review and adjust your level
-              after you've completed a few sessions.
+              {result.held_reason === "scoring_unavailable"
+                ? "Automatic scoring couldn't complete this time, so you stay at your current level. Your teacher will review this assessment."
+                : "You already have a level, so this assessment has been sent to your teacher to confirm before anything changes."}
             </p>
           </div>
+        ) : (
+          isProvisionalFallback && (
+            <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200">
+              <p className="text-sm font-bold text-amber-800">
+                Provisional placement
+              </p>
+              <p className="text-xs text-amber-800/80 mt-1 leading-relaxed">
+                Automatic scoring couldn't complete this time, so we've placed
+                you at Entry 1 for now. Your teacher will review and adjust your
+                level after you've completed a few sessions.
+              </p>
+            </div>
+          )
         )}
 
         {/* Confidence + Level summary card */}
