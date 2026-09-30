@@ -37,6 +37,8 @@ export default function EsolTutorSession() {
   }
 
   const session = sessionData?.data;
+
+  const turns = session?.turns ?? [];
   if (!session) {
     return (
       <div className="text-center py-20">
@@ -170,11 +172,11 @@ export default function EsolTutorSession() {
               Session transcript
             </h2>
             <span className="text-[10px] font-semibold text-[#0B2343]/40 uppercase tracking-wider">
-              {session.turns.length} turn{session.turns.length === 1 ? "" : "s"}
+              {turns.length} turn{turns.length === 1 ? "" : "s"}
             </span>
           </div>
           <div className="p-5 space-y-5 max-h-[600px] overflow-y-auto">
-            {session.turns.length === 0 ? (
+            {turns.length === 0 ? (
               <div className="text-center py-8">
                 <div className="w-12 h-12 mx-auto rounded-full bg-[#0B2343]/[0.04] flex items-center justify-center mb-3">
                   <Sparkles size={20} className="text-[#0B2343]/30" />
@@ -187,7 +189,7 @@ export default function EsolTutorSession() {
                 </p>
               </div>
             ) : (
-              session.turns.map((turn) => (
+              turns.map((turn) => (
                 <div key={turn.turnIndex} className="space-y-3">
                   <div className="flex items-start gap-3">
                     <div className="w-7 h-7 rounded-full bg-[#0B2343]/[0.06] text-[#0B2343]/60 flex items-center justify-center shrink-0">

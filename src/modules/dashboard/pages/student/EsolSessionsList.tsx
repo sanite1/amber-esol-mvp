@@ -87,7 +87,7 @@ export default function EsolSessionsList() {
           ) : (
             sessions.map((s) => {
               const isCompleted = Boolean(s.completedAt);
-              const turnCount = s.turns?.length ?? 0;
+              const turnCount = s.turn_count ?? s.turns?.length ?? 0;
               return (
                 <Link
                   key={s._id}
