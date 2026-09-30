@@ -10,7 +10,7 @@ import {
   CheckCircle2,
   Lock,
 } from "lucide-react";
-import { useListSessions } from "../../lib/api/esolSession";
+import { useListSessions, useLearnerProgress } from "../../lib/api/esolSession";
 import { getDecodedJwt } from "../../lib/auth";
 import { formatDateTime, sessionModeLabel } from "../../lib/utils/esolHelpers";
 import Stage5NotificationCard from "../../../esol/components/Stage5NotificationCard";
@@ -473,12 +473,14 @@ export default function EsolLearnerHome() {
   const esolLevel = user?.esolLevel || null;
   const firstname = user?.firstname;
 
+  // The list feeds the "recent sessions" panel only. Every number on
+  // the page comes from /progress, which is computed over ALL sessions
+  // and the whole ledger, so it cannot move backwards between visits.
   const { data, isLoading } = useListSessions({ limit: 5 });
   const sessions = data?.data?.sessions ?? [];
-  const recentVocab = sessions
-    .flatMap((s) => s.vocabIntroduced ?? [])
-    .slice(0, 12);
-  const completedCount = sessions.filter((s) => s.completedAt).length;
+  const { data: progressData } = useLearnerProgress();
+  const progress = progressData?.data;
+  const recentVocab = progress?.recent_words ?? [];
 
   return (
     <div className="space-y-6">
@@ -526,9 +528,9 @@ export default function EsolLearnerHome() {
       {/* Stat strip — only meaningful post-placement. */}
       {esolLevel && (
         <StatStrip
-          sessionCount={sessions.length}
-          vocabCount={recentVocab.length}
-          hasAnyCompleted={completedCount > 0}
+          sessionCount={progress?.sessions_completed ?? 0}
+          vocabCount={progress?.words_learned ?? 0}
+          hasAnyCompleted={(progress?.sessions_completed ?? 0) > 0}
         />
       )}
 

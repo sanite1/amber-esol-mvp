@@ -5,6 +5,7 @@ import type { ApiError, ApiResponse } from "../../../../lib/network/axios";
 import type {
   AISession,
   AISessionMode,
+  LearnerProgress,
   SessionListResponse,
   TurnResult,
   TeacherPrepNote,
@@ -73,6 +74,15 @@ export const useListSessions = (query?: ListSessionsQuery) => {
     placeholderData: (prev) => prev,
   });
 };
+
+/* ── Learner progress (home stats) ── */
+
+export const useLearnerProgress = () =>
+  useQuery<ApiResponse<LearnerProgress>, ApiError>({
+    queryKey: ["esolLearnerProgress"],
+    queryFn: () =>
+      api.get<ApiResponse<LearnerProgress>>("/esol/session/progress"),
+  });
 
 /* ── Get single session ── */
 

@@ -171,7 +171,12 @@ export interface AISession {
   sessionMode: AISessionMode;
   esolLevel: string;
   topic?: string | null;
-  turns: AISessionTurn[];
+  /** Omitted by the list endpoint (payload size); use turn_count there. */
+  turns?: AISessionTurn[];
+  /** Server computed count, present on the list endpoint. */
+  turn_count?: number;
+  final_score?: number | null;
+  passed?: boolean | null;
   safeguardingFlagged: boolean;
   safeguardingAlertId?: string | null;
   assessmentSummary?: string;
@@ -236,6 +241,18 @@ export interface TeacherListResponse extends PaginatedResponse<EsolTeacher> {
 
 export interface SessionListResponse extends PaginatedResponse<AISession> {
   sessions: AISession[];
+}
+
+/** GET /esol/session/progress — every number the learner home shows,
+ *  computed over all sessions and the whole vocabulary ledger. */
+export interface LearnerProgress {
+  sessions_total: number;
+  sessions_completed: number;
+  sessions_passed: number;
+  turns_total: number;
+  words_seen: number;
+  words_learned: number;
+  recent_words: string[];
 }
 
 export interface ReferralValidatePreview {
