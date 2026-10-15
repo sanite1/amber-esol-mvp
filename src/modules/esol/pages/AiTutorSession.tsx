@@ -347,9 +347,14 @@ export default function AiTutorSession() {
         audioRef.current = audio;
         setTtsMsgId(id);
         setTtsLoadingId(null);
+        let first = true;
         for (const clip of clips) {
           if (token !== ttsTokenRef.current) return;
           if (!clip.audio) continue; // no voice for this language yet
+          // A short breath between language runs: without it the voice
+          // switch sounds like one clip spliced into another.
+          if (!first) await new Promise((r) => setTimeout(r, 220));
+          first = false;
           setTtsSegIdx(clip.segIdx);
           await new Promise<void>((resolve) => {
             audio.onended = () => resolve();
